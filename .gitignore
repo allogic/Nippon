@@ -9,3 +9,10 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
+Build
+Binary/*
+!Binary/World.json
+out
+.vs
+token.txt
+World

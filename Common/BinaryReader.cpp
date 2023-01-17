@@ -1,0 +1,14 @@
+#include <Common/BinaryReader.h>
+
+///////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////
+
+namespace ark
+{
+  BinaryReader::BinaryReader(const std::vector<U8>& Bytes)
+    : mBytes{ Bytes }
+  {
+
+  }
+}
