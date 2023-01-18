@@ -1,7 +1,7 @@
 #include <vector>
 #include <filesystem>
 
-#include <Common/Log.h>
+#include <Common/Debug.h>
 #include <Common/Types.h>
 
 #include <Editor/Actor.h>
@@ -98,6 +98,7 @@ namespace fs = std::filesystem;
 // Globals
 ///////////////////////////////////////////////////////////
 
+rapidjson::Document gConfig = {};
 rapidjson::Document gWorld = {};
 
 std::vector<ark::UI*> gUI = {};
@@ -157,7 +158,14 @@ static void GlDebugCallback(ark::U32 Source, ark::U32 Type, ark::U32 Id, ark::U3
 
 ark::I32 main()
 {
-  gWorld.Parse(ark::FileUtils::ReadText("World.json").c_str());
+  gConfig.Parse(ark::FileUtils::ReadText("Config.json").c_str());
+	gWorld.Parse(ark::FileUtils::ReadText("World.json").c_str());
+
+  if (!fs::exists(gConfig["unpackDir"].GetString()))
+  {
+    LOG("Please specify valid unpackDir\n");
+    return 0;
+  }
 
   gUI.emplace_back(new ark::MainMenu);
   gUI.emplace_back(new ark::FileInspector);

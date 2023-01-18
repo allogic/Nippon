@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <typeinfo>
+#include <algorithm>
 
 #include <Common/Types.h>
 

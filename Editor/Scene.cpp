@@ -17,7 +17,7 @@
 // Globals
 ///////////////////////////////////////////////////////////
 
-extern rapidjson::Document gWorld;
+extern rapidjson::Document gConfig;
 
 ///////////////////////////////////////////////////////////
 // Implementation
@@ -73,7 +73,7 @@ namespace ark
 
   void Scene::ParseFiles()
   {
-    for (const auto file : fs::directory_iterator{ fs::path{ gWorld["unpackDir"].GetString() } / mRegionId / mLevelId })
+    for (const auto file : fs::directory_iterator{ fs::path{ gConfig["unpackDir"].GetString() } / mRegionId / mLevelId })
     {
       if (file.path().extension() == ".TSC")
       {

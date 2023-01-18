@@ -2,7 +2,7 @@
 #include <cstring>
 #include <regex>
 
-#include <Common/Log.h>
+#include <Common/Debug.h>
 
 #include <Common/Utils/FileUtils.h>
 

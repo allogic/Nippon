@@ -1,9 +1,11 @@
 #pragma once
 
-#include <cstdio>
-
 ///////////////////////////////////////////////////////////
 // Definition
 ///////////////////////////////////////////////////////////
 
-#define LOG(FMT, ...) std::printf(FMT, __VA_ARGS__);
+#if defined(_WIN32) || defined(WIN32)
+  #define OS_WINDOWS
+#elif defined(__linux__)
+  #define OS_LINUX
+#endif

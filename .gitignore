@@ -11,6 +11,7 @@ CTestTestfile.cmake
 _deps
 Build
 Binary/*
+!Binary/Config.json
 !Binary/World.json
 out
 .vs

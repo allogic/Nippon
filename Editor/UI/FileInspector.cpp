@@ -8,7 +8,7 @@
 // Globals
 ///////////////////////////////////////////////////////////
 
-extern rapidjson::Document gWorld;
+extern rapidjson::Document gConfig;
 
 ///////////////////////////////////////////////////////////
 // Implementation
@@ -19,7 +19,7 @@ namespace ark
 	void FileInspector::Update()
 	{
 		delete mFileNode;
-		mFileNode = new FileNode{ gWorld["unpackDir"].GetString() };
+		mFileNode = new FileNode{ gConfig["unpackDir"].GetString() };
 		mSelectedNode = nullptr;
 	}
 
