@@ -16,54 +16,54 @@ extern rapidjson::Document gConfig;
 
 namespace ark
 {
-	void FileInspector::Update()
-	{
-		delete mFileNode;
-		mFileNode = new FileNode{ gConfig["unpackDir"].GetString() };
-		mSelectedNode = nullptr;
-	}
+  void FileInspector::Update()
+  {
+    delete mFileNode;
+    mFileNode = new FileNode{ gConfig["unpackDir"].GetString() };
+    mSelectedNode = nullptr;
+  }
 
-	void FileInspector::Draw()
-	{
-		ImGui::Begin("File Inspector");
+  void FileInspector::Draw()
+  {
+    ImGui::Begin("File Inspector");
 
-		if (ImGui::Button("Update"))
-		{
-			Update();
-		}
+    if (ImGui::Button("Update"))
+    {
+      Update();
+    }
 
-		DrawFileNodeRecursive(mFileNode);
+    DrawFileNodeRecursive(mFileNode);
 
-		ImGui::End();
-	}
+    ImGui::End();
+  }
 
-	void FileInspector::DrawFileNodeRecursive(FileNode* Node)
-	{
-		std::uint32_t flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth;
+  void FileInspector::DrawFileNodeRecursive(FileNode* Node)
+  {
+    std::uint32_t flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth;
 
-		if (Node == mSelectedNode) flags |= ImGuiTreeNodeFlags_Selected;
+    if (Node == mSelectedNode) flags |= ImGuiTreeNodeFlags_Selected;
 
-		if (Node->IsFile())
-		{
-			flags |= ImGuiTreeNodeFlags_Leaf;
-		}
+    if (Node->IsFile())
+    {
+      flags |= ImGuiTreeNodeFlags_Leaf;
+    }
 
-		std::string name = Node->GetName().string() + Node->GetExtension().string();
-		std::uint32_t opened = ImGui::TreeNodeEx(name.c_str(), flags);
+    std::string name = Node->GetName().string() + Node->GetExtension().string();
+    std::uint32_t opened = ImGui::TreeNodeEx(name.c_str(), flags);
 
-		if (ImGui::IsItemClicked(0) || ImGui::IsItemClicked(1))
-		{
-			mSelectedNode = Node;
-		}
+    if (ImGui::IsItemClicked(0) || ImGui::IsItemClicked(1))
+    {
+      mSelectedNode = Node;
+    }
 
-		if (opened)
-		{
-			for (auto& [file, node] : *Node)
-			{
-				DrawFileNodeRecursive(node);
-			}
+    if (opened)
+    {
+      for (auto& [file, node] : *Node)
+      {
+        DrawFileNodeRecursive(node);
+      }
 
-			ImGui::TreePop();
-		}
-	}
+      ImGui::TreePop();
+    }
+  }
 }

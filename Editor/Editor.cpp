@@ -159,7 +159,7 @@ static void GlDebugCallback(ark::U32 Source, ark::U32 Type, ark::U32 Id, ark::U3
 ark::I32 main()
 {
   gConfig.Parse(ark::FileUtils::ReadText("Config.json").c_str());
-	gWorld.Parse(ark::FileUtils::ReadText("World.json").c_str());
+  gWorld.Parse(ark::FileUtils::ReadText("World.json").c_str());
 
   if (!fs::exists(gConfig["unpackDir"].GetString()))
   {
