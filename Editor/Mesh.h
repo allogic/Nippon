@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include <Common/Types.h>
 
 #include <Editor/Vertex.h>
@@ -39,15 +41,15 @@ namespace ark
 
   private:
 
-    V* mVertexBuffer;
-    E* mElementBuffer;
-
-    U32 mVertexBufferSize;
-    U32 mElementBufferSize;
-
     U32 mVao;
     U32 mVbo;
     U32 mEbo;
+
+    std::vector<E> mVerticesBuffer = {};
+    std::vector<V> mElementsBuffer = {};
+    //std::vector<PackedPair<U16>> TextureMaps = {};
+    //std::vector<PackedPair<U16>> TextureUvs = {};
+    //std::vector<U32> ColorWeights = {};
   };
 }
 
@@ -106,7 +108,7 @@ namespace ark
   template<typename V, typename E>
   void Mesh<V, E>::Render(RenderMode renderMode) const
   {
-    glDrawElements(renderMode, mElementBufferSize, GL_UNSIGNED_INT, NULL);
+    glDrawElements(renderMode, (U32)mElementsBuffer.size(), GL_UNSIGNED_INT, NULL);
   }
 
   template<typename V, typename E>
@@ -127,7 +129,5 @@ namespace ark
   {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mEbo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, ElementBufferSize * sizeof(E), ElementBuffer, GL_STATIC_READ | GL_STATIC_DRAW);
-
-    mElementBufferSize = ElementBufferSize;
   }
 }

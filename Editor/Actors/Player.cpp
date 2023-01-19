@@ -13,7 +13,7 @@ namespace ark
 {
   Player::Player(std::string const& Name)
     : Actor{ Name }
-    , mCamera{ ComponentAttach<Camera>() }
+    , mCamera{ AttachComponent<Camera>() }
   {
 
   }

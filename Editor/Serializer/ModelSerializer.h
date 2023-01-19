@@ -14,11 +14,7 @@ namespace ark
 {
   namespace fs = std::filesystem;
 
-  enum ScrFileType
-  {
-    eScrFileTypeMd = 0,
-    eScrFileTypeScr = 1,
-  };
+  class Scene;
 
   #pragma pack(push, 1)
   struct ScrHeader
@@ -50,6 +46,14 @@ namespace ark
   #pragma pack(pop)
 
   #pragma pack(push, 1)
+  struct ScrVertex
+  {
+    PackedTuple<I16> Position;
+    U16 Connection;
+  };
+  #pragma pack(pop)
+
+  #pragma pack(push, 1)
   struct MdbHeader
   {
     U32 MdbId; // always 0x0062646D
@@ -65,28 +69,19 @@ namespace ark
   {
     U32 VertexOffset; // offset from this spot to vertex info
     U32 Unknown1; // 0?
-    U32 TmOffset; // implicit texture mapping
-    U32 CwOffset; // texture colour weight
-    U32 UvOffset; // texture uv
+    U32 TextureMapOffset; // implicit texture mapping
+    U32 ColorWeightOffset; // texture colour weight
+    U32 TextureUvOffset; // texture uv
     U16 VertexCount; // count
     U16 TextureIndex; // file index of DDS in DDP
-    //probably need padding
   };
   #pragma pack(pop)
 
-  class ModelParser
+  class ModelSerializer
   {
   public:
 
-    ModelParser(const fs::path& File);
-
-  public:
-
-    inline auto begin() { return mModels.begin(); }
-    inline const auto begin() const { return mModels.cbegin(); }
-
-    inline auto end() { return mModels.end(); }
-    inline const auto end() const { return mModels.cend(); }
+    ModelSerializer(Scene* Scene, const fs::path& File);
 
   private:
 
@@ -97,8 +92,5 @@ namespace ark
   private:
 
     BinaryReader mBinaryReader;
-
-    std::vector<U32> mModels;
-    std::vector<ScrTransform> mTransforms;
   };
 }

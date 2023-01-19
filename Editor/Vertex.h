@@ -10,8 +10,20 @@ namespace ark
 {
   enum VertexType
   {
+    eVertexTypeDefault,
     eVertexTypeDebug,
   };
+
+#pragma pack(push, 1)
+  struct DefaultVertex
+  {
+    static constexpr VertexType Type{ eVertexTypeDefault };
+
+    R32V3 Position;
+    R32V2 Uv;
+    R32V4 Color;
+  };
+#pragma pack(pop)
 
   #pragma pack(push, 1)
   struct DebugVertex

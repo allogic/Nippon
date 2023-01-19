@@ -14,8 +14,10 @@ namespace ark
 {
   namespace fs = std::filesystem;
 
+  class Scene;
+
   #pragma pack(push, 1)
-  struct ObjectTableEntry
+  struct ObjEntry
   {
     U8 Id; // lots of values 00-fe 
     U8 Category; // category id - which folder it comes from
@@ -33,23 +35,14 @@ namespace ark
   };
   #pragma pack(pop)
 
-  class ObjectTableParser
+  class ObjectSerializer
   {
   public:
 
-    ObjectTableParser(const fs::path& File);
-
-  public:
-
-    inline auto begin() { return mObjects.begin(); }
-    inline const auto begin() const { return mObjects.cbegin(); }
-
-    inline auto end() { return mObjects.end(); }
-    inline const auto end() const { return mObjects.cend(); }
+    ObjectSerializer(Scene* Scene, const fs::path& File);
 
   private:
 
     BinaryReader mBinaryReader;
-    std::vector<ObjectTableEntry> mObjects;
   };
 }

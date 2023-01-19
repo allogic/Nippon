@@ -3,7 +3,6 @@
     {
       "id": "0",
       "name": "Development Maps",
-      "path": "data_pc/st0",
       "levels": [
         { "id": "06", "name": "Endless load screen" },
         { "id": "07", "name": "2005 Prototype Intro Cutscene Waka Lake" },
@@ -22,7 +21,6 @@
     {
       "id": "1",
       "name": "Eastern Nippon",
-      "path": "data_pc/st1",
       "levels": [
         { "id": "00", "name": "Kamiki Village - Game Start" },
         { "id": "01", "name": "Cave of Nagi" },
@@ -61,7 +59,6 @@
     {
       "id": "2",
       "name": "Western Nippon",
-      "path": "data_pc/st2",
       "levels": [
         { "id": "00", "name": "Sei-an City (Aristocratic Qtr.)" },
         { "id": "01", "name": "Sei-an City (Commoners' Qtr.)" },
@@ -84,7 +81,6 @@
     {
       "id": "3",
       "name": "Kamui",
-      "path": "data_pc/st3",
       "levels": [
         { "id": "01", "name": "Wep'keer" },
         { "id": "02", "name": "Kamiki Village - 100 years ago" },
@@ -109,7 +105,6 @@
     {
       "id": "c",
       "name": "Title Screens",
-      "path": "data_pc/stc",
       "levels": [
         { "id": "00", "name": "Return to Title Screen" },
         { "id": "02", "name": "Presents from Issun" }
@@ -118,7 +113,6 @@
     {
       "id": "d",
       "name": "Beta Maps",
-      "path": "data_pc/std",
       "levels": [
         { "id": "00", "name": "Beta Shinshu" },
         { "id": "01", "name": "Beta Hana" },
@@ -133,7 +127,6 @@
     {
       "id": "e",
       "name": "Fishing Maps",
-      "path": "data_pc/ste",
       "levels": [
         { "id": "00", "name": "Fishing with Benkei on Sei-an Bridge" },
         { "id": "01", "name": "Fishing with Benkei next to Himiko's Palace" },
@@ -145,7 +138,6 @@
     {
       "id": "f",
       "name": "Overworld Maps",
-      "path": "data_pc/stf",
       "levels": [
         { "id": "01", "name": "Shinshu Field - Cursed" },
         { "id": "02", "name": "Shinshu Field - Healed" },

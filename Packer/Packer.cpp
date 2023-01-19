@@ -1,3 +1,4 @@
+#include <string>
 #include <filesystem>
 
 #include <Common/Debug.h>
@@ -30,6 +31,19 @@ static void CreateDirIfNotExists(const fs::path& Dir)
   {
     fs::create_directory(Dir);
   }
+}
+
+static const rapidjson::Value& GetLevelNameWithId(const rapidjson::Value& Levels, const std::string& Id)
+{
+  for (const auto& level : Levels.GetArray())
+  {
+    if (level["id"].GetString() == Id)
+    {
+      return level;
+    }
+  }
+
+  return Levels;
 }
 
 static void ExtractArchiveRecursive(const fs::path& Dir, ark::ArchiveNode* Node)
@@ -88,24 +102,15 @@ ark::I32 main()
     return 0;
   }
 
-  if (!fs::exists(gConfig["unpackDir"].GetString()))
-  {
-    LOG("Please specify valid unpackDir\n");
-    return 0;
-  }
-
-  if (!fs::exists(gConfig["repackDir"].GetString()))
-  {
-    LOG("Please specify valid repackDir\n");
-    return 0;
-  }
+  CreateDirIfNotExists(gConfig["unpackDir"].GetString());
+  CreateDirIfNotExists(gConfig["repackDir"].GetString());
 
   ark::BlowFish cypher = { gConfig["encryptionKey"].GetString() };
 
   LOG("\n");
   LOG("Unpacking please wait ...\n");
 
-  for (const auto& region : gWorld["regions"].GetArray())
+  for (auto& region : gWorld["regions"].GetArray())
   {
     std::string regionId = region["id"].GetString();
 
@@ -118,10 +123,10 @@ ark::I32 main()
     CreateDirIfNotExists(unpackDir);
     CreateDirIfNotExists(unpackDir / regionId);
 
-    for (const auto& file : fs::directory_iterator{ sourceDir / region["path"].GetString() })
+    for (const auto& file : fs::directory_iterator{ sourceDir / std::string{ std::string{ "data_pc/st" } + regionId } })
     {
       std::string levelId = file.path().stem().string().substr(2, 2);
-      std::string levelName = region["levels"][levelId.c_str()].GetString();
+      std::string levelName = GetLevelNameWithId(region["levels"], levelId)["name"].GetString();
 
       LOG("  Extracting level %s from %s\n", levelName.c_str(), file.path().filename().string().c_str());
 

@@ -192,10 +192,10 @@ ark::I32 main()
 
       if (gladLoadGL())
       {
-        gDebugRenderer = new ark::DebugRenderer{ 65535, 65535 * 2 };
-
         glEnable(GL_DEBUG_OUTPUT);
         glDebugMessageCallback(GlDebugCallback, 0);
+
+        gDebugRenderer = new ark::DebugRenderer{ 65535, 65535 * 2 };
 
         IMGUI_CHECKVERSION();
         ImGuiContext* imGuiContext{ ImGui::CreateContext() };

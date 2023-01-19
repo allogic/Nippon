@@ -1,8 +1,5 @@
 #include <Common/ExtensionIterator.h>
 
-#include <Common/Parser/ObjectTableParser.h>
-#include <Common/Parser/ModelParser.h>
-
 #include <Editor/Scene.h>
 
 #include <Editor/Actors/Box.h>
@@ -10,6 +7,9 @@
 
 #include <Editor/Components/Camera.h>
 #include <Editor/Components/Transform.h>
+
+#include <Editor/Serializer/ModelSerializer.h>
+#include <Editor/Serializer/ObjectSerializer.h>
 
 #include <Vendor/rapidjson/document.h>
 
@@ -31,11 +31,13 @@ namespace ark
   {
     SetMainActor(CreateActor<Player>("Player", nullptr));
 
-    ParseFiles();
+    DeSerialize();
   }
 
   Scene::~Scene()
   {
+    Serialize();
+
     for (auto& actor : mActors)
     {
       delete actor;
@@ -71,49 +73,34 @@ namespace ark
     return nullptr;
   }
 
-  void Scene::ParseFiles()
+  void Scene::Serialize()
+  {
+
+  }
+
+  void Scene::DeSerialize()
   {
     for (const auto file : fs::directory_iterator{ fs::path{ gConfig["unpackDir"].GetString() } / mRegionId / mLevelId })
     {
       if (file.path().extension() == ".TSC")
       {
-        ParseObjectTable(file);
+        ObjectSerializer{ this, file };
       }
 
       if (file.path().extension() == ".TRE")
       {
-        ParseObjectTable(file);
+        ObjectSerializer{ this, file };
       }
 
       if (file.path().extension() == ".TAT")
       {
-        ParseObjectTable(file);
+        ObjectSerializer{ this, file };
       }
 
       if (file.path().extension() == ".SCR")
       {
-        ParseModel(file);
+        ModelSerializer{ this, file };
       }
-    }
-  }
-
-  void Scene::ParseObjectTable(const fs::path& File)
-  {
-    for (const auto& object : ObjectTableParser{ File })
-    {
-      Box* actor = CreateActor<Box>(std::to_string(object.Id), nullptr);
-
-      actor->GetTransform()->SetWorldPosition(R32V3{ object.Position.x, object.Position.y, object.Position.z });
-      actor->GetTransform()->SetWorldRotation(R32V3{ object.Rotation.x, object.Rotation.y, object.Rotation.z } / 255.0F * 360.0F);
-      actor->GetTransform()->SetWorldScale(R32V3{ object.Scale.x, object.Scale.y, object.Scale.z });
-    }
-  }
-
-  void Scene::ParseModel(const fs::path& File)
-  {
-    for (const auto& model : ModelParser{ File })
-    {
-
     }
   }
 }

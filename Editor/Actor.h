@@ -61,7 +61,7 @@ namespace ark
   public:
 
     template<typename C, typename ... Args>
-    C* ComponentAttach(Args&& ... Arguments);
+    C* AttachComponent(Args&& ... Arguments);
 
     template<typename C>
     C* GetComponent();
@@ -77,7 +77,7 @@ namespace ark
   };
 
   template<typename C, typename ... Args>
-  C* Actor::ComponentAttach(Args&& ... Arguments)
+  C* Actor::AttachComponent(Args&& ... Arguments)
   {
     U64 hash = typeid(C).hash_code();
     auto const findIt = mComponents.find(hash);

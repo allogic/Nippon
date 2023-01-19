@@ -51,17 +51,15 @@ namespace ark
 
   private:
 
-    void ParseFiles();
-
-    void ParseObjectTable(const fs::path& File);
-    void ParseModel(const fs::path& File);
+    void Serialize();
+    void DeSerialize();
 
   private:
 
     std::string mRegionId;
     std::string mLevelId;
-    std::vector<Actor*> mActors;
 
+    std::vector<Actor*> mActors = {};
     Actor* mMainActor = nullptr;
   };
 }

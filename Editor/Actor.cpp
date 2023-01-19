@@ -10,7 +10,7 @@ namespace ark
 {
   Actor::Actor(const std::string& Name)
     : mName{ Name }
-    , mTransform{ ComponentAttach<Transform>() }
+    , mTransform{ AttachComponent<Transform>() }
   {
 
   }
