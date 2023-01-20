@@ -18,11 +18,11 @@ namespace ark
 
   class Actor;
 
-  class Model : public Component
+  class Renderable : public Component
   {
   public:
 
-    Model(Actor* Actor);
+    Renderable(Actor* Actor);
 
   private:
 

@@ -12,8 +12,6 @@
 
 namespace ark
 {
-  namespace fs = std::filesystem;
-
   class FileInspector : public UI
   {
   public:

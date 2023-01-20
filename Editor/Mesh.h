@@ -45,11 +45,8 @@ namespace ark
     U32 mVbo;
     U32 mEbo;
 
-    std::vector<E> mVerticesBuffer = {};
-    std::vector<V> mElementsBuffer = {};
-    //std::vector<PackedPair<U16>> TextureMaps = {};
-    //std::vector<PackedPair<U16>> TextureUvs = {};
-    //std::vector<U32> ColorWeights = {};
+    std::vector<V> mVertexBuffer = {};
+    std::vector<E> mElementBuffer = {};
   };
 }
 
@@ -108,7 +105,7 @@ namespace ark
   template<typename V, typename E>
   void Mesh<V, E>::Render(RenderMode renderMode) const
   {
-    glDrawElements(renderMode, (U32)mElementsBuffer.size(), GL_UNSIGNED_INT, NULL);
+    glDrawElements(renderMode, (U32)mElementBuffer.size(), GL_UNSIGNED_INT, NULL);
   }
 
   template<typename V, typename E>

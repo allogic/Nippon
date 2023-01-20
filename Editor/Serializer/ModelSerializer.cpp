@@ -1,13 +1,20 @@
-#include <vector>
+#include <string>
+#include <map>
 #include <cassert>
 
 #include <Common/Alignment.h>
 
 #include <Common/Utils/FileUtils.h>
 
-#include <Editor/Scene.h>
+#include <Editor/UI/AssetDatabase.h>
 
 #include <Editor/Serializer/ModelSerializer.h>
+
+///////////////////////////////////////////////////////////
+// Globals
+///////////////////////////////////////////////////////////
+
+extern std::map<std::string, ark::UI*> gUserInterface;
 
 ///////////////////////////////////////////////////////////
 // Implementation
@@ -15,39 +22,11 @@
 
 namespace ark
 {
-  ModelSerializer::ModelSerializer(Scene* Scene, const fs::path& File)
-    : mBinaryReader{ FileUtils::ReadBinary(File.string()) }
+  ModelSerializer::ModelSerializer(const fs::path& File)
+    : mFile{ File }
+    , mBinaryReader{ FileUtils::ReadBinary(File.string()) }
   {
-    std::printf("%s\n", File.string().c_str());
-
     ParseScr();
-
-    //for (const auto& model : mModels)
-    //{
-    //  std::printf("  Model\n");
-    //
-    //  for (const auto& subModel : model.SubModels)
-    //  {
-    //    std::printf("    SubModel\n");
-    //    std::printf("      Vertices:%llu\n", subModel.Vertices.size());
-    //    std::printf("      Elements:%llu\n", subModel.Elements.size());
-    //    std::printf("      TextureMaps:%llu\n", subModel.TextureMaps.size());
-    //    std::printf("      TextureUvs:%llu\n", subModel.TextureUvs.size());
-    //    std::printf("      ColorWeights:%llu\n", subModel.ColorWeights.size());
-    //  }
-    //
-    //  std::printf("\n");
-    //}
-    //
-    //for (const auto& transform : mTransforms)
-    //{
-    //  std::printf("  Transform\n");
-    //  std::printf("    Position:[%6d,%6d,%6d]\n", transform.Position.x, transform.Position.y, transform.Position.z);
-    //  std::printf("    Rotation:[%6d,%6d,%6d]\n", transform.Rotation.x, transform.Rotation.y, transform.Rotation.z);
-    //  std::printf("       Scale:[%6u,%6u,%6u]\n", transform.Scale.x, transform.Scale.y, transform.Scale.z);
-    //}
-
-    std::printf("\n");
   }
 
   void ModelSerializer::ParseScr()
@@ -62,22 +41,30 @@ namespace ark
 
     mBinaryReader.SeekAbsolute(Align16(mBinaryReader.GetPosition()));
 
+    Model model;
+
+    model.SetName(mFile.stem().string());
+
     for (U32 i = 0; i < 1; i++)
     {
-      ParseMdb();
+      ParseModel(model);
 
       mBinaryReader.SeekAbsolute(Align16(mBinaryReader.GetPosition()));
     }
 
-    for (U32 i = 0; i < scrHeader.EndEntryCount; i++)
+    for (U32 i = 0; i < 1; i++)
     {
       mBinaryReader.SeekAbsolute(scrStart + transformOffsets[i]);
 
-      ScrTransform transform = mBinaryReader.Read<ScrTransform>();
+      ScrTransform scrTransform = mBinaryReader.Read<ScrTransform>();
+
+      model.SetTransform(Model::Transform{ scrTransform.Position, scrTransform.Rotation, scrTransform.Scale });
     }
+
+    ((AssetDatabase*)gUserInterface["assetDatabase"])->AddModel(model);
   }
 
-  void ModelSerializer::ParseMdb()
+  void ModelSerializer::ParseModel(Model& Model)
   {
     U64 mdbStart = mBinaryReader.GetPosition();
 
@@ -87,15 +74,36 @@ namespace ark
 
     std::vector<U32> divisionOffsets = mBinaryReader.Read<U32>(mdbHeader.MeshDivisions);
 
-    for (U16 i = 0; i < mdbHeader.MeshDivisions; i++)
+    for (U16 i = 0; i < 1; i++)
     {
       mBinaryReader.SeekAbsolute(mdbStart + divisionOffsets[i]);
 
-      ParseMd();
+      std::vector<ScrVertex> vertices;
+      std::vector<PackedPair<U16>> textureMaps;
+      std::vector<PackedPair<U16>> textureUvs;
+      std::vector<U32> colorWeights;
+      std::vector<U32> elements;
+
+      auto [vertexCount, elementCount] = ParseSubModel(vertices, textureMaps, textureUvs, colorWeights, elements);
+
+      for (U16 i = 0; i < vertexCount; i++)
+      {
+        PackedTuple<I16> position = (vertexCount == vertices.size()) ? vertices[i].Position : PackedTuple<I16>{};
+        PackedPair<U16> textureMap = (vertexCount == textureMaps.size()) ? textureMaps[i] : PackedPair<U16>{};
+        PackedPair<U16> textureUv = (vertexCount == textureUvs.size()) ? textureUvs[i] : PackedPair<U16>{};
+        U32 colorWeight = (vertexCount == colorWeights.size()) ? colorWeights[i] : U32{};
+
+        Model.AddVertex(Model::Vertex{ position, textureMap, textureUv, colorWeight });
+      }
+
+      for (U16 i = 0; i < elementCount; i++)
+      {
+        Model.AddElement(elements[i]);
+      }
     }
   }
 
-  void ModelSerializer::ParseMd()
+  std::pair<U16, U16> ModelSerializer::ParseSubModel(std::vector<ScrVertex>& Vertices, std::vector<PackedPair<U16>>& TextureMaps, std::vector<PackedPair<U16>>& TextureUvs, std::vector<U32>& ColorWeights, std::vector<U32>& Elements)
   {
     U64 mdStart = mBinaryReader.GetPosition();
 
@@ -104,61 +112,42 @@ namespace ark
     if (mdHeader.VertexOffset != 0)
     {
       mBinaryReader.SeekAbsolute(mdStart + mdHeader.VertexOffset);
-
-      for (U16 i = 0; i < mdHeader.VertexCount; i++)
-      {
-        //SubModel.Vertices.emplace_back(mBinaryReader.Read<ScrVertex>());
-      }
-    }
-
-    if (mdHeader.Unknown1 != 0)
-    {
-      return;
+      mBinaryReader.Read<ScrVertex>(Vertices, mdHeader.VertexCount);
     }
 
     if (mdHeader.TextureMapOffset != 0)
     {
       mBinaryReader.SeekAbsolute(mdStart + mdHeader.TextureMapOffset);
-
-      for (U16 i = 0; i < mdHeader.VertexCount; i++)
-      {
-        //SubModel.TextureMaps.emplace_back(mBinaryReader.Read<PackedPair<U16>>());
-      }
+      mBinaryReader.Read<PackedPair<U16>>(TextureMaps, mdHeader.VertexCount);
     }
 
     if (mdHeader.TextureUvOffset != 0)
     {
       mBinaryReader.SeekAbsolute(mdStart + mdHeader.TextureUvOffset);
-
-      for (U16 i = 0; i < mdHeader.VertexCount; i++)
-      {
-        //SubModel.TextureUvs.emplace_back(mBinaryReader.Read<PackedPair<U16>>());
-      }
+      mBinaryReader.Read<PackedPair<U16>>(TextureUvs, mdHeader.VertexCount);
     }
 
     if (mdHeader.ColorWeightOffset != 0)
     {
       mBinaryReader.SeekAbsolute(mdStart + mdHeader.ColorWeightOffset);
+      mBinaryReader.Read<U32>(ColorWeights, mdHeader.VertexCount);
+    }
 
-      for (U16 i = 0; i < mdHeader.VertexCount; i++)
+    if (mdHeader.VertexCount >= 3)
+    {
+      for (U16 i = 2; i < mdHeader.VertexCount; i++)
       {
-        //SubModel.ColorWeights.emplace_back(mBinaryReader.Read<U32>());
+        if (Vertices[i].Connection == 0x8000)
+        {
+          continue;
+        }
+    
+        Elements.emplace_back(i - 2);
+        Elements.emplace_back(i - 1);
+        Elements.emplace_back(i - 0);
       }
     }
 
-    //if (mdHeader.VertexCount >= 3)
-    //{
-    //  for (U16 i = 2; i < mdHeader.VertexCount; i++)
-    //  {
-    //    if (SubModel.Vertices[i].Connection == 0x8000)
-    //    {
-    //      continue;
-    //    }
-    //
-    //    SubModel.Elements.emplace_back(i - 2);
-    //    SubModel.Elements.emplace_back(i - 1);
-    //    SubModel.Elements.emplace_back(i - 0);
-    //  }
-    //}
+    return { mdHeader.VertexCount, (U16)Elements.size() };
   }
 }

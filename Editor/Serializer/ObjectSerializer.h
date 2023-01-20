@@ -6,6 +6,8 @@
 #include <Common/Types.h>
 #include <Common/BinaryReader.h>
 
+#include <Editor/Assets/Object.h>
+
 ///////////////////////////////////////////////////////////
 // Definition
 ///////////////////////////////////////////////////////////
@@ -13,8 +15,6 @@
 namespace ark
 {
   namespace fs = std::filesystem;
-
-  class Scene;
 
   #pragma pack(push, 1)
   struct ObjEntry
@@ -39,10 +39,11 @@ namespace ark
   {
   public:
 
-    ObjectSerializer(Scene* Scene, const fs::path& File);
+    ObjectSerializer(const fs::path& File);
 
   private:
 
+    const fs::path mFile;
     BinaryReader mBinaryReader;
   };
 }

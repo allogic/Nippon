@@ -1,4 +1,5 @@
-#include <vector>
+#include <string>
+#include <map>
 #include <filesystem>
 
 #include <Common/Debug.h>
@@ -15,6 +16,7 @@
 
 #include <Editor/Renderer/DebugRenderer.h>
 
+#include <Editor/UI/AssetDatabase.h>
 #include <Editor/UI/MainMenu.h>
 #include <Editor/UI/FileInspector.h>
 #include <Editor/UI/SceneOutline.h>
@@ -101,7 +103,7 @@ namespace fs = std::filesystem;
 rapidjson::Document gConfig = {};
 rapidjson::Document gWorld = {};
 
-std::vector<ark::UI*> gUI = {};
+std::map<std::string, ark::UI*> gUserInterface = {};
 
 ark::DebugRenderer* gDebugRenderer = nullptr;
 ark::Scene* gScene = nullptr;
@@ -167,9 +169,10 @@ ark::I32 main()
     return 0;
   }
 
-  gUI.emplace_back(new ark::MainMenu);
-  gUI.emplace_back(new ark::FileInspector);
-  gUI.emplace_back(new ark::SceneOutline);
+  gUserInterface.emplace("assetDatabase", new ark::AssetDatabase);
+  gUserInterface.emplace("mainMenu", new ark::MainMenu);
+  gUserInterface.emplace("fileInspector", new ark::FileInspector);
+  gUserInterface.emplace("sceneOutline", new ark::SceneOutline);
 
   glfwSetErrorCallback(GlfwDebugProc);
 
@@ -213,7 +216,7 @@ ark::I32 main()
         ImGui_ImplGlfw_InitForOpenGL(sGlfwContext, 1);
         ImGui_ImplOpenGL3_Init("#version 450 core");
 
-        for (auto& ui : gUI)
+        for (auto& [_, ui] : gUserInterface)
         {
           ui->Update();
         }
@@ -236,7 +239,7 @@ ark::I32 main()
 
           if (gScene)
           {
-            for (ark::Actor* actor : *gScene)
+            for (auto& actor : *gScene)
             {
               actor->Update(sTimeDelta);
             }
@@ -244,7 +247,7 @@ ark::I32 main()
 
           gDebugRenderer->Render();
 
-          for (auto& ui : gUI)
+          for (auto& [_, ui] : gUserInterface)
           {
             ui->Draw();
           }
@@ -287,7 +290,7 @@ ark::I32 main()
     LOG("Failed initializing GLFW\n");
   }
 
-  for (auto& ui : gUI)
+  for (auto& [_, ui] : gUserInterface)
   {
     delete ui;
     ui = nullptr;

@@ -82,25 +82,11 @@ namespace ark
   {
     for (const auto file : fs::directory_iterator{ fs::path{ gConfig["unpackDir"].GetString() } / mRegionId / mLevelId })
     {
-      if (file.path().extension() == ".TSC")
-      {
-        ObjectSerializer{ this, file };
-      }
+      if (file.path().extension() == ".TSC") ObjectSerializer{ file };
+      if (file.path().extension() == ".TRE") ObjectSerializer{ file };
+      if (file.path().extension() == ".TAT") ObjectSerializer{ file };
 
-      if (file.path().extension() == ".TRE")
-      {
-        ObjectSerializer{ this, file };
-      }
-
-      if (file.path().extension() == ".TAT")
-      {
-        ObjectSerializer{ this, file };
-      }
-
-      if (file.path().extension() == ".SCR")
-      {
-        ModelSerializer{ this, file };
-      }
+      if (file.path().extension() == ".SCR") ModelSerializer{ file };
     }
   }
 }

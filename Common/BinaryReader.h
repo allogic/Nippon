@@ -32,6 +32,9 @@ namespace ark
     template<typename T>
     std::vector<T> Read(U64 Count);
 
+    template<typename T>
+    void Read(std::vector<T>& Values, U64 Count);
+
     auto Bytes(U64 Size)
     {
       std::vector<U8> bytes = {};
@@ -104,11 +107,22 @@ namespace ark
 
     if (mBytes.size() >= mPosition + sizeof(T) * Count)
     {
-      values = { &mBytes[mPosition], &mBytes[mPosition + sizeof(T) * Count]};
+      values = { (T*)&mBytes[mPosition], (T*)&mBytes[mPosition + sizeof(T) * Count]};
     }
 
     mPosition += sizeof(T) * Count;
 
     return values;
+  }
+
+  template<typename T>
+  void BinaryReader::Read(std::vector<T>& Values, U64 Count)
+  {
+    if (mBytes.size() >= mPosition + sizeof(T) * Count)
+    {
+      Values = { (T*)&mBytes[mPosition], (T*)&mBytes[mPosition + sizeof(T) * Count]};
+    }
+
+    mPosition += sizeof(T) * Count;
   }
 }

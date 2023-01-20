@@ -1,10 +1,14 @@
 #pragma once
 
+#include <vector>
+#include <utility>
 #include <filesystem>
 
 #include <Common/Common.h>
 #include <Common/Types.h>
 #include <Common/BinaryReader.h>
+
+#include <Editor/Assets/Model.h>
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -13,8 +17,6 @@
 namespace ark
 {
   namespace fs = std::filesystem;
-
-  class Scene;
 
   #pragma pack(push, 1)
   struct ScrHeader
@@ -81,16 +83,17 @@ namespace ark
   {
   public:
 
-    ModelSerializer(Scene* Scene, const fs::path& File);
+    ModelSerializer(const fs::path& File);
 
   private:
 
     void ParseScr();
-    void ParseMdb();
-    void ParseMd();
+    void ParseModel(Model& Model);
+    std::pair<U16, U16> ParseSubModel(std::vector<ScrVertex>& Vertices, std::vector<PackedPair<U16>>& TextureMaps, std::vector<PackedPair<U16>>& TextureUvs, std::vector<U32>& ColorWeights, std::vector<U32>& Elements);
 
   private:
 
+    const fs::path mFile;
     BinaryReader mBinaryReader;
   };
 }
