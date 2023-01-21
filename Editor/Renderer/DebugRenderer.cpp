@@ -1,3 +1,5 @@
+#include <filesystem>
+
 #include <Editor/Mesh.h>
 #include <Editor/Scene.h>
 #include <Editor/Shader.h>
@@ -13,14 +15,14 @@
 
 extern ark::DebugRenderer* gDebugRenderer;
 
-extern ark::Scene* gScene;
-
 ///////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////
 
 namespace ark
 {
+  namespace fs = std::filesystem;
+
   DebugRenderer::DebugRenderer(U32 VertexBufferSize, U32 ElementBufferSize)
     : mVertexBuffer{ new DebugVertex[VertexBufferSize] }
     , mElementBuffer{ new U32[ElementBufferSize] }
@@ -40,30 +42,25 @@ namespace ark
 
   void DebugRenderer::Render()
   {
-    if (gScene)
+    Camera* camera = Scene::GetMainCamera();
+
+    if (camera)
     {
-      Camera* camera = gScene->GetMainCamera();
+      mShader->Bind();
 
-      if (camera)
-      {
-        mShader->Bind();
+      mShader->SetUniformR32M4("UniformProjectionMatrix", camera->GetProjectionMatrix());
+      mShader->SetUniformR32M4("UniformViewMatrix", camera->GetViewMatrix());
 
-        mShader->SetUniformR32M4("UniformProjectionMatrix", camera->GetProjectionMatrix());
-        mShader->SetUniformR32M4("UniformViewMatrix", camera->GetViewMatrix());
+      // Clear previous entries...
 
-        mMesh->Bind();
+      mMesh->Bind();
+      mMesh->UploadVertices(mVertexBuffer, mVertexOffset);
+      mMesh->UploadElements(mElementBuffer, mElementOffset);
+      mMesh->Render(RenderMode::eRenderModeLines);
+      mMesh->UnBind();
 
-        // Clear previous entries...
-
-        mMesh->UploadVertices(mVertexBuffer, mVertexOffset);
-        mMesh->UploadElements(mElementBuffer, mElementOffset);
-
-        mMesh->Render(RenderMode::eRenderModeLines);
-
-        mMesh->UnBind();
-        mShader->UnBind();
-      }      
-    }
+      mShader->UnBind();
+    }      
 
     mVertexOffset = 0;
     mElementOffset = 0;

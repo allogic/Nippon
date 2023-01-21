@@ -1,18 +1,16 @@
-#include <Editor/UI.h>
+#pragma once
 
 ///////////////////////////////////////////////////////////
-// Implementation
+// Definition
 ///////////////////////////////////////////////////////////
 
 namespace ark
 {
-  UI::UI()
+  class Interface
   {
+  public:
 
-  }
-
-  UI::~UI()
-  {
-
-  }
+    virtual void Update() = 0;
+    virtual void Draw() = 0;
+  };
 }

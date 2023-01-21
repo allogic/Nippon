@@ -1,12 +1,16 @@
 #include <Common/ExtensionIterator.h>
 
+#include <Editor/AssetDatabase.h>
 #include <Editor/Scene.h>
 
-#include <Editor/Actors/Box.h>
 #include <Editor/Actors/Player.h>
+
+#include <Editor/Renderer/DebugRenderer.h>
+#include <Editor/Renderer/DefaultRenderer.h>
 
 #include <Editor/Components/Camera.h>
 #include <Editor/Components/Transform.h>
+#include <Editor/Components/Renderable.h>
 
 #include <Editor/Serializer/ModelSerializer.h>
 #include <Editor/Serializer/ObjectSerializer.h>
@@ -25,52 +29,113 @@ extern rapidjson::Document gConfig;
 
 namespace ark
 {
-  Scene::Scene(const std::string& RegionId, const std::string& LevelId)
-    : mRegionId{ RegionId }
-    , mLevelId{ LevelId }
+  void Scene::Create(const std::string& RegionId, const std::string& LevelId)
   {
-    SetMainActor(CreateActor<Player>("Player", nullptr));
+    sRegionId = RegionId;
+    sLevelId = LevelId;
+    sMainActor = CreateActor<Player>("Player", nullptr);
 
     DeSerialize();
+
+    //for (const auto& object : AssetDatabase::GetObjects())
+    //{
+    //  Actor* actor = CreateActor<Actor>("Object", nullptr);
+    //  actor->GetTransform()->SetWorldPosition(object.GetPosition());
+    //  actor->GetTransform()->SetWorldRotation(object.GetRotation());
+    //  actor->GetTransform()->SetWorldScale(object.GetScale());
+    //}
+
+    for (const auto& model : AssetDatabase::GetModels())
+    {
+      Actor* actor = CreateActor<Actor>("Model", nullptr);
+
+      Transform* transform = actor->GetTransform();
+      transform->SetWorldPosition(model.GetTransform().Position);
+      transform->SetWorldRotation(model.GetTransform().Rotation);
+      transform->SetWorldScale(R32V3{ 1.0F, 1.0F, 1.0F });
+
+      Renderable* renderable = actor->AttachComponent<Renderable>();
+      renderable->SetVertexBuffer(model.GetVertexBuffer());
+      renderable->SetElementBuffer(model.GetElementBuffer());
+    }
   }
 
-  Scene::~Scene()
+  void Scene::Destroy()
   {
+    AssetDatabase::ClearModels();
+    AssetDatabase::ClearObjects();
+
     Serialize();
 
-    for (auto& actor : mActors)
+    for (auto& actor : sActors)
     {
       delete actor;
       actor = nullptr;
     }
-  }
 
-  void Scene::DestroyActor(Actor* Actor)
-  {
-    auto actorIt = std::find(mActors.begin(), mActors.end(), Actor);
-
-    if (actorIt != mActors.end())
-    {
-      delete *actorIt;
-      *actorIt = nullptr;
-
-      mActors.erase(actorIt);
-    }
+    sActors.clear();
   }
 
   Actor* Scene::GetMainActor()
   {
-    return mMainActor;
+    return sMainActor;
   }
 
   Camera* Scene::GetMainCamera()
   {
-    if (mMainActor)
+    if (sMainActor)
     {
-      return mMainActor->GetComponent<Camera>();
+      return sMainActor->GetComponent<Camera>();
     }
 
     return nullptr;
+  }
+
+  void Scene::DestroyActor(Actor* Actor)
+  {
+    auto actorIt = std::find(sActors.begin(), sActors.end(), Actor);
+
+    if (actorIt != sActors.end())
+    {
+      delete *actorIt;
+      *actorIt = nullptr;
+
+      sActors.erase(actorIt);
+    }
+  }
+
+  void Scene::Update(R32 TimeDelta)
+  {
+    for (const auto& actor : sActors)
+    {
+      actor->Update(TimeDelta);
+
+      Transform* transform = actor->GetTransform();
+      Renderable* renderable = actor->GetComponent<Renderable>();
+
+      if (transform && renderable)
+      {
+        DefaultRenderer::AddRenderTask(RenderTask{ transform, renderable->GetMeshPtr() });
+      }
+
+      if (actor != sMainActor)
+      {
+        DebugRenderer::DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetWorldRight() * 2.0F, R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
+        DebugRenderer::DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetWorldUp() * 2.0F, R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
+        DebugRenderer::DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetWorldFront() * 2.0F, R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
+
+        DebugRenderer::DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetLocalRight() * 2.0F, R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
+        DebugRenderer::DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetLocalUp() * 2.0F, R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
+        DebugRenderer::DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetLocalFront() * 2.0F, R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
+
+        if (actor->GetParent())
+        {
+          DebugRenderer::DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition(), R32V4{ 1.0F, 1.0F, 1.0F, 1.0F });
+        }
+
+        DebugRenderer::DebugBox(transform->GetWorldPosition(), transform->GetWorldScale(), R32V4{ 1.0F, 1.0F, 0.0F, 1.0F }, transform->GetQuaternion());
+      }
+    }
   }
 
   void Scene::Serialize()
@@ -80,7 +145,7 @@ namespace ark
 
   void Scene::DeSerialize()
   {
-    for (const auto file : fs::directory_iterator{ fs::path{ gConfig["unpackDir"].GetString() } / mRegionId / mLevelId })
+    for (const auto file : fs::directory_iterator{ fs::path{ gConfig["unpackDir"].GetString() } / sRegionId / sLevelId })
     {
       if (file.path().extension() == ".TSC") ObjectSerializer{ file };
       if (file.path().extension() == ".TRE") ObjectSerializer{ file };

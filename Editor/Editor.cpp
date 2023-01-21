@@ -1,22 +1,23 @@
-#include <string>
-#include <map>
+#include <vector>
 #include <filesystem>
 
 #include <Common/Debug.h>
 #include <Common/Types.h>
 
 #include <Editor/Actor.h>
+#include <Editor/AssetDatabase.h>
 #include <Editor/Event.h>
+#include <Editor/Interface.h>
 #include <Editor/Scene.h>
 #include <Editor/Window.h>
-#include <Editor/UI.h>
 
 #include <Editor/Components/Camera.h>
 #include <Editor/Components/Transform.h>
 
 #include <Editor/Renderer/DebugRenderer.h>
+#include <Editor/Renderer/DefaultRenderer.h>
 
-#include <Editor/UI/AssetDatabase.h>
+#include <Editor/UI/AssetBrowser.h>
 #include <Editor/UI/MainMenu.h>
 #include <Editor/UI/FileInspector.h>
 #include <Editor/UI/SceneOutline.h>
@@ -103,10 +104,10 @@ namespace fs = std::filesystem;
 rapidjson::Document gConfig = {};
 rapidjson::Document gWorld = {};
 
-std::map<std::string, ark::UI*> gUserInterface = {};
+std::vector<ark::Interface*> gInterfaces = {};
 
 ark::DebugRenderer* gDebugRenderer = nullptr;
-ark::Scene* gScene = nullptr;
+ark::DefaultRenderer* gDefaultRenderer = nullptr;
 
 ///////////////////////////////////////////////////////////
 // Locals
@@ -169,10 +170,10 @@ ark::I32 main()
     return 0;
   }
 
-  gUserInterface.emplace("assetDatabase", new ark::AssetDatabase);
-  gUserInterface.emplace("mainMenu", new ark::MainMenu);
-  gUserInterface.emplace("fileInspector", new ark::FileInspector);
-  gUserInterface.emplace("sceneOutline", new ark::SceneOutline);
+  gInterfaces.emplace_back(new ark::AssetBrowser);
+  gInterfaces.emplace_back(new ark::MainMenu);
+  gInterfaces.emplace_back(new ark::FileInspector);
+  gInterfaces.emplace_back(new ark::SceneOutline);
 
   glfwSetErrorCallback(GlfwDebugProc);
 
@@ -199,6 +200,7 @@ ark::I32 main()
         glDebugMessageCallback(GlDebugCallback, 0);
 
         gDebugRenderer = new ark::DebugRenderer{ 65535, 65535 * 2 };
+        gDefaultRenderer = new ark::DefaultRenderer;
 
         IMGUI_CHECKVERSION();
         ImGuiContext* imGuiContext{ ImGui::CreateContext() };
@@ -216,9 +218,9 @@ ark::I32 main()
         ImGui_ImplGlfw_InitForOpenGL(sGlfwContext, 1);
         ImGui_ImplOpenGL3_Init("#version 450 core");
 
-        for (auto& [_, ui] : gUserInterface)
+        for (auto& interface : gInterfaces)
         {
-          ui->Update();
+          interface->Update();
         }
 
         while (!glfwWindowShouldClose(sGlfwContext))
@@ -237,19 +239,14 @@ ark::I32 main()
           ImGui::NewFrame();
           ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
 
-          if (gScene)
-          {
-            for (auto& actor : *gScene)
-            {
-              actor->Update(sTimeDelta);
-            }
-          }
+          ark::Scene::Update(sTimeDelta);
 
           gDebugRenderer->Render();
+          gDefaultRenderer->Render();
 
-          for (auto& [_, ui] : gUserInterface)
+          for (auto& interface : gInterfaces)
           {
-            ui->Draw();
+            interface->Draw();
           }
 
           ImGui::Render();
@@ -270,6 +267,7 @@ ark::I32 main()
 
         ImGui::DestroyContext(imGuiContext);
 
+        delete gDefaultRenderer;
         delete gDebugRenderer;
       }
       else
@@ -290,10 +288,10 @@ ark::I32 main()
     LOG("Failed initializing GLFW\n");
   }
 
-  for (auto& [_, ui] : gUserInterface)
+  for (auto& interface : gInterfaces)
   {
-    delete ui;
-    ui = nullptr;
+    delete interface;
+    interface = nullptr;
   }
 
   return 0;

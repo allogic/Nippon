@@ -1,20 +1,13 @@
-#include <string>
-#include <map>
 #include <cassert>
 
 #include <Common/Alignment.h>
 
 #include <Common/Utils/FileUtils.h>
 
-#include <Editor/UI/AssetDatabase.h>
+#include <Editor/AssetDatabase.h>
+#include <Editor/Vertex.h>
 
 #include <Editor/Serializer/ModelSerializer.h>
-
-///////////////////////////////////////////////////////////
-// Globals
-///////////////////////////////////////////////////////////
-
-extern std::map<std::string, ark::UI*> gUserInterface;
 
 ///////////////////////////////////////////////////////////
 // Implementation
@@ -58,10 +51,14 @@ namespace ark
 
       ScrTransform scrTransform = mBinaryReader.Read<ScrTransform>();
 
-      model.SetTransform(Model::Transform{ scrTransform.Position, scrTransform.Rotation, scrTransform.Scale });
+      model.SetTransform(Model::Transform{
+        R32V3{ scrTransform.Position.x, scrTransform.Position.y, scrTransform.Position.z },
+        R32V3{ scrTransform.Rotation.x, scrTransform.Rotation.y, scrTransform.Rotation.z },
+        R32V3{ scrTransform.Scale.x, scrTransform.Scale.y, scrTransform.Scale.z },
+        });
     }
 
-    ((AssetDatabase*)gUserInterface["assetDatabase"])->AddModel(model);
+    AssetDatabase::AddModel(model);
   }
 
   void ModelSerializer::ParseModel(Model& Model)
@@ -79,8 +76,8 @@ namespace ark
       mBinaryReader.SeekAbsolute(mdbStart + divisionOffsets[i]);
 
       std::vector<ScrVertex> vertices;
-      std::vector<PackedPair<U16>> textureMaps;
-      std::vector<PackedPair<U16>> textureUvs;
+      std::vector<U16V2> textureMaps;
+      std::vector<U16V2> textureUvs;
       std::vector<U32> colorWeights;
       std::vector<U32> elements;
 
@@ -88,12 +85,12 @@ namespace ark
 
       for (U16 i = 0; i < vertexCount; i++)
       {
-        PackedTuple<I16> position = (vertexCount == vertices.size()) ? vertices[i].Position : PackedTuple<I16>{};
-        PackedPair<U16> textureMap = (vertexCount == textureMaps.size()) ? textureMaps[i] : PackedPair<U16>{};
-        PackedPair<U16> textureUv = (vertexCount == textureUvs.size()) ? textureUvs[i] : PackedPair<U16>{};
+        R32V3 position = (vertexCount == vertices.size()) ? R32V3{ vertices[i].Position.x, vertices[i].Position.y, vertices[i].Position.z } : R32V3{};
+        R32V2 textureMap = (vertexCount == textureMaps.size()) ? R32V2{ textureMaps[i].x, textureMaps[i].y } : R32V2{};
+        R32V2 textureUv = (vertexCount == textureUvs.size()) ? R32V2{ textureUvs[i].x, textureUvs[i].y } : R32V2{};
         U32 colorWeight = (vertexCount == colorWeights.size()) ? colorWeights[i] : U32{};
 
-        Model.AddVertex(Model::Vertex{ position, textureMap, textureUv, colorWeight });
+        Model.AddVertex(DefaultVertex{ position, textureMap, textureUv, colorWeight });
       }
 
       for (U16 i = 0; i < elementCount; i++)
@@ -103,7 +100,7 @@ namespace ark
     }
   }
 
-  std::pair<U16, U16> ModelSerializer::ParseSubModel(std::vector<ScrVertex>& Vertices, std::vector<PackedPair<U16>>& TextureMaps, std::vector<PackedPair<U16>>& TextureUvs, std::vector<U32>& ColorWeights, std::vector<U32>& Elements)
+  std::pair<U16, U16> ModelSerializer::ParseSubModel(std::vector<ScrVertex>& Vertices, std::vector<U16V2>& TextureMaps, std::vector<U16V2>& TextureUvs, std::vector<U32>& ColorWeights, std::vector<U32>& Elements)
   {
     U64 mdStart = mBinaryReader.GetPosition();
 
@@ -118,13 +115,13 @@ namespace ark
     if (mdHeader.TextureMapOffset != 0)
     {
       mBinaryReader.SeekAbsolute(mdStart + mdHeader.TextureMapOffset);
-      mBinaryReader.Read<PackedPair<U16>>(TextureMaps, mdHeader.VertexCount);
+      mBinaryReader.Read<U16V2>(TextureMaps, mdHeader.VertexCount);
     }
 
     if (mdHeader.TextureUvOffset != 0)
     {
       mBinaryReader.SeekAbsolute(mdStart + mdHeader.TextureUvOffset);
-      mBinaryReader.Read<PackedPair<U16>>(TextureUvs, mdHeader.VertexCount);
+      mBinaryReader.Read<U16V2>(TextureUvs, mdHeader.VertexCount);
     }
 
     if (mdHeader.ColorWeightOffset != 0)

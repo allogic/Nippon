@@ -6,6 +6,7 @@
 
 #include <Common/Types.h>
 
+#include <Editor/Forward.h>
 #include <Editor/Actor.h>
 
 ///////////////////////////////////////////////////////////
@@ -16,51 +17,41 @@ namespace ark
 {
   namespace fs = std::filesystem;
 
-  class Camera;
-
   class Scene
   {
   public:
 
-    Scene(const std::string& RegionId, const std::string& LevelId);
-    virtual ~Scene();
+    static void Create(const std::string& RegionId, const std::string& LevelId);
+    static void Destroy();
 
   public:
 
-    inline auto begin() { return mActors.begin(); }
-    inline const auto begin() const { return mActors.cbegin(); }
-
-    inline auto end() { return mActors.end(); }
-    inline const auto end() const { return mActors.cend(); }
+    static inline const auto& GetActors() { return sActors; }
+    static Actor* GetMainActor();
+    static Camera* GetMainCamera();
 
   public:
 
     template<typename A, typename ... Args>
-    A* CreateActor(const std::string& Name, Actor* Parent, Args&& ... Arguments);
+    static A* CreateActor(const std::string& Name, Actor* Parent, Args&& ... Arguments);
 
-    void DestroyActor(Actor* Actor);
-
-  public:
-
-    Actor* GetMainActor();
-    Camera* GetMainCamera();
+    static void DestroyActor(Actor* Actor);
 
   public:
 
-    inline void SetMainActor(Actor* Actor) { mMainActor = Actor; }
+    static void Update(R32 TimeDelta);
 
   private:
 
-    void Serialize();
-    void DeSerialize();
+    static void Serialize();
+    static void DeSerialize();
 
   private:
 
-    std::string mRegionId;
-    std::string mLevelId;
-
-    std::vector<Actor*> mActors = {};
-    Actor* mMainActor = nullptr;
+    static inline std::string sRegionId = {};
+    static inline std::string sLevelId = {};
+    static inline std::vector<Actor*> sActors = {};
+    static inline Actor* sMainActor = {};
   };
 }
 
@@ -73,7 +64,7 @@ namespace ark
   template<typename A, typename ... Args>
   A* Scene::CreateActor(const std::string& Name, Actor* Parent, Args&& ... Arguments)
   {
-    auto actor = mActors.emplace_back(new A{ Name, std::forward<Args>(Arguments) ... });
+    auto actor = sActors.emplace_back(new A{ Name, std::forward<Args>(Arguments) ... });
     if (Parent)
     {
       actor->SetParent(Parent);

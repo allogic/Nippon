@@ -1,4 +1,6 @@
-#include <Editor/UI/AssetDatabase.h>
+#include <Editor/AssetDatabase.h>
+
+#include <Editor/UI/AssetBrowser.h>
 
 #include <Vendor/ImGui/imgui.h>
 
@@ -8,24 +10,24 @@
 
 namespace ark
 {
-  void AssetDatabase::Update()
+  void AssetBrowser::Update()
   {
 
   }
 
-  void AssetDatabase::Draw()
+  void AssetBrowser::Draw()
   {
-    ImGui::Begin("Object Database");
+    ImGui::Begin("Object Browser");
 
     if (ImGui::BeginTable("Object Table", 3, ImGuiTableFlags_RowBg | ImGuiTableFlags_ScrollY | ImGuiTableFlags_BordersInnerV))
     {
       ImGui::TableSetupColumn("Id", ImGuiTableColumnFlags_WidthFixed, 100.0F);
       ImGui::TableSetupColumn("Category", ImGuiTableColumnFlags_WidthFixed, 100.0F);
-      ImGui::TableSetupColumn("Transform", ImGuiTableColumnFlags_WidthFixed, 500.0F);
+      ImGui::TableSetupColumn("Transform", ImGuiTableColumnFlags_WidthStretch);
       ImGui::TableSetupScrollFreeze(0, 1);
       ImGui::TableHeadersRow();
 
-      for (const auto& object : mObjects)
+      for (const auto& object : AssetDatabase::GetObjects())
       {
         ImGui::TableNextRow();
         ImGui::TableNextColumn();
@@ -36,7 +38,7 @@ namespace ark
         ImGui::Text("%u", object.GetCategory());
         ImGui::TableNextColumn();
 
-        ImGui::Text("[%6u,%6u,%6u] [%6u,%6u,%6u] [%6u,%6u,%6u]",
+        ImGui::Text("[%6.3f,%6.3f,%6.3f] [%6.3f,%6.3f,%6.3f] [%6.3f,%6.3f,%6.3f]",
           object.GetPosition().x,
           object.GetPosition().y,
           object.GetPosition().z,
@@ -54,18 +56,18 @@ namespace ark
 
     ImGui::End();
 
-    ImGui::Begin("Model Database");
+    ImGui::Begin("Model Browser");
 
     if (ImGui::BeginTable("Model Table", 4, ImGuiTableFlags_RowBg | ImGuiTableFlags_ScrollY | ImGuiTableFlags_BordersInnerV))
     {
       ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed, 150.0F);
-      ImGui::TableSetupColumn("Transform", ImGuiTableColumnFlags_WidthFixed, 500.0F);
       ImGui::TableSetupColumn("Vertex Count", ImGuiTableColumnFlags_WidthFixed, 100.0F);
-      ImGui::TableSetupColumn("Element Count", ImGuiTableColumnFlags_WidthStretch, 100.0F);
+      ImGui::TableSetupColumn("Element Count", ImGuiTableColumnFlags_WidthFixed, 100.0F);
+      ImGui::TableSetupColumn("Transform", ImGuiTableColumnFlags_WidthStretch);
       ImGui::TableSetupScrollFreeze(0, 1);
       ImGui::TableHeadersRow();
 
-      for (const auto& model : mModels)
+      for (const auto& model : AssetDatabase::GetModels())
       {
         ImGui::TableNextRow();
         ImGui::TableNextColumn();
@@ -73,7 +75,13 @@ namespace ark
         ImGui::Text("%s", model.GetName().c_str());
         ImGui::TableNextColumn();
 
-        ImGui::Text("[%6d,%6d,%6d] [%6d,%6d,%6d] [%6u,%6u,%6u]",
+        ImGui::Text("%u", model.GetVertexBuffer().size());
+        ImGui::TableNextColumn();
+
+        ImGui::Text("%u", model.GetElementBuffer().size());
+        ImGui::TableNextColumn();
+
+        ImGui::Text("[%6.3f,%6.3f,%6.3f] [%6.3f,%6.3f,%6.3f] [%6.3f,%6.3f,%6.3f]",
           model.GetTransform().Position.x,
           model.GetTransform().Position.y,
           model.GetTransform().Position.z,
@@ -83,12 +91,6 @@ namespace ark
           model.GetTransform().Scale.x,
           model.GetTransform().Scale.y,
           model.GetTransform().Scale.z);
-        ImGui::TableNextColumn();
-
-        ImGui::Text("%u", model.GetVertexBuffer().size());
-        ImGui::TableNextColumn();
-
-        ImGui::Text("%u", model.GetElementBuffer().size());
         ImGui::TableNextColumn();
       }
 

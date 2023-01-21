@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Common/Types.h>
+#include <Editor/Interface.h>
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -8,16 +8,11 @@
 
 namespace ark
 {
-  class UI
+  class AssetBrowser : public Interface
   {
   public:
 
-    UI();
-    virtual ~UI();
-
-  public:
-
-    virtual void Update() = 0;
-    virtual void Draw() = 0;
+    virtual void Update() override;
+    virtual void Draw() override;
   };
 }

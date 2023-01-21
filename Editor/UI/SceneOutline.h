@@ -2,7 +2,8 @@
 
 #include <Common/Types.h>
 
-#include <Editor/UI.h>
+#include <Editor/Forward.h>
+#include <Editor/Interface.h>
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -10,9 +11,7 @@
 
 namespace ark
 {
-  class Actor;
-
-  class SceneOutline : public UI
+  class SceneOutline : public Interface
   {
   public:
 

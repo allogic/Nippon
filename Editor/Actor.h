@@ -8,15 +8,14 @@
 
 #include <Common/Types.h>
 
+#include <Editor/Forward.h>
+
 ///////////////////////////////////////////////////////////
 // Definition
 ///////////////////////////////////////////////////////////
 
 namespace ark
 {
-  class Component;
-  class Transform;
-
   class Actor
   {
   public:

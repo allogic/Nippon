@@ -4,7 +4,9 @@
 
 #include <Common/Types.h>
 
+#include <Editor/Forward.h>
 #include <Editor/Component.h>
+#include <Editor/Mesh.h>
 #include <Editor/Vertex.h>
 
 ///////////////////////////////////////////////////////////
@@ -13,19 +15,23 @@
 
 namespace ark
 {
-  template<typename V, typename E>
-  class Mesh;
-
-  class Actor;
-
   class Renderable : public Component
   {
   public:
 
     Renderable(Actor* Actor);
 
+  public:
+
+    inline auto GetMeshPtr() const { return &mMesh; }
+
+  public:
+
+    inline void SetVertexBuffer(const std::vector<DefaultVertex>& Value) { mMesh.UploadVertices(&Value[0], (U32)Value.size()); }
+    inline void SetElementBuffer(const std::vector<U32>& Value) { mMesh.UploadElements(&Value[0], (U32)Value.size()); }
+
   private:
 
-    std::vector<Mesh<DefaultVertex, U32>*> mMeshes = {};
+    Mesh<DefaultVertex, U32> mMesh = {};
   };
 }

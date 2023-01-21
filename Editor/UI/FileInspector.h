@@ -4,7 +4,7 @@
 
 #include <Common/Trees/FileNode.h>
 
-#include <Editor/UI.h>
+#include <Editor/Interface.h>
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -12,7 +12,7 @@
 
 namespace ark
 {
-  class FileInspector : public UI
+  class FileInspector : public Interface
   {
   public:
 

@@ -1,18 +1,10 @@
-#include <string>
-#include <map>
 #include <cassert>
 
 #include <Common/Utils/FileUtils.h>
 
-#include <Editor/UI/AssetDatabase.h>
+#include <Editor/AssetDatabase.h>
 
 #include <Editor/Serializer/ObjectSerializer.h>
-
-///////////////////////////////////////////////////////////
-// Globals
-///////////////////////////////////////////////////////////
-
-extern std::map<std::string, ark::UI*> gUserInterface;
 
 ///////////////////////////////////////////////////////////
 // Implementation
@@ -34,11 +26,11 @@ namespace ark
 
       object.SetId(objEntry.Id);
       object.SetCategory(objEntry.Category);
-      object.SetPosition(objEntry.Position);
-      object.SetRotation(objEntry.Rotation);
-      object.SetScale(objEntry.Scale);
+      object.SetPosition(R32V3{ objEntry.Position.x, objEntry.Position.y, objEntry.Position.z });
+      object.SetRotation(R32V3{ objEntry.Rotation.x, objEntry.Rotation.y, objEntry.Rotation.z });
+      object.SetScale(R32V3{ objEntry.Scale.x, objEntry.Scale.y, objEntry.Scale.z });
 
-      ((AssetDatabase*)gUserInterface["assetDatabase"])->AddObject(object);
+      AssetDatabase::AddObject(object);
     }
   }
 }

@@ -4,6 +4,7 @@
 
 #include <Common/Types.h>
 
+#include <Editor/Forward.h>
 #include <Editor/Actor.h>
 
 ///////////////////////////////////////////////////////////
@@ -12,8 +13,6 @@
 
 namespace ark
 {
-  class Camera;
-
   class Player : public Actor
   {
   public:

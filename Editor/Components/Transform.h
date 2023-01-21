@@ -2,6 +2,7 @@
 
 #include <Common/Types.h>
 
+#include <Editor/Forward.h>
 #include <Editor/Component.h>
 
 ///////////////////////////////////////////////////////////
@@ -10,8 +11,6 @@
 
 namespace ark
 {
-  class Actor;
-
   class Transform : public Component
   {
   public:

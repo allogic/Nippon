@@ -14,21 +14,22 @@ namespace ark
     eVertexTypeDebug,
   };
 
-#pragma pack(push, 1)
+  #pragma pack(push, 1)
   struct DefaultVertex
   {
-    static constexpr VertexType Type{ eVertexTypeDefault };
+    static constexpr VertexType Type = eVertexTypeDefault;
 
     R32V3 Position;
-    R32V2 Uv;
-    R32V4 Color;
+    R32V2 TextureMap;
+    R32V2 TextureUv;
+    U32 ColorWeight;
   };
-#pragma pack(pop)
+  #pragma pack(pop)
 
   #pragma pack(push, 1)
   struct DebugVertex
   {
-    static constexpr VertexType Type{ eVertexTypeDebug };
+    static constexpr VertexType Type = eVertexTypeDebug;
 
     R32V3 Position;
     R32V4 Color;

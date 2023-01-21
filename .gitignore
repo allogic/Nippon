@@ -13,6 +13,7 @@ Build
 Binary/*
 !Binary/Config.json
 !Binary/World.json
+!Binary/imgui.ini
 out
 .vs
 token.txt

@@ -15,8 +15,6 @@
 
 extern rapidjson::Document gWorld;
 
-extern ark::Scene* gScene;
-
 ///////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////
@@ -42,12 +40,8 @@ namespace ark
           {
             if (ImGui::Selectable(level["name"].GetString(), false))
             {
-              if (gScene)
-              {
-                delete gScene;
-              }
-
-              gScene = new Scene{ region["id"].GetString(), level["id"].GetString() };
+              Scene::Destroy();
+              Scene::Create(region["id"].GetString(), level["id"].GetString());
             }
           }
 

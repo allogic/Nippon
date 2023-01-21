@@ -2,19 +2,14 @@
 
 #include <Common/Types.h>
 
+#include <Editor/Forward.h>
+
 ///////////////////////////////////////////////////////////
 // Definition
 ///////////////////////////////////////////////////////////
 
 namespace ark
 {
-  template<typename V, typename E>
-  class Mesh;
-
-  class Shader;
-
-  struct DebugVertex;
-
   class DebugRenderer
   {
   public:

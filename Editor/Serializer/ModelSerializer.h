@@ -4,7 +4,6 @@
 #include <utility>
 #include <filesystem>
 
-#include <Common/Common.h>
 #include <Common/Types.h>
 #include <Common/BinaryReader.h>
 
@@ -41,16 +40,16 @@ namespace ark
     U16 Unknown6;
     U16 Unknown7;
     U16 Padding2[5]; // always 00 00;
-    PackedTuple<U16> Scale;
-    PackedTuple<I16> Rotation;
-    PackedTuple<I16> Position;
+    U16V3 Scale;
+    I16V3 Rotation;
+    I16V3 Position;
   };
   #pragma pack(pop)
 
   #pragma pack(push, 1)
   struct ScrVertex
   {
-    PackedTuple<I16> Position;
+    I16V3 Position;
     U16 Connection;
   };
   #pragma pack(pop)
@@ -89,7 +88,7 @@ namespace ark
 
     void ParseScr();
     void ParseModel(Model& Model);
-    std::pair<U16, U16> ParseSubModel(std::vector<ScrVertex>& Vertices, std::vector<PackedPair<U16>>& TextureMaps, std::vector<PackedPair<U16>>& TextureUvs, std::vector<U32>& ColorWeights, std::vector<U32>& Elements);
+    std::pair<U16, U16> ParseSubModel(std::vector<ScrVertex>& Vertices, std::vector<U16V2>& TextureMaps, std::vector<U16V2>& TextureUvs, std::vector<U32>& ColorWeights, std::vector<U32>& Elements);
 
   private:
 

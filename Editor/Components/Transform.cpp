@@ -33,11 +33,11 @@ namespace ark
   {
     if (mActor->GetParent())
     {
-      return mActor->GetParent()->GetTransform()->GetWorldPosition() + (mPosition * mScale);
+      return mActor->GetParent()->GetTransform()->GetWorldPosition() + mPosition;
     }
     else
     {
-      return (mPosition * mScale);
+      return mPosition;
     }
   }
 

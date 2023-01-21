@@ -1,22 +1,18 @@
 #pragma once
 
-#include <Editor/Forward.h>
-
 ///////////////////////////////////////////////////////////
 // Definition
 ///////////////////////////////////////////////////////////
 
 namespace ark
 {
-  class Component
-  {
-  public:
+  class FileNode;
+  class ArchiveNode;
 
-    Component(Actor* Actor);
-    virtual ~Component();
+  class FileUtils;
+  class StringUtils;
 
-  protected:
-
-    Actor* mActor;
-  };
+  class BinaryReader;
+  class BlowFish;
+  class ExtensionIterator;
 }

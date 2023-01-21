@@ -2,7 +2,7 @@
 
 #include <Common/Types.h>
 
-#include <Editor/UI.h>
+#include <Editor/Interface.h>
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -10,7 +10,7 @@
 
 namespace ark
 {
-  class MainMenu : public UI
+  class MainMenu : public Interface
   {
   public:
 
