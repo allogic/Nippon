@@ -29,7 +29,7 @@ All binaries built, will be put inside the `Binary` directory.
 
 ## How To Run
 
-Once all binaries are built, first launch the `packer` tool to recursively decrypt all level files. After that, one can start the `editor`.
+Once all binaries are built, first launch the `Packer` tool to recursively decrypt all level files. After that, one can start the `Editor`.
 
 ## Editor Controls
 
