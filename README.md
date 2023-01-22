@@ -31,8 +31,8 @@ Select startup item...
 From the `Project` directory, enter the following commands to build the entire project.
 
 ```sh
-mkdir Build && cd Build
-cmake ..
+mkdir Build
+cd Build && cmake ..
 make
 ```
 
