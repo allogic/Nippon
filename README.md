@@ -22,7 +22,7 @@ All binaries built, will be put inside the `Binary` directory.
 
 ### Visual Studio
 
-Open the `Project` as a CMake project. Select `Project/Delete Cache and Reconfigure`. Select `Build/Build All`
+Open the `Project` as a CMake project. Select `Project/Delete Cache and Reconfigure`. Select `Build/Build All`.
 
 Select startup item...
 
