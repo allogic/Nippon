@@ -18,14 +18,23 @@ All tools require one configuration file. Inside the `Binary` directory update t
 
 ## Compile The Project
 
+All binaries built, will be put inside the `Binary` directory.
+
+### Visual Studio
+
+Open the `Project` as a CMake project. Select `Project/Delete Cache and Reconfigure`. Select `Build/Build All`
+
+Select startup item...
+
+### Other IDE's
+
 From the `Project` directory, enter the following commands to build the entire project.
 
 ```sh
-mkdir Build
-cd Build && cmake ..
+mkdir Build && cd Build
+cmake ..
+make
 ```
-
-All binaries built, will be put inside the `Binary` directory.
 
 ## How To Run
 
@@ -42,5 +51,12 @@ If bugs are being found, please don't hesitate to open an issue. Especially if y
 
 ## Resources
 
+### Links
+
 - Wiki https://okami.speedruns.wiki
 - Discord https://discord.gg/fbJdaeb
+
+### Repositories
+
+- https://github.com/Shintensu/OkamiHD-Reverse-Engineering
+- https://github.com/whataboutclyde/okami-utils
