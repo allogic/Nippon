@@ -29,9 +29,14 @@ All binaries built, will be put inside the `Binary` directory.
 
 Once all binaries are built, first launch the unpack tool to recursively decrypt all level files. After that, one can start the editor.
 
+## Editor Controls
+
+- `WASD` to move
+- `L-SHIFT` for lightspeed
+
 ## Issues / Pull Requests
 
-If bugs are being found, please don't hesitate to open an issue.
+If bugs are being found, please don't hesitate to open an issue. Especially if you are using an exotic linux distribution.
 
 ## Resources
 
