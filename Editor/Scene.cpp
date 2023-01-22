@@ -37,13 +37,13 @@ namespace ark
 
     DeSerialize();
 
-    //for (const auto& object : AssetDatabase::GetObjects())
-    //{
-    //  Actor* actor = CreateActor<Actor>("Object", nullptr);
-    //  actor->GetTransform()->SetWorldPosition(object.GetPosition());
-    //  actor->GetTransform()->SetWorldRotation(object.GetRotation());
-    //  actor->GetTransform()->SetWorldScale(object.GetScale());
-    //}
+    for (const auto& object : AssetDatabase::GetObjects())
+    {
+      Actor* actor = CreateActor<Actor>("Object", nullptr);
+      actor->GetTransform()->SetWorldPosition(object.GetPosition());
+      actor->GetTransform()->SetWorldRotation(object.GetRotation());
+      actor->GetTransform()->SetWorldScale(R32V3{ 1.0F, 1.0F, 1.0F });
+    }
 
     for (const auto& model : AssetDatabase::GetModels())
     {
@@ -106,6 +106,10 @@ namespace ark
 
   void Scene::Update(R32 TimeDelta)
   {
+    DebugRenderer::DebugLine(R32V3{ -10000.0F, 0.0F, 0.0F }, R32V3{ 10000.0F, 0.0F, 0.0F }, R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
+    DebugRenderer::DebugLine(R32V3{ 0.0F, -10000.0F, 0.0F }, R32V3{ 0.0F, 10000.0F, 0.0F }, R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
+    DebugRenderer::DebugLine(R32V3{ 0.0F, 0.0F, -10000.0F }, R32V3{ 0.0F, 0.0F, 10000.0F }, R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
+
     for (const auto& actor : sActors)
     {
       actor->Update(TimeDelta);
@@ -120,13 +124,13 @@ namespace ark
 
       if (actor != sMainActor)
       {
-        DebugRenderer::DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetWorldRight() * 2.0F, R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
-        DebugRenderer::DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetWorldUp() * 2.0F, R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
-        DebugRenderer::DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetWorldFront() * 2.0F, R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
+        DebugRenderer::DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetWorldRight(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
+        DebugRenderer::DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetWorldUp(), R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
+        DebugRenderer::DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetWorldFront(), R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
 
-        DebugRenderer::DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetLocalRight() * 2.0F, R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
-        DebugRenderer::DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetLocalUp() * 2.0F, R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
-        DebugRenderer::DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetLocalFront() * 2.0F, R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
+        DebugRenderer::DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetLocalRight(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
+        DebugRenderer::DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetLocalUp(), R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
+        DebugRenderer::DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetLocalFront(), R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
 
         if (actor->GetParent())
         {

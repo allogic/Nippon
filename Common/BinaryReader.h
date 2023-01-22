@@ -75,7 +75,7 @@ namespace ark
 
     const std::vector<U8> mBytes;
 
-    U64 mPosition{};
+    U64 mPosition = {};
   };
 }
 

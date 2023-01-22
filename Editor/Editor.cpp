@@ -4,6 +4,8 @@
 #include <Common/Debug.h>
 #include <Common/Types.h>
 
+#include <Common/Utils/FileUtils.h>
+
 #include <Editor/Actor.h>
 #include <Editor/AssetDatabase.h>
 #include <Editor/Event.h>
@@ -21,8 +23,6 @@
 #include <Editor/UI/MainMenu.h>
 #include <Editor/UI/FileInspector.h>
 #include <Editor/UI/SceneOutline.h>
-
-#include <Common/Utils/FileUtils.h>
 
 #include <Vendor/GLAD/glad.h>
 
@@ -125,7 +125,7 @@ static ark::R32 sTimeDelta = 0.0F;
 
 static void GlfwDebugProc(ark::I32 Error, char const* Msg)
 {
-  LOG("%s\n", Msg);
+  LOG("Error:%d Message:%s\n", Error, Msg);
 }
 
 static void GlfwResizeProc(GLFWwindow* Context, ark::I32 Width, ark::I32 Height)
@@ -211,9 +211,9 @@ ark::I32 main()
         imGuiIo.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
         ImGuiStyle& imGuiStyle{ ImGui::GetStyle() };
-        imGuiStyle.WindowRounding = 0.0f;
-        imGuiStyle.FrameBorderSize = 0.0f;
-        imGuiStyle.Colors[ImGuiCol_WindowBg].w = 1.0f;
+        imGuiStyle.WindowRounding = 0.0F;
+        imGuiStyle.FrameBorderSize = 0.0F;
+        imGuiStyle.Colors[ImGuiCol_WindowBg].w = 1.0F;
 
         ImGui_ImplGlfw_InitForOpenGL(sGlfwContext, 1);
         ImGui_ImplOpenGL3_Init("#version 450 core");
@@ -229,7 +229,7 @@ ark::I32 main()
           sTimeDelta = sTime - sTimePrev;
           sTimePrev = sTime;
 
-          glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+          glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
           glClear(GL_COLOR_BUFFER_BIT);
           glViewport(0, 0, (ark::I32)ark::Window::GetWidth(), (ark::I32)ark::Window::GetHeight());
 
@@ -241,8 +241,8 @@ ark::I32 main()
 
           ark::Scene::Update(sTimeDelta);
 
-          gDebugRenderer->Render();
           gDefaultRenderer->Render();
+          gDebugRenderer->Render();
 
           for (auto& interface : gInterfaces)
           {

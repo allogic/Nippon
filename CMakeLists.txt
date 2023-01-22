@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 
-project(Shiranui VERSION 0.0.1 LANGUAGES C CXX)
+project(Nippon VERSION 0.0.1 LANGUAGES C CXX)
 
 set(ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(COMMON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Common)

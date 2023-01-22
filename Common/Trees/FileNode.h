@@ -42,6 +42,7 @@ namespace ark
   private:
 
     fs::path mFile;
-    std::map<fs::path, FileNode*> mNodes;
+
+    std::map<fs::path, FileNode*> mNodes = {};
   };
 }

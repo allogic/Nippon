@@ -71,6 +71,7 @@ namespace ark
     std::string mType;
     std::string mName;
     std::vector<ArchiveEntry> mToc;
-    std::multimap<std::string, ArchiveNode*> mNodes;
+
+    std::multimap<std::string, ArchiveNode*> mNodes = {};
   };
 }
