@@ -1,3 +1,5 @@
+![](README.jpg)
+
 # Nippon Modding Framework
 
 Nippon is a collection of cross platform tools, currently designed to interact with the okami PC port. This project is in pre pre alpha and by all means not production ready. 
