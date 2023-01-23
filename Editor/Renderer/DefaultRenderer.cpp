@@ -46,7 +46,7 @@ namespace ark
     {
       RenderTask& renderTask = mRenderQueue.front();
 
-      if (renderTask.Transform && renderTask.Mesh)
+      if (renderTask.TransformPtr && renderTask.MeshPtr)
       {
         Camera* camera = Scene::GetMainCamera();
 
@@ -56,11 +56,11 @@ namespace ark
 
           mShader->SetUniformR32M4("UniformProjectionMatrix", camera->GetProjectionMatrix());
           mShader->SetUniformR32M4("UniformViewMatrix", camera->GetViewMatrix());
-          mShader->SetUniformR32M4("UniformModelMatrix", renderTask.Transform->GetModelMatrix());
+          mShader->SetUniformR32M4("UniformModelMatrix", renderTask.TransformPtr->GetModelMatrix());
 
-          renderTask.Mesh->Bind();
-          renderTask.Mesh->Render(RenderMode::eRenderModeTriangles);
-          renderTask.Mesh->UnBind();
+          renderTask.MeshPtr->Bind();
+          renderTask.MeshPtr->Render(RenderMode::eRenderModeTriangles);
+          renderTask.MeshPtr->UnBind();
 
           mShader->UnBind();
         }

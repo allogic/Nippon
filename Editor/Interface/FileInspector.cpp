@@ -1,4 +1,4 @@
-#include <Editor/UI/FileInspector.h>
+#include <Editor/Interface/FileInspector.h>
 
 #include <Vendor/ImGui/imgui.h>
 

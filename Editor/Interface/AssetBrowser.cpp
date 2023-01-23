@@ -1,6 +1,6 @@
 #include <Editor/AssetDatabase.h>
 
-#include <Editor/UI/AssetBrowser.h>
+#include <Editor/Interface/AssetBrowser.h>
 
 #include <Vendor/ImGui/imgui.h>
 
@@ -75,10 +75,10 @@ namespace ark
         ImGui::Text("%s", model.GetName().c_str());
         ImGui::TableNextColumn();
 
-        ImGui::Text("%u", model.GetVertexBuffer().size());
+        ImGui::Text("%u", (U32)model.GetVertexBuffer().size());
         ImGui::TableNextColumn();
 
-        ImGui::Text("%u", model.GetElementBuffer().size());
+        ImGui::Text("%u", (U32)model.GetElementBuffer().size());
         ImGui::TableNextColumn();
 
         ImGui::Text("[%6.3f,%6.3f,%6.3f] [%6.3f,%6.3f,%6.3f] [%6.3f,%6.3f,%6.3f]",

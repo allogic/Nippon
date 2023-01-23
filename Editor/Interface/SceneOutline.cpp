@@ -3,7 +3,7 @@
 
 #include <Editor/Components/Transform.h>
 
-#include <Editor/UI/SceneOutline.h>
+#include <Editor/Interface/SceneOutline.h>
 
 #include <Vendor/ImGui/imgui.h>
 

@@ -14,8 +14,8 @@ namespace ark
 {
   struct RenderTask
   {
-    const Transform* Transform;
-    const Mesh<DefaultVertex, U32>* Mesh;
+    const Transform* TransformPtr;
+    const Mesh<DefaultVertex, U32>* MeshPtr;
   };
 
   class DefaultRenderer

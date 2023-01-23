@@ -19,10 +19,10 @@
 #include <Editor/Renderer/DebugRenderer.h>
 #include <Editor/Renderer/DefaultRenderer.h>
 
-#include <Editor/UI/AssetBrowser.h>
-#include <Editor/UI/MainMenu.h>
-#include <Editor/UI/FileInspector.h>
-#include <Editor/UI/SceneOutline.h>
+#include <Editor/Interface/AssetBrowser.h>
+#include <Editor/Interface/MainMenu.h>
+#include <Editor/Interface/FileInspector.h>
+#include <Editor/Interface/SceneOutline.h>
 
 #include <Vendor/GLAD/glad.h>
 
