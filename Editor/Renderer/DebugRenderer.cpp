@@ -10,6 +10,12 @@
 #include <Editor/Renderer/DebugRenderer.h>
 
 ///////////////////////////////////////////////////////////
+// Namespaces
+///////////////////////////////////////////////////////////
+
+namespace fs = std::filesystem;
+
+///////////////////////////////////////////////////////////
 // Globals
 ///////////////////////////////////////////////////////////
 
@@ -21,8 +27,6 @@ extern ark::DebugRenderer* gDebugRenderer;
 
 namespace ark
 {
-  namespace fs = std::filesystem;
-
   DebugRenderer::DebugRenderer(U32 VertexBufferSize, U32 ElementBufferSize)
     : mVertexBuffer{ new DebugVertex[VertexBufferSize] }
     , mElementBuffer{ new U32[ElementBufferSize] }
@@ -56,7 +60,7 @@ namespace ark
       mMesh->Bind();
       mMesh->UploadVertices(mVertexBuffer, mVertexOffset);
       mMesh->UploadElements(mElementBuffer, mElementOffset);
-      mMesh->Render(RenderMode::eRenderModeLines);
+      mMesh->Render(eRenderModeLines);
       mMesh->UnBind();
 
       mShader->UnBind();

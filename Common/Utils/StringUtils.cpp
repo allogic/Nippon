@@ -1,13 +1,21 @@
 #include <Common/Utils/StringUtils.h>
 
-#include <Vendor/CRC/crc32.h>
-
 ///////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////
 
 namespace ark
 {
+  std::string StringUtils::CutFront(const std::string& String, U64 Size)
+  {
+    return String.substr(Size);
+  }
+
+  std::string StringUtils::CutBack(const std::string& String, U64 Size)
+  {
+    return String.substr(0, String.size() - Size);
+  }
+
   std::string StringUtils::RemoveNulls(const std::string& String)
   {
     std::stringstream stream;
@@ -23,45 +31,8 @@ namespace ark
     return stream.str();
   }
 
-  U32 StringUtils::Crc32(const std::string& String, U64 DefaultChunkSize)
+  std::string StringUtils::NormalizePath(const std::string& String)
   {
-    U32 crc = 0;
-    U64 bytesProcessed = 0;
-    U64 bytesLeft;
-    U64 numBytes = String.size();
-    U64 chunkSize;
-
-    while (bytesProcessed < numBytes)
-    {
-      bytesLeft = numBytes - bytesProcessed;
-      chunkSize = (DefaultChunkSize < bytesLeft) ? DefaultChunkSize : bytesLeft;
-
-      crc = crc32_fast(&String[bytesProcessed], chunkSize, crc);
-
-      bytesProcessed += chunkSize;
-    }
-
-    return crc;
-  }
-
-  U32 StringUtils::Crc32(const std::vector<U8>& Bytes, U64 DefaultChunkSize)
-  {
-    U32 crc = 0;
-    U64 bytesProcessed = 0;
-    U64 bytesLeft;
-    U64 numBytes = Bytes.size();
-    U64 chunkSize;
-
-    while (bytesProcessed < numBytes)
-    {
-      bytesLeft = numBytes - bytesProcessed;
-      chunkSize = (DefaultChunkSize < bytesLeft) ? DefaultChunkSize : bytesLeft;
-
-      crc = crc32_fast(&Bytes[bytesProcessed], chunkSize, crc);
-
-      bytesProcessed += chunkSize;
-    }
-
-    return crc;
+    return fs::weakly_canonical(String).make_preferred().string();
   }
 }

@@ -74,7 +74,14 @@ namespace ark
     Actor* mParent = nullptr;
     Transform* mTransform = nullptr;
   };
+}
 
+///////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////
+
+namespace ark
+{
   template<typename C, typename ... Args>
   C* Actor::AttachComponent(Args&& ... Arguments)
   {

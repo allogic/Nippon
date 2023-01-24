@@ -11,6 +11,12 @@
 #include <Editor/Renderer/DefaultRenderer.h>
 
 ///////////////////////////////////////////////////////////
+// Namespaces
+///////////////////////////////////////////////////////////
+
+namespace fs = std::filesystem;
+
+///////////////////////////////////////////////////////////
 // Globals
 ///////////////////////////////////////////////////////////
 
@@ -22,8 +28,6 @@ extern ark::DefaultRenderer* gDefaultRenderer;
 
 namespace ark
 {
-  namespace fs = std::filesystem;
-
   DefaultRenderer::DefaultRenderer()
     : mShader{ new Shader{ fs::path{ SHADER_DIR } / "Default.glsl" } }
   {
@@ -59,7 +63,7 @@ namespace ark
           mShader->SetUniformR32M4("UniformModelMatrix", renderTask.TransformPtr->GetModelMatrix());
 
           renderTask.MeshPtr->Bind();
-          renderTask.MeshPtr->Render(RenderMode::eRenderModeTriangles);
+          renderTask.MeshPtr->Render(eRenderModeTriangles);
           renderTask.MeshPtr->UnBind();
 
           mShader->UnBind();

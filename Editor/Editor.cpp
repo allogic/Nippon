@@ -35,7 +35,12 @@
 #include <Vendor/rapidjson/rapidjson.h>
 #include <Vendor/rapidjson/document.h>
 
+///////////////////////////////////////////////////////////
+// Namespaces
+///////////////////////////////////////////////////////////
+
 namespace fs = std::filesystem;
+namespace rj = rapidjson;
 
 /*
  * General Stuff:
@@ -101,23 +106,25 @@ namespace fs = std::filesystem;
 // Globals
 ///////////////////////////////////////////////////////////
 
-rapidjson::Document gConfig = {};
-rapidjson::Document gWorld = {};
+rj::Document gConfig = {};
+rj::Document gIntegrity = {};
+rj::Document gPacker = {};
+rj::Document gWorld = {};
 
 std::vector<ark::Interface*> gInterfaces = {};
 
-ark::DebugRenderer* gDebugRenderer = nullptr;
-ark::DefaultRenderer* gDefaultRenderer = nullptr;
+ark::DebugRenderer* gDebugRenderer = {};
+ark::DefaultRenderer* gDefaultRenderer = {};
 
 ///////////////////////////////////////////////////////////
 // Locals
 ///////////////////////////////////////////////////////////
 
-static GLFWwindow* sGlfwContext = nullptr;
+static GLFWwindow* sGlfwContext = {};
 
-static ark::R32 sTime = 0.0F;
-static ark::R32 sTimePrev = 0.0F;
-static ark::R32 sTimeDelta = 0.0F;
+static ark::R32 sTime = {};
+static ark::R32 sTimePrev = {};
+static ark::R32 sTimeDelta = {};
 
 ///////////////////////////////////////////////////////////
 // Glfw Callbacks
@@ -162,13 +169,8 @@ static void GlDebugCallback(ark::U32 Source, ark::U32 Type, ark::U32 Id, ark::U3
 ark::I32 main()
 {
   gConfig.Parse(ark::FileUtils::ReadText("Config.json").c_str());
+  gPacker.Parse(ark::FileUtils::ReadText("Packer.json").c_str());
   gWorld.Parse(ark::FileUtils::ReadText("World.json").c_str());
-
-  if (!fs::exists(gConfig["unpackDir"].GetString()))
-  {
-    LOG("Please specify valid unpackDir\n");
-    return 0;
-  }
 
   gInterfaces.emplace_back(new ark::AssetBrowser);
   gInterfaces.emplace_back(new ark::MainMenu);
@@ -183,9 +185,9 @@ ark::I32 main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_SAMPLES, 0);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, 1);
 
-    sGlfwContext = glfwCreateWindow((ark::I32)ark::Window::GetWidth(), (ark::I32)ark::Window::GetHeight(), "", nullptr, nullptr);
+    sGlfwContext = glfwCreateWindow((ark::I32)ark::Window::GetWidth(), (ark::I32)ark::Window::GetHeight(), "Nippon", nullptr, nullptr);
 
     if (sGlfwContext)
     {
@@ -269,6 +271,9 @@ ark::I32 main()
 
         delete gDefaultRenderer;
         delete gDebugRenderer;
+
+        gDefaultRenderer = nullptr;
+        gDebugRenderer = nullptr;
       }
       else
       {

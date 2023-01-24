@@ -6,13 +6,17 @@
 #include <Common/Types.h>
 
 ///////////////////////////////////////////////////////////
+// Namespaces
+///////////////////////////////////////////////////////////
+
+namespace fs = std::filesystem;
+
+///////////////////////////////////////////////////////////
 // Definition
 ///////////////////////////////////////////////////////////
 
 namespace ark
 {
-  namespace fs = std::filesystem;
-
   class FileNode
   {
   public:
@@ -23,7 +27,7 @@ namespace ark
   public:
 
     inline auto IsDirectory() const { return fs::is_directory(mFile); }
-    inline auto IsFile() const { return !fs::is_directory(mFile); }
+    inline auto IsFile() const { return fs::is_regular_file(mFile); }
 
     inline auto GetParent() const { return mFile.parent_path(); }
     inline auto GetPath() const { return mFile; }

@@ -2,6 +2,7 @@
 #include <map>
 
 #include <Editor/Scene.h>
+#include <Editor/Packer.h>
 
 #include <Editor/Interface/MainMenu.h>
 
@@ -13,7 +14,7 @@
 // Globals
 ///////////////////////////////////////////////////////////
 
-extern rapidjson::Document gWorld;
+extern rj::Document gWorld;
 
 ///////////////////////////////////////////////////////////
 // Implementation
@@ -30,7 +31,17 @@ namespace ark
   {
     ImGui::BeginMainMenuBar();
 
-    if (ImGui::BeginMenu("Levels"))
+    if (ImGui::BeginMenu("File"))
+    {
+      if (ImGui::Selectable("Generate Integrity Map", false))
+      {
+        Packer::GenerateIntegrityMap();
+      }
+
+      ImGui::EndMenu();
+    }
+
+    if (ImGui::BeginMenu("Level"))
     {
       for (const auto& region : gWorld["regions"].GetArray())
       {

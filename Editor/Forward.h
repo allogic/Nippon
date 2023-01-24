@@ -36,6 +36,7 @@ namespace ark
   template<typename V, typename E>
   class Mesh;
 
+  class Packer;
   class Scene;
   class Shader;
 

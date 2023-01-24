@@ -1,11 +1,16 @@
 #pragma once
 
 #include <string>
-#include <vector>
 #include <sstream>
-#include <cmath>
+#include <filesystem>
 
 #include <Common/Types.h>
+
+///////////////////////////////////////////////////////////
+// Namespaces
+///////////////////////////////////////////////////////////
+
+namespace fs = std::filesystem;
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -17,9 +22,9 @@ namespace ark
   {
   public:
 
+    static std::string CutFront(const std::string& String, U64 Size);
+    static std::string CutBack(const std::string& String, U64 Size);
     static std::string RemoveNulls(const std::string& String);
-
-    static U32 Crc32(const std::string& String, U64 DefaultChunkSize = (4ULL * 1024ULL));
-    static U32 Crc32(const std::vector<U8>& Bytes, U64 DefaultChunkSize = (4ULL * 1024ULL));
+    static std::string NormalizePath(const std::string& String);
   };
 }

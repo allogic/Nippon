@@ -1,160 +1,160 @@
 {
-  "regions": [
-    {
-      "id": "0",
-      "name": "Development Maps",
-      "levels": [
-        { "id": "06", "name": "Endless load screen" },
-        { "id": "07", "name": "2005 Prototype Intro Cutscene Waka Lake" },
-        { "id": "10", "name": "Item Test Map - Items 0x00-0x7F" },
-        { "id": "11", "name": "Item Test Map - Items 0x80-0xFF" },
-        { "id": "20", "name": "Brush Interaction Test Map 1 - Large Animals" },
-        { "id": "21", "name": "Brush Interaction Test Map 2 - Small Animals" },
-        { "id": "30", "name": "Brush Interaction Test Map 3 - Wheel Enemies" },
-        { "id": "31", "name": "Brush Interaction Test Map 4 - Bull Enemies" },
-        { "id": "32", "name": "Brush Interaction Test Map 5 - Empty" },
-        { "id": "33", "name": "Brush Interaction Test Map 6 - Empty" },
-        { "id": "34", "name": "Brush Interaction Test Map 7 - Blue Cylinder" },
-        { "id": "ff", "name": "Collision and Movement Test Map" }
-      ]
-    },
-    {
-      "id": "1",
-      "name": "Eastern Nippon",
-      "levels": [
-        { "id": "00", "name": "Kamiki Village - Game Start" },
-        { "id": "01", "name": "Cave of Nagi" },
-        { "id": "02", "name": "Kamiki Village" },
-        { "id": "03", "name": "Hana Valley" },
-        { "id": "04", "name": "Tsuta Ruins" },
-        { "id": "05", "name": "City Checkpoint" },
-        { "id": "06", "name": "Tsuta Ruins - Spider Queen Arena" },
-        { "id": "07", "name": "Gale Shrine" },
-        { "id": "08", "name": "Kusa Village" },
-        { "id": "09", "name": "Sasa Sanctuary" },
-        { "id": "0a", "name": "Agata Forest - Madame Fawn's House" },
-        { "id": "0b", "name": "Digging Minigame" },
-        { "id": "0c", "name": "Onigiri Dojo Lesson Room" },
-        { "id": "0d", "name": "Gale Shrine - Crimson Helm Arena" },
-        { "id": "0e", "name": "Calcified Cavern" },
-        { "id": "10", "name": "Moon Cave - Interior" },
-        { "id": "11", "name": "Moon Cave - Staircase and Orochi Arena" },
-        { "id": "12", "name": "Kamiki Village - After fighting Tei" },
-        { "id": "13", "name": "Ryoshima Coast - Bandit Spider Arena" },
-        { "id": "14", "name": "Taka Pass - Stray Bead #26 Cave" },
-        { "id": "15", "name": "Kamui - Cherry Bomb 3 Cave" },
-        { "id": "16", "name": "N. Ryoshima Coast - Power Slash 2 Cave" },
-        { "id": "17", "name": "N. Ryoshima Coast - Cherry Bomb 2 Cave" },
-        { "id": "18", "name": "Kamui (Ezofuji) - Power Slash 3 Cave" },
-        { "id": "19", "name": "Kamui - Blockhead Grande Cave" },
-        { "id": "1a", "name": "N. Ryoshima Coast - Bandit Spider Arena" },
-        { "id": "1b", "name": "Kamui - Bandit Spider Arena" },
-        { "id": "1c", "name": "Dragon Palace - Stray Bead #70 Cave" },
-        { "id": "1d", "name": "N. Ryoshima Coast - Stray Bead #63 Cave" },
-        { "id": "20", "name": "New Game Intro Cutscene Map" },
-        { "id": "21", "name": "Beta Kamiki" },
-        { "id": "22", "name": "River of the Heavens" }
-      ]
-    },
-    {
-      "id": "2",
-      "name": "Western Nippon",
-      "levels": [
-        { "id": "00", "name": "Sei-an City (Aristocratic Qtr.)" },
-        { "id": "01", "name": "Sei-an City (Commoners' Qtr.)" },
-        { "id": "02", "name": "Sei-an City (Aristocratic Qtr.) - Himiko's Palace" },
-        { "id": "03", "name": "Dragon Palace" },
-        { "id": "04", "name": "Inside the Dragon" },
-        { "id": "05", "name": "Sunken Ship" },
-        { "id": "06", "name": "Imperial Palace - Ammy Size" },
-        { "id": "07", "name": "Imperial Palace - Issun Size" },
-        { "id": "08", "name": "Oni Island - Lower Interior" },
-        { "id": "09", "name": "Oni Island - Ninetales Arena" },
-        { "id": "0a", "name": "Catcall Tower" },
-        { "id": "0b", "name": "Imperial Palace - Blight Arena" },
-        { "id": "0c", "name": "Sei-an City (Commoners' Qtr.) - Kimono Shop" },
-        { "id": "0d", "name": "Oni Island - Exterior" },
-        { "id": "0e", "name": "Oni Island - Upper Interior" },
-        { "id": "0f", "name": "Oni Island - Sidescroller" }
-      ]
-    },
-    {
-      "id": "3",
-      "name": "Kamui",
-      "levels": [
-        { "id": "01", "name": "Wep'keer" },
-        { "id": "02", "name": "Kamiki Village - 100 years ago" },
-        { "id": "03", "name": "Wawku Shrine" },
-        { "id": "04", "name": "Wawku Shrine - Nechku Arena" },
-        { "id": "05", "name": "Ponc'tan" },
-        { "id": "06", "name": "Moon Cave - 100 years ago" },
-        { "id": "07", "name": "Ark of Yamato" },
-        { "id": "08", "name": "Ark of Yamato - Spider Queen Arena" },
-        { "id": "09", "name": "Ark of Yamato - Orochi Arena" },
-        { "id": "0a", "name": "Ark of Yamato - Blight Arena" },
-        { "id": "0b", "name": "Ark of Yamato - Ninetales Arena" },
-        { "id": "0c", "name": "Ark of Yamato - Crimson Helm Arena" },
-        { "id": "0d", "name": "Ponc'tan - Mrs. Seal's House" },
-        { "id": "10", "name": "Yoshpet" },
-        { "id": "11", "name": "Inner Yoshpet" },
-        { "id": "12", "name": "Ark of Yamato - Yami Arena" },
-        { "id": "13", "name": "Wep'keer Square" },
-        { "id": "14", "name": "Wawku Shrine - Lechku & Nechku Arena" }
-      ]
-    },
-    {
-      "id": "c",
-      "name": "Title Screens",
-      "levels": [
-        { "id": "00", "name": "Return to Title Screen" },
-        { "id": "02", "name": "Presents from Issun" }
-      ]
-    },
-    {
-      "id": "d",
-      "name": "Beta Maps",
-      "levels": [
-        { "id": "00", "name": "Beta Shinshu" },
-        { "id": "01", "name": "Beta Hana" },
-        { "id": "02", "name": "Beta Tsuta" },
-        { "id": "03", "name": "Beta Agata" },
-        { "id": "04", "name": "Beta Ryoshima" },
-        { "id": "05", "name": "Beta Kamui" },
-        { "id": "06", "name": "Beta Taka" },
-        { "id": "07", "name": "Title Screen Demo Cutscene Village" }
-      ]
-    },
-    {
-      "id": "e",
-      "name": "Fishing Maps",
-      "levels": [
-        { "id": "00", "name": "Fishing with Benkei on Sei-an Bridge" },
-        { "id": "01", "name": "Fishing with Benkei next to Himiko's Palace" },
-        { "id": "02", "name": "Fishing with Kokari in Agata" },
-        { "id": "03", "name": "Fishing with Kokari in Kamui" },
-        { "id": "04", "name": "Fishing with Fisherman in NRyo" }
-      ]
-    },
-    {
-      "id": "f",
-      "name": "Overworld Maps",
-      "levels": [
-        { "id": "01", "name": "Shinshu Field - Cursed" },
-        { "id": "02", "name": "Shinshu Field - Healed" },
-        { "id": "03", "name": "Agata Forest - Cursed" },
-        { "id": "04", "name": "Agata Forest - Healed" },
-        { "id": "06", "name": "Moon Cave Entrance" },
-        { "id": "07", "name": "Taka Pass - Cursed" },
-        { "id": "08", "name": "Taka Pass - Healed" },
-        { "id": "09", "name": "Ryoshima Coast - Cursed" },
-        { "id": "0a", "name": "Ryoshima Coast - Healed" },
-        { "id": "0c", "name": "N. Ryoshima Coast" },
-        { "id": "11", "name": "Kamui - Cursed" },
-        { "id": "12", "name": "Kamui - Healed" },
-        { "id": "13", "name": "Kamui (Ezofuji)" },
-        { "id": "20", "name": "Shinshu Field - 100 years ago" },
-        { "id": "21", "name": "Moon Cave Entrance - 100 years ago" }
-      ]
-    }
-  ]
+    "regions": [
+        {
+            "id": "0",
+            "name": "Development Maps",
+            "levels": [
+                { "id": "06", "name": "Endless load screen" },
+                { "id": "07", "name": "2005 Prototype Intro Cutscene Waka Lake" },
+                { "id": "10", "name": "Item Test Map - Items 0x00-0x7F" },
+                { "id": "11", "name": "Item Test Map - Items 0x80-0xFF" },
+                { "id": "20", "name": "Brush Interaction Test Map 1 - Large Animals" },
+                { "id": "21", "name": "Brush Interaction Test Map 2 - Small Animals" },
+                { "id": "30", "name": "Brush Interaction Test Map 3 - Wheel Enemies" },
+                { "id": "31", "name": "Brush Interaction Test Map 4 - Bull Enemies" },
+                { "id": "32", "name": "Brush Interaction Test Map 5 - Empty" },
+                { "id": "33", "name": "Brush Interaction Test Map 6 - Empty" },
+                { "id": "34", "name": "Brush Interaction Test Map 7 - Blue Cylinder" },
+                { "id": "ff", "name": "Collision and Movement Test Map" }
+            ]
+        },
+        {
+            "id": "1",
+            "name": "Eastern Nippon",
+            "levels": [
+                { "id": "00", "name": "Kamiki Village - Game Start" },
+                { "id": "01", "name": "Cave of Nagi" },
+                { "id": "02", "name": "Kamiki Village" },
+                { "id": "03", "name": "Hana Valley" },
+                { "id": "04", "name": "Tsuta Ruins" },
+                { "id": "05", "name": "City Checkpoint" },
+                { "id": "06", "name": "Tsuta Ruins - Spider Queen Arena" },
+                { "id": "07", "name": "Gale Shrine" },
+                { "id": "08", "name": "Kusa Village" },
+                { "id": "09", "name": "Sasa Sanctuary" },
+                { "id": "0a", "name": "Agata Forest - Madame Fawn's House" },
+                { "id": "0b", "name": "Digging Minigame" },
+                { "id": "0c", "name": "Onigiri Dojo Lesson Room" },
+                { "id": "0d", "name": "Gale Shrine - Crimson Helm Arena" },
+                { "id": "0e", "name": "Calcified Cavern" },
+                { "id": "10", "name": "Moon Cave - Interior" },
+                { "id": "11", "name": "Moon Cave - Staircase and Orochi Arena" },
+                { "id": "12", "name": "Kamiki Village - After fighting Tei" },
+                { "id": "13", "name": "Ryoshima Coast - Bandit Spider Arena" },
+                { "id": "14", "name": "Taka Pass - Stray Bead #26 Cave" },
+                { "id": "15", "name": "Kamui - Cherry Bomb 3 Cave" },
+                { "id": "16", "name": "N. Ryoshima Coast - Power Slash 2 Cave" },
+                { "id": "17", "name": "N. Ryoshima Coast - Cherry Bomb 2 Cave" },
+                { "id": "18", "name": "Kamui (Ezofuji) - Power Slash 3 Cave" },
+                { "id": "19", "name": "Kamui - Blockhead Grande Cave" },
+                { "id": "1a", "name": "N. Ryoshima Coast - Bandit Spider Arena" },
+                { "id": "1b", "name": "Kamui - Bandit Spider Arena" },
+                { "id": "1c", "name": "Dragon Palace - Stray Bead #70 Cave" },
+                { "id": "1d", "name": "N. Ryoshima Coast - Stray Bead #63 Cave" },
+                { "id": "20", "name": "New Game Intro Cutscene Map" },
+                { "id": "21", "name": "Beta Kamiki" },
+                { "id": "22", "name": "River of the Heavens" }
+            ]
+        },
+        {
+            "id": "2",
+            "name": "Western Nippon",
+            "levels": [
+                { "id": "00", "name": "Sei-an City (Aristocratic Qtr.)" },
+                { "id": "01", "name": "Sei-an City (Commoners' Qtr.)" },
+                { "id": "02", "name": "Sei-an City (Aristocratic Qtr.) - Himiko's Palace" },
+                { "id": "03", "name": "Dragon Palace" },
+                { "id": "04", "name": "Inside the Dragon" },
+                { "id": "05", "name": "Sunken Ship" },
+                { "id": "06", "name": "Imperial Palace - Ammy Size" },
+                { "id": "07", "name": "Imperial Palace - Issun Size" },
+                { "id": "08", "name": "Oni Island - Lower Interior" },
+                { "id": "09", "name": "Oni Island - Ninetales Arena" },
+                { "id": "0a", "name": "Catcall Tower" },
+                { "id": "0b", "name": "Imperial Palace - Blight Arena" },
+                { "id": "0c", "name": "Sei-an City (Commoners' Qtr.) - Kimono Shop" },
+                { "id": "0d", "name": "Oni Island - Exterior" },
+                { "id": "0e", "name": "Oni Island - Upper Interior" },
+                { "id": "0f", "name": "Oni Island - Sidescroller" }
+            ]
+        },
+        {
+            "id": "3",
+            "name": "Kamui",
+            "levels": [
+                { "id": "01", "name": "Wep'keer" },
+                { "id": "02", "name": "Kamiki Village - 100 years ago" },
+                { "id": "03", "name": "Wawku Shrine" },
+                { "id": "04", "name": "Wawku Shrine - Nechku Arena" },
+                { "id": "05", "name": "Ponc'tan" },
+                { "id": "06", "name": "Moon Cave - 100 years ago" },
+                { "id": "07", "name": "Ark of Yamato" },
+                { "id": "08", "name": "Ark of Yamato - Spider Queen Arena" },
+                { "id": "09", "name": "Ark of Yamato - Orochi Arena" },
+                { "id": "0a", "name": "Ark of Yamato - Blight Arena" },
+                { "id": "0b", "name": "Ark of Yamato - Ninetales Arena" },
+                { "id": "0c", "name": "Ark of Yamato - Crimson Helm Arena" },
+                { "id": "0d", "name": "Ponc'tan - Mrs. Seal's House" },
+                { "id": "10", "name": "Yoshpet" },
+                { "id": "11", "name": "Inner Yoshpet" },
+                { "id": "12", "name": "Ark of Yamato - Yami Arena" },
+                { "id": "13", "name": "Wep'keer Square" },
+                { "id": "14", "name": "Wawku Shrine - Lechku & Nechku Arena" }
+            ]
+        },
+        {
+            "id": "c",
+            "name": "Title Screens",
+            "levels": [
+                { "id": "00", "name": "Return to Title Screen" },
+                { "id": "02", "name": "Presents from Issun" }
+            ]
+        },
+        {
+            "id": "d",
+            "name": "Beta Maps",
+            "levels": [
+                { "id": "00", "name": "Beta Shinshu" },
+                { "id": "01", "name": "Beta Hana" },
+                { "id": "02", "name": "Beta Tsuta" },
+                { "id": "03", "name": "Beta Agata" },
+                { "id": "04", "name": "Beta Ryoshima" },
+                { "id": "05", "name": "Beta Kamui" },
+                { "id": "06", "name": "Beta Taka" },
+                { "id": "07", "name": "Title Screen Demo Cutscene Village" }
+            ]
+        },
+        {
+            "id": "e",
+            "name": "Fishing Maps",
+            "levels": [
+                { "id": "00", "name": "Fishing with Benkei on Sei-an Bridge" },
+                { "id": "01", "name": "Fishing with Benkei next to Himiko's Palace" },
+                { "id": "02", "name": "Fishing with Kokari in Agata" },
+                { "id": "03", "name": "Fishing with Kokari in Kamui" },
+                { "id": "04", "name": "Fishing with Fisherman in NRyo" }
+            ]
+        },
+        {
+            "id": "f",
+            "name": "Overworld Maps",
+            "levels": [
+                { "id": "01", "name": "Shinshu Field - Cursed" },
+                { "id": "02", "name": "Shinshu Field - Healed" },
+                { "id": "03", "name": "Agata Forest - Cursed" },
+                { "id": "04", "name": "Agata Forest - Healed" },
+                { "id": "06", "name": "Moon Cave Entrance" },
+                { "id": "07", "name": "Taka Pass - Cursed" },
+                { "id": "08", "name": "Taka Pass - Healed" },
+                { "id": "09", "name": "Ryoshima Coast - Cursed" },
+                { "id": "0a", "name": "Ryoshima Coast - Healed" },
+                { "id": "0c", "name": "N. Ryoshima Coast" },
+                { "id": "11", "name": "Kamui - Cursed" },
+                { "id": "12", "name": "Kamui - Healed" },
+                { "id": "13", "name": "Kamui (Ezofuji)" },
+                { "id": "20", "name": "Shinshu Field - 100 years ago" },
+                { "id": "21", "name": "Moon Cave Entrance - 100 years ago" }
+            ]
+        }
+    ]
 }

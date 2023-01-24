@@ -25,14 +25,6 @@ rapidjson::Document gWorld = {};
 // Unpack Utilities
 ///////////////////////////////////////////////////////////
 
-static void CreateDirIfNotExists(const fs::path& Dir)
-{
-  if (!fs::exists(Dir))
-  {
-    fs::create_directory(Dir);
-  }
-}
-
 static const rapidjson::Value& GetLevelNameWithId(const rapidjson::Value& Levels, const std::string& Id)
 {
   for (const auto& level : Levels.GetArray())

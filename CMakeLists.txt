@@ -19,5 +19,5 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
 endif()
 
 add_subdirectory(Common)
-add_subdirectory(Packer)
+#add_subdirectory(Packer)
 add_subdirectory(Editor)
