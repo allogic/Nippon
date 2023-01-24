@@ -1,6 +1,3 @@
-#include <string>
-#include <map>
-
 #include <Editor/Scene.h>
 #include <Editor/Packer.h>
 
@@ -33,31 +30,63 @@ namespace ark
 
     if (ImGui::BeginMenu("File"))
     {
-      if (ImGui::Selectable("Generate Integrity Map", false))
-      {
-        Packer::GenerateIntegrityMap();
-      }
-
       ImGui::EndMenu();
     }
 
     if (ImGui::BeginMenu("Level"))
     {
-      for (const auto& region : gWorld["regions"].GetArray())
+      const rj::Value& regions = gWorld["regions"];
+
+      for (auto regionIt = regions.MemberBegin(); regionIt != regions.MemberEnd(); regionIt++)
       {
-        if (ImGui::BeginMenu(region["name"].GetString()))
+        std::string regionId = regionIt->name.GetString();
+        std::string regionName = regionIt->value["name"].GetString();
+
+        if (ImGui::BeginMenu(regionName.c_str()))
         {
-          for (const auto& level : region["levels"].GetArray())
+          const rj::Value& levels = regionIt->value["levels"];
+
+          for (auto levelIt = levels.MemberBegin(); levelIt != levels.MemberEnd(); levelIt++)
           {
-            if (ImGui::Selectable(level["name"].GetString(), false))
+            std::string levelId = levelIt->name.GetString();
+            std::string levelName = levelIt->value["name"].GetString();
+
+            if (ImGui::Selectable(levelName.c_str(), false))
             {
               Scene::Destroy();
-              Scene::Create(region["id"].GetString(), level["id"].GetString());
+              Scene::Create(regionId, levelId);
             }
           }
 
           ImGui::EndMenu();
         }
+      }
+
+      ImGui::EndMenu();
+    }
+
+    if (ImGui::BeginMenu("Packer"))
+    {
+      if (ImGui::Selectable("Unpack", false))
+      {
+        Packer::Unpack();
+      }
+
+      if (ImGui::Selectable("Repack", false))
+      {
+        Packer::Repack();
+      }
+
+      ImGui::Separator();
+
+      if (ImGui::Selectable("Check Integrity", false))
+      {
+        Packer::CheckIntegrity();
+      }
+
+      if (ImGui::Selectable("Generate Integrity", false))
+      {
+        Packer::GenerateIntegrityMap();
       }
 
       ImGui::EndMenu();

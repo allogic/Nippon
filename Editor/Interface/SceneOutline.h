@@ -24,6 +24,6 @@ namespace ark
 
   private:
 
-    Actor* mSelectedActor = {};
+    Actor* mSelectedActor = nullptr;
   };
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstring>
+#include <regex>
 #include <string>
 #include <filesystem>
 
@@ -42,6 +44,6 @@ namespace ark
 
   private:
 
-    U32 mProgram = {};
+    U32 mProgram = 0;
   };
 }

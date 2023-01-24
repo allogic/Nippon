@@ -1,5 +1,3 @@
-#include <cassert>
-
 #include <Common/Alignment.h>
 
 #include <Common/Utils/FileUtils.h>

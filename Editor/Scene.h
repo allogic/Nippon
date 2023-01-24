@@ -55,10 +55,10 @@ namespace ark
 
   private:
 
-    static inline std::string sRegionId = {};
-    static inline std::string sLevelId = {};
+    static inline std::string sRegionId = "";
+    static inline std::string sLevelId = "";
     static inline std::vector<Actor*> sActors = {};
-    static inline Actor* sMainActor = {};
+    static inline Actor* sMainActor = nullptr;
   };
 }
 

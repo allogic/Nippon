@@ -113,7 +113,7 @@ namespace ark
     static inline EventRecord sKeyboardKeys[348] = {};
     static inline EventRecord sMouseKeys[7] = {};
 
-    static inline R32 sMouseX = {};
-    static inline R32 sMouseY = {};
+    static inline R32 sMouseX = 0.0F;
+    static inline R32 sMouseY = 0.0F;
   };
 }

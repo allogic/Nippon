@@ -71,8 +71,8 @@ namespace ark
     std::vector<Actor*> mChildren;
     std::map<U64, Component*> mComponents;
 
-    Actor* mParent = {};
-    Transform* mTransform = {};
+    Actor* mParent = nullptr;
+    Transform* mTransform = nullptr;
   };
 }
 

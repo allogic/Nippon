@@ -1,5 +1,3 @@
-#include <cassert>
-
 #include <Common/Utils/FileUtils.h>
 
 #include <Editor/AssetDatabase.h>

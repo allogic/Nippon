@@ -1,12 +1,11 @@
 #pragma once
 
-#include <filesystem>
-
-#include <Common/Trees/FileNode.h>
-
-#include <Editor/Interface.h>
+#include <string>
+#include <vector>
+#include <set>
 
 #include <Vendor/rapidjson/rapidjson.h>
+#include <Vendor/rapidjson/document.h>
 
 ///////////////////////////////////////////////////////////
 // Namespaces
@@ -20,20 +19,10 @@ namespace rj = rapidjson;
 
 namespace ark
 {
-  class FileInspector : public Interface
+  class JsonUtils
   {
   public:
 
-    virtual void Update() override;
-    virtual void Draw() override;
-
-  private:
-
-    void DrawFileNodeRecursive(FileNode* Node);
-
-  private:
-
-    FileNode* mFileNode = nullptr;
-    FileNode* mSelectedNode = nullptr;
+    static std::set<std::string> ToStringSet(const rj::Value& Value);
   };
 }

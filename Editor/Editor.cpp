@@ -107,24 +107,23 @@ namespace rj = rapidjson;
 ///////////////////////////////////////////////////////////
 
 rj::Document gConfig = {};
-rj::Document gIntegrity = {};
 rj::Document gPacker = {};
 rj::Document gWorld = {};
 
 std::vector<ark::Interface*> gInterfaces = {};
 
-ark::DebugRenderer* gDebugRenderer = {};
-ark::DefaultRenderer* gDefaultRenderer = {};
+ark::DebugRenderer* gDebugRenderer = nullptr;
+ark::DefaultRenderer* gDefaultRenderer = nullptr;
 
 ///////////////////////////////////////////////////////////
 // Locals
 ///////////////////////////////////////////////////////////
 
-static GLFWwindow* sGlfwContext = {};
+static GLFWwindow* sGlfwContext = nullptr;
 
-static ark::R32 sTime = {};
-static ark::R32 sTimePrev = {};
-static ark::R32 sTimeDelta = {};
+static ark::R32 sTime = 0.0F;
+static ark::R32 sTimePrev = 0.0F;
+static ark::R32 sTimeDelta = 0.0F;
 
 ///////////////////////////////////////////////////////////
 // Glfw Callbacks

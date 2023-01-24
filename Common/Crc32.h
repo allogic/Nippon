@@ -11,11 +11,11 @@
 
 namespace ark
 {
-  class IntegrityUtils
+  class Crc32
   {
   public:
 
-    static U32 Crc32(const std::string& String, U64 DefaultChunkSize = (4ULL * 1024ULL));
-    static U32 Crc32(const std::vector<U8>& Bytes, U64 DefaultChunkSize = (4ULL * 1024ULL));
+    static U32 FromString(const std::string& String, U64 DefaultChunkSize = 4ULL * 1024ULL);
+    static U32 FromBytes(const std::vector<U8>& Bytes, U64 DefaultChunkSize = 4ULL * 1024ULL);
   };
 }

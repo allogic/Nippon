@@ -1,8 +1,12 @@
 #include <Common/Debug.h>
 #include <Common/BlowFish.h>
+#include <Common/Crc32.h>
 
-#include <Common/Utils/IntegrityUtils.h>
+#include <Common/Trees/ArchiveNode.h>
+
+#include <Common/Utils/DirUtils.h>
 #include <Common/Utils/FileUtils.h>
+#include <Common/Utils/JsonUtils.h>
 #include <Common/Utils/StringUtils.h>
 
 #include <Editor/Packer.h>
@@ -25,74 +29,139 @@ extern rj::Document gIntegrity;
 
 namespace ark
 {
-  void Packer::Pack()
+  void Packer::Unpack()
   {
+    LOG("Unpacking, please wait...\n");
 
+    BlowFish cypher = { gPacker["encryptionKey"].GetString() };
+
+    fs::path gameDir = gConfig["gameDir"].GetString();
+    fs::path dataDir = gameDir / "data_pc";
+    fs::path unpackDir = gConfig["unpackDir"].GetString();
+
+    DirUtils::CreateIfNotExists(unpackDir);
+
+    const rj::Value& sources = gPacker["sources"];
+
+    for (auto it = sources.MemberBegin(); it != sources.MemberEnd(); it++)
+    {
+      std::string unpackEntryName = it->name.GetString();
+
+      DirUtils::CreateIfNotExists(unpackDir / unpackEntryName);
+
+      for (const auto& unpackEntry : it->value.GetArray())
+      {
+        std::set<std::string> extensions = JsonUtils::ToStringSet(unpackEntry["extensions"].GetArray());
+
+        DirUtils::CreateIfNotExists(unpackDir / unpackEntryName / unpackEntry["unpackDir"].GetString());
+
+        for (const auto& file : fs::directory_iterator{ dataDir / unpackEntry["sourceDir"].GetString() })
+        {
+          if (extensions.contains(file.path().extension().string()))
+          {
+            std::string fileName = file.path().stem().string();
+            std::string levelName = StringUtils::SelectExpr(fileName, unpackEntry["selectExpr"].GetString());
+            std::vector<U8> bytes = FileUtils::ReadBinary(file.path().string());
+          
+            cypher.Decrypt(bytes);
+          
+            DirUtils::CreateIfNotExists(unpackDir / unpackEntryName / unpackEntry["unpackDir"].GetString() / levelName);
+
+            ArchiveNode{ bytes }.ExtractRecursive(unpackDir / unpackEntryName / unpackEntry["unpackDir"].GetString() / levelName);
+
+            std::string posixFile = StringUtils::PosixPath(file.path().string());
+            std::string posixDir = StringUtils::PosixPath(dataDir.string());
+
+            LOG("  Unpacking %s\n", StringUtils::CutFront(posixFile, posixDir.size()).c_str());
+          }
+        }
+      }
+    }
+
+    LOG("Unpacking finished successfully!\n");
+    LOG("\n");
   }
 
-  void Packer::UnPack()
+  void Packer::Repack()
   {
-    for (const auto& source : gPacker["sources"].GetArray())
-    {
+    LOG("Repacking, please wait...\n");
 
+    LOG("Repacking finished successfully!\n");
+    LOG("\n");
+  }
+
+  void Packer::CheckIntegrity()
+  {
+    LOG("Checking integrity, please wait...\n");
+
+    U32 success = 1;
+    fs::path gameDir = gConfig["gameDir"].GetString();
+    fs::path dataDir = gameDir / "data_pc";
+
+    rj::Document integrity = {};
+
+    integrity.Parse(FileUtils::ReadText("Integrity.json").c_str());
+
+    for (const auto& file : fs::recursive_directory_iterator{ dataDir })
+    {
+      if (fs::is_regular_file(file))
+      {
+        std::string posixFile = StringUtils::PosixPath(file.path().string());
+        std::string posixDir = StringUtils::PosixPath(dataDir.string());
+        std::string keyValue = StringUtils::CutFront(posixFile, posixDir.size());
+
+        U32 origCrc32 = integrity[keyValue.c_str()].GetUint();
+        U32 currCrc32 = Crc32::FromBytes(FileUtils::ReadBinary(posixFile));
+
+        if (origCrc32 != currCrc32)
+        {
+          success = 0;
+        }
+
+        LOG("  [%s] %s\n", (origCrc32 == currCrc32) ? "Ok" : "Failed", keyValue.c_str());
+      }
     }
+
+    LOG("Integrity check %s!\n", (success) ? "successful" : "unsuccessful");
+    LOG("\n");
   }
 
   void Packer::GenerateIntegrityMap()
   {
-    fs::path sourceDir = gConfig["sourceDir"].GetString();
-    fs::path dataDir = sourceDir / "data_pc";
+    LOG("Generating integrity, please wait...\n");
+
+    fs::path gameDir = gConfig["gameDir"].GetString();
+    fs::path dataDir = gameDir / "data_pc";
 
     rj::Document document;
     rj::Value integrities = rj::Value{ rj::kObjectType };
     rj::StringBuffer buffer;
     rj::PrettyWriter<rj::StringBuffer> writer = rj::PrettyWriter<rj::StringBuffer>{ buffer };
 
-    BlowFish cypher = { gPacker["encryptionKey"].GetString() };
-
-    LOG("Generating integrity map, please wait...\n");
-
     for (const auto& file : fs::recursive_directory_iterator{ dataDir })
     {
       if (fs::is_regular_file(file))
       {
-        std::string canonicalFile = StringUtils::NormalizePath(file.path().string());
-        std::string canonicalData = StringUtils::NormalizePath(dataDir.string());
-        std::string keyValue = StringUtils::CutFront(canonicalFile, canonicalData.size());
+        std::string posixFile = StringUtils::PosixPath(file.path().string());
+        std::string posixDir = StringUtils::PosixPath(dataDir.string());
+        std::string keyValue = StringUtils::CutFront(posixFile, posixDir.size());
 
-        std::vector<U8> bytes = FileUtils::ReadBinary(canonicalFile);
-        U32 sizeBytes = (U32)bytes.size();
-        U32 crc32Encrypted = IntegrityUtils::Crc32(bytes);
-        cypher.Decrypt(bytes);
-        U32 crc32Decrypted = IntegrityUtils::Crc32(bytes);
-
-        rj::Value integrity = rj::Value{ rj::kObjectType };
-        integrity.AddMember("sizeBytes", rj::Value{ rj::kNumberType }.SetUint(sizeBytes), document.GetAllocator());
-        integrity.AddMember("crc32Encrypted", rj::Value{ rj::kNumberType }.SetUint(crc32Encrypted), document.GetAllocator());
-        integrity.AddMember("crc32Decrypted", rj::Value{ rj::kNumberType }.SetUint(crc32Decrypted), document.GetAllocator());
+        U32 crc32 = Crc32::FromBytes(FileUtils::ReadBinary(posixFile));
 
         integrities.AddMember(
           rj::Value{ rj::kStringType }.SetString(keyValue.c_str(), document.GetAllocator()),
-          integrity,
+          rj::Value{ rj::kNumberType }.SetUint(crc32),
           document.GetAllocator());
 
-        LOG("  %10u %08X %08X %s\n", sizeBytes, crc32Encrypted, crc32Decrypted, keyValue.c_str());
+        LOG("  0x%08X %s\n", crc32, keyValue.c_str());
       }
     }
-
-    LOG("Integrity map successfully generated!\n");
-    LOG("\n");
 
     integrities.Accept(writer);
 
     FileUtils::WriteText("Integrity.json", buffer.GetString());
-  }
 
-  void Packer::CreateDirIfNotExists(const fs::path& File)
-  {
-    if (!fs::exists(File))
-    {
-      fs::create_directory(File);
-    }
+    LOG("Integrity generated successfully!\n");
+    LOG("\n");
   }
 }

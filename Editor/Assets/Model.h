@@ -41,7 +41,7 @@ namespace ark
 
   private:
 
-    std::string mName = {};
+    std::string mName = "";
     Transform mTransform = {};
     std::vector<DefaultVertex> mVertexBuffer = {};
     std::vector<U32> mElementBuffer = {};

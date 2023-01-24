@@ -9,8 +9,9 @@ namespace ark
   class FileNode;
   class ArchiveNode;
 
-  class IntegrityUtils;
+  class DirUtils;
   class FileUtils;
+  class JsonUtils;
   class StringUtils;
 
   class BinaryReader;

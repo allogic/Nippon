@@ -31,8 +31,33 @@ namespace ark
     return stream.str();
   }
 
-  std::string StringUtils::NormalizePath(const std::string& String)
+  std::string StringUtils::PosixPath(const std::string& String)
   {
-    return fs::weakly_canonical(String).make_preferred().string();
+    std::string result = String;
+    std::replace(result.begin(), result.end(), '\\', '/');
+    return result;
+  }
+
+  std::string StringUtils::SelectExpr(const std::string& String, const std::string& Expr)
+  {
+    std::stringstream stream;
+
+    for (U32 i = 0; i < String.size(); i++)
+    {
+      if (i + Expr.size() <= String.size())
+      {
+        for (U32 j = 0; j < Expr.size(); j++)
+        {
+          if (Expr[j] == 'X')
+          {
+            stream << String[i + j];
+          }
+        }
+
+        break;
+      }
+    }
+
+    return stream.str();
   }
 }

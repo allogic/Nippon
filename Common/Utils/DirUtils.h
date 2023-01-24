@@ -1,18 +1,12 @@
 #pragma once
 
-#include <set>
 #include <filesystem>
-
-#include <Common/Types.h>
-
-#include <Vendor/rapidjson/rapidjson.h>
 
 ///////////////////////////////////////////////////////////
 // Namespaces
 ///////////////////////////////////////////////////////////
 
 namespace fs = std::filesystem;
-namespace rj = rapidjson;
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -20,16 +14,10 @@ namespace rj = rapidjson;
 
 namespace ark
 {
-  class Packer
+  class DirUtils
   {
   public:
 
-    static void Unpack();
-    static void Repack();
-
-  public:
-
-    static void CheckIntegrity();
-    static void GenerateIntegrityMap();
+    static void CreateIfNotExists(const fs::path& File);
   };
 }

@@ -149,7 +149,7 @@ namespace ark
 
   void Scene::DeSerialize()
   {
-    for (const auto file : fs::directory_iterator{ fs::path{ gConfig["unpackDir"].GetString() } / sRegionId / sLevelId })
+    for (const auto file : fs::directory_iterator{ fs::path{ gConfig["unpackDir"].GetString() } / "levels" / sRegionId / sLevelId})
     {
       if (file.path().extension() == ".TSC") ObjectSerializer{ file };
       if (file.path().extension() == ".TRE") ObjectSerializer{ file };

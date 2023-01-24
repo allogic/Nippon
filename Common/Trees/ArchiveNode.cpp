@@ -1,6 +1,8 @@
-﻿#include <Common/Trees/ArchiveNode.h>
+﻿#include <Common/Crc32.h>
 
-#include <Common/Utils/IntegrityUtils.h>
+#include <Common/Trees/ArchiveNode.h>
+
+#include <Common/Utils/FileUtils.h>
 #include <Common/Utils/StringUtils.h>
 
 ///////////////////////////////////////////////////////////
@@ -29,7 +31,7 @@ namespace ark
 
   ArchiveNode::ArchiveNode(const std::vector<U8>& Bytes)
     : mBinaryReader{ Bytes }
-    , mCrc32{ IntegrityUtils::Crc32(Bytes) }
+    , mCrc32{ Crc32::FromBytes(Bytes) }
     , mIsArchive{ ContainsArchive() }
   {
     if (mIsArchive)
@@ -55,6 +57,52 @@ namespace ark
     {
       delete node;
       node = nullptr;
+    }
+  }
+
+  void ArchiveNode::ExtractRecursive(const fs::path& File, ArchiveNode* Node)
+  {
+    if (!Node)
+    {
+      Node = this;
+    }
+
+    if (Node->IsArchive())
+    {
+      for (const auto& [type, node] : *Node)
+      {
+        ExtractRecursive(File, node);
+      }
+    }
+    else
+    {
+      fs::path fileWithName = File;
+
+      if (Node->GetName() == "")
+      {
+        fileWithName /= std::to_string(Node->GetCrc32());
+      }
+      else
+      {
+        fileWithName /= Node->GetName();
+      }
+
+      std::string fileWithNameAndExtension = fileWithName.string() + "." + Node->GetType();
+
+      if (Node->GetSize())
+      {
+        if (fs::exists(fileWithNameAndExtension))
+        {
+          if (Node->GetSize() > fs::file_size(fileWithNameAndExtension))
+          {
+            FileUtils::WriteBinary(fileWithNameAndExtension, Node->GetBytes());
+          }
+        }
+        else
+        {
+          FileUtils::WriteBinary(fileWithNameAndExtension, Node->GetBytes());
+        }
+      }
     }
   }
 

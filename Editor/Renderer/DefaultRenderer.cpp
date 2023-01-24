@@ -1,5 +1,3 @@
-#include <filesystem>
-
 #include <Editor/Mesh.h>
 #include <Editor/Scene.h>
 #include <Editor/Shader.h>
@@ -9,12 +7,6 @@
 #include <Editor/Components/Transform.h>
 
 #include <Editor/Renderer/DefaultRenderer.h>
-
-///////////////////////////////////////////////////////////
-// Namespaces
-///////////////////////////////////////////////////////////
-
-namespace fs = std::filesystem;
 
 ///////////////////////////////////////////////////////////
 // Globals

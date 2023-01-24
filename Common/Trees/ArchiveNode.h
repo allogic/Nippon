@@ -4,9 +4,16 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <filesystem>
 
 #include <Common/Types.h>
 #include <Common/BinaryReader.h>
+
+///////////////////////////////////////////////////////////
+// Namespaces
+///////////////////////////////////////////////////////////
+
+namespace fs = std::filesystem;
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -56,6 +63,10 @@ namespace ark
     inline auto end() { return mNodes.end(); }
     inline const auto end() const { return mNodes.cend(); }
 
+  public:
+
+    void ExtractRecursive(const fs::path& File, ArchiveNode* Node = nullptr);
+
   private:
 
     void FetchHeader();
@@ -67,10 +78,10 @@ namespace ark
     const U32 mCrc32;
     const U32 mIsArchive;
 
-    U32 mOffset = {};
-    U32 mSize = {};
-    std::string mType = {};
-    std::string mName = {};
+    U32 mOffset = 0;
+    U32 mSize = 0;
+    std::string mType = "";
+    std::string mName = "";
     std::vector<ArchiveEntry> mToc = {};
     std::multimap<std::string, ArchiveNode*> mNodes = {};
   };

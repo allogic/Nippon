@@ -45,7 +45,7 @@ namespace ark
     U32 mVbo;
     U32 mEbo;
 
-    U32 mElementSize = {};
+    U32 mElementSize = 0;
   };
 }
 

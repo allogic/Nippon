@@ -1,5 +1,8 @@
 #pragma once
 
+#include <string>
+#include <map>
+
 #include <Common/Types.h>
 
 #include <Editor/Interface.h>

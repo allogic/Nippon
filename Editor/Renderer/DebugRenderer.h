@@ -1,8 +1,16 @@
 #pragma once
 
+#include <filesystem>
+
 #include <Common/Types.h>
 
 #include <Editor/Forward.h>
+
+///////////////////////////////////////////////////////////
+// Namespaces
+///////////////////////////////////////////////////////////
+
+namespace fs = std::filesystem;
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -33,7 +41,7 @@ namespace ark
     Mesh<DebugVertex, U32>* mMesh;
     Shader* mShader;
 
-    U32 mVertexOffset = {};
-    U32 mElementOffset = {};
+    U32 mVertexOffset = 0;
+    U32 mElementOffset = 0;
   };
 }
