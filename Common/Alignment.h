@@ -6,27 +6,15 @@
 
 namespace ark
 {
-  template<typename T>
-  T Align4(T Value)
+  template<unsigned P>
+  class Align
   {
-    return (Value + 3) & (~T(3));
-  }
+  public:
 
-  template<typename T>
-  T Align8(T Value)
-  {
-    return (Value + 7) & (~T(7));
-  }
+    template<typename T>
+    static inline T Down(T Value) { return (Value & (~(P - 1))); }
 
-  template<typename T>
-  T Align16(T Value)
-  {
-    return (Value + 15) & (~T(15));
-  }
-
-  template<typename T>
-  T Align64(T Value)
-  {
-    return (Value + 63) & (~T(63));
-  }
+    template<typename T>
+    static inline T Up(T Value) { return ((Value + (P - 1)) & (~(P - 1))); }
+  };
 }

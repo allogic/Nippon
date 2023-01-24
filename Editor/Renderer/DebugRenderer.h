@@ -33,7 +33,7 @@ namespace ark
     Mesh<DebugVertex, U32>* mMesh;
     Shader* mShader;
 
-    U32 mVertexOffset = 0;
-    U32 mElementOffset = 0;
+    U32 mVertexOffset = {};
+    U32 mElementOffset = {};
   };
 }

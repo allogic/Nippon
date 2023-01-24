@@ -28,8 +28,8 @@ namespace ark
 
   private:
 
-    U8 mId = 0;
-    U8 mCategory = 0;
+    U8 mId = {};
+    U8 mCategory = {};
     R32V3 mPosition = {};
     R32V3 mRotation = {};
     R32V3 mScale = {};

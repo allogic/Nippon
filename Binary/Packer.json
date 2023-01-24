@@ -3,20 +3,20 @@
     "sources": [
         {
             "levels": [
-                { "sourceDir": "st0", "unpackDir": "0", "repackDir": "", "extensions": [ ".dat", ".bin" ], "mergeBy": "r0[A-Za-z0-9]{2}" },
-                { "sourceDir": "st1", "unpackDir": "1", "repackDir": "", "extensions": [ ".dat", ".bin" ], "mergeBy": "r1[A-Za-z0-9]{2}" },
-                { "sourceDir": "st2", "unpackDir": "2", "repackDir": "", "extensions": [ ".dat", ".bin" ], "mergeBy": "r2[A-Za-z0-9]{2}" },
-                { "sourceDir": "st3", "unpackDir": "3", "repackDir": "", "extensions": [ ".dat", ".bin" ], "mergeBy": "r3[A-Za-z0-9]{2}" },
-                { "sourceDir": "stc", "unpackDir": "c", "repackDir": "", "extensions": [ ".dat", ".bin" ], "mergeBy": "rc[A-Za-z0-9]{2}" },
-                { "sourceDir": "std", "unpackDir": "d", "repackDir": "", "extensions": [ ".dat", ".bin" ], "mergeBy": "rd[A-Za-z0-9]{2}" },
-                { "sourceDir": "ste", "unpackDir": "e", "repackDir": "", "extensions": [ ".dat", ".bin" ], "mergeBy": "re[A-Za-z0-9]{2}" },
-                { "sourceDir": "stf", "unpackDir": "f", "repackDir": "", "extensions": [ ".dat", ".bin" ], "mergeBy": "rf[A-Za-z0-9]{2}" }
+                { "sourceDir": "\\st0", "unpackDir": "\\0", "repackDir": "\\st0", "extensions": [ ".dat", ".bin" ], "mergeBy": "r0[A-Za-z0-9]{2}" },
+                { "sourceDir": "\\st1", "unpackDir": "\\1", "repackDir": "\\st1", "extensions": [ ".dat", ".bin" ], "mergeBy": "r1[A-Za-z0-9]{2}" },
+                { "sourceDir": "\\st2", "unpackDir": "\\2", "repackDir": "\\st2", "extensions": [ ".dat", ".bin" ], "mergeBy": "r2[A-Za-z0-9]{2}" },
+                { "sourceDir": "\\st3", "unpackDir": "\\3", "repackDir": "\\st3", "extensions": [ ".dat", ".bin" ], "mergeBy": "r3[A-Za-z0-9]{2}" },
+                { "sourceDir": "\\stc", "unpackDir": "\\c", "repackDir": "\\stc", "extensions": [ ".dat", ".bin" ], "mergeBy": "rc[A-Za-z0-9]{2}" },
+                { "sourceDir": "\\std", "unpackDir": "\\d", "repackDir": "\\std", "extensions": [ ".dat", ".bin" ], "mergeBy": "rd[A-Za-z0-9]{2}" },
+                { "sourceDir": "\\ste", "unpackDir": "\\e", "repackDir": "\\ste", "extensions": [ ".dat", ".bin" ], "mergeBy": "re[A-Za-z0-9]{2}" },
+                { "sourceDir": "\\stf", "unpackDir": "\\f", "repackDir": "\\stf", "extensions": [ ".dat", ".bin" ], "mergeBy": "rf[A-Za-z0-9]{2}" }
             ]
         },
         {
             "characters": [
-                { "sourceDir": "pl", "unpackDir": "amaterasu", "repackDir": "", "extensions": [ ".dat" ], "mergeBy": "pl[A-Za-z0-9]{2}" },
-                { "sourceDir": "em", "unpackDir": "monsters", "repackDir": "", "extensions": [ ".dat" ], "mergeBy": "em[A-Za-z0-9]{2}" }
+                { "sourceDir": "\\pl", "unpackDir": "\\amaterasu", "repackDir": "\\pl", "extensions": [ ".dat" ], "mergeBy": "pl[A-Za-z0-9]{2}" },
+                { "sourceDir": "\\em", "unpackDir": "\\monsters", "repackDir": "\\em", "extensions": [ ".dat" ], "mergeBy": "em[A-Za-z0-9]{2}" }
             ]
         }
     ]

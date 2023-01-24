@@ -24,7 +24,7 @@ namespace ark
 
   private:
 
-    static inline R32 sWidth = 1920.0F;
-    static inline R32 sHeight = 1080.0F;
+    static inline R32 sWidth = { 1920.0F };
+    static inline R32 sHeight = { 1080.0F };
   };
 }

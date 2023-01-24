@@ -32,7 +32,7 @@ namespace ark
 
     std::vector<U32> transformOffsets = mBinaryReader.Read<U32>(scrHeader.EndEntryCount);
 
-    mBinaryReader.SeekAbsolute(Align16(mBinaryReader.GetPosition()));
+    mBinaryReader.SeekAbsolute(Align<16>::Up(mBinaryReader.GetPosition()));
 
     Model model;
 
@@ -42,7 +42,7 @@ namespace ark
     {
       ParseModel(model);
 
-      mBinaryReader.SeekAbsolute(Align16(mBinaryReader.GetPosition()));
+      mBinaryReader.SeekAbsolute(Align<16>::Up(mBinaryReader.GetPosition()));
     }
 
     for (U32 i = 0; i < 1; i++)

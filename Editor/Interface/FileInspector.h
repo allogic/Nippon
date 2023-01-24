@@ -33,7 +33,7 @@ namespace ark
 
   private:
 
-    FileNode* mFileNode = nullptr;
-    FileNode* mSelectedNode = nullptr;
+    FileNode* mFileNode = {};
+    FileNode* mSelectedNode = {};
   };
 }

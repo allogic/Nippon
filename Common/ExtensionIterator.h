@@ -34,6 +34,6 @@ namespace ark
 
   private:
 
-    std::vector<fs::path> mFiles;
+    std::vector<fs::path> mFiles = {};
   };
 }

@@ -26,6 +26,11 @@ namespace ark
 
   public:
 
+    inline void SeekRelative(U64 Value) { mPosition += Value; }
+    inline void SeekAbsolute(U64 Value) { mPosition = Value; }
+
+  public:
+
     template<typename T>
     T Read();
 
@@ -60,15 +65,6 @@ namespace ark
       mPosition += Size;
 
       return string;
-    }
-
-    void SeekRelative(U64 Offset)
-    {
-      mPosition += Offset;
-    }
-    void SeekAbsolute(U64 Offset)
-    {
-      mPosition = Offset;
     }
 
   private:

@@ -11,7 +11,7 @@
 
 namespace ark
 {
-  class CorruptionUtils
+  class IntegrityUtils
   {
   public:
 

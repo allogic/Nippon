@@ -1,7 +1,7 @@
 #include <Common/Debug.h>
 #include <Common/BlowFish.h>
 
-#include <Common/Utils/CorruptionUtils.h>
+#include <Common/Utils/IntegrityUtils.h>
 #include <Common/Utils/FileUtils.h>
 #include <Common/Utils/StringUtils.h>
 
@@ -62,9 +62,9 @@ namespace ark
 
         std::vector<U8> bytes = FileUtils::ReadBinary(canonicalFile);
         U32 sizeBytes = (U32)bytes.size();
-        U32 crc32Encrypted = CorruptionUtils::Crc32(bytes);
+        U32 crc32Encrypted = IntegrityUtils::Crc32(bytes);
         cypher.Decrypt(bytes);
-        U32 crc32Decrypted = CorruptionUtils::Crc32(bytes);
+        U32 crc32Decrypted = IntegrityUtils::Crc32(bytes);
 
         rj::Value integrity = rj::Value{ rj::kObjectType };
         integrity.AddMember("sizeBytes", rj::Value{ rj::kNumberType }.SetUint(sizeBytes), document.GetAllocator());

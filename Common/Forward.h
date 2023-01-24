@@ -9,7 +9,7 @@ namespace ark
   class FileNode;
   class ArchiveNode;
 
-  class CorruptionUtils;
+  class IntegrityUtils;
   class FileUtils;
   class StringUtils;
 

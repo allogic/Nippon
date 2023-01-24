@@ -1,6 +1,6 @@
 ﻿#include <Common/Trees/ArchiveNode.h>
 
-#include <Common/Utils/CorruptionUtils.h>
+#include <Common/Utils/IntegrityUtils.h>
 #include <Common/Utils/StringUtils.h>
 
 ///////////////////////////////////////////////////////////
@@ -29,7 +29,7 @@ namespace ark
 
   ArchiveNode::ArchiveNode(const std::vector<U8>& Bytes)
     : mBinaryReader{ Bytes }
-    , mCrc32{ CorruptionUtils::Crc32(Bytes) }
+    , mCrc32{ IntegrityUtils::Crc32(Bytes) }
     , mIsArchive{ ContainsArchive() }
   {
     if (mIsArchive)

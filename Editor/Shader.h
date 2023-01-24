@@ -42,6 +42,6 @@ namespace ark
 
   private:
 
-    U32 mProgram{};
+    U32 mProgram = {};
   };
 }

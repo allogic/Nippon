@@ -66,12 +66,12 @@ namespace ark
     BinaryReader mBinaryReader;
     const U32 mCrc32;
     const U32 mIsArchive;
-    U32 mOffset;
-    U32 mSize;
-    std::string mType;
-    std::string mName;
-    std::vector<ArchiveEntry> mToc;
 
+    U32 mOffset = {};
+    U32 mSize = {};
+    std::string mType = {};
+    std::string mName = {};
+    std::vector<ArchiveEntry> mToc = {};
     std::multimap<std::string, ArchiveNode*> mNodes = {};
   };
 }
