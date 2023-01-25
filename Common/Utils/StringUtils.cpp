@@ -34,7 +34,14 @@ namespace ark
   std::string StringUtils::PosixPath(const std::string& String)
   {
     std::string result = String;
-    std::replace(result.begin(), result.end(), '\\', '/');
+    U64 position = 0;
+    
+    while((position = result.find("\\", position)) != std::string::npos)
+    {
+        result.replace(position, 1, "/");
+        position++;
+    }
+    
     return result;
   }
 
