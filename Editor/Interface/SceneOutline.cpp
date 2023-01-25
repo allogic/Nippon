@@ -8,6 +8,12 @@
 #include <Vendor/ImGui/imgui.h>
 
 ///////////////////////////////////////////////////////////
+// Globals
+///////////////////////////////////////////////////////////
+
+extern ark::Scene* gScene;
+
+///////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////
 
@@ -22,11 +28,14 @@ namespace ark
   {
     ImGui::Begin("Scene Outline");
 
-    for (auto& actor : Scene::GetActors())
+    if (gScene)
     {
-      if (actor->HasNoParent())
+      for (auto& actor : gScene->GetActors())
       {
-        DrawActorRecursive(actor);
+        if (actor->HasNoParent())
+        {
+          DrawActorRecursive(actor);
+        }
       }
     }
 

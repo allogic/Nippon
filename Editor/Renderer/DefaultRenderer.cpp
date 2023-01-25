@@ -13,6 +13,7 @@
 ///////////////////////////////////////////////////////////
 
 extern ark::DefaultRenderer* gDefaultRenderer;
+extern ark::Scene* gScene;
 
 ///////////////////////////////////////////////////////////
 // Implementation
@@ -44,21 +45,24 @@ namespace ark
 
       if (renderTask.TransformPtr && renderTask.MeshPtr)
       {
-        Camera* camera = Scene::GetMainCamera();
-
-        if (camera)
+        if (gScene)
         {
-          mShader->Bind();
+          Camera* camera = gScene->GetMainCamera();
 
-          mShader->SetUniformR32M4("UniformProjectionMatrix", camera->GetProjectionMatrix());
-          mShader->SetUniformR32M4("UniformViewMatrix", camera->GetViewMatrix());
-          mShader->SetUniformR32M4("UniformModelMatrix", renderTask.TransformPtr->GetModelMatrix());
+          if (camera)
+          {
+            mShader->Bind();
 
-          renderTask.MeshPtr->Bind();
-          renderTask.MeshPtr->Render(eRenderModeTriangles);
-          renderTask.MeshPtr->UnBind();
+            mShader->SetUniformR32M4("UniformProjectionMatrix", camera->GetProjectionMatrix());
+            mShader->SetUniformR32M4("UniformViewMatrix", camera->GetViewMatrix());
+            mShader->SetUniformR32M4("UniformModelMatrix", renderTask.TransformPtr->GetModelMatrix());
 
-          mShader->UnBind();
+            renderTask.MeshPtr->Bind();
+            renderTask.MeshPtr->Render(eRenderModeTriangles);
+            renderTask.MeshPtr->UnBind();
+
+            mShader->UnBind();
+          }
         }
       }
 

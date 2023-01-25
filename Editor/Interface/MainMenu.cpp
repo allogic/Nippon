@@ -13,6 +13,8 @@
 
 extern rj::Document gWorld;
 
+extern ark::Scene* gScene;
+
 ///////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////
@@ -53,8 +55,13 @@ namespace ark
 
             if (ImGui::Selectable(levelName.c_str(), false))
             {
-              Scene::Destroy();
-              Scene::Create(regionId, levelId);
+              if (gScene)
+              {
+                delete gScene;
+                gScene = nullptr;
+              }
+
+              gScene = new Scene{ regionId, levelId };
             }
           }
 

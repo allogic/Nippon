@@ -1,6 +1,3 @@
-#include <Common/ExtensionIterator.h>
-
-#include <Editor/AssetDatabase.h>
 #include <Editor/Scene.h>
 
 #include <Editor/Actors/Player.h>
@@ -29,63 +26,71 @@ extern rj::Document gConfig;
 
 namespace ark
 {
-  void Scene::Create(const std::string& RegionId, const std::string& LevelId)
+  Scene::Scene(const std::string& RegionId, const std::string& LevelId)
+    : mRegionId{ RegionId }
+    , mLevelId{ LevelId }
   {
-    sRegionId = RegionId;
-    sLevelId = LevelId;
-    sMainActor = CreateActor<Player>("Player", nullptr);
-
     DeSerialize();
 
-    for (const auto& object : AssetDatabase::GetObjects())
+    mMainActor = CreateActor<Player>("Player", nullptr);
+
+    for (const auto& object : mObjects)
     {
-      Actor* actor = CreateActor<Actor>("Object", nullptr);
-      actor->GetTransform()->SetWorldPosition(object.GetPosition());
-      actor->GetTransform()->SetWorldRotation(object.GetRotation());
-      actor->GetTransform()->SetWorldScale(R32V3{ 1.0F, 1.0F, 1.0F });
+      //Actor* actor = CreateActor<Actor>("Object", nullptr);
+      //
+      //actor->GetTransform()->SetWorldPosition(object.GetPosition());
+      //actor->GetTransform()->SetWorldRotation(object.GetRotation());
+      //actor->GetTransform()->SetWorldScale(R32V3{ 1.0F, 1.0F, 1.0F });
     }
 
-    for (const auto& model : AssetDatabase::GetModels())
+    for (const auto& modelGroup : mModelGroups)
     {
-      Actor* actor = CreateActor<Actor>("Model", nullptr);
+      Actor* groupActor = CreateActor<Actor>(modelGroup.GetName(), nullptr);
 
-      Transform* transform = actor->GetTransform();
-      transform->SetWorldPosition(model.GetTransform().Position);
-      transform->SetWorldRotation(model.GetTransform().Rotation);
-      transform->SetWorldScale(R32V3{ 1.0F, 1.0F, 1.0F });
+      for (const auto& modelEntry : modelGroup)
+      {
+        Actor* entryActor = CreateActor<Actor>(std::to_string(modelEntry.GetId()), groupActor);
+        Transform* entryTransform = entryActor->GetTransform();
 
-      Renderable* renderable = actor->AttachComponent<Renderable>();
-      renderable->SetVertexBuffer(model.GetVertexBuffer());
-      renderable->SetElementBuffer(model.GetElementBuffer());
+        entryTransform->SetWorldPosition(modelEntry.GetPosition());
+        entryTransform->SetWorldRotation(modelEntry.GetRotation());
+        entryTransform->SetWorldScale(modelEntry.GetScale());
+
+        for (const auto& modelDivision : modelEntry)
+        {
+          Actor* divisionActor = CreateActor<Actor>("Division", entryActor);
+          Renderable* divisionRenderable = divisionActor->AttachComponent<Renderable>();
+
+          divisionRenderable->SetVertexBuffer(modelDivision.GetVertexBuffer());
+          divisionRenderable->SetElementBuffer(modelDivision.GetElementBuffer());
+        }
+      }
     }
   }
 
-  void Scene::Destroy()
+  Scene::~Scene()
   {
-    AssetDatabase::ClearModels();
-    AssetDatabase::ClearObjects();
-
     Serialize();
 
-    for (auto& actor : sActors)
+    for (auto& actor : mActors)
     {
       delete actor;
       actor = nullptr;
     }
 
-    sActors.clear();
+    mActors.clear();
   }
 
   Actor* Scene::GetMainActor()
   {
-    return sMainActor;
+    return mMainActor;
   }
 
   Camera* Scene::GetMainCamera()
   {
-    if (sMainActor)
+    if (mMainActor)
     {
-      return sMainActor->GetComponent<Camera>();
+      return mMainActor->GetComponent<Camera>();
     }
 
     return nullptr;
@@ -93,14 +98,14 @@ namespace ark
 
   void Scene::DestroyActor(Actor* Actor)
   {
-    auto actorIt = std::find(sActors.begin(), sActors.end(), Actor);
+    auto actorIt = std::find(mActors.begin(), mActors.end(), Actor);
 
-    if (actorIt != sActors.end())
+    if (actorIt != mActors.end())
     {
       delete *actorIt;
       *actorIt = nullptr;
 
-      sActors.erase(actorIt);
+      mActors.erase(actorIt);
     }
   }
 
@@ -110,7 +115,7 @@ namespace ark
     DebugRenderer::DebugLine(R32V3{ 0.0F, -10000.0F, 0.0F }, R32V3{ 0.0F, 10000.0F, 0.0F }, R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
     DebugRenderer::DebugLine(R32V3{ 0.0F, 0.0F, -10000.0F }, R32V3{ 0.0F, 0.0F, 10000.0F }, R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
 
-    for (const auto& actor : sActors)
+    for (const auto& actor : mActors)
     {
       actor->Update(TimeDelta);
 
@@ -122,7 +127,7 @@ namespace ark
         DefaultRenderer::AddRenderTask(RenderTask{ transform, renderable->GetMeshPtr() });
       }
 
-      if (actor != sMainActor)
+      if (actor != mMainActor)
       {
         DebugRenderer::DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetWorldRight(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
         DebugRenderer::DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetWorldUp(), R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
@@ -137,7 +142,7 @@ namespace ark
           DebugRenderer::DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition(), R32V4{ 1.0F, 1.0F, 1.0F, 1.0F });
         }
 
-        DebugRenderer::DebugBox(transform->GetWorldPosition(), transform->GetWorldScale(), R32V4{ 1.0F, 1.0F, 0.0F, 1.0F }, transform->GetQuaternion());
+        //DebugRenderer::DebugBox(transform->GetWorldPosition(), transform->GetWorldScale(), R32V4{ 1.0F, 1.0F, 0.0F, 1.0F }, transform->GetQuaternion());
       }
     }
   }
@@ -149,13 +154,13 @@ namespace ark
 
   void Scene::DeSerialize()
   {
-    for (const auto file : fs::directory_iterator{ fs::path{ gConfig["unpackDir"].GetString() } / "levels" / sRegionId / sLevelId})
+    for (const auto file : fs::directory_iterator{ fs::path{ gConfig["unpackDir"].GetString() } / "levels" / mRegionId / mLevelId })
     {
-      if (file.path().extension() == ".TSC") ObjectSerializer{ file };
-      if (file.path().extension() == ".TRE") ObjectSerializer{ file };
-      if (file.path().extension() == ".TAT") ObjectSerializer{ file };
+      if (file.path().extension() == ".TSC") ObjectSerializer{ this, file };
+      if (file.path().extension() == ".TRE") ObjectSerializer{ this, file };
+      if (file.path().extension() == ".TAT") ObjectSerializer{ this, file };
 
-      if (file.path().extension() == ".SCR") ModelSerializer{ file };
+      if (file.path().extension() == ".SCR") ModelSerializer{ this, file };
     }
   }
 }

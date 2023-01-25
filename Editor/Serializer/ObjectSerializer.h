@@ -43,7 +43,7 @@ namespace ark
   {
   public:
 
-    ObjectSerializer(const fs::path& File);
+    ObjectSerializer(Scene* Scene, const fs::path& File);
 
   private:
 

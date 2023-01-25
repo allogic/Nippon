@@ -1,6 +1,6 @@
 #include <Common/Utils/FileUtils.h>
 
-#include <Editor/AssetDatabase.h>
+#include <Editor/Scene.h>
 
 #include <Editor/Serializer/ObjectSerializer.h>
 
@@ -10,7 +10,7 @@
 
 namespace ark
 {
-  ObjectSerializer::ObjectSerializer(const fs::path& File)
+  ObjectSerializer::ObjectSerializer(Scene* Scene, const fs::path& File)
     : mFile{ File }
     , mBinaryReader{ FileUtils::ReadBinary(File.string()) }
   {
@@ -28,7 +28,7 @@ namespace ark
       object.SetRotation(R32V3{ objEntry.Rotation.x, objEntry.Rotation.y, objEntry.Rotation.z });
       object.SetScale(R32V3{ objEntry.Scale.x, objEntry.Scale.y, objEntry.Scale.z });
 
-      AssetDatabase::AddObject(object);
+      Scene->AddObject(object);
     }
   }
 }

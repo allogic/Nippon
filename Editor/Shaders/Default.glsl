@@ -18,8 +18,8 @@ uniform mat4 UniformModelMatrix;
 
 void main()
 {
-  vertex.Position = InputPosition;
-  vertex.Color = vec4(1.0, 0.0, 0.0, 1.0);
+  vertex.Position = (UniformModelMatrix * vec4(InputPosition, 1.0)).xyz;
+  vertex.Color = vec4(InputTextureMap, 0.0, 1.0);
   gl_Position = UniformProjectionMatrix * UniformViewMatrix * UniformModelMatrix * vec4(InputPosition, 1.0);
 }
 

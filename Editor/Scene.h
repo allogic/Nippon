@@ -9,6 +9,9 @@
 #include <Editor/Forward.h>
 #include <Editor/Actor.h>
 
+#include <Editor/Assets/Model.h>
+#include <Editor/Assets/Object.h>
+
 #include <Vendor/rapidjson/rapidjson.h>
 
 ///////////////////////////////////////////////////////////
@@ -28,37 +31,50 @@ namespace ark
   {
   public:
 
-    static void Create(const std::string& RegionId, const std::string& LevelId);
-    static void Destroy();
+    Scene(const std::string& RegionId, const std::string& LevelId);
+    ~Scene();
 
   public:
 
-    static inline const auto& GetActors() { return sActors; }
-    static Actor* GetMainActor();
-    static Camera* GetMainCamera();
+    inline const auto& GetObjects() const { return mObjects; }
+    inline const auto& GetModelGroups() const { return mModelGroups; }
+
+    inline const auto& GetActors() { return mActors; }
+
+    Actor* GetMainActor();
+    Camera* GetMainCamera();
+
+  public:
+
+    inline void AddObject(const Object& Value) { mObjects.emplace_back(Value); }
+    inline void AddModelGroup(const ModelGroup& Value) { mModelGroups.emplace_back(Value); }
 
   public:
 
     template<typename A, typename ... Args>
-    static A* CreateActor(const std::string& Name, Actor* Parent, Args&& ... Arguments);
+    A* CreateActor(const std::string& Name, Actor* Parent, Args&& ... Arguments);
 
-    static void DestroyActor(Actor* Actor);
+    void DestroyActor(Actor* Actor);
 
   public:
 
-    static void Update(R32 TimeDelta);
+    void Update(R32 TimeDelta);
 
   private:
 
-    static void Serialize();
-    static void DeSerialize();
+    void Serialize();
+    void DeSerialize();
 
   private:
 
-    static inline std::string sRegionId = "";
-    static inline std::string sLevelId = "";
-    static inline std::vector<Actor*> sActors = {};
-    static inline Actor* sMainActor = nullptr;
+    std::string mRegionId;
+    std::string mLevelId;
+
+    std::vector<Actor*> mActors = {};
+    Actor* mMainActor = nullptr;
+
+    std::vector<Object> mObjects = {};
+    std::vector<ModelGroup> mModelGroups = {};
   };
 }
 
@@ -71,7 +87,7 @@ namespace ark
   template<typename A, typename ... Args>
   A* Scene::CreateActor(const std::string& Name, Actor* Parent, Args&& ... Arguments)
   {
-    auto actor = sActors.emplace_back(new A{ Name, std::forward<Args>(Arguments) ... });
+    auto actor = mActors.emplace_back(new A{ Name, std::forward<Args>(Arguments) ... });
     if (Parent)
     {
       actor->SetParent(Parent);

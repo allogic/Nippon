@@ -12,6 +12,7 @@
 ///////////////////////////////////////////////////////////
 
 extern ark::DebugRenderer* gDebugRenderer;
+extern ark::Scene* gScene;
 
 ///////////////////////////////////////////////////////////
 // Implementation
@@ -38,25 +39,28 @@ namespace ark
 
   void DebugRenderer::Render()
   {
-    Camera* camera = Scene::GetMainCamera();
-
-    if (camera)
+    if (gScene)
     {
-      mShader->Bind();
+      Camera* camera = gScene->GetMainCamera();
 
-      mShader->SetUniformR32M4("UniformProjectionMatrix", camera->GetProjectionMatrix());
-      mShader->SetUniformR32M4("UniformViewMatrix", camera->GetViewMatrix());
+      if (camera)
+      {
+        mShader->Bind();
 
-      // Clear previous entries...
+        mShader->SetUniformR32M4("UniformProjectionMatrix", camera->GetProjectionMatrix());
+        mShader->SetUniformR32M4("UniformViewMatrix", camera->GetViewMatrix());
 
-      mMesh->Bind();
-      mMesh->UploadVertices(mVertexBuffer, mVertexOffset);
-      mMesh->UploadElements(mElementBuffer, mElementOffset);
-      mMesh->Render(eRenderModeLines);
-      mMesh->UnBind();
+        // Clear previous entries...
 
-      mShader->UnBind();
-    }      
+        mMesh->Bind();
+        mMesh->UploadVertices(mVertexBuffer, mVertexOffset);
+        mMesh->UploadElements(mElementBuffer, mElementOffset);
+        mMesh->Render(eRenderModeLines);
+        mMesh->UnBind();
+
+        mShader->UnBind();
+      }
+    }
 
     mVertexOffset = 0;
     mElementOffset = 0;

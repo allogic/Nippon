@@ -2,7 +2,6 @@
 
 #include <cassert>
 #include <vector>
-#include <utility>
 #include <filesystem>
 
 #include <Common/Types.h>
@@ -27,7 +26,7 @@ namespace ark
   {
     U32 ScrId; // always 0x00726373
     U32 FileType; // 0 for md, 1 for scr?
-    U32 EndEntryCount; // for many but not all files, this is the number of submeshes.
+    U32 SubMeshCount; // for many but not all files, this is the number of submeshes.
     U32 Padding; // always zero
   };
   #pragma pack(pop)
@@ -87,13 +86,12 @@ namespace ark
   {
   public:
 
-    ModelSerializer(const fs::path& File);
+    ModelSerializer(Scene* Scene, const fs::path& File);
 
   private:
 
-    void ParseScr();
-    void ParseModel(Model& Model);
-    std::pair<U16, U16> ParseSubModel(std::vector<ScrVertex>& Vertices, std::vector<U16V2>& TextureMaps, std::vector<U16V2>& TextureUvs, std::vector<U32>& ColorWeights, std::vector<U32>& Elements);
+    void ParseModel(ModelGroup& ModelGroup);
+    void ParseDivision(ModelDivision& ModelDivision);
 
   private:
 

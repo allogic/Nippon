@@ -7,7 +7,6 @@
 #include <Common/Utils/FileUtils.h>
 
 #include <Editor/Actor.h>
-#include <Editor/AssetDatabase.h>
 #include <Editor/Event.h>
 #include <Editor/Interface.h>
 #include <Editor/Scene.h>
@@ -114,6 +113,8 @@ std::vector<ark::Interface*> gInterfaces = {};
 
 ark::DebugRenderer* gDebugRenderer = nullptr;
 ark::DefaultRenderer* gDefaultRenderer = nullptr;
+
+ark::Scene* gScene = nullptr;
 
 ///////////////////////////////////////////////////////////
 // Locals
@@ -231,8 +232,9 @@ ark::I32 main()
           sTimePrev = sTime;
 
           glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
-          glClear(GL_COLOR_BUFFER_BIT);
+          glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
           glViewport(0, 0, (ark::I32)ark::Window::GetWidth(), (ark::I32)ark::Window::GetHeight());
+          glDisable(GL_CULL_FACE);
 
           ImGui_ImplGlfw_NewFrame();
           ImGui_ImplOpenGL3_NewFrame();
@@ -240,7 +242,10 @@ ark::I32 main()
           ImGui::NewFrame();
           ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
 
-          ark::Scene::Update(sTimeDelta);
+          if (gScene)
+          {
+            gScene->Update(sTimeDelta);
+          }
 
           gDefaultRenderer->Render();
           gDebugRenderer->Render();
