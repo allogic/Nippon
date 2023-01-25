@@ -33,7 +33,7 @@ From the `Project` directory, enter the following commands to build the entire p
 ```sh
 mkdir Build
 cd Build && cmake ..
-make
+cmake --build .
 ```
 
 ## How To Run
