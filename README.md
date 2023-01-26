@@ -43,7 +43,7 @@ make -j 8
 
 ## How To Run
 
-Once all binaries are built, first launch the `Editor` and start the integrity check under `Packer/Check Integrity`. After that unpack your game files with `Packer/Unpack`. Once all files are decrypted, one can jump into levels `World/<Region>/<Level>`.
+Once all binaries are built, first launch the editor and start the integrity check under `Packer/Check Integrity`. After that unpack your game files with `Packer/Unpack`. Once all files are decrypted, one can jump into levels `World/<Region>/<Level>`.
 
 ## Editor Controls
 
