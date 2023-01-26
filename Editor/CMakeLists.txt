@@ -42,3 +42,11 @@ target_link_libraries(${TARGET_NAME}
 target_compile_definitions(${TARGET_NAME}
   PUBLIC SHADER_DIR="${EDITOR_DIR}/Shaders"
 )
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  target_compile_options(${TARGET_NAME} PRIVATE -Wall -Wextra)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  target_compile_options(${TARGET_NAME} PRIVATE /W4)
+endif()
