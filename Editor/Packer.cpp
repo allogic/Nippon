@@ -60,14 +60,14 @@ namespace ark
           if (extensions.contains(file.path().extension().string()))
           {
             std::string fileName = file.path().stem().string();
-            std::string levelName = StringUtils::SelectExpr(fileName, unpackEntry["selectExpr"].GetString());
+            std::string cutName = StringUtils::SelectExpr(fileName, unpackEntry["selectExpr"].GetString());
             std::vector<U8> bytes = FileUtils::ReadBinary(file.path().string());
-          
+
             cypher.Decrypt(bytes);
           
-            DirUtils::CreateIfNotExists(unpackDir / unpackEntryName / unpackEntry["unpackDir"].GetString() / levelName);
+            DirUtils::CreateIfNotExists(unpackDir / unpackEntryName / unpackEntry["unpackDir"].GetString() / cutName);
 
-            ArchiveNode{ bytes }.ExtractRecursive(unpackDir / unpackEntryName / unpackEntry["unpackDir"].GetString() / levelName);
+            ArchiveNode{ bytes }.ExtractRecursive(unpackDir / unpackEntryName / unpackEntry["unpackDir"].GetString() / cutName);
 
             std::string posixFile = StringUtils::PosixPath(file.path().string());
             std::string posixDir = StringUtils::PosixPath(dataDir.string());

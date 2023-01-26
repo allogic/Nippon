@@ -4,6 +4,20 @@ set(TARGET_NAME Common)
 
 file(GLOB_RECURSE TARGET_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/*.c ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set_source_files_properties(
+    ${TARGET_SOURCE}
+    PROPERTIES COMPILE_FLAGS -Wall
+  )
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  set_source_files_properties(
+    ${TARGET_SOURCE}
+    PROPERTIES COMPILE_FLAGS /W3
+  )
+endif()
+
 add_library(${TARGET_NAME} STATIC
   ${TARGET_SOURCE}
 )

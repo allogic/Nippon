@@ -122,7 +122,7 @@ namespace ark
         {
           continue;
         }
-    
+
         elements.emplace_back(i - 2);
         elements.emplace_back(i - 1);
         elements.emplace_back(i - 0);

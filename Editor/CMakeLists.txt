@@ -11,6 +11,20 @@ file(GLOB_RECURSE GLAD_SOURCE ${VENDOR_DIR}/GLAD/*.c ${VENDOR_DIR}/GLAD/*.cpp)
 file(GLOB_RECURSE IMGUI_SOURCE ${VENDOR_DIR}/ImGui/*.c ${VENDOR_DIR}/ImGui/*.cpp)
 file(GLOB_RECURSE TARGET_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/*.c ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set_source_files_properties(
+    ${TARGET_SOURCE}
+    PROPERTIES COMPILE_FLAGS -Wall
+  )
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  set_source_files_properties(
+    ${TARGET_SOURCE}
+    PROPERTIES COMPILE_FLAGS /W3
+  )
+endif()
+
 add_executable(${TARGET_NAME}
   ${CRC_SOURCE}
   ${DDS_SOURCE}
@@ -42,11 +56,3 @@ target_link_libraries(${TARGET_NAME}
 target_compile_definitions(${TARGET_NAME}
   PUBLIC SHADER_DIR="${EDITOR_DIR}/Shaders"
 )
-
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  target_compile_options(${TARGET_NAME} PRIVATE -Wall -Wextra)
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  target_compile_options(${TARGET_NAME} PRIVATE /W4)
-endif()

@@ -11,7 +11,47 @@
 
 namespace ark
 {
-  static const std::set<std::string> sKnownTypes
+  static const std::set<std::string> sKnownUnknownTypes
+  {
+    "AK",
+    "CAM",
+    "DDP", "DDS",
+    "EFF", "EMD", "EST",
+    "ICO",
+    "MD", "MOT",
+    "PSN",
+    "ROF",
+    "SEQ", "SES",
+    "TBL",
+  };
+
+  static const std::set<std::string> sKnownItemTypes
+  {
+    "AK",
+    "CAM",
+    "DDP", "DDS",
+    "EFF", "EMD", "EST",
+    "ICO",
+    "MD", "MOT",
+    "ROF",
+    "SEQ", "SES",
+    "TBL",
+  };
+
+  static const std::set<std::string> sKnownCharacterTypes
+  {
+    "AK",
+    "CAM",
+    "DDP", "DDS",
+    "EFF", "EMD", "EST",
+    "ICO",
+    "MD", "MOT",
+    "ROF",
+    "SEQ", "SES",
+    "TBL",
+  };
+
+  static const std::set<std::string> sKnownLevelTypes
   {
     "A00", "A01", "ACT", "AK", "AKT", "ANS",
     "B00", "B01", "BIN", "BMH",
@@ -170,7 +210,10 @@ namespace ark
       {
         std::string type = StringUtils::RemoveNulls(mBinaryReader.String(4));
 
-        if (!sKnownTypes.contains(type))
+        if (!sKnownLevelTypes.contains(type) &&
+            !sKnownCharacterTypes.contains(type) &&
+            !sKnownItemTypes.contains(type) &&
+            !sKnownUnknownTypes.contains(type))
         {
           return false;
         }

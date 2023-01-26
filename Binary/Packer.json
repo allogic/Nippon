@@ -1,19 +1,228 @@
 {
     "encryptionKey": "YaKiNiKuM2rrVrPJpGMkfe3EK4RbpbHw",
     "sources": {
-        "levels": [
-            { "sourceDir": "st0", "unpackDir": "0", "repackDir": "st0", "extensions": [ ".dat", ".bin" ], "selectExpr": "??XX" },
-            { "sourceDir": "st1", "unpackDir": "1", "repackDir": "st1", "extensions": [ ".dat", ".bin" ], "selectExpr": "??XX" },
-            { "sourceDir": "st2", "unpackDir": "2", "repackDir": "st2", "extensions": [ ".dat", ".bin" ], "selectExpr": "??XX" },
-            { "sourceDir": "st3", "unpackDir": "3", "repackDir": "st3", "extensions": [ ".dat", ".bin" ], "selectExpr": "??XX" },
-            { "sourceDir": "stc", "unpackDir": "c", "repackDir": "stc", "extensions": [ ".dat", ".bin" ], "selectExpr": "??XX" },
-            { "sourceDir": "std", "unpackDir": "d", "repackDir": "std", "extensions": [ ".dat", ".bin" ], "selectExpr": "??XX" },
-            { "sourceDir": "ste", "unpackDir": "e", "repackDir": "ste", "extensions": [ ".dat", ".bin" ], "selectExpr": "??XX" },
-            { "sourceDir": "stf", "unpackDir": "f", "repackDir": "stf", "extensions": [ ".dat", ".bin" ], "selectExpr": "??XX" }
+        "levels":[
+            {
+                "sourceDir":"st0",
+                "unpackDir":"0",
+                "repackDir":"st0",
+                "extensions":[
+                    ".dat",
+                    ".bin"
+                ],
+                "selectExpr":"??XX"
+            },
+            {
+                "sourceDir":"st1",
+                "unpackDir":"1",
+                "repackDir":"st1",
+                "extensions":[
+                    ".dat",
+                    ".bin"
+                ],
+                "selectExpr":"??XX"
+            },
+            {
+                "sourceDir":"st2",
+                "unpackDir":"2",
+                "repackDir":"st2",
+                "extensions":[
+                    ".dat",
+                    ".bin"
+                ],
+                "selectExpr":"??XX"
+            },
+            {
+                "sourceDir":"st3",
+                "unpackDir":"3",
+                "repackDir":"st3",
+                "extensions":[
+                    ".dat",
+                    ".bin"
+                ],
+                "selectExpr":"??XX"
+            },
+            {
+                "sourceDir":"stc",
+                "unpackDir":"c",
+                "repackDir":"stc",
+                "extensions":[
+                    ".dat",
+                    ".bin"
+                ],
+                "selectExpr":"??XX"
+            },
+            {
+                "sourceDir":"std",
+                "unpackDir":"d",
+                "repackDir":"std",
+                "extensions":[
+                    ".dat",
+                    ".bin"
+                ],
+                "selectExpr":"??XX"
+            },
+            {
+                "sourceDir":"ste",
+                "unpackDir":"e",
+                "repackDir":"ste",
+                "extensions":[
+                    ".dat",
+                    ".bin"
+                ],
+                "selectExpr":"??XX"
+            },
+            {
+                "sourceDir":"stf",
+                "unpackDir":"f",
+                "repackDir":"stf",
+                "extensions":[
+                    ".dat",
+                    ".bin"
+                ],
+                "selectExpr":"??XX"
+            }
         ],
         "characters": [
-            { "sourceDir": "pl", "unpackDir": "amaterasu", "repackDir": "pl", "extensions": [ ".dat" ], "selectExpr": "??XX" },
-            { "sourceDir": "em", "unpackDir": "monsters", "repackDir": "em", "extensions": [ ".dat" ], "selectExpr": "??XX" }
+            {
+                "sourceDir": "pl",
+                "unpackDir": "pl",
+                "repackDir": "pl",
+                "extensions": [
+                    ".dat"
+                ],
+                "selectExpr": "??XX"
+            },
+            {
+                "sourceDir": "em",
+                "unpackDir": "em",
+                "repackDir": "em",
+                "extensions": [
+                    ".dat"
+                ],
+                "selectExpr": "??XX"
+            }
+        ],
+        "items": [
+            {
+                "sourceDir": "it",
+                "unpackDir": "it",
+                "repackDir": "it",
+                "extensions": [
+                    ".dat"
+                ],
+                "selectExpr": "??XX"
+            }
+        ],
+        "unknown": [
+            {
+                "sourceDir": "an",
+                "unpackDir": "an",
+                "repackDir": "an",
+                "extensions": [
+                    ".dat"
+                ],
+                "selectExpr": "??XX"
+            },
+            {
+                "sourceDir": "dr",
+                "unpackDir": "dr",
+                "repackDir": "dr",
+                "extensions": [
+                    ".dat"
+                ],
+                "selectExpr": "??XX"
+            },
+            {
+                "sourceDir": "es",
+                "unpackDir": "es",
+                "repackDir": "es",
+                "extensions": [
+                    ".dat"
+                ],
+                "selectExpr": "??XX"
+            },
+            {
+                "sourceDir": "et",
+                "unpackDir": "et",
+                "repackDir": "et",
+                "extensions": [
+                    ".dat"
+                ],
+                "selectExpr": "??XX"
+            },
+            {
+                "sourceDir": "event",
+                "unpackDir": "ev",
+                "repackDir": "event",
+                "extensions": [
+                    ".dat"
+                ],
+                "selectExpr": "??XX"
+            },
+            {
+                "sourceDir": "gt",
+                "unpackDir": "gt",
+                "repackDir": "gt",
+                "extensions": [
+                    ".dat"
+                ],
+                "selectExpr": "??XX"
+            },
+            {
+                "sourceDir": "hl",
+                "unpackDir": "hl",
+                "repackDir": "hl",
+                "extensions": [
+                    ".dat"
+                ],
+                "selectExpr": "??XX"
+            },
+            {
+                "sourceDir": "hm",
+                "unpackDir": "hm",
+                "repackDir": "hm",
+                "extensions": [
+                    ".dat"
+                ],
+                "selectExpr": "??XX"
+            },
+            {
+                "sourceDir": "us",
+                "unpackDir": "us",
+                "repackDir": "us",
+                "extensions": [
+                    ".dat"
+                ],
+                "selectExpr": "??XX"
+            },
+            {
+                "sourceDir": "ut",
+                "unpackDir": "ut",
+                "repackDir": "ut",
+                "extensions": [
+                    ".dat"
+                ],
+                "selectExpr": "??XX"
+            },
+            {
+                "sourceDir": "vt",
+                "unpackDir": "vt",
+                "repackDir": "vt",
+                "extensions": [
+                    ".dat"
+                ],
+                "selectExpr": "??XX"
+            },
+            {
+                "sourceDir": "wp",
+                "unpackDir": "wp",
+                "repackDir": "wp",
+                "extensions": [
+                    ".dat"
+                ],
+                "selectExpr": "??XX"
+            }
         ]
     }
 }

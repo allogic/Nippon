@@ -105,6 +105,7 @@ namespace rj = rapidjson;
 // Globals
 ///////////////////////////////////////////////////////////
 
+rj::Document gArchive = {};
 rj::Document gConfig = {};
 rj::Document gPacker = {};
 rj::Document gWorld = {};
@@ -168,6 +169,7 @@ static void GlDebugCallback(ark::U32 Source, ark::U32 Type, ark::U32 Id, ark::U3
 
 ark::I32 main()
 {
+  gArchive.Parse(ark::FileUtils::ReadText("Archive.json").c_str());
   gConfig.Parse(ark::FileUtils::ReadText("Config.json").c_str());
   gPacker.Parse(ark::FileUtils::ReadText("Packer.json").c_str());
   gWorld.Parse(ark::FileUtils::ReadText("World.json").c_str());
