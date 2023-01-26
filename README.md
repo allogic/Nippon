@@ -37,7 +37,9 @@ From the `Project` directory, enter the following commands to build the entire p
 
 ```sh
 mkdir Build
-cd Build && cmake ..
+cd Build
+cmake -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++ ..
+cmake -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++ ..
 cmake --build .
 ```
 
