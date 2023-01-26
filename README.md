@@ -2,15 +2,15 @@
 
 # Nippon Modding Framework
 
-Nippon is a collection of cross platform tools, currently designed to interact with the okami PC port. This project is in pre pre alpha and by all means not production ready. 
+Nippon is a cross platform game editor, currently designed to interact with the okami PC port. This project is in it's very early days and by all means not production ready.
 
 ## Setting Up Nippon
 
-All tools require one configuration file. Inside the `Binary` directory update the following paths inside `Config.json`.
+The editor requires a configuration file. Inside the `Binary` directory update the following paths inside `Config.json`.
 
 ```jsonc
 {
-  "sourceDir": "/../Steam/steamapps/common/Okami", // Required only if you don't have unpacked files
+  "gameDir": "/../Steam/steamapps/common/Okami",
   "unpackDir": "/../Nippon/Unpack",
   "repackDir": "/../Nippon/Repack",
 }
@@ -22,11 +22,16 @@ All binaries built, will be put inside the `Binary` directory.
 
 ### Visual Studio
 
-Open the `Project` as a CMake project. Select `Project/Delete Cache and Reconfigure`. Select `Build/Build All`.
+Open the `Project` directory as a CMake project.
 
-Select startup item...
+```
+Project/Delete Cache and Reconfigure
+Build/Build All
+```
 
-### Other IDE's
+Select startup item ...
+
+### CMake
 
 From the `Project` directory, enter the following commands to build the entire project.
 
@@ -38,7 +43,7 @@ cmake --build .
 
 ## How To Run
 
-Once all binaries are built, first launch the `Packer` tool to recursively decrypt all level files. After that, one can start the `Editor`.
+Once all binaries are built, first launch the editor and start the integrity check under `Packer/Check Integrity`. After that unpack your game files with `Packer/Unpack`. Once all files are decrypted, one can jump into levels `World/<Region>/<Level>`.
 
 ## Editor Controls
 
