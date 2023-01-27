@@ -78,32 +78,32 @@ namespace ark
 
       if (gScene)
       {
-        for (const auto& modelGroup : gScene->GetModelGroups())
-        {
-          //ImGui::TableNextRow();
-          //ImGui::TableNextColumn();
-          //
-          //ImGui::Text("%s", model.GetName().c_str());
-          //ImGui::TableNextColumn();
-          //
-          //ImGui::Text("%u", (U32)model.GetVertexBuffer().size());
-          //ImGui::TableNextColumn();
-          //
-          //ImGui::Text("%u", (U32)model.GetElementBuffer().size());
-          //ImGui::TableNextColumn();
-          //
-          //ImGui::Text("[%6.3f,%6.3f,%6.3f] [%6.3f,%6.3f,%6.3f] [%6.3f,%6.3f,%6.3f]",
-          //  model.GetTransform().Position.x,
-          //  model.GetTransform().Position.y,
-          //  model.GetTransform().Position.z,
-          //  model.GetTransform().Rotation.x,
-          //  model.GetTransform().Rotation.y,
-          //  model.GetTransform().Rotation.z,
-          //  model.GetTransform().Scale.x,
-          //  model.GetTransform().Scale.y,
-          //  model.GetTransform().Scale.z);
-          //ImGui::TableNextColumn();
-        }
+        //for (const auto& modelGroup : gScene->GetModelGroups())
+        //{
+        //  ImGui::TableNextRow();
+        //  ImGui::TableNextColumn();
+        //  
+        //  ImGui::Text("%s", model.GetName().c_str());
+        //  ImGui::TableNextColumn();
+        //  
+        //  ImGui::Text("%u", (U32)model.GetVertexBuffer().size());
+        //  ImGui::TableNextColumn();
+        //  
+        //  ImGui::Text("%u", (U32)model.GetElementBuffer().size());
+        //  ImGui::TableNextColumn();
+        //  
+        //  ImGui::Text("[%6.3f,%6.3f,%6.3f] [%6.3f,%6.3f,%6.3f] [%6.3f,%6.3f,%6.3f]",
+        //    model.GetTransform().Position.x,
+        //    model.GetTransform().Position.y,
+        //    model.GetTransform().Position.z,
+        //    model.GetTransform().Rotation.x,
+        //    model.GetTransform().Rotation.y,
+        //    model.GetTransform().Rotation.z,
+        //    model.GetTransform().Scale.x,
+        //    model.GetTransform().Scale.y,
+        //    model.GetTransform().Scale.z);
+        //  ImGui::TableNextColumn();
+        //}
       }
 
       ImGui::EndTable();

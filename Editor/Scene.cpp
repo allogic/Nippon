@@ -36,11 +36,11 @@ namespace ark
 
     for (const auto& object : mObjects)
     {
-      //Actor* actor = CreateActor<Actor>("Object", nullptr);
-      //
-      //actor->GetTransform()->SetWorldPosition(object.GetPosition());
-      //actor->GetTransform()->SetWorldRotation(object.GetRotation());
-      //actor->GetTransform()->SetWorldScale(R32V3{ 1.0F, 1.0F, 1.0F });
+      Actor* actor = CreateActor<Actor>("Object_" + std::to_string(object.GetId()) + "_" + std::to_string(object.GetCategory()), nullptr);
+
+      actor->GetTransform()->SetWorldPosition(object.GetPosition());
+      actor->GetTransform()->SetWorldRotation(object.GetRotation());
+      actor->GetTransform()->SetWorldScale(R32V3{ 1.0F, 1.0F, 1.0F });
     }
 
     for (const auto& modelGroup : mModelGroups)
@@ -154,7 +154,7 @@ namespace ark
 
   void Scene::DeSerialize()
   {
-    for (const auto file : fs::directory_iterator{ fs::path{ gConfig["unpackDir"].GetString() } / "levels" / mRegionId / mLevelId })
+    for (const auto& file : fs::directory_iterator{ fs::path{ gConfig["unpackDir"].GetString() } / "levels" / mRegionId / mLevelId })
     {
       if (file.path().extension() == ".TSC") ObjectSerializer{ this, file };
       if (file.path().extension() == ".TRE") ObjectSerializer{ this, file };

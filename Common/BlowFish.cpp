@@ -285,7 +285,7 @@ namespace ark
 
   BlowFish::BlowFish(const std::string& Key)
   {
-    I32 i, j, k;
+    U32 i, j, k;
     U32 data, datal, datar;
 
     for (i = 0; i < 4; i++)

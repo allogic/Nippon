@@ -11,7 +11,7 @@ namespace ark
   {
     if (fs::is_directory(mFile))
     {
-      for (const auto file : fs::directory_iterator{ mFile })
+      for (const auto& file : fs::directory_iterator{ mFile })
       {
         mNodes[file] = new FileNode{ file };
       }

@@ -10,7 +10,7 @@ namespace ark
   {
     if (fs::is_directory(File))
     {
-      for (const auto file : fs::directory_iterator{ File })
+      for (const auto& file : fs::directory_iterator{ File })
       {
         if (file.path().extension().string() == Ext)
         {
