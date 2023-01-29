@@ -2,6 +2,7 @@
 
 #include <Common/Trees/ArchiveNode.h>
 
+#include <Common/Utils/DirUtils.h>
 #include <Common/Utils/FileUtils.h>
 #include <Common/Utils/StringUtils.h>
 
@@ -51,7 +52,7 @@ namespace ark
     "TBL",
   };
 
-  static const std::set<std::string> sKnownLevelTypes
+  static const std::set<std::string> sKnownWorldTypes
   {
     "A00", "A01", "ACT", "AK", "AKT", "ANS",
     "B00", "B01", "BIN", "BMH",
@@ -109,25 +110,17 @@ namespace ark
 
     if (Node->IsArchive())
     {
+      DirUtils::CreateIfNotExists(File / Node->GetType());
+
       for (const auto& [type, node] : *Node)
       {
-        ExtractRecursive(File, node);
+        ExtractRecursive(File / Node->GetType(), node);
       }
     }
     else
     {
-      fs::path fileWithName = File;
-
-      if (Node->GetName() == "")
-      {
-        fileWithName /= std::to_string(Node->GetCrc32());
-      }
-      else
-      {
-        fileWithName /= Node->GetName();
-      }
-
-      std::string fileWithNameAndExtension = fileWithName.string() + "." + Node->GetType();
+      std::string fileWithName = (File / ((Node->GetName() == "") ? std::to_string(Node->GetCrc32()) : Node->GetName())).string();
+      std::string fileWithNameAndExtension = fileWithName + "." + Node->GetType();
 
       if (Node->GetSize())
       {
@@ -210,7 +203,7 @@ namespace ark
       {
         std::string type = StringUtils::RemoveNulls(mBinaryReader.String(4));
 
-        if (!sKnownLevelTypes.contains(type) &&
+        if (!sKnownWorldTypes.contains(type) &&
             !sKnownCharacterTypes.contains(type) &&
             !sKnownItemTypes.contains(type) &&
             !sKnownUnknownTypes.contains(type))

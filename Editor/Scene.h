@@ -1,5 +1,7 @@
 #pragma once
 
+#pragma warning(disable : 26444)
+
 #include <string>
 #include <filesystem>
 #include <vector>
@@ -31,7 +33,7 @@ namespace ark
   {
   public:
 
-    Scene(const std::string& RegionId, const std::string& LevelId);
+    Scene(const std::string& Directory, const std::string& SubDirectory, const std::string& Type);
     ~Scene();
 
   public:
@@ -67,8 +69,9 @@ namespace ark
 
   private:
 
-    std::string mRegionId;
-    std::string mLevelId;
+    std::string mDirectory;
+    std::string mSubDirectory;
+    std::string mType;
 
     std::vector<Actor*> mActors = {};
     Actor* mMainActor = nullptr;

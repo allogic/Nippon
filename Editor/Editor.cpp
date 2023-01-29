@@ -105,10 +105,9 @@ namespace rj = rapidjson;
 // Globals
 ///////////////////////////////////////////////////////////
 
-rj::Document gArchive = {};
 rj::Document gConfig = {};
 rj::Document gPacker = {};
-rj::Document gWorld = {};
+rj::Document gTranslation = {};
 
 std::vector<ark::Interface*> gInterfaces = {};
 
@@ -169,10 +168,9 @@ static void GlDebugCallback(ark::U32 Source, ark::U32 Type, ark::U32 Id, ark::U3
 
 ark::I32 main()
 {
-  gArchive.Parse(ark::FileUtils::ReadText("Archive.json").c_str());
   gConfig.Parse(ark::FileUtils::ReadText("Config.json").c_str());
   gPacker.Parse(ark::FileUtils::ReadText("Packer.json").c_str());
-  gWorld.Parse(ark::FileUtils::ReadText("World.json").c_str());
+  gTranslation.Parse(ark::FileUtils::ReadText("Translation.json").c_str());
 
   gInterfaces.emplace_back(new ark::AssetBrowser);
   gInterfaces.emplace_back(new ark::MainMenu);
@@ -222,21 +220,23 @@ ark::I32 main()
         ImGui_ImplGlfw_InitForOpenGL(sGlfwContext, 1);
         ImGui_ImplOpenGL3_Init("#version 450 core");
 
-        for (auto& interface : gInterfaces)
-        {
-          interface->Update();
-        }
-
         while (!glfwWindowShouldClose(sGlfwContext))
         {
           sTime = (ark::R32)glfwGetTime();
           sTimeDelta = sTime - sTimePrev;
           sTimePrev = sTime;
 
+          glViewport(0, 0, (ark::I32)ark::Window::GetWidth(), (ark::I32)ark::Window::GetHeight());
+
           glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
           glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-          glViewport(0, 0, (ark::I32)ark::Window::GetWidth(), (ark::I32)ark::Window::GetHeight());
-          glDisable(GL_CULL_FACE);
+
+          glEnable(GL_DEPTH_TEST);
+          glDepthFunc(GL_LESS);
+
+          glEnable(GL_CULL_FACE);
+          glCullFace(GL_BACK);
+          glFrontFace(GL_CW);
 
           ImGui_ImplGlfw_NewFrame();
           ImGui_ImplOpenGL3_NewFrame();

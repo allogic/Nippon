@@ -1,3 +1,5 @@
+#include <Common/ExtensionIterator.h>
+
 #include <Editor/Scene.h>
 
 #include <Editor/Actors/Player.h>
@@ -26,9 +28,10 @@ extern rj::Document gConfig;
 
 namespace ark
 {
-  Scene::Scene(const std::string& RegionId, const std::string& LevelId)
-    : mRegionId{ RegionId }
-    , mLevelId{ LevelId }
+  Scene::Scene(const std::string& Directory, const std::string& SubDirectory, const std::string& Type)
+    : mDirectory{ Directory }
+    , mSubDirectory{ SubDirectory }
+    , mType{ Type }
   {
     DeSerialize();
 
@@ -154,13 +157,20 @@ namespace ark
 
   void Scene::DeSerialize()
   {
-    for (const auto& file : fs::directory_iterator{ fs::path{ gConfig["unpackDir"].GetString() } / "levels" / mRegionId / mLevelId })
-    {
-      if (file.path().extension() == ".TSC") ObjectSerializer{ this, file };
-      if (file.path().extension() == ".TRE") ObjectSerializer{ this, file };
-      if (file.path().extension() == ".TAT") ObjectSerializer{ this, file };
+    fs::path targetDir = fs::path{ gConfig["unpackDir"].GetString() } / mDirectory / mSubDirectory;
 
-      if (file.path().extension() == ".SCR") ModelSerializer{ this, file };
+    if (mType == "map")
+    {
+      for (const auto& file : ExtensionIterator{ targetDir, { ".TSC", ".TRE", ".TAT" } }) ObjectSerializer{ this, file };
+      for (const auto& file : ExtensionIterator{ targetDir / "SCP", { ".SCR" } }) ModelSerializer{ this, file };
+    }
+    else if (mType == "character")
+    {
+      for (const auto& file : ExtensionIterator{ targetDir, { ".MD" } }) ModelSerializer{ this, file };
+    }
+    else if (mType == "item")
+    {
+      for (const auto& file : ExtensionIterator{ targetDir, { ".MD" } }) ModelSerializer{ this, file };
     }
   }
 }

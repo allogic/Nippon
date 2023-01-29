@@ -37,7 +37,7 @@ namespace ark
   private:
 
     R32 mFov = 45.0F;
-    R32 mNear = 0.001F;
-    R32 mFar = 1000000.0F;
+    R32 mNear = 0.1F;
+    R32 mFar = 50000.0F;
   };
 }

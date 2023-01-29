@@ -19,11 +19,6 @@ extern ark::Scene* gScene;
 
 namespace ark
 {
-  void SceneOutline::Update()
-  {
-
-  }
-
   void SceneOutline::Draw()
   {
     ImGui::Begin("Scene Outline");

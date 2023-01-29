@@ -41,39 +41,31 @@ namespace ark
 
     DirUtils::CreateIfNotExists(unpackDir);
 
-    const rj::Value& sources = gPacker["sources"];
-
-    for (auto it = sources.MemberBegin(); it != sources.MemberEnd(); it++)
+    for (const auto& source : gPacker["sources"].GetArray())
     {
-      std::string unpackEntryName = it->name.GetString();
+      std::string targetDir = source["targetDir"].GetString();
 
-      DirUtils::CreateIfNotExists(unpackDir / unpackEntryName);
+      DirUtils::CreateIfNotExists(unpackDir / targetDir);
 
-      for (const auto& unpackEntry : it->value.GetArray())
+      std::set<std::string> extensions = JsonUtils::ToStringSet(source["extensions"].GetArray());
+
+      for (const auto& file : fs::directory_iterator{ dataDir / targetDir })
       {
-        std::set<std::string> extensions = JsonUtils::ToStringSet(unpackEntry["extensions"].GetArray());
-
-        DirUtils::CreateIfNotExists(unpackDir / unpackEntryName / unpackEntry["unpackDir"].GetString());
-
-        for (const auto& file : fs::directory_iterator{ dataDir / unpackEntry["sourceDir"].GetString() })
+        if (extensions.contains(file.path().extension().string()))
         {
-          if (extensions.contains(file.path().extension().string()))
-          {
-            std::string fileName = file.path().stem().string();
-            std::string cutName = StringUtils::SelectExpr(fileName, unpackEntry["selectExpr"].GetString());
-            std::vector<U8> bytes = FileUtils::ReadBinary(file.path().string());
+          std::string dirName = StringUtils::SelectExpr(file.path().stem().string(), source["selectExpr"].GetString());
+          std::vector<U8> bytes = FileUtils::ReadBinary(file.path().string());
 
-            cypher.Decrypt(bytes);
-          
-            DirUtils::CreateIfNotExists(unpackDir / unpackEntryName / unpackEntry["unpackDir"].GetString() / cutName);
+          cypher.Decrypt(bytes);
+        
+          DirUtils::CreateIfNotExists(unpackDir / targetDir / dirName);
 
-            ArchiveNode{ bytes }.ExtractRecursive(unpackDir / unpackEntryName / unpackEntry["unpackDir"].GetString() / cutName);
+          ArchiveNode{ bytes }.ExtractRecursive(unpackDir / targetDir / dirName);
 
-            std::string posixFile = StringUtils::PosixPath(file.path().string());
-            std::string posixDir = StringUtils::PosixPath(dataDir.string());
+          std::string posixFile = StringUtils::PosixPath(file.path().string());
+          std::string posixDir = StringUtils::PosixPath(dataDir.string());
 
-            LOG("  Unpacking %s\n", StringUtils::CutFront(posixFile, posixDir.size()).c_str());
-          }
+          LOG("  Unpacking %s\n", StringUtils::CutFront(posixFile, posixDir.size()).c_str());
         }
       }
     }

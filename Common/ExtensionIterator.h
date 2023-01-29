@@ -3,6 +3,7 @@
 #include <string>
 #include <filesystem>
 #include <vector>
+#include <set>
 
 #include <Common/Types.h>
 
@@ -22,7 +23,7 @@ namespace ark
   {
   public:
 
-    ExtensionIterator(const fs::path& File, const std::string& Ext);
+    ExtensionIterator(const fs::path& File, const std::set<std::string>& Extensions);
 
   public:
 

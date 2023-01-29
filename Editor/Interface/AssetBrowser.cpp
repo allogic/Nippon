@@ -16,11 +16,6 @@ extern ark::Scene* gScene;
 
 namespace ark
 {
-  void AssetBrowser::Update()
-  {
-
-  }
-
   void AssetBrowser::Draw()
   {
     ImGui::Begin("Object Browser");

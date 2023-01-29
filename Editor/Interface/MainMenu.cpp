@@ -1,3 +1,5 @@
+#include <Common/Debug.h>
+
 #include <Editor/Scene.h>
 #include <Editor/Packer.h>
 
@@ -11,7 +13,7 @@
 // Globals
 ///////////////////////////////////////////////////////////
 
-extern rj::Document gWorld;
+extern rj::Document gTranslation;
 
 extern ark::Scene* gScene;
 
@@ -21,77 +23,77 @@ extern ark::Scene* gScene;
 
 namespace ark
 {
-  void MainMenu::Update()
-  {
-
-  }
-
   void MainMenu::Draw()
   {
     ImGui::BeginMainMenuBar();
 
-    if (ImGui::BeginMenu("File"))
+    for (const auto& translation : gTranslation.GetArray())
     {
-      ImGui::EndMenu();
-    }
-
-    if (ImGui::BeginMenu("Level"))
-    {
-      const rj::Value& regions = gWorld["regions"];
-
-      for (auto regionIt = regions.MemberBegin(); regionIt != regions.MemberEnd(); regionIt++)
+      if (ImGui::BeginMenu(translation["name"].GetString()))
       {
-        std::string regionId = regionIt->name.GetString();
-        std::string regionName = regionIt->value["name"].GetString();
+        std::string entryType = translation["type"].GetString();
 
-        if (ImGui::BeginMenu(regionName.c_str()))
+        for (auto entryIt = translation["entries"].MemberBegin(); entryIt != translation["entries"].MemberEnd(); entryIt++)
         {
-          const rj::Value& levels = regionIt->value["levels"];
+          std::string entryDir = entryIt->name.GetString();
+          std::string entryName = entryIt->value["name"].GetString();
 
-          for (auto levelIt = levels.MemberBegin(); levelIt != levels.MemberEnd(); levelIt++)
+          if (entryName == "") entryName = entryDir;
+
+          if (ImGui::BeginMenu(entryName.c_str()))
           {
-            std::string levelId = levelIt->name.GetString();
-            std::string levelName = levelIt->value["name"].GetString();
-
-            if (ImGui::Selectable(levelName.c_str(), false))
+            for (auto subEntryIt = entryIt->value["entries"].MemberBegin(); subEntryIt != entryIt->value["entries"].MemberEnd(); subEntryIt++)
             {
-              if (gScene)
+              std::string subEntryDir = subEntryIt->name.GetString();
+              std::string subEntryName = subEntryIt->value["name"].GetString();
+
+              if (subEntryName == "") subEntryName = subEntryDir;
+
+              ImGui::PushID(subEntryDir.c_str());
+              if (ImGui::Selectable(subEntryName.c_str()))
               {
-                delete gScene;
-                gScene = nullptr;
+                LOG("Loading /%s/%s\n", entryDir.c_str(), subEntryDir.c_str());
+                LOG("\n");
+
+                if (gScene)
+                {
+                  delete gScene;
+                  gScene = nullptr;
+                }
+
+                gScene = new Scene{ entryDir, subEntryDir, entryType };
               }
-
-              gScene = new Scene{ regionId, levelId };
+              ImGui::PopID();
             }
+
+            ImGui::EndMenu();
           }
+        }        
 
-          ImGui::EndMenu();
-        }
+        ImGui::EndMenu();
       }
-
-      ImGui::EndMenu();
     }
 
     if (ImGui::BeginMenu("Packer"))
     {
-      if (ImGui::Selectable("Unpack", false))
+      if (ImGui::Selectable("Unpack"))
       {
         Packer::Unpack();
       }
 
-      if (ImGui::Selectable("Repack", false))
+      if (ImGui::Selectable("Repack"))
       {
         Packer::Repack();
       }
 
       ImGui::Separator();
 
-      if (ImGui::Selectable("Check Integrity", false))
+      if (ImGui::Selectable("Check Integrity"))
       {
         Packer::CheckIntegrity();
       }
 
-      if (ImGui::Selectable("Generate Integrity", false))
+      if (ImGui::Selectable("Generate Integrity"))
       {
         Packer::GenerateIntegrityMap();
       }

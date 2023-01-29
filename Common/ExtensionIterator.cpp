@@ -6,13 +6,13 @@
 
 namespace ark
 {
-  ExtensionIterator::ExtensionIterator(const fs::path& File, const std::string& Ext)
+  ExtensionIterator::ExtensionIterator(const fs::path& File, const std::set<std::string>& Extensions)
   {
     if (fs::is_directory(File))
     {
       for (const auto& file : fs::directory_iterator{ File })
       {
-        if (file.path().extension().string() == Ext)
+        if (Extensions.contains(file.path().extension().string()))
         {
           mFiles.emplace_back(file);
         }

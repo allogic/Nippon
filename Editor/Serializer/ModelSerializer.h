@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <vector>
+#include <set>
 #include <filesystem>
 
 #include <Common/Types.h>
@@ -90,11 +91,17 @@ namespace ark
 
   private:
 
-    void ParseModel(ModelGroup& ModelGroup);
-    void ParseDivision(ModelDivision& ModelDivision);
+    void ParseScr(U64 ScrStart, ScrHeader& ScrHeader);
+    void ParseScrModel(U64 MdbStart, MdbHeader& MdbHeader, ModelGroup& ModelGroup);
+    void ParseScrDivision(U64 MdStart, MdHeader& MdHeader, ModelDivision& ModelDivision);
+
+    void ParseMd(U64 ScrStart, ScrHeader& ScrHeader);
+    void ParseMdModel(U64 MdbStart, MdbHeader& MdbHeader, ModelGroup& ModelGroup);
+    void ParseMdDivision(U64 MdStart, MdHeader& MdHeader, ModelDivision& ModelDivision);
 
   private:
 
+    Scene* mScene;
     const fs::path mFile;
     BinaryReader mBinaryReader;
   };

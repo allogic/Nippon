@@ -16,23 +16,21 @@ extern rj::Document gConfig;
 
 namespace ark
 {
-  void FileInspector::Update()
-  {
-    delete mFileNode;
-    mFileNode = new FileNode{ gConfig["unpackDir"].GetString() };
-    mSelectedNode = nullptr;
-  }
-
   void FileInspector::Draw()
   {
     ImGui::Begin("File Inspector");
 
     if (ImGui::Button("Update"))
     {
-      Update();
+      delete mFileNode;
+      mFileNode = new FileNode{ gConfig["unpackDir"].GetString() };
+      mSelectedNode = nullptr;
     }
 
-    DrawFileNodeRecursive(mFileNode);
+    if (mFileNode)
+    {
+      DrawFileNodeRecursive(mFileNode);
+    }
 
     ImGui::End();
   }
