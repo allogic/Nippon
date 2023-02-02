@@ -1,6 +1,5 @@
-#include <Common/Utils/FileUtils.h>
-
-#include <Editor/Scene.h>
+#include <Common/BinaryReader.h>
+#include <Common/BinaryWriter.h>
 
 #include <Editor/Serializer/ObjectSerializer.h>
 
@@ -10,25 +9,25 @@
 
 namespace ark
 {
-  ObjectSerializer::ObjectSerializer(Scene* Scene, const fs::path& File)
-    : mFile{ File }
-    , mBinaryReader{ FileUtils::ReadBinary(File.string()) }
+  std::vector<Object> ObjectSerializer::ToObjects(const std::vector<U8>& Bytes)
   {
-    U32 size = mBinaryReader.Read<U32>();
+    std::vector<Object> objects = {};
 
-    for (U32 i = 0; i < size; i++)
-    {
-      ObjEntry objEntry = mBinaryReader.Read<ObjEntry>();
+    BinaryReader binaryReader{ Bytes };
 
-      Object object;
+    U32 size = binaryReader.Read<U32>();
+    binaryReader.Read<Object>(objects, size);
 
-      object.SetId(objEntry.Id);
-      object.SetCategory(objEntry.Category);
-      object.SetPosition(R32V3{ objEntry.Position.x, objEntry.Position.y, objEntry.Position.z });
-      object.SetRotation(R32V3{ objEntry.Rotation.x, objEntry.Rotation.y, objEntry.Rotation.z });
-      object.SetScale(R32V3{ objEntry.Scale.x, objEntry.Scale.y, objEntry.Scale.z });
+    return objects;
+  }
 
-      Scene->AddObject(object);
-    }
+  std::vector<U8> ObjectSerializer::ToBytes(const std::vector<Object>& Objects)
+  {
+    BinaryWriter binaryWriter = {};
+
+    binaryWriter.Write<U32>((U32)Objects.size());
+    binaryWriter.Write<Object>(Objects);
+
+    return binaryWriter.GetBytes();
   }
 }

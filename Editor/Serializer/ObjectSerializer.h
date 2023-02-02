@@ -1,18 +1,8 @@
 #pragma once
 
-#include <cassert>
-#include <filesystem>
+#include <vector>
 
 #include <Common/Types.h>
-#include <Common/BinaryReader.h>
-
-#include <Editor/Assets/Object.h>
-
-///////////////////////////////////////////////////////////
-// Namespaces
-///////////////////////////////////////////////////////////
-
-namespace fs = std::filesystem;
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -21,7 +11,7 @@ namespace fs = std::filesystem;
 namespace ark
 {
   #pragma pack(push, 1)
-  struct ObjEntry
+  struct Object
   {
     U8 Id; // lots of values 00-fe 
     U8 Category; // category id - which folder it comes from
@@ -43,11 +33,7 @@ namespace ark
   {
   public:
 
-    ObjectSerializer(Scene* Scene, const fs::path& File);
-
-  private:
-
-    const fs::path mFile;
-    BinaryReader mBinaryReader;
+    static std::vector<Object> ToObjects(const std::vector<U8>& Bytes);
+    static std::vector<U8> ToBytes(const std::vector<Object>& Objects);
   };
 }

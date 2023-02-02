@@ -3,7 +3,7 @@
 
 #include <Editor/Components/Transform.h>
 
-#include <Editor/Interface/SceneOutline.h>
+#include <Editor/Interface/Outline.h>
 
 #include <Vendor/ImGui/imgui.h>
 
@@ -19,9 +19,9 @@ extern ark::Scene* gScene;
 
 namespace ark
 {
-  void SceneOutline::Draw()
+  void Outline::Draw()
   {
-    ImGui::Begin("Scene Outline");
+    ImGui::Begin("Outline");
 
     if (gScene)
     {
@@ -37,8 +37,10 @@ namespace ark
     ImGui::End();
   }
 
-  void SceneOutline::DrawActorRecursive(Actor* Actor)
+  void Outline::DrawActorRecursive(Actor* Actor)
   {
+    ImGui::PushID(Actor);
+
     std::uint32_t flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth;
 
     if (Actor == mSelectedActor) flags |= ImGuiTreeNodeFlags_Selected;
@@ -57,10 +59,6 @@ namespace ark
 
     if (opened)
     {
-      ImGui::Text("Position: [%f,%f,%f]", Actor->GetTransform()->GetWorldPosition().x, Actor->GetTransform()->GetWorldPosition().y, Actor->GetTransform()->GetWorldPosition().z);
-      ImGui::Text("Rotation: [%f,%f,%f]", Actor->GetTransform()->GetWorldRotation().x, Actor->GetTransform()->GetWorldRotation().y, Actor->GetTransform()->GetWorldRotation().z);
-      ImGui::Text("Scale   : [%f,%f,%f]", Actor->GetTransform()->GetWorldScale().x, Actor->GetTransform()->GetWorldScale().y, Actor->GetTransform()->GetWorldScale().z);
-
       for (auto& child : *Actor)
       {
         DrawActorRecursive(child);
@@ -68,5 +66,7 @@ namespace ark
 
       ImGui::TreePop();
     }
+
+    ImGui::PopID();
   }
 }

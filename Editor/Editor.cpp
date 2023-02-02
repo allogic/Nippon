@@ -10,18 +10,15 @@
 #include <Editor/Event.h>
 #include <Editor/Interface.h>
 #include <Editor/Scene.h>
-#include <Editor/Window.h>
 
 #include <Editor/Components/Camera.h>
 #include <Editor/Components/Transform.h>
 
-#include <Editor/Renderer/DebugRenderer.h>
-#include <Editor/Renderer/DefaultRenderer.h>
-
-#include <Editor/Interface/AssetBrowser.h>
 #include <Editor/Interface/MainMenu.h>
-#include <Editor/Interface/FileInspector.h>
-#include <Editor/Interface/SceneOutline.h>
+#include <Editor/Interface/ModelBrowser.h>
+#include <Editor/Interface/ObjectBrowser.h>
+#include <Editor/Interface/Outline.h>
+#include <Editor/Interface/Viewport.h>
 
 #include <Vendor/GLAD/glad.h>
 
@@ -111,9 +108,6 @@ rj::Document gTranslation = {};
 
 std::vector<ark::Interface*> gInterfaces = {};
 
-ark::DebugRenderer* gDebugRenderer = nullptr;
-ark::DefaultRenderer* gDefaultRenderer = nullptr;
-
 ark::Scene* gScene = nullptr;
 
 ///////////////////////////////////////////////////////////
@@ -126,6 +120,9 @@ static ark::R32 sTime = 0.0F;
 static ark::R32 sTimePrev = 0.0F;
 static ark::R32 sTimeDelta = 0.0F;
 
+static const ark::U32 sWidth = 1920;
+static const ark::U32 sHeight = 1080;
+
 ///////////////////////////////////////////////////////////
 // Glfw Callbacks
 ///////////////////////////////////////////////////////////
@@ -137,8 +134,7 @@ static void GlfwDebugProc(ark::I32 Error, char const* Msg)
 
 static void GlfwResizeProc(GLFWwindow* Context, ark::I32 Width, ark::I32 Height)
 {
-  ark::Window::SetWidth((ark::R32)Width);
-  ark::Window::SetHeight((ark::R32)Height);
+
 }
 
 static void GlfwMouseProc(GLFWwindow* Context, ark::R64 X, ark::R64 Y)
@@ -172,10 +168,11 @@ ark::I32 main()
   gPacker.Parse(ark::FileUtils::ReadText("Packer.json").c_str());
   gTranslation.Parse(ark::FileUtils::ReadText("Translation.json").c_str());
 
-  gInterfaces.emplace_back(new ark::AssetBrowser);
   gInterfaces.emplace_back(new ark::MainMenu);
-  gInterfaces.emplace_back(new ark::FileInspector);
-  gInterfaces.emplace_back(new ark::SceneOutline);
+  gInterfaces.emplace_back(new ark::ModelBrowser);
+  gInterfaces.emplace_back(new ark::ObjectBrowser);
+  gInterfaces.emplace_back(new ark::Outline);
+  gInterfaces.emplace_back(new ark::Viewport);
 
   glfwSetErrorCallback(GlfwDebugProc);
 
@@ -187,7 +184,7 @@ ark::I32 main()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, 1);
 
-    sGlfwContext = glfwCreateWindow((ark::I32)ark::Window::GetWidth(), (ark::I32)ark::Window::GetHeight(), "Nippon", nullptr, nullptr);
+    sGlfwContext = glfwCreateWindow((ark::I32)sWidth, (ark::I32)sHeight, "Nippon", nullptr, nullptr);
 
     if (sGlfwContext)
     {
@@ -201,9 +198,6 @@ ark::I32 main()
         glEnable(GL_DEBUG_OUTPUT);
         glDebugMessageCallback(GlDebugCallback, 0);
 
-        gDebugRenderer = new ark::DebugRenderer{ 65535, 65535 * 2 };
-        gDefaultRenderer = new ark::DefaultRenderer;
-
         IMGUI_CHECKVERSION();
         ImGuiContext* imGuiContext{ ImGui::CreateContext() };
 
@@ -211,6 +205,7 @@ ark::I32 main()
         imGuiIo.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         imGuiIo.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         imGuiIo.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+        imGuiIo.ConfigWindowsMoveFromTitleBarOnly = true;
 
         ImGuiStyle& imGuiStyle{ ImGui::GetStyle() };
         imGuiStyle.WindowRounding = 0.0F;
@@ -226,41 +221,30 @@ ark::I32 main()
           sTimeDelta = sTime - sTimePrev;
           sTimePrev = sTime;
 
-          glViewport(0, 0, (ark::I32)ark::Window::GetWidth(), (ark::I32)ark::Window::GetHeight());
-
           glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
-          glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-          glEnable(GL_DEPTH_TEST);
-          glDepthFunc(GL_LESS);
-
-          glEnable(GL_CULL_FACE);
-          glCullFace(GL_BACK);
-          glFrontFace(GL_CW);
-
-          ImGui_ImplGlfw_NewFrame();
-          ImGui_ImplOpenGL3_NewFrame();
-
-          ImGui::NewFrame();
-          ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+          glClear(GL_COLOR_BUFFER_BIT);
 
           if (gScene)
           {
             gScene->Update(sTimeDelta);
+            gScene->Render();
           }
 
-          gDefaultRenderer->Render();
-          gDebugRenderer->Render();
-
+          ImGui_ImplGlfw_NewFrame();
+          ImGui_ImplOpenGL3_NewFrame();
+          
+          ImGui::NewFrame();
+          ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+          
           for (auto& interface : gInterfaces)
           {
             interface->Draw();
           }
-
+          
           ImGui::Render();
-
+          
           ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
+          
           ImGui::UpdatePlatformWindows();
           ImGui::RenderPlatformWindowsDefault();
 
@@ -274,12 +258,6 @@ ark::I32 main()
         ImGui_ImplGlfw_Shutdown();
 
         ImGui::DestroyContext(imGuiContext);
-
-        delete gDefaultRenderer;
-        delete gDebugRenderer;
-
-        gDefaultRenderer = nullptr;
-        gDebugRenderer = nullptr;
       }
       else
       {

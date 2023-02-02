@@ -2,7 +2,6 @@
 
 #include <Common/Types.h>
 
-#include <Editor/Forward.h>
 #include <Editor/Interface.h>
 
 ///////////////////////////////////////////////////////////
@@ -11,7 +10,7 @@
 
 namespace ark
 {
-  class SceneOutline : public Interface
+  class Viewport : public Interface
   {
   public:
 
@@ -19,10 +18,11 @@ namespace ark
 
   private:
 
-    void DrawActorRecursive(Actor* Actor);
+    bool HasResized();
 
   private:
 
-    Actor* mSelectedActor = nullptr;
+    U32 mWidth = 0;
+    U32 mHeight = 0;
   };
 }

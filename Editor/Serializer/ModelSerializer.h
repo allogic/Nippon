@@ -1,20 +1,9 @@
 #pragma once
 
-#include <cassert>
 #include <vector>
-#include <set>
-#include <filesystem>
+#include <utility>
 
 #include <Common/Types.h>
-#include <Common/BinaryReader.h>
-
-#include <Editor/Assets/Model.h>
-
-///////////////////////////////////////////////////////////
-// Namespaces
-///////////////////////////////////////////////////////////
-
-namespace fs = std::filesystem;
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -83,26 +72,26 @@ namespace ark
   };
   #pragma pack(pop)
 
+  struct Division
+  {
+    MdHeader Header;
+    std::vector<ScrVertex> Vertices;
+    std::vector<U16V2> TextureMaps;
+    std::vector<U16V2> TextureUvs;
+    std::vector<U32> ColorWeights;
+  };
+
+  struct Model
+  {
+    MdbHeader Header;
+    std::vector<Division> Divisions;
+  };
+
   class ModelSerializer
   {
   public:
 
-    ModelSerializer(Scene* Scene, const fs::path& File);
-
-  private:
-
-    void ParseScr(U64 ScrStart, ScrHeader& ScrHeader);
-    void ParseScrModel(U64 MdbStart, MdbHeader& MdbHeader, ModelGroup& ModelGroup);
-    void ParseScrDivision(U64 MdStart, MdHeader& MdHeader, ModelDivision& ModelDivision);
-
-    void ParseMd(U64 ScrStart, ScrHeader& ScrHeader);
-    void ParseMdModel(U64 MdbStart, MdbHeader& MdbHeader, ModelGroup& ModelGroup);
-    void ParseMdDivision(U64 MdStart, MdHeader& MdHeader, ModelDivision& ModelDivision);
-
-  private:
-
-    Scene* mScene;
-    const fs::path mFile;
-    BinaryReader mBinaryReader;
+    static std::vector<std::pair<Model, ScrTransform>> ToModels(const std::vector<U8>& Bytes);
+    static std::vector<U8> ToBytes(const std::vector<std::pair<Model, ScrTransform>>& Models);
   };
 }

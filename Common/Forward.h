@@ -15,6 +15,7 @@ namespace ark
   class StringUtils;
 
   class BinaryReader;
+  class BinaryWriter;
   class BlowFish;
   class ExtensionIterator;
 }

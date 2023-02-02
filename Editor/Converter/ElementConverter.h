@@ -1,6 +1,8 @@
 #pragma once
 
-#include <Editor/Interface.h>
+#include <Common/Types.h>
+
+#include <Editor/Serializer/ModelSerializer.h>
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -8,10 +10,10 @@
 
 namespace ark
 {
-  class AssetBrowser : public Interface
+  class ElementConverter
   {
   public:
 
-    virtual void Draw() override;
+    static std::vector<U32> ToElementBuffer(const std::vector<ScrVertex>& Vertices);
   };
 }

@@ -42,6 +42,18 @@ namespace ark
 
           if (ImGui::BeginMenu(entryName.c_str()))
           {
+            if (ImGui::Selectable("For Each"))
+            {
+              for (auto subEntryIt = entryIt->value["entries"].MemberBegin(); subEntryIt != entryIt->value["entries"].MemberEnd(); subEntryIt++)
+              {
+                std::string subEntryDir = subEntryIt->name.GetString();
+
+                SwitchScene(entryDir, subEntryDir, entryType);
+              }
+            }
+
+            ImGui::Separator();
+
             for (auto subEntryIt = entryIt->value["entries"].MemberBegin(); subEntryIt != entryIt->value["entries"].MemberEnd(); subEntryIt++)
             {
               std::string subEntryDir = subEntryIt->name.GetString();
@@ -52,17 +64,9 @@ namespace ark
               ImGui::PushID(subEntryDir.c_str());
               if (ImGui::Selectable(subEntryName.c_str()))
               {
-                LOG("Loading /%s/%s\n", entryDir.c_str(), subEntryDir.c_str());
-                LOG("\n");
-
-                if (gScene)
-                {
-                  delete gScene;
-                  gScene = nullptr;
-                }
-
-                gScene = new Scene{ entryDir, subEntryDir, entryType };
+                SwitchScene(entryDir, subEntryDir, entryType);
               }
+
               ImGui::PopID();
             }
 
@@ -102,5 +106,27 @@ namespace ark
     }
 
     ImGui::EndMainMenuBar();
+  }
+
+  void MainMenu::SwitchScene(const std::string& EntryDir, const std::string& SubEntryDir, const std::string& EntryType)
+  {
+    U32 prevWidth = 1;
+    U32 prevHeight = 1;
+
+    if (gScene)
+    {
+      prevWidth = gScene->GetWidth();
+      prevHeight = gScene->GetHeight();
+
+      delete gScene;
+      gScene = nullptr;
+    }
+
+    gScene = new Scene{ EntryDir, SubEntryDir, EntryType };
+
+    if (gScene)
+    {
+      gScene->Resize(prevWidth, prevHeight);
+    }
   }
 }

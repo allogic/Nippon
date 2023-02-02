@@ -23,7 +23,7 @@ namespace ark
   {
   public:
 
-    Shader(const fs::path& File);
+    Shader(const fs::path& VertexFile, const fs::path& FragmentFile);
     virtual ~Shader();
 
   public:
@@ -33,7 +33,6 @@ namespace ark
 
   public:
 
-    static void ExtractShaderStages(const fs::path& ShaderFile, std::string& VertexShader, std::string& FragmentShader);
     static U32 CheckCompileStatus(U32 Sid);
     static U32 CheckLinkStatus(U32 Pid);
 

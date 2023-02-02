@@ -12,12 +12,10 @@
 
 namespace ark
 {
-  Shader::Shader(const fs::path& File)
+  Shader::Shader(const fs::path& VertexFile, const fs::path& FragmentFile)
   {
-    std::string vertexShader;
-    std::string fragmentShader;
-
-    ExtractShaderStages(File, vertexShader, fragmentShader);
+    std::string vertexShader = FileUtils::ReadText(VertexFile.string());
+    std::string fragmentShader = FileUtils::ReadText(FragmentFile.string());
 
     mProgram = glCreateProgram();
 
@@ -67,31 +65,6 @@ namespace ark
   void Shader::UnBind() const
   {
     glUseProgram(0);
-  }
-
-  void Shader::ExtractShaderStages(const fs::path& ShaderFile, std::string& VertexShader, std::string& FragmentShader)
-  {
-    std::string shaderSource = FileUtils::ReadText(ShaderFile.string());
-    std::regex regex = std::regex{ "([^@]*[^@])" };
-    std::smatch matches = {};
-
-    while (std::regex_search(shaderSource, matches, regex))
-    {
-      if (matches.size() == 2)
-      {
-        if (std::strncmp(matches[0].str().c_str(), "vertex", 6) == 0)
-        {
-          VertexShader = matches[0].str().substr(7);
-        }
-
-        if (std::strncmp(matches[0].str().c_str(), "fragment", 8) == 0)
-        {
-          FragmentShader = matches[0].str().substr(9);
-        }
-      }
-
-      shaderSource = matches.suffix();
-    }
   }
 
   U32 Shader::CheckCompileStatus(U32 Sid)

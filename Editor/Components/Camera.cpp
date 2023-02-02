@@ -1,10 +1,16 @@
 #include <Editor/Actor.h>
-#include <Editor/Window.h>
+#include <Editor/Scene.h>
 
 #include <Editor/Components/Transform.h>
 #include <Editor/Components/Camera.h>
 
 #include <Vendor/GLM/gtc/matrix_transform.hpp>
+
+///////////////////////////////////////////////////////////
+// Globals
+///////////////////////////////////////////////////////////
+
+extern ark::Scene* gScene;
 
 ///////////////////////////////////////////////////////////
 // Implementation
@@ -20,7 +26,10 @@ namespace ark
 
   R32M4 Camera::GetProjectionMatrix()
   {
-    return glm::perspective(glm::radians(mFov), Window::GetAspectRatio(), mNear, mFar);
+    R32 fov = glm::radians(mFov);
+    R32 aspectRatio = (gScene) ? ((R32)gScene->GetWidth() / gScene->GetHeight()) : 1.0F;
+
+    return glm::perspective(fov, aspectRatio, mNear, mFar);
   }
 
   R32M4 Camera::GetViewMatrix()

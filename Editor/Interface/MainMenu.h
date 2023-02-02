@@ -24,5 +24,9 @@ namespace ark
   public:
 
     virtual void Draw() override;
+
+  private:
+
+    void SwitchScene(const std::string& EntryDir, const std::string& SubEntryDir, const std::string& EntryType);
   };
 }

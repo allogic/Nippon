@@ -1,18 +1,21 @@
 #pragma once
 
-#pragma warning(disable : 26444)
-
 #include <string>
 #include <filesystem>
 #include <vector>
+#include <utility>
 
 #include <Common/Types.h>
 
 #include <Editor/Forward.h>
 #include <Editor/Actor.h>
+#include <Editor/FrameBuffer.h>
 
-#include <Editor/Assets/Model.h>
-#include <Editor/Assets/Object.h>
+#include <Editor/Renderer/DebugRenderer.h>
+#include <Editor/Renderer/DefaultRenderer.h>
+
+#include <Editor/Serializer/ModelSerializer.h>
+#include <Editor/Serializer/ObjectSerializer.h>
 
 #include <Vendor/rapidjson/rapidjson.h>
 
@@ -38,18 +41,19 @@ namespace ark
 
   public:
 
+    inline auto GetWidth() const { return mWidth; }
+    inline auto GetHeight() const { return mHeight; }
+
     inline const auto& GetObjects() const { return mObjects; }
-    inline const auto& GetModelGroups() const { return mModelGroups; }
+    inline const auto& GetModels() const { return mModels; }
+    inline const auto& GetActors() const { return mActors; }
 
-    inline const auto& GetActors() { return mActors; }
-
-    Actor* GetMainActor();
-    Camera* GetMainCamera();
+    inline const auto& GetFrameBuffer() const { return mFrameBuffer; }
 
   public:
 
-    inline void AddObject(const Object& Value) { mObjects.emplace_back(Value); }
-    inline void AddModelGroup(const ModelGroup& Value) { mModelGroups.emplace_back(Value); }
+    Actor* GetMainActor();
+    Camera* GetMainCamera();
 
   public:
 
@@ -60,7 +64,9 @@ namespace ark
 
   public:
 
+    void Resize(U32 Width, U32 Height);
     void Update(R32 TimeDelta);
+    void Render();
 
   private:
 
@@ -69,15 +75,28 @@ namespace ark
 
   private:
 
+    void ModelsToActors();
+    void ObjectsToActors();
+
+  private:
+
     std::string mDirectory;
     std::string mSubDirectory;
     std::string mType;
+
+    U32 mWidth = 0;
+    U32 mHeight = 0;
 
     std::vector<Actor*> mActors = {};
     Actor* mMainActor = nullptr;
 
     std::vector<Object> mObjects = {};
-    std::vector<ModelGroup> mModelGroups = {};
+    std::vector<std::pair<Model, ScrTransform>> mModels = {};
+
+    DebugRenderer mDebugRenderer = { 65535, 65535 * 2 };
+    DefaultRenderer mDefaultRenderer = {};
+
+    FrameBuffer mFrameBuffer = {};
   };
 }
 

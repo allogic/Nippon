@@ -15,12 +15,11 @@ namespace ark
   {
   public:
 
-    BinaryReader(const std::vector<U8>& Bytes);
+    BinaryReader(const std::vector<U8>& Bytes) : mBytes{ Bytes } {}
 
   public:
 
     inline auto GetPosition() const { return mPosition; }
-
     inline auto GetSize() const { return mBytes.size(); }
     inline const auto& GetBytes() const { return mBytes; }
 

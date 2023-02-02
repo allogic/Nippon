@@ -1,19 +1,17 @@
 #pragma once
 
+#include <Editor/Interface.h>
+
 ///////////////////////////////////////////////////////////
 // Definition
 ///////////////////////////////////////////////////////////
 
 namespace ark
 {
-  class Interface
+  class ModelBrowser : public Interface
   {
   public:
 
-    virtual ~Interface() {};
-
-  public:
-
-    virtual void Draw() = 0;
+    virtual void Draw() override;
   };
 }

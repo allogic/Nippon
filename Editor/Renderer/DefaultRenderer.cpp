@@ -12,7 +12,6 @@
 // Globals
 ///////////////////////////////////////////////////////////
 
-extern ark::DefaultRenderer* gDefaultRenderer;
 extern ark::Scene* gScene;
 
 ///////////////////////////////////////////////////////////
@@ -22,7 +21,7 @@ extern ark::Scene* gScene;
 namespace ark
 {
   DefaultRenderer::DefaultRenderer()
-    : mShader{ new Shader{ fs::path{ SHADER_DIR } / "Default.glsl" } }
+    : mShader{ new Shader{ fs::path{ SHADER_DIR } / "Default.vert", fs::path{ SHADER_DIR } / "Default.frag" } }
   {
 
   }
@@ -30,11 +29,6 @@ namespace ark
   DefaultRenderer::~DefaultRenderer()
   {
     delete mShader;
-  }
-
-  void DefaultRenderer::AddRenderTask(const RenderTask& RenderTask)
-  {
-    gDefaultRenderer->mRenderQueue.emplace(RenderTask);
   }
 
   void DefaultRenderer::Render()
@@ -68,5 +62,10 @@ namespace ark
 
       mRenderQueue.pop();
     }
+  }
+
+  void DefaultRenderer::AddRenderTask(const RenderTask& RenderTask)
+  {
+    mRenderQueue.emplace(RenderTask);
   }
 }

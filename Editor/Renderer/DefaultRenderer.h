@@ -34,11 +34,11 @@ namespace ark
 
   public:
 
-    static void AddRenderTask(const RenderTask& RenderTask);
+    void Render();
 
   public:
 
-    void Render();
+    void AddRenderTask(const RenderTask& RenderTask);
 
   private:
 
