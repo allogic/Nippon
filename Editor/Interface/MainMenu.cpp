@@ -1,5 +1,3 @@
-#include <Common/Debug.h>
-
 #include <Editor/Scene.h>
 #include <Editor/Packer.h>
 

@@ -1,11 +1,8 @@
 #pragma once
 
 #include <string>
-#include <map>
 
 #include <Common/Types.h>
-
-#include <Editor/Interface.h>
 
 ///////////////////////////////////////////////////////////
 // Namespaces
@@ -19,11 +16,11 @@ namespace rj = rapidjson;
 
 namespace ark
 {
-  class MainMenu : public Interface
+  class MainMenu
   {
   public:
 
-    virtual void Draw() override;
+    void Draw();
 
   private:
 

@@ -1,4 +1,6 @@
+#include <string>
 #include <vector>
+#include <map>
 #include <filesystem>
 
 #include <Common/Debug.h>
@@ -15,10 +17,11 @@
 #include <Editor/Components/Transform.h>
 
 #include <Editor/Interface/MainMenu.h>
-#include <Editor/Interface/ModelBrowser.h>
-#include <Editor/Interface/ObjectBrowser.h>
-#include <Editor/Interface/Outline.h>
-#include <Editor/Interface/Viewport.h>
+
+#include <Editor/Interface/Scene/ModelBrowser.h>
+#include <Editor/Interface/Scene/ObjectBrowser.h>
+#include <Editor/Interface/Scene/Outline.h>
+#include <Editor/Interface/Scene/Viewport.h>
 
 #include <Vendor/GLAD/glad.h>
 
@@ -106,8 +109,6 @@ rj::Document gConfig = {};
 rj::Document gPacker = {};
 rj::Document gTranslation = {};
 
-std::vector<ark::Interface*> gInterfaces = {};
-
 ark::Scene* gScene = nullptr;
 
 ///////////////////////////////////////////////////////////
@@ -122,6 +123,9 @@ static ark::R32 sTimeDelta = 0.0F;
 
 static const ark::U32 sWidth = 1920;
 static const ark::U32 sHeight = 1080;
+
+static ark::MainMenu sMainMenu = {};
+static std::map<std::string, ark::Interface*> sInterfaces = {};
 
 ///////////////////////////////////////////////////////////
 // Glfw Callbacks
@@ -168,11 +172,10 @@ ark::I32 main()
   gPacker.Parse(ark::FileUtils::ReadText("Packer.json").c_str());
   gTranslation.Parse(ark::FileUtils::ReadText("Translation.json").c_str());
 
-  gInterfaces.emplace_back(new ark::MainMenu);
-  gInterfaces.emplace_back(new ark::ModelBrowser);
-  gInterfaces.emplace_back(new ark::ObjectBrowser);
-  gInterfaces.emplace_back(new ark::Outline);
-  gInterfaces.emplace_back(new ark::Viewport);
+  sInterfaces.emplace("ModelBrowser", new ark::ModelBrowser);
+  sInterfaces.emplace("ObjectBrowser", new ark::ObjectBrowser);
+  sInterfaces.emplace("Outline", new ark::Outline);
+  sInterfaces.emplace("Viewport", new ark::Viewport);
 
   glfwSetErrorCallback(GlfwDebugProc);
 
@@ -236,7 +239,8 @@ ark::I32 main()
           ImGui::NewFrame();
           ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
           
-          for (auto& interface : gInterfaces)
+          sMainMenu.Draw();
+          for (const auto& [name, interface] : sInterfaces)
           {
             interface->Draw();
           }
@@ -277,7 +281,7 @@ ark::I32 main()
     LOG("Failed initializing GLFW\n");
   }
 
-  for (auto& interface : gInterfaces)
+  for (auto& [name, interface] : sInterfaces)
   {
     delete interface;
     interface = nullptr;

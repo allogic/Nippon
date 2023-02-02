@@ -2,7 +2,7 @@
 
 #include <Editor/Scene.h>
 
-#include <Editor/Interface/Viewport.h>
+#include <Editor/Interface/Scene/Viewport.h>
 
 #include <Vendor/ImGui/imgui.h>
 
@@ -21,6 +21,7 @@ namespace ark
   void Viewport::Draw()
   {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0F, 0.0F });
+
     ImGui::Begin("Viewport");
 
     if (gScene)
@@ -34,6 +35,7 @@ namespace ark
     }
 
     ImGui::End();
+
     ImGui::PopStyleVar();
   }
 
