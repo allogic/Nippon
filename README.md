@@ -52,6 +52,7 @@ Once all binaries are built, first launch the editor and start the integrity che
 
  - If you got build errors, make sure you are using the latest Visual Studio version. (Tested with VS 2022 >= 17.X.X)
  - If for some reason the editor does not start, make sure the latest graphics card drivers are installed on your system.
+ - If the editor crashes, be sure `Config.json` has POSIX compliant paths. (Even on windows)
 
 ## Editor Controls
 
