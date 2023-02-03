@@ -48,7 +48,7 @@ cmake --build .
 
 Once all binaries are built, first launch the editor and start the integrity check under `Packer/Check Integrity`. After that unpack your game files with `Packer/Unpack`. Once all files are decrypted, one can jump into levels `Map/<Region>/<Level>`.
 
-## troubleshooting
+## Troubleshooting
 
  - If you got build errors, make sure you are using the latest Visual Studio version. (Tested with VS 2022 >= 17.X.X)
  - If for some reason the editor does not start, make sure the latest graphics card drivers are installed on your system.
