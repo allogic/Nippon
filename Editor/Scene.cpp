@@ -1,4 +1,3 @@
-#include <Common/Debug.h>
 #include <Common/ExtensionIterator.h>
 
 #include <Common/Utils/StringUtils.h>
@@ -28,19 +27,18 @@
 
 extern rj::Document gConfig;
 
+extern ark::Scene* gScene;
+
 ///////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////
 
 namespace ark
 {
-  Scene::Scene(const std::string& Directory, const std::string& SubDirectory, const std::string& Type)
-    : mDirectory{ Directory }
-    , mSubDirectory{ SubDirectory }
-    , mType{ Type }
+  Scene::Scene(const std::string& Region, const std::string& Level)
+    : mRegion{ Region }
+    , mLevel{ Level }
   {
-    LOG("Opening scene /%s/%s\n", mDirectory.c_str(), mSubDirectory.c_str());
-
     DeSerialize();
 
     mMainActor = CreateActor<Player>("Player", nullptr);
@@ -58,13 +56,28 @@ namespace ark
       delete actor;
       actor = nullptr;
     }
+  }
 
-    mActors.clear();
-    mObjects.clear();
-    mModels.clear();
+  void Scene::Switch(const std::string& Region, const std::string& Level)
+  {
+    U32 prevWidth = 1;
+    U32 prevHeight = 1;
 
-    LOG("Closing scene /%s/%s\n", mDirectory.c_str(), mSubDirectory.c_str());
-    LOG("\n");
+    if (gScene)
+    {
+      prevWidth = gScene->GetWidth();
+      prevHeight = gScene->GetHeight();
+
+      delete gScene;
+      gScene = nullptr;
+    }
+
+    gScene = new Scene{ Region, Level };
+
+    if (gScene)
+    {
+      gScene->Resize(prevWidth, prevHeight);
+    }
   }
 
   Actor* Scene::GetMainActor()
@@ -174,40 +187,23 @@ namespace ark
 
   void Scene::DeSerialize()
   {
-    fs::path targetDir = fs::path{ gConfig["unpackDir"].GetString() } / mDirectory / mSubDirectory;
+    fs::path targetDir = fs::path{ gConfig["unpackDir"].GetString() } / mRegion / mLevel;
 
-    if (mType == "map")
+    std::string mapId = StringUtils::CutFront(mRegion, 2);
+
+    auto tscObjects = ObjectSerializer::ToObjects(FileUtils::ReadBinary(targetDir.string() + "/r" + mapId + mLevel + "_objtbl.TSC"));
+    auto treObjects = ObjectSerializer::ToObjects(FileUtils::ReadBinary(targetDir.string() + "/r" + mapId + mLevel + "_objtbl2.TRE"));
+    auto tatObjects = ObjectSerializer::ToObjects(FileUtils::ReadBinary(targetDir.string() + "/r" + mapId + mLevel + "_objtbl3.TAT"));
+
+    mObjects.insert(mObjects.end(), tscObjects.begin(), tscObjects.end());
+    mObjects.insert(mObjects.end(), treObjects.begin(), treObjects.end());
+    mObjects.insert(mObjects.end(), tatObjects.begin(), tatObjects.end());
+
+    for (const auto& file : ExtensionIterator{ targetDir / "SCP", { ".SCR" } })
     {
-      std::string mapId = StringUtils::CutFront(mDirectory, 2);
+      auto models = ModelSerializer::ToModels(FileUtils::ReadBinary(file.string()));
 
-      auto tscObjects = ObjectSerializer::ToObjects(FileUtils::ReadBinary(targetDir.string() + "/r" + mapId + mSubDirectory + "_objtbl.TSC"));
-      auto treObjects = ObjectSerializer::ToObjects(FileUtils::ReadBinary(targetDir.string() + "/r" + mapId + mSubDirectory + "_objtbl2.TRE"));
-      auto tatObjects = ObjectSerializer::ToObjects(FileUtils::ReadBinary(targetDir.string() + "/r" + mapId + mSubDirectory + "_objtbl3.TAT"));
-
-      mObjects.insert(mObjects.end(), tscObjects.begin(), tscObjects.end());
-      mObjects.insert(mObjects.end(), treObjects.begin(), treObjects.end());
-      mObjects.insert(mObjects.end(), tatObjects.begin(), tatObjects.end());
-
-      for (const auto& file : ExtensionIterator{ targetDir / "SCP", { ".SCR" } })
-      {
-        auto models = ModelSerializer::ToModels(FileUtils::ReadBinary(file.string()));
-
-        mModels.insert(mModels.end(), models.begin(), models.end());
-      }
-    }
-    else if (mType == "character")
-    {
-      //for (const auto& file : ExtensionIterator{ targetDir, { ".MD" } })
-      //{
-      //  ModelParser scrParser{ mMdDatabase, file };
-      //}
-    }
-    else if (mType == "item")
-    {
-      //for (const auto& file : ExtensionIterator{ targetDir, { ".MD" } })
-      //{
-      //  ModelParser scrParser{ mMdDatabase, file };
-      //}
+      mModels.insert(mModels.end(), models.begin(), models.end());
     }
   }
 

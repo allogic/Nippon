@@ -25,7 +25,12 @@ namespace ark
       bytes.resize(Size);
 
       stream.seekg(std::ios::beg);
-      stream.read((char*)&bytes[0], Size);
+
+      if (Size)
+      {
+        stream.read((char*)&bytes[0], Size);
+      }
+
       stream.close();
     }
 
@@ -51,7 +56,12 @@ namespace ark
       text.resize(Size);
 
       stream.seekg(std::ios::beg);
-      stream.read(&text[0], Size);
+
+      if (Size)
+      {
+        stream.read(&text[0], Size);
+      }
+
       stream.close();
     }
 
@@ -73,7 +83,11 @@ namespace ark
         Size = std::max(Size, (U64)Bytes.size());
       }
 
-      stream.write((char*)&Bytes[0], Size);
+      if (Size)
+      {
+        stream.write((char*)&Bytes[0], Size);
+      }
+
       stream.close();
     }
   }
@@ -93,7 +107,11 @@ namespace ark
         Size = std::max(Size, (U64)Text.size());
       }
 
-      stream.write(&Text[0], Size);
+      if (Size)
+      {
+        stream.write(&Text[0], Size);
+      }
+
       stream.close();
     }
   }

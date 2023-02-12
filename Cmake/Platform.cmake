@@ -1,0 +1,7 @@
+if(CMAKE_SYSTEM_NAME STREQUAL Windows)
+  set(STATIC_LIBRARY_EXT .lib)
+  set(SHARED_LIBRARY_EXT .dll)
+elseif(CMAKE_SYSTEM_NAME STREQUAL Linux)
+  set(STATIC_LIBRARY_EXT .a)
+  set(SHARED_LIBRARY_EXT .so)
+endif()

@@ -1,0 +1,7 @@
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  set_source_files_properties(${TARGET_SOURCE} PROPERTIES COMPILE_FLAGS -Wall)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set_source_files_properties(${TARGET_SOURCE} PROPERTIES COMPILE_FLAGS -Wall)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  set_source_files_properties(${TARGET_SOURCE} PROPERTIES COMPILE_FLAGS /W3)
+endif()

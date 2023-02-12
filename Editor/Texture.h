@@ -41,7 +41,7 @@ namespace ark
     void Resize(U32 Width, U32 Height);
     void Bind();
     void Mount(U32 Index);
-    void UnBind();
+    void Unbind();
 
   private:
 
@@ -111,7 +111,7 @@ namespace ark
   }
 
   template<U32 Type, U32 Layout, U32 Format, U32 FormatInternal, typename T>
-  void Texture<Type, Layout, Format, FormatInternal, T>::UnBind()
+  void Texture<Type, Layout, Format, FormatInternal, T>::Unbind()
   {
     glBindTexture(Type, 0);
   }

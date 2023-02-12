@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <cstring>
 
 #include <Common/Types.h>
 
@@ -25,8 +26,8 @@ namespace ark
 
   public:
 
-    inline void SeekRelative(U64 Value) { mPosition += Value; }
-    inline void SeekAbsolute(U64 Value) { mPosition = Value; }
+    inline void SeekRelative(I64 Value) { mPosition += Value; }
+    inline void SeekAbsolute(I64 Value) { mPosition = Value; }
 
   public:
 
@@ -39,36 +40,12 @@ namespace ark
     template<typename T>
     void Read(std::vector<T>& Values, U64 Count);
 
-    auto Bytes(U64 Size)
-    {
-      std::vector<U8> bytes = {};
-
-      if (mBytes.size() >= mPosition + Size)
-      {
-        bytes = { &mBytes[mPosition], &mBytes[mPosition + Size] };
-      }
-
-      mPosition += Size;
-
-      return bytes;
-    }
-    auto String(U64 Size)
-    {
-      std::string string = {};
-
-      if (mBytes.size() >= mPosition + Size)
-      {
-        string = { (char*)&mBytes[mPosition], (char*)&mBytes[mPosition + Size] };
-      }
-
-      mPosition += Size;
-
-      return string;
-    }
+    std::vector<U8> Bytes(U64 Count);
+    std::string String(U64 Count);
 
   private:
 
-    const std::vector<U8> mBytes;
+    std::vector<U8> mBytes;
 
     U64 mPosition = 0;
   };
@@ -85,10 +62,7 @@ namespace ark
   {
     T value = {};
 
-    if (mBytes.size() >= mPosition + sizeof(T))
-    {
-      value = *((T*)&mBytes[mPosition]);
-    }
+    std::memcpy((U8*)&value, &mBytes[mPosition], sizeof(T));
 
     mPosition += sizeof(T);
 
@@ -100,12 +74,14 @@ namespace ark
   {
     std::vector<T> values = {};
 
-    if (mBytes.size() >= mPosition + sizeof(T) * Count)
+    values.resize(Count);
+
+    if (Count > 0)
     {
-      values = { (T*)&mBytes[mPosition], (T*)&mBytes[mPosition + sizeof(T) * Count]};
+      std::memcpy((U8*)&values[0], &mBytes[mPosition], Count * sizeof(T));
     }
 
-    mPosition += sizeof(T) * Count;
+    mPosition += Count * sizeof(T);
 
     return values;
   }
@@ -113,11 +89,13 @@ namespace ark
   template<typename T>
   void BinaryReader::Read(std::vector<T>& Values, U64 Count)
   {
-    if (mBytes.size() >= mPosition + sizeof(T) * Count)
+    Values.resize(Count);
+
+    if (Count > 0)
     {
-      Values = { (T*)&mBytes[mPosition], (T*)&mBytes[mPosition + sizeof(T) * Count]};
+      std::memcpy((U8*)&Values[0], &mBytes[mPosition], Count * sizeof(T));
     }
 
-    mPosition += sizeof(T) * Count;
+    mPosition += Count * sizeof(T);
   }
 }

@@ -28,6 +28,7 @@ namespace ark
   class Outline;
 
   class Actor;
+  class Archive;
   class Component;
   class Event;
   class FrameBuffer;

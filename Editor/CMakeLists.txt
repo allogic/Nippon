@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.8)
 
+include(Compiler)
+include(Platform)
+
 set(OpenGL_GL_PREFERENCE GLVND)
 set(TARGET_NAME Editor)
 
@@ -10,14 +13,6 @@ file(GLOB_RECURSE DDS_SOURCE ${VENDOR_DIR}/DDS/*.c ${VENDOR_DIR}/DDS/*.cpp)
 file(GLOB_RECURSE GLAD_SOURCE ${VENDOR_DIR}/GLAD/*.c ${VENDOR_DIR}/GLAD/*.cpp)
 file(GLOB_RECURSE IMGUI_SOURCE ${VENDOR_DIR}/ImGui/*.c ${VENDOR_DIR}/ImGui/*.cpp)
 file(GLOB_RECURSE TARGET_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/*.c ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
-
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  set_source_files_properties(${TARGET_SOURCE} PROPERTIES COMPILE_FLAGS -Wall)
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  set_source_files_properties(${TARGET_SOURCE} PROPERTIES COMPILE_FLAGS -Wall)
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  set_source_files_properties(${TARGET_SOURCE} PROPERTIES COMPILE_FLAGS /W3)
-endif()
 
 add_executable(${TARGET_NAME}
   ${CRC_SOURCE}
@@ -45,8 +40,4 @@ target_link_libraries(${TARGET_NAME}
   PUBLIC ${CMAKE_DL_LIBS}
   PUBLIC ${BINARY_DIR}/Common${STATIC_LIBRARY_EXT}
   PUBLIC ${LIBRARY_DIR}/${CMAKE_SYSTEM_NAME}/glfw3${STATIC_LIBRARY_EXT}
-)
-
-target_compile_definitions(${TARGET_NAME}
-  PUBLIC SHADER_DIR="${EDITOR_DIR}/Shaders"
 )

@@ -3,11 +3,11 @@ cmake_minimum_required(VERSION 3.8)
 include(Compiler)
 include(Platform)
 
-set(TARGET_NAME Common)
+set(TARGET_NAME BinaryAnalyzer)
 
 file(GLOB_RECURSE TARGET_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/*.c ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
-add_library(${TARGET_NAME} STATIC
+add_executable(${TARGET_NAME}
   ${TARGET_SOURCE}
 )
 
@@ -22,4 +22,8 @@ set_target_properties(${TARGET_NAME} PROPERTIES
 
 target_include_directories(${TARGET_NAME}
   PUBLIC ${ROOT_DIR}
+)
+
+target_link_libraries(${TARGET_NAME}
+  PUBLIC ${BINARY_DIR}/Common${STATIC_LIBRARY_EXT}
 )

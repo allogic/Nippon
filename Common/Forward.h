@@ -6,9 +6,6 @@
 
 namespace ark
 {
-  class FileNode;
-  class ArchiveNode;
-
   class DirUtils;
   class FileUtils;
   class JsonUtils;

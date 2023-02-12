@@ -2,14 +2,15 @@
 #include <Common/BlowFish.h>
 #include <Common/Crc32.h>
 
-#include <Common/Trees/ArchiveNode.h>
-
 #include <Common/Utils/DirUtils.h>
 #include <Common/Utils/FileUtils.h>
 #include <Common/Utils/JsonUtils.h>
 #include <Common/Utils/StringUtils.h>
 
 #include <Editor/Packer.h>
+
+#include <Editor/Recursion/ArchiveExtractionNode.h>
+#include <Editor/Recursion/ArchiveCompressionNode.h>
 
 #include <Vendor/rapidjson/document.h>
 #include "Vendor/rapidjson/prettywriter.h"
@@ -19,8 +20,8 @@
 // Globals
 ///////////////////////////////////////////////////////////
 
+extern rj::Document gArchive;
 extern rj::Document gConfig;
-extern rj::Document gPacker;
 extern rj::Document gIntegrity;
 
 ///////////////////////////////////////////////////////////
@@ -29,64 +30,154 @@ extern rj::Document gIntegrity;
 
 namespace ark
 {
-  void Packer::Unpack()
+  const std::set<std::string> sSupportedArchiveExtensions =
   {
-    LOG("Unpacking, please wait...\n");
+    ".dat",
+    ".bin",
+  };
 
-    BlowFish cypher = { gPacker["encryptionKey"].GetString() };
-
+  void Packer::DecryptArchive(const std::string& Entry, const std::string& SubEntry)
+  {
     fs::path gameDir = gConfig["gameDir"].GetString();
     fs::path dataDir = gameDir / "data_pc";
-    fs::path unpackDir = gConfig["unpackDir"].GetString();
+    fs::path decryptDir = gConfig["decryptDir"].GetString();
 
-    DirUtils::CreateIfNotExists(unpackDir);
+    DirUtils::CreateIfNotExists(decryptDir);
+    DirUtils::CreateIfNotExists(decryptDir / Entry);
+    DirUtils::CreateIfNotExists(decryptDir / Entry / SubEntry);
 
-    for (const auto& source : gPacker["sources"].GetArray())
+    for (const auto& file : fs::directory_iterator{ dataDir / Entry })
     {
-      std::string targetDir = source["targetDir"].GetString();
-
-      DirUtils::CreateIfNotExists(unpackDir / targetDir);
-
-      std::set<std::string> extensions = JsonUtils::ToStringSet(source["extensions"].GetArray());
-
-      for (const auto& file : fs::directory_iterator{ dataDir / targetDir })
+      std::string selection = StringUtils::SelectExpr(file.path().stem().string(), "??XX");
+      
+      if (selection == SubEntry)
       {
-        if (extensions.contains(file.path().extension().string()))
+        fs::path srcFile = dataDir / Entry / file.path().filename().string();
+        fs::path dstFile = decryptDir / Entry / SubEntry / file.path().filename().string();
+
+        if (fs::exists(srcFile))
         {
-          std::string dirName = StringUtils::SelectExpr(file.path().stem().string(), source["selectExpr"].GetString());
-          std::vector<U8> bytes = FileUtils::ReadBinary(file.path().string());
+          std::vector<U8> bytes = FileUtils::ReadBinary(srcFile.string());
 
-          cypher.Decrypt(bytes);
-        
-          DirUtils::CreateIfNotExists(unpackDir / targetDir / dirName);
+          BlowFish cipher{ gConfig["encryptionKey"].GetString() };
 
-          ArchiveNode{ bytes }.ExtractRecursive(unpackDir / targetDir / dirName);
+          cipher.Decrypt(bytes);
 
-          std::string posixFile = StringUtils::PosixPath(file.path().string());
-          std::string posixDir = StringUtils::PosixPath(dataDir.string());
+          FileUtils::WriteBinary(dstFile.string(), bytes);
 
-          LOG("  Unpacking %s\n", StringUtils::CutFront(posixFile, posixDir.size()).c_str());
+          std::string posixSrcFile = StringUtils::PosixPath(srcFile.string());
+          std::string posixDstFile = StringUtils::PosixPath(dstFile.string());
+
+          LOG("  %s -> %s\n", posixSrcFile.c_str(), posixDstFile.c_str());
         }
       }
     }
-
-    LOG("Unpacking finished successfully!\n");
-    LOG("\n");
   }
 
-  void Packer::Repack()
+  void Packer::EncryptArchive(const std::string& Entry, const std::string& SubEntry)
   {
-    LOG("Repacking, please wait...\n");
+    fs::path repackDir = gConfig["repackDir"].GetString();
+    fs::path encryptDir = gConfig["encryptDir"].GetString();
 
-    LOG("Repacking finished successfully!\n");
-    LOG("\n");
+    DirUtils::CreateIfNotExists(encryptDir);
+    DirUtils::CreateIfNotExists(encryptDir / Entry);
+    DirUtils::CreateIfNotExists(encryptDir / Entry / SubEntry);
+
+    for (const auto& file : fs::directory_iterator{ repackDir / Entry })
+    {
+      std::string selection = StringUtils::SelectExpr(file.path().stem().string(), "??XX");
+
+      if (selection == SubEntry)
+      {
+        fs::path srcFile = repackDir / Entry / file.path().filename().string();
+        fs::path dstFile = encryptDir / Entry / file.path().filename().string();
+
+        if (fs::exists(srcFile))
+        {
+          std::vector<U8> bytes = FileUtils::ReadBinary(srcFile.string());
+
+          BlowFish cipher{ gConfig["encryptionKey"].GetString() };
+
+          cipher.Encrypt(bytes);
+
+          FileUtils::WriteBinary(dstFile.string(), bytes);
+
+          std::string posixSrcFile = StringUtils::PosixPath(srcFile.string());
+          std::string posixDstFile = StringUtils::PosixPath(dstFile.string());
+
+          LOG("  %s -> %s\n", posixSrcFile.c_str(), posixDstFile.c_str());
+        }
+      }
+    }
   }
 
-  void Packer::CheckIntegrity()
+  void Packer::UnpackArchive(const std::string& Entry, const std::string& SubEntry)
   {
-    LOG("Checking integrity, please wait...\n");
+    fs::path decryptDir = gConfig["decryptDir"].GetString();
+    fs::path unpackDir = gConfig["unpackDir"].GetString();
 
-    U32 success = 1;
+    DirUtils::CreateIfNotExists(unpackDir);
+    DirUtils::CreateIfNotExists(unpackDir / Entry);
+    DirUtils::CreateIfNotExists(unpackDir / Entry / SubEntry);
+
+    if (fs::exists(decryptDir / Entry / SubEntry))
+    {
+      for (const auto& file : fs::directory_iterator{ decryptDir / Entry / SubEntry })
+      {
+        std::string archiveName = file.path().filename().string();
+        std::string archiveExt = file.path().extension().string();
+
+        if (sSupportedArchiveExtensions.contains(archiveExt))
+        {
+          std::vector<U8> bytes = FileUtils::ReadBinary(file.path().string());
+
+          DirUtils::CreateIfNotExists(unpackDir / Entry / SubEntry / archiveName);
+
+          ArchiveExtractionNode extractor{ bytes, nullptr, 0, 0, 0, "", "" };
+          
+          extractor.ExtractRecursive(2, unpackDir / Entry / SubEntry / archiveName);
+
+          std::string posixSrcFile = StringUtils::PosixPath(file.path().string());
+          std::string posixDstFile = StringUtils::PosixPath((unpackDir / Entry / SubEntry / archiveName).string());
+
+          LOG("  %s -> %s\n", posixSrcFile.c_str(), posixDstFile.c_str());
+        }
+      }
+    }
+  }
+
+  void Packer::RepackArchive(const std::string& Entry, const std::string& SubEntry)
+  {
+    fs::path unpackDir = gConfig["unpackDir"].GetString();
+    fs::path repackDir = gConfig["repackDir"].GetString();
+
+    DirUtils::CreateIfNotExists(repackDir);
+    DirUtils::CreateIfNotExists(repackDir / Entry);
+
+    for (const auto& file : fs::directory_iterator{ unpackDir / Entry / SubEntry })
+    {
+      std::string fileName = file.path().filename().string();
+
+      if (fs::exists(unpackDir / Entry / SubEntry / fileName))
+      {
+        ArchiveCompressionNode compressor{ unpackDir / Entry / SubEntry / fileName, nullptr };
+
+        compressor.CompressRecursive(2);
+
+        FileUtils::WriteBinary((repackDir / Entry / fileName).string(), compressor.GetBytes());
+
+        std::string posixSrcFile = StringUtils::PosixPath((unpackDir / Entry / SubEntry).string());
+        std::string posixDstFile = StringUtils::PosixPath((repackDir / Entry / SubEntry).string());
+
+        LOG("  %s -> %s\n", posixSrcFile.c_str(), posixDstFile.c_str());
+      }
+    }
+  }
+
+  bool Packer::CheckIntegrity()
+  {
+    bool intact = true;
+
     fs::path gameDir = gConfig["gameDir"].GetString();
     fs::path dataDir = gameDir / "data_pc";
 
@@ -107,21 +198,18 @@ namespace ark
 
         if (origCrc32 != currCrc32)
         {
-          success = 0;
+          intact = false;
         }
 
-        LOG("  [%s] %s\n", (origCrc32 == currCrc32) ? "Ok" : "Failed", keyValue.c_str());
+        LOG("  %s -> %s\n", keyValue.c_str(), (origCrc32 == currCrc32) ? "Passed" : "Failed");
       }
     }
 
-    LOG("Integrity check %s!\n", (success) ? "successful" : "unsuccessful");
-    LOG("\n");
+    return intact;
   }
 
   void Packer::GenerateIntegrityMap()
   {
-    LOG("Generating integrity, please wait...\n");
-
     fs::path gameDir = gConfig["gameDir"].GetString();
     fs::path dataDir = gameDir / "data_pc";
 
@@ -152,8 +240,5 @@ namespace ark
     integrities.Accept(writer);
 
     FileUtils::WriteText("Integrity.json", buffer.GetString());
-
-    LOG("Integrity generated successfully!\n");
-    LOG("\n");
   }
 }

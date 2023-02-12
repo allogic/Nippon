@@ -23,7 +23,7 @@ namespace ark
     : mVertexBuffer{ new DebugVertex[VertexBufferSize] }
     , mElementBuffer{ new U32[ElementBufferSize] }
     , mMesh{ new Mesh<DebugVertex, U32> }
-    , mShader{ new Shader{ fs::path{ SHADER_DIR } / "Debug.vert", fs::path{ SHADER_DIR } / "Debug.frag" } }
+    , mShader{ new Shader{ "Debug.vert", "Debug.frag" } }
   {
 
   }
@@ -55,9 +55,9 @@ namespace ark
         mMesh->UploadVertices(mVertexBuffer, mVertexOffset);
         mMesh->UploadElements(mElementBuffer, mElementOffset);
         mMesh->Render(eRenderModeLines);
-        mMesh->UnBind();
+        mMesh->Unbind();
 
-        mShader->UnBind();
+        mShader->Unbind();
       }
     }
 

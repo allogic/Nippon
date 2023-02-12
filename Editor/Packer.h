@@ -1,7 +1,9 @@
 #pragma once
 
+#include <vector>
 #include <set>
 #include <filesystem>
+#include <algorithm>
 
 #include <Common/Types.h>
 
@@ -24,12 +26,15 @@ namespace ark
   {
   public:
 
-    static void Unpack();
-    static void Repack();
+    static void DecryptArchive(const std::string& Entry, const std::string& SubEntry);
+    static void EncryptArchive(const std::string& Entry, const std::string& SubEntry);
+
+    static void UnpackArchive(const std::string& Entry, const std::string& SubEntry);
+    static void RepackArchive(const std::string& Entry, const std::string& SubEntry);
 
   public:
 
-    static void CheckIntegrity();
+    static bool CheckIntegrity();
     static void GenerateIntegrityMap();
   };
 }

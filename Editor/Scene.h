@@ -36,8 +36,12 @@ namespace ark
   {
   public:
 
-    Scene(const std::string& Directory, const std::string& SubDirectory, const std::string& Type);
+    Scene(const std::string& Region, const std::string& Level);
     ~Scene();
+
+  public:
+
+    static void Switch(const std::string& Region, const std::string& Level);
 
   public:
 
@@ -80,9 +84,8 @@ namespace ark
 
   private:
 
-    std::string mDirectory;
-    std::string mSubDirectory;
-    std::string mType;
+    std::string mRegion;
+    std::string mLevel;
 
     U32 mWidth = 0;
     U32 mHeight = 0;

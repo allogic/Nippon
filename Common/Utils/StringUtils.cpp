@@ -31,6 +31,28 @@ namespace ark
     return stream.str();
   }
 
+  std::string StringUtils::ToLower(std::string String)
+  {
+    std::transform(String.begin(), String.end(), String.begin(), [](U8 Chr)
+      {
+        return std::tolower(Chr);
+      }
+    );
+
+    return String;
+  }
+
+  std::string StringUtils::ToUpper(std::string String)
+  {
+    std::transform(String.begin(), String.end(), String.begin(), [](U8 Chr)
+      {
+        return std::toupper(Chr);
+      }
+    );
+
+    return String;
+  }
+
   std::string StringUtils::PosixPath(const std::string& String)
   {
     std::string result = String;

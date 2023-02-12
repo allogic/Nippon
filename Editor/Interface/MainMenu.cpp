@@ -1,3 +1,5 @@
+#include <Common/Debug.h>
+
 #include <Editor/Scene.h>
 #include <Editor/Packer.h>
 
@@ -5,13 +7,11 @@
 
 #include <Vendor/ImGui/imgui.h>
 
-#include <Vendor/rapidjson/document.h>
-
 ///////////////////////////////////////////////////////////
 // Globals
 ///////////////////////////////////////////////////////////
 
-extern rj::Document gTranslation;
+extern rj::Document gArchive;
 
 extern ark::Scene* gScene;
 
@@ -25,106 +25,243 @@ namespace ark
   {
     ImGui::BeginMainMenuBar();
 
-    for (const auto& translation : gTranslation.GetArray())
+    DrawMapMenu();
+    DrawPackerMenu();
+
+    ImGui::EndMainMenuBar();
+  }
+
+  void MainMenu::DrawMapMenu()
+  {
+    if (ImGui::BeginMenu("Scene"))
     {
-      if (ImGui::BeginMenu(translation["name"].GetString()))
+      DrawMenuTree("Regions", gArchive["regions"], MainMenu::MapItem);
+
+      ImGui::EndMenu();
+    }
+  }
+
+  void MainMenu::DrawPackerMenu()
+  {
+    if (ImGui::BeginMenu("Packer"))
+    {
+      if (ImGui::BeginMenu("Decrypt"))
       {
-        std::string entryType = translation["type"].GetString();
-
-        for (auto entryIt = translation["entries"].MemberBegin(); entryIt != translation["entries"].MemberEnd(); entryIt++)
+        if (ImGui::Selectable("All"))
         {
-          std::string entryDir = entryIt->name.GetString();
-          std::string entryName = entryIt->value["name"].GetString();
+          DoProcFor(gArchive["regions"], MainMenu::DecryptItem);
+          DoProcFor(gArchive["characters"], MainMenu::DecryptItem);
+          DoProcFor(gArchive["items"], MainMenu::DecryptItem);
+          DoProcFor(gArchive["unknown"], MainMenu::DecryptItem);
+        }
 
-          if (entryName == "") entryName = entryDir;
-
-          if (ImGui::BeginMenu(entryName.c_str()))
-          {
-            if (ImGui::Selectable("For Each"))
-            {
-              for (auto subEntryIt = entryIt->value["entries"].MemberBegin(); subEntryIt != entryIt->value["entries"].MemberEnd(); subEntryIt++)
-              {
-                std::string subEntryDir = subEntryIt->name.GetString();
-
-                SwitchScene(entryDir, subEntryDir, entryType);
-              }
-            }
-
-            ImGui::Separator();
-
-            for (auto subEntryIt = entryIt->value["entries"].MemberBegin(); subEntryIt != entryIt->value["entries"].MemberEnd(); subEntryIt++)
-            {
-              std::string subEntryDir = subEntryIt->name.GetString();
-              std::string subEntryName = subEntryIt->value["name"].GetString();
-
-              if (subEntryName == "") subEntryName = subEntryDir;
-
-              ImGui::PushID(subEntryDir.c_str());
-              if (ImGui::Selectable(subEntryName.c_str()))
-              {
-                SwitchScene(entryDir, subEntryDir, entryType);
-              }
-
-              ImGui::PopID();
-            }
-
-            ImGui::EndMenu();
-          }
-        }        
+        DrawMenuTree("Regions", gArchive["regions"], MainMenu::DecryptItem);
+        DrawMenuTree("Characters", gArchive["characters"], MainMenu::DecryptItem);
+        DrawMenuTree("Items", gArchive["items"], MainMenu::DecryptItem);
+        DrawMenuTree("Unknown", gArchive["unknown"], MainMenu::DecryptItem);
 
         ImGui::EndMenu();
       }
+
+      if (ImGui::BeginMenu("Unpack"))
+      {
+        if (ImGui::Selectable("All"))
+        {
+          DoProcFor(gArchive["regions"], MainMenu::UnpackItem);
+          DoProcFor(gArchive["characters"], MainMenu::UnpackItem);
+          DoProcFor(gArchive["items"], MainMenu::UnpackItem);
+          DoProcFor(gArchive["unknown"], MainMenu::UnpackItem);
+        }
+
+        DrawMenuTree("Regions", gArchive["regions"], MainMenu::UnpackItem);
+        DrawMenuTree("Characters", gArchive["characters"], MainMenu::UnpackItem);
+        DrawMenuTree("Items", gArchive["items"], MainMenu::UnpackItem);
+        DrawMenuTree("Unknown", gArchive["unknown"], MainMenu::UnpackItem);
+
+        ImGui::EndMenu();
+      }
+
+      if (ImGui::BeginMenu("Repack"))
+      {
+        if (ImGui::Selectable("All"))
+        {
+          DoProcFor(gArchive["regions"], MainMenu::RepackItem);
+          DoProcFor(gArchive["characters"], MainMenu::RepackItem);
+          DoProcFor(gArchive["items"], MainMenu::RepackItem);
+          DoProcFor(gArchive["unknown"], MainMenu::RepackItem);
+        }
+
+        DrawMenuTree("Regions", gArchive["regions"], MainMenu::RepackItem);
+        DrawMenuTree("Characters", gArchive["characters"], MainMenu::RepackItem);
+        DrawMenuTree("Items", gArchive["items"], MainMenu::RepackItem);
+        DrawMenuTree("Unknown", gArchive["unknown"], MainMenu::RepackItem);
+
+        ImGui::EndMenu();
+      }
+
+      if (ImGui::BeginMenu("Encrypt"))
+      {
+        if (ImGui::Selectable("All"))
+        {
+          DoProcFor(gArchive["regions"], MainMenu::EncryptItem);
+          DoProcFor(gArchive["characters"], MainMenu::EncryptItem);
+          DoProcFor(gArchive["items"], MainMenu::EncryptItem);
+          DoProcFor(gArchive["unknown"], MainMenu::EncryptItem);
+        }
+
+        DrawMenuTree("Regions", gArchive["regions"], MainMenu::EncryptItem);
+        DrawMenuTree("Characters", gArchive["characters"], MainMenu::EncryptItem);
+        DrawMenuTree("Items", gArchive["items"], MainMenu::EncryptItem);
+        DrawMenuTree("Unknown", gArchive["unknown"], MainMenu::EncryptItem);
+
+        ImGui::EndMenu();
+      }
+
+      ImGui::EndMenu();
     }
+  }
 
-    if (ImGui::BeginMenu("Packer"))
+  void MainMenu::MapItem(const std::string& Entry, const std::string& SubEntry)
+  {
+    LOG("Switching scene, please wait...\n");
+
+    Scene::Switch(Entry, SubEntry);
+
+    LOG("Scene switched\n");
+    LOG("\n");
+  }
+
+  void MainMenu::DecryptItem(const std::string& Entry, const std::string& SubEntry)
+  {
+    LOG("Decrypting, please wait...\n");
+
+    Packer::DecryptArchive(Entry, SubEntry);
+
+    LOG("Decryption finished\n");
+    LOG("\n");
+  }
+
+  void MainMenu::EncryptItem(const std::string& Entry, const std::string& SubEntry)
+  {
+    LOG("Encrypting, please wait...\n");
+
+    Packer::EncryptArchive(Entry, SubEntry);
+
+    LOG("Encryption finished\n");
+    LOG("\n");
+  }
+
+  void MainMenu::UnpackItem(const std::string& Entry, const std::string& SubEntry)
+  {
+    LOG("Unpacking, please wait...\n");
+
+    Packer::UnpackArchive(Entry, SubEntry);
+
+    LOG("Unpacking finished\n");
+    LOG("\n");
+  }
+
+  void MainMenu::RepackItem(const std::string& Entry, const std::string& SubEntry)
+  {
+    LOG("Repacking, please wait...\n");
+
+    Packer::RepackArchive(Entry, SubEntry);
+
+    LOG("Repacking finished\n");
+    LOG("\n");
+  }
+
+  void MainMenu::DrawMenuTree(const std::string& Name, rj::Value& Entry, MenuItemProc Procedure)
+  {
+    ImGui::PushID(&Entry);
+
+    if (ImGui::BeginMenu(Name.c_str()))
     {
-      if (ImGui::Selectable("Unpack"))
+      if (ImGui::Selectable("All"))
       {
-        Packer::Unpack();
+        for (auto entryIt = Entry.MemberBegin(); entryIt != Entry.MemberEnd(); entryIt++)
+        {
+          std::string entryDir = entryIt->name.GetString();
+
+          rj::Value& subEntries = entryIt->value["entries"];
+
+          for (auto subEntryIt = subEntries.MemberBegin(); subEntryIt != subEntries.MemberEnd(); subEntryIt++)
+          {
+            std::string subEntryDir = subEntryIt->name.GetString();
+
+            Procedure(entryDir, subEntryDir);
+          }
+        }
       }
 
-      if (ImGui::Selectable("Repack"))
+      for (auto entryIt = Entry.MemberBegin(); entryIt != Entry.MemberEnd(); entryIt++)
       {
-        Packer::Repack();
-      }
+        ImGui::PushID(&entryIt);
 
-      ImGui::Separator();
+        std::string entryDir = entryIt->name.GetString();
+        std::string entryName = entryIt->value["name"].GetString();
 
-      if (ImGui::Selectable("Check Integrity"))
-      {
-        Packer::CheckIntegrity();
-      }
+        if (entryName == "") entryName = entryDir;
 
-      if (ImGui::Selectable("Generate Integrity"))
-      {
-        Packer::GenerateIntegrityMap();
+        if (ImGui::BeginMenu(entryName.c_str()))
+        {
+          if (ImGui::Selectable("All"))
+          {
+            rj::Value& subEntries = entryIt->value["entries"];
+
+            for (auto subEntryIt = subEntries.MemberBegin(); subEntryIt != subEntries.MemberEnd(); subEntryIt++)
+            {
+              std::string subEntryDir = subEntryIt->name.GetString();
+
+              Procedure(entryDir, subEntryDir);
+            }
+          }
+
+          rj::Value& subEntries = entryIt->value["entries"];
+
+          for (auto subEntryIt = subEntries.MemberBegin(); subEntryIt != subEntries.MemberEnd(); subEntryIt++)
+          {
+            ImGui::PushID(&subEntryIt);
+
+            std::string subEntryDir = subEntryIt->name.GetString();
+            std::string subEntryName = subEntryIt->value["name"].GetString();
+
+            if (subEntryName == "") subEntryName = subEntryDir;
+
+            if (ImGui::Selectable(subEntryName.c_str()))
+            {
+              Procedure(entryDir, subEntryDir);
+            }
+
+            ImGui::PopID();
+          }
+
+          ImGui::EndMenu();
+        }
+
+        ImGui::PopID();
       }
 
       ImGui::EndMenu();
     }
 
-    ImGui::EndMainMenuBar();
+    ImGui::PopID();
   }
 
-  void MainMenu::SwitchScene(const std::string& EntryDir, const std::string& SubEntryDir, const std::string& EntryType)
+  void MainMenu::DoProcFor(rj::Value& Entry, MenuItemProc Procedure)
   {
-    U32 prevWidth = 1;
-    U32 prevHeight = 1;
-
-    if (gScene)
+    for (auto entryIt = Entry.MemberBegin(); entryIt != Entry.MemberEnd(); entryIt++)
     {
-      prevWidth = gScene->GetWidth();
-      prevHeight = gScene->GetHeight();
+      std::string entryDir = entryIt->name.GetString();
 
-      delete gScene;
-      gScene = nullptr;
-    }
+      rj::Value& subEntries = entryIt->value["entries"];
 
-    gScene = new Scene{ EntryDir, SubEntryDir, EntryType };
+      for (auto subEntryIt = subEntries.MemberBegin(); subEntryIt != subEntries.MemberEnd(); subEntryIt++)
+      {
+        std::string subEntryDir = subEntryIt->name.GetString();
 
-    if (gScene)
-    {
-      gScene->Resize(prevWidth, prevHeight);
+        Procedure(entryDir, subEntryDir);
+      }
     }
   }
 }

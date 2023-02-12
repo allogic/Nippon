@@ -15,7 +15,7 @@ namespace ark
     0x9216D5D9L, 0x8979FB1BL
   };
 
-  static const std::uint32_t sS[4][256] =
+  static const U32 sS[4][256] =
   {
     {
       0xD1310BA6L, 0x98DFB5ACL, 0x2FFD72DBL, 0xD01ADFB7L,

@@ -29,7 +29,7 @@ namespace ark
   public:
 
     void Bind() const;
-    void UnBind() const;
+    void Unbind() const;
 
   public:
 

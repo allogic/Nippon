@@ -21,7 +21,7 @@ extern ark::Scene* gScene;
 namespace ark
 {
   DefaultRenderer::DefaultRenderer()
-    : mShader{ new Shader{ fs::path{ SHADER_DIR } / "Default.vert", fs::path{ SHADER_DIR } / "Default.frag" } }
+    : mShader{ new Shader{ "Default.vert", "Default.frag" } }
   {
 
   }
@@ -53,9 +53,9 @@ namespace ark
 
             renderTask.MeshPtr->Bind();
             renderTask.MeshPtr->Render(eRenderModeTriangles);
-            renderTask.MeshPtr->UnBind();
+            renderTask.MeshPtr->Unbind();
 
-            mShader->UnBind();
+            mShader->Unbind();
           }
         }
       }

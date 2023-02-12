@@ -1,5 +1,8 @@
 {
     "gameDir": "C:/Program Files (x86)/Steam/steamapps/common/Okami",
+    "decryptDir": "C:/Users/Michael/Downloads/Nippon/Decrypt",
+    "encryptDir": "C:/Users/Michael/Downloads/Nippon/Encrypt",
     "unpackDir": "C:/Users/Michael/Downloads/Nippon/Unpack",
-    "repackDir": "C:/Users/Michael/Downloads/Nippon/Repack"
+    "repackDir": "C:/Users/Michael/Downloads/Nippon/Repack",
+    "encryptionKey": "YaKiNiKuM2rrVrPJpGMkfe3EK4RbpbHw"
 }

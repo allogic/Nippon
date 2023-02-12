@@ -41,7 +41,7 @@ namespace ark
   {
     ImGui::PushID(Actor);
 
-    std::uint32_t flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth;
+    U32 flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth;
 
     if (Actor == mSelectedActor) flags |= ImGuiTreeNodeFlags_Selected;
 
@@ -50,7 +50,7 @@ namespace ark
       flags |= ImGuiTreeNodeFlags_Leaf;
     }
 
-    std::uint32_t opened = ImGui::TreeNodeEx(Actor->GetName().c_str(), flags);
+    U32 opened = ImGui::TreeNodeEx(Actor->GetName().c_str(), flags);
 
     if (ImGui::IsItemClicked(0) || ImGui::IsItemClicked(1))
     {

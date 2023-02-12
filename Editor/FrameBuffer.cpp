@@ -31,10 +31,10 @@ namespace ark
   {
     mColorTexture.Bind();
     mColorTexture.Resize(Width, Height);
-    mColorTexture.UnBind();
+    mColorTexture.Unbind();
 
     mDepthStencilTexture.Bind();
     mDepthStencilTexture.Resize(Width, Height);
-    mDepthStencilTexture.UnBind();
+    mDepthStencilTexture.Unbind();
   }
 }

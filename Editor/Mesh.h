@@ -32,7 +32,7 @@ namespace ark
 
     void Bind() const;
     void Render(RenderMode RenderMode) const;
-    void UnBind() const;
+    void Unbind() const;
 
   public:
 
@@ -120,7 +120,7 @@ namespace ark
   }
 
   template<typename V, typename E>
-  void Mesh<V, E>::UnBind() const
+  void Mesh<V, E>::Unbind() const
   {
     glBindVertexArray(0);
   }
