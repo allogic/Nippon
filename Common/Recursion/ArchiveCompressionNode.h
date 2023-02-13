@@ -34,7 +34,7 @@ namespace ark
 
   public:
 
-    void CompressRecursive(U32 Count, ArchiveCompressionNode* Node = nullptr);
+    void CompressRecursive(U32 Count, ArchiveCompressionNode* Node = nullptr, bool Verbose = false);
 
   private:
 

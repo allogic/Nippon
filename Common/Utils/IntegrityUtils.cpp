@@ -1,4 +1,4 @@
-#include <Common/Crc32.h>
+#include <Common/Utils/IntegrityUtils.h>
 
 #include <Vendor/CRC/crc32.h>
 
@@ -8,7 +8,7 @@
 
 namespace ark
 {
-  U32 Crc32::FromString(const std::string& String, U64 DefaultChunkSize)
+  U32 IntegrityUtils::Crc32FromString(const std::string& String, U64 DefaultChunkSize)
   {
     U32 crc = 0;
     U64 bytesProcessed = 0;
@@ -29,7 +29,7 @@ namespace ark
     return crc;
   }
 
-  U32 Crc32::FromBytes(const std::vector<U8>& Bytes, U64 DefaultChunkSize)
+  U32 IntegrityUtils::Crc32FromBytes(const std::vector<U8>& Bytes, U64 DefaultChunkSize)
   {
     U32 crc = 0;
     U64 bytesProcessed = 0;

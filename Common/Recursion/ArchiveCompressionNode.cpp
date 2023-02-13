@@ -2,8 +2,9 @@
 #include <Common/Alignment.h>
 
 #include <Common/Utils/FileUtils.h>
+#include <Common/Utils/StringUtils.h>
 
-#include <Editor/Recursion/ArchiveCompressionNode.h>
+#include <Common/Recursion/ArchiveCompressionNode.h>
 
 ///////////////////////////////////////////////////////////
 // Implementation
@@ -18,14 +19,8 @@ namespace ark
     , mParent{ Parent }
   {
     mFileName = mFile.filename().string();
-    
-    U64 indexOffset = mFileName.find('@');
-    U64 nameOffset = mFileName.find('@', indexOffset + 1);
-    
-    mIsDirectory = fs::is_directory(mFile);
-    mIndex = (U16)std::strtoul(mFileName.substr(0, indexOffset).c_str(), nullptr, 10);
-    mName = mFileName.substr(indexOffset + 1, nameOffset - indexOffset - 1);
-    mType = mFileName.substr(nameOffset + 1);
+
+    StringUtils::ArchiveNameToComponents(mFileName, mIndex, mName, mType);
 
     if (mIsDirectory)
     {
@@ -45,24 +40,27 @@ namespace ark
     }
   }
 
-  void ArchiveCompressionNode::CompressRecursive(U32 Count, ArchiveCompressionNode* Node)
+  void ArchiveCompressionNode::CompressRecursive(U32 Count, ArchiveCompressionNode* Node, bool Verbose)
   {
     if (!Node)
     {
       Node = this;
     }
 
-    for (U32 i = 0; i < Count; i++)
+    if (Verbose)
     {
-      if ((i % 2 == 0) && (i >= 2)) LOG("|");
-      else LOG(" ");
-    }
+      for (U32 i = 0; i < Count; i++)
+      {
+        if ((i % 2 == 0) && (i >= 2)) LOG("|");
+        else LOG(" ");
+      }
 
-    LOG("%05u @ %20s @ %4s\n", Node->mIndex, Node->mName.c_str(), Node->mType.c_str());
+      LOG("%05u @ %20s @ %4s\n", Node->mIndex, Node->mName.c_str(), Node->mType.c_str());
+    }
 
     for (const auto& node : Node->mNodes)
     {
-      CompressRecursive(Count + 2, node);
+      CompressRecursive(Count + 2, node, Verbose);
     }
 
     if (Node->mIsDirectory)

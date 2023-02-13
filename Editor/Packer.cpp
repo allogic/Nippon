@@ -1,20 +1,17 @@
 #include <Common/Debug.h>
 #include <Common/BlowFish.h>
-#include <Common/Crc32.h>
 
 #include <Common/Utils/DirUtils.h>
 #include <Common/Utils/FileUtils.h>
 #include <Common/Utils/JsonUtils.h>
 #include <Common/Utils/StringUtils.h>
 
+#include <Common/Recursion/ArchiveExtractionNode.h>
+#include <Common/Recursion/ArchiveCompressionNode.h>
+
 #include <Editor/Packer.h>
 
-#include <Editor/Recursion/ArchiveExtractionNode.h>
-#include <Editor/Recursion/ArchiveCompressionNode.h>
-
 #include <Vendor/rapidjson/document.h>
-#include "Vendor/rapidjson/prettywriter.h"
-#include "Vendor/rapidjson/stringbuffer.h"
 
 ///////////////////////////////////////////////////////////
 // Globals
@@ -22,7 +19,6 @@
 
 extern rj::Document gArchive;
 extern rj::Document gConfig;
-extern rj::Document gIntegrity;
 
 ///////////////////////////////////////////////////////////
 // Implementation
@@ -68,7 +64,7 @@ namespace ark
           std::string posixSrcFile = StringUtils::PosixPath(srcFile.string());
           std::string posixDstFile = StringUtils::PosixPath(dstFile.string());
 
-          LOG("  %s -> %s\n", posixSrcFile.c_str(), posixDstFile.c_str());
+          LOG("%s -> %s\n", posixSrcFile.c_str(), posixDstFile.c_str());
         }
       }
     }
@@ -105,7 +101,7 @@ namespace ark
           std::string posixSrcFile = StringUtils::PosixPath(srcFile.string());
           std::string posixDstFile = StringUtils::PosixPath(dstFile.string());
 
-          LOG("  %s -> %s\n", posixSrcFile.c_str(), posixDstFile.c_str());
+          LOG("%s -> %s\n", posixSrcFile.c_str(), posixDstFile.c_str());
         }
       }
     }
@@ -140,7 +136,7 @@ namespace ark
           std::string posixSrcFile = StringUtils::PosixPath(file.path().string());
           std::string posixDstFile = StringUtils::PosixPath((unpackDir / Entry / SubEntry / archiveName).string());
 
-          LOG("  %s -> %s\n", posixSrcFile.c_str(), posixDstFile.c_str());
+          LOG("%s -> %s\n", posixSrcFile.c_str(), posixDstFile.c_str());
         }
       }
     }
@@ -169,76 +165,8 @@ namespace ark
         std::string posixSrcFile = StringUtils::PosixPath((unpackDir / Entry / SubEntry).string());
         std::string posixDstFile = StringUtils::PosixPath((repackDir / Entry / SubEntry).string());
 
-        LOG("  %s -> %s\n", posixSrcFile.c_str(), posixDstFile.c_str());
+        LOG("%s -> %s\n", posixSrcFile.c_str(), posixDstFile.c_str());
       }
     }
-  }
-
-  bool Packer::CheckIntegrity()
-  {
-    bool intact = true;
-
-    fs::path gameDir = gConfig["gameDir"].GetString();
-    fs::path dataDir = gameDir / "data_pc";
-
-    rj::Document integrity = {};
-
-    integrity.Parse(FileUtils::ReadText("Integrity.json").c_str());
-
-    for (const auto& file : fs::recursive_directory_iterator{ dataDir })
-    {
-      if (fs::is_regular_file(file))
-      {
-        std::string posixFile = StringUtils::PosixPath(file.path().string());
-        std::string posixDir = StringUtils::PosixPath(dataDir.string());
-        std::string keyValue = StringUtils::CutFront(posixFile, posixDir.size());
-
-        U32 origCrc32 = integrity[keyValue.c_str()].GetUint();
-        U32 currCrc32 = Crc32::FromBytes(FileUtils::ReadBinary(posixFile));
-
-        if (origCrc32 != currCrc32)
-        {
-          intact = false;
-        }
-
-        LOG("  %s -> %s\n", keyValue.c_str(), (origCrc32 == currCrc32) ? "Passed" : "Failed");
-      }
-    }
-
-    return intact;
-  }
-
-  void Packer::GenerateIntegrityMap()
-  {
-    fs::path gameDir = gConfig["gameDir"].GetString();
-    fs::path dataDir = gameDir / "data_pc";
-
-    rj::Document document;
-    rj::Value integrities = rj::Value{ rj::kObjectType };
-    rj::StringBuffer buffer;
-    rj::PrettyWriter<rj::StringBuffer> writer = rj::PrettyWriter<rj::StringBuffer>{ buffer };
-
-    for (const auto& file : fs::recursive_directory_iterator{ dataDir })
-    {
-      if (fs::is_regular_file(file))
-      {
-        std::string posixFile = StringUtils::PosixPath(file.path().string());
-        std::string posixDir = StringUtils::PosixPath(dataDir.string());
-        std::string keyValue = StringUtils::CutFront(posixFile, posixDir.size());
-
-        U32 crc32 = Crc32::FromBytes(FileUtils::ReadBinary(posixFile));
-
-        integrities.AddMember(
-          rj::Value{ rj::kStringType }.SetString(keyValue.c_str(), document.GetAllocator()),
-          rj::Value{ rj::kNumberType }.SetUint(crc32),
-          document.GetAllocator());
-
-        LOG("  0x%08X %s\n", crc32, keyValue.c_str());
-      }
-    }
-
-    integrities.Accept(writer);
-
-    FileUtils::WriteText("Integrity.json", buffer.GetString());
   }
 }

@@ -1,5 +1,3 @@
-#include <Common/ExtensionIterator.h>
-
 #include <Common/Utils/StringUtils.h>
 #include <Common/Utils/FileUtils.h>
 
@@ -191,19 +189,34 @@ namespace ark
 
     std::string mapId = StringUtils::CutFront(mRegion, 2);
 
-    auto tscObjects = ObjectSerializer::ToObjects(FileUtils::ReadBinary(targetDir.string() + "/r" + mapId + mLevel + "_objtbl.TSC"));
-    auto treObjects = ObjectSerializer::ToObjects(FileUtils::ReadBinary(targetDir.string() + "/r" + mapId + mLevel + "_objtbl2.TRE"));
-    auto tatObjects = ObjectSerializer::ToObjects(FileUtils::ReadBinary(targetDir.string() + "/r" + mapId + mLevel + "_objtbl3.TAT"));
+    std::string tscFile = targetDir.string() + "/r" + mapId + mLevel + ".dat" + "/00000@r" + mapId + mLevel + "_objtbl@TSC";
+    std::string treFile = targetDir.string() + "/r" + mapId + mLevel + ".dat" + "/00001@r" + mapId + mLevel + "_objtbl2@TRE";
+    std::string tatFile = targetDir.string() + "/r" + mapId + mLevel + ".dat" + "/00002@r" + mapId + mLevel + "_objtbl3@TAT";
+
+    auto tscObjects = ObjectSerializer::ToObjects(FileUtils::ReadBinary(tscFile));
+    auto treObjects = ObjectSerializer::ToObjects(FileUtils::ReadBinary(treFile));
+    auto tatObjects = ObjectSerializer::ToObjects(FileUtils::ReadBinary(tatFile));
 
     mObjects.insert(mObjects.end(), tscObjects.begin(), tscObjects.end());
     mObjects.insert(mObjects.end(), treObjects.begin(), treObjects.end());
     mObjects.insert(mObjects.end(), tatObjects.begin(), tatObjects.end());
 
-    for (const auto& file : ExtensionIterator{ targetDir / "SCP", { ".SCR" } })
-    {
-      auto models = ModelSerializer::ToModels(FileUtils::ReadBinary(file.string()));
+    std::string scrDir = targetDir.string() + "/r" + mapId + mLevel + ".dat" + "/00005@r" + mapId + mLevel + "@SCP";
 
-      mModels.insert(mModels.end(), models.begin(), models.end());
+    for (const auto& file : fs::directory_iterator{ scrDir })
+    {
+      U16 index = 0;
+      std::string name = "";
+      std::string type = "";
+
+      StringUtils::ArchiveNameToComponents(file.path().stem().string(), index, name, type);
+
+      if (type == "SCR")
+      {
+        auto models = ModelSerializer::ToModels(FileUtils::ReadBinary(file.path().string()));
+
+        mModels.insert(mModels.end(), models.begin(), models.end());
+      }
     }
   }
 

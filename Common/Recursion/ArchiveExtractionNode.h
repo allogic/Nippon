@@ -41,7 +41,7 @@ namespace ark
 
   public:
 
-    void ExtractRecursive(U32 Count, const fs::path& File, ArchiveExtractionNode* Node = nullptr);
+    void ExtractRecursive(U32 Count, const fs::path& File, ArchiveExtractionNode* Node = nullptr, bool Verbose = false);
 
   private:
 

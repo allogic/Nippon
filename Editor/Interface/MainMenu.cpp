@@ -2,6 +2,7 @@
 
 #include <Editor/Scene.h>
 #include <Editor/Packer.h>
+#include <Editor/Integrity.h>
 
 #include <Editor/Interface/MainMenu.h>
 
@@ -27,6 +28,7 @@ namespace ark
 
     DrawMapMenu();
     DrawPackerMenu();
+    DrawIntegrityMenu();
 
     ImGui::EndMainMenuBar();
   }
@@ -35,7 +37,7 @@ namespace ark
   {
     if (ImGui::BeginMenu("Scene"))
     {
-      DrawMenuTree("Regions", gArchive["regions"], MainMenu::MapItem);
+      DrawMenuTree("Regions", gArchive["regions"], Scene::Switch);
 
       ImGui::EndMenu();
     }
@@ -49,16 +51,18 @@ namespace ark
       {
         if (ImGui::Selectable("All"))
         {
-          DoProcFor(gArchive["regions"], MainMenu::DecryptItem);
-          DoProcFor(gArchive["characters"], MainMenu::DecryptItem);
-          DoProcFor(gArchive["items"], MainMenu::DecryptItem);
-          DoProcFor(gArchive["unknown"], MainMenu::DecryptItem);
+          DoProcFor(gArchive["regions"], Packer::DecryptArchive);
+          DoProcFor(gArchive["characters"], Packer::DecryptArchive);
+          DoProcFor(gArchive["items"], Packer::DecryptArchive);
+          DoProcFor(gArchive["unknown"], Packer::DecryptArchive);
         }
 
-        DrawMenuTree("Regions", gArchive["regions"], MainMenu::DecryptItem);
-        DrawMenuTree("Characters", gArchive["characters"], MainMenu::DecryptItem);
-        DrawMenuTree("Items", gArchive["items"], MainMenu::DecryptItem);
-        DrawMenuTree("Unknown", gArchive["unknown"], MainMenu::DecryptItem);
+        ImGui::Separator();
+
+        DrawMenuTree("Regions", gArchive["regions"], Packer::DecryptArchive);
+        DrawMenuTree("Characters", gArchive["characters"], Packer::DecryptArchive);
+        DrawMenuTree("Items", gArchive["items"], Packer::DecryptArchive);
+        DrawMenuTree("Unknown", gArchive["unknown"], Packer::DecryptArchive);
 
         ImGui::EndMenu();
       }
@@ -67,16 +71,18 @@ namespace ark
       {
         if (ImGui::Selectable("All"))
         {
-          DoProcFor(gArchive["regions"], MainMenu::UnpackItem);
-          DoProcFor(gArchive["characters"], MainMenu::UnpackItem);
-          DoProcFor(gArchive["items"], MainMenu::UnpackItem);
-          DoProcFor(gArchive["unknown"], MainMenu::UnpackItem);
+          DoProcFor(gArchive["regions"], Packer::UnpackArchive);
+          DoProcFor(gArchive["characters"], Packer::UnpackArchive);
+          DoProcFor(gArchive["items"], Packer::UnpackArchive);
+          DoProcFor(gArchive["unknown"], Packer::UnpackArchive);
         }
 
-        DrawMenuTree("Regions", gArchive["regions"], MainMenu::UnpackItem);
-        DrawMenuTree("Characters", gArchive["characters"], MainMenu::UnpackItem);
-        DrawMenuTree("Items", gArchive["items"], MainMenu::UnpackItem);
-        DrawMenuTree("Unknown", gArchive["unknown"], MainMenu::UnpackItem);
+        ImGui::Separator();
+
+        DrawMenuTree("Regions", gArchive["regions"], Packer::UnpackArchive);
+        DrawMenuTree("Characters", gArchive["characters"], Packer::UnpackArchive);
+        DrawMenuTree("Items", gArchive["items"], Packer::UnpackArchive);
+        DrawMenuTree("Unknown", gArchive["unknown"], Packer::UnpackArchive);
 
         ImGui::EndMenu();
       }
@@ -85,16 +91,18 @@ namespace ark
       {
         if (ImGui::Selectable("All"))
         {
-          DoProcFor(gArchive["regions"], MainMenu::RepackItem);
-          DoProcFor(gArchive["characters"], MainMenu::RepackItem);
-          DoProcFor(gArchive["items"], MainMenu::RepackItem);
-          DoProcFor(gArchive["unknown"], MainMenu::RepackItem);
+          DoProcFor(gArchive["regions"], Packer::RepackArchive);
+          DoProcFor(gArchive["characters"], Packer::RepackArchive);
+          DoProcFor(gArchive["items"], Packer::RepackArchive);
+          DoProcFor(gArchive["unknown"], Packer::RepackArchive);
         }
 
-        DrawMenuTree("Regions", gArchive["regions"], MainMenu::RepackItem);
-        DrawMenuTree("Characters", gArchive["characters"], MainMenu::RepackItem);
-        DrawMenuTree("Items", gArchive["items"], MainMenu::RepackItem);
-        DrawMenuTree("Unknown", gArchive["unknown"], MainMenu::RepackItem);
+        ImGui::Separator();
+
+        DrawMenuTree("Regions", gArchive["regions"], Packer::RepackArchive);
+        DrawMenuTree("Characters", gArchive["characters"], Packer::RepackArchive);
+        DrawMenuTree("Items", gArchive["items"], Packer::RepackArchive);
+        DrawMenuTree("Unknown", gArchive["unknown"], Packer::RepackArchive);
 
         ImGui::EndMenu();
       }
@@ -103,16 +111,18 @@ namespace ark
       {
         if (ImGui::Selectable("All"))
         {
-          DoProcFor(gArchive["regions"], MainMenu::EncryptItem);
-          DoProcFor(gArchive["characters"], MainMenu::EncryptItem);
-          DoProcFor(gArchive["items"], MainMenu::EncryptItem);
-          DoProcFor(gArchive["unknown"], MainMenu::EncryptItem);
+          DoProcFor(gArchive["regions"], Packer::EncryptArchive);
+          DoProcFor(gArchive["characters"], Packer::EncryptArchive);
+          DoProcFor(gArchive["items"], Packer::EncryptArchive);
+          DoProcFor(gArchive["unknown"], Packer::EncryptArchive);
         }
 
-        DrawMenuTree("Regions", gArchive["regions"], MainMenu::EncryptItem);
-        DrawMenuTree("Characters", gArchive["characters"], MainMenu::EncryptItem);
-        DrawMenuTree("Items", gArchive["items"], MainMenu::EncryptItem);
-        DrawMenuTree("Unknown", gArchive["unknown"], MainMenu::EncryptItem);
+        ImGui::Separator();
+
+        DrawMenuTree("Regions", gArchive["regions"], Packer::EncryptArchive);
+        DrawMenuTree("Characters", gArchive["characters"], Packer::EncryptArchive);
+        DrawMenuTree("Items", gArchive["items"], Packer::EncryptArchive);
+        DrawMenuTree("Unknown", gArchive["unknown"], Packer::EncryptArchive);
 
         ImGui::EndMenu();
       }
@@ -121,54 +131,25 @@ namespace ark
     }
   }
 
-  void MainMenu::MapItem(const std::string& Entry, const std::string& SubEntry)
+  void MainMenu::DrawIntegrityMenu()
   {
-    LOG("Switching scene, please wait...\n");
+    if (ImGui::BeginMenu("Integrity"))
+    {
+      if (ImGui::Selectable("Check Encrypted")) Integrity::CheckEncrypted();
+      if (ImGui::Selectable("Check Decrypted")) Integrity::CheckDecrypted();
 
-    Scene::Switch(Entry, SubEntry);
+      ImGui::Separator();
 
-    LOG("Scene switched\n");
-    LOG("\n");
-  }
+      if (ImGui::Selectable("Compare Repacked With Decrypted")) Integrity::CompareRepackedWithDecrypted();
+      if (ImGui::Selectable("Compare Encrypted With Original")) Integrity::CompareEncryptedWithOriginal();
 
-  void MainMenu::DecryptItem(const std::string& Entry, const std::string& SubEntry)
-  {
-    LOG("Decrypting, please wait...\n");
+      ImGui::Separator();
 
-    Packer::DecryptArchive(Entry, SubEntry);
+      if (ImGui::Selectable("Generated Encrypted Map")) Integrity::GenerateEncryptedMap();
+      if (ImGui::Selectable("Generated Decrypted Map")) Integrity::GenerateDecryptedMap();
 
-    LOG("Decryption finished\n");
-    LOG("\n");
-  }
-
-  void MainMenu::EncryptItem(const std::string& Entry, const std::string& SubEntry)
-  {
-    LOG("Encrypting, please wait...\n");
-
-    Packer::EncryptArchive(Entry, SubEntry);
-
-    LOG("Encryption finished\n");
-    LOG("\n");
-  }
-
-  void MainMenu::UnpackItem(const std::string& Entry, const std::string& SubEntry)
-  {
-    LOG("Unpacking, please wait...\n");
-
-    Packer::UnpackArchive(Entry, SubEntry);
-
-    LOG("Unpacking finished\n");
-    LOG("\n");
-  }
-
-  void MainMenu::RepackItem(const std::string& Entry, const std::string& SubEntry)
-  {
-    LOG("Repacking, please wait...\n");
-
-    Packer::RepackArchive(Entry, SubEntry);
-
-    LOG("Repacking finished\n");
-    LOG("\n");
+      ImGui::EndMenu();
+    }
   }
 
   void MainMenu::DrawMenuTree(const std::string& Name, rj::Value& Entry, MenuItemProc Procedure)
@@ -194,6 +175,8 @@ namespace ark
         }
       }
 
+      ImGui::Separator();
+
       for (auto entryIt = Entry.MemberBegin(); entryIt != Entry.MemberEnd(); entryIt++)
       {
         ImGui::PushID(&entryIt);
@@ -216,6 +199,8 @@ namespace ark
               Procedure(entryDir, subEntryDir);
             }
           }
+
+          ImGui::Separator();
 
           rj::Value& subEntries = entryIt->value["entries"];
 

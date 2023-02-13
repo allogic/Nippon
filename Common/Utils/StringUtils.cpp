@@ -89,4 +89,14 @@ namespace ark
 
     return stream.str();
   }
+
+  void StringUtils::ArchiveNameToComponents(const std::string& String, U16& Index, std::string& Name, std::string& Type)
+  {
+    U64 indexOffset = String.find('@');
+    U64 nameOffset = String.find('@', indexOffset + 1);
+
+    Index = (U16)std::strtoul(String.substr(0, indexOffset).c_str(), nullptr, 10);
+    Name = String.substr(indexOffset + 1, nameOffset - indexOffset - 1);
+    Type = String.substr(nameOffset + 1);
+  }
 }

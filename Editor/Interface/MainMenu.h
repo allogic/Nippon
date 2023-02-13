@@ -29,6 +29,7 @@ namespace ark
 
     void DrawMapMenu();
     void DrawPackerMenu();
+    void DrawIntegrityMenu();
 
   private:
 
@@ -36,14 +37,7 @@ namespace ark
 
     static void MapItem(const std::string& Entry, const std::string& SubEntry);
 
-    static void DecryptItem(const std::string& Entry, const std::string& SubEntry);
-    static void EncryptItem(const std::string& Entry, const std::string& SubEntry);
-    static void UnpackItem(const std::string& Entry, const std::string& SubEntry);
-    static void RepackItem(const std::string& Entry, const std::string& SubEntry);
-
-  private:
-
-    void DrawMenuTree(const std::string& Name, rj::Value& Entry, MenuItemProc Procedure);
-    void DoProcFor(rj::Value& Entry, MenuItemProc Procedure);
+    static void DrawMenuTree(const std::string& Name, rj::Value& Entry, MenuItemProc Procedure);
+    static void DoProcFor(rj::Value& Entry, MenuItemProc Procedure);
   };
 }

@@ -1,9 +1,7 @@
 #pragma once
 
-#include <vector>
-#include <set>
+#include <string>
 #include <filesystem>
-#include <algorithm>
 
 #include <Common/Types.h>
 
@@ -22,14 +20,17 @@ namespace rj = rapidjson;
 
 namespace ark
 {
-  class Packer
+  class Integrity
   {
   public:
 
-    static void DecryptArchive(const std::string& Entry, const std::string& SubEntry);
-    static void EncryptArchive(const std::string& Entry, const std::string& SubEntry);
+    static bool CheckEncrypted();
+    static bool CheckDecrypted();
 
-    static void UnpackArchive(const std::string& Entry, const std::string& SubEntry);
-    static void RepackArchive(const std::string& Entry, const std::string& SubEntry);
+    static bool CompareRepackedWithDecrypted();
+    static bool CompareEncryptedWithOriginal();
+
+    static void GenerateEncryptedMap();
+    static void GenerateDecryptedMap();
   };
 }

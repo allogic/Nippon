@@ -32,6 +32,7 @@ namespace ark
   class Component;
   class Event;
   class FrameBuffer;
+  class Integrity;
   class Interface;
 
   template<typename V, typename E>

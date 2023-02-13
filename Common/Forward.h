@@ -8,6 +8,7 @@ namespace ark
 {
   class DirUtils;
   class FileUtils;
+  class IntegrityUtils;
   class JsonUtils;
   class StringUtils;
 

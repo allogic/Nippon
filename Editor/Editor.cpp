@@ -34,13 +34,6 @@
 #include <Vendor/rapidjson/rapidjson.h>
 #include <Vendor/rapidjson/document.h>
 
-///////////////////////////////////////////////////////////
-// Namespaces
-///////////////////////////////////////////////////////////
-
-namespace fs = std::filesystem;
-namespace rj = rapidjson;
-
 /*
  * General Stuff:
  * ==============
@@ -102,12 +95,18 @@ namespace rj = rapidjson;
  */
 
 ///////////////////////////////////////////////////////////
+// Namespaces
+///////////////////////////////////////////////////////////
+
+namespace fs = std::filesystem;
+namespace rj = rapidjson;
+
+///////////////////////////////////////////////////////////
 // Globals
 ///////////////////////////////////////////////////////////
 
 rj::Document gArchive = {};
 rj::Document gConfig = {};
-rj::Document gIntegrity = {};
 
 ark::Scene* gScene = nullptr;
 
@@ -170,7 +169,6 @@ ark::I32 main()
 {
   gArchive.Parse(ark::FileUtils::ReadText("Archive.json").c_str());
   gConfig.Parse(ark::FileUtils::ReadText("Config.json").c_str());
-  gIntegrity.Parse(ark::FileUtils::ReadText("Integrity.json").c_str());
 
   sInterfaces.emplace("ModelBrowser", new ark::ModelBrowser);
   sInterfaces.emplace("ObjectBrowser", new ark::ObjectBrowser);

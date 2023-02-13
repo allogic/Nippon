@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdlib>
 #include <string>
 #include <sstream>
 #include <filesystem>
@@ -30,5 +31,7 @@ namespace ark
     static std::string ToUpper(std::string String);
     static std::string PosixPath(const std::string& String);
     static std::string SelectExpr(const std::string& String, const std::string& Expr);
+
+    static void ArchiveNameToComponents(const std::string& String, U16& Index, std::string& Name, std::string& Type);
   };
 }

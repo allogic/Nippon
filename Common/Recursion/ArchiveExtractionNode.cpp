@@ -1,11 +1,10 @@
 ﻿#include <Common/Debug.h>
-#include <Common/Crc32.h>
 
 #include <Common/Utils/DirUtils.h>
 #include <Common/Utils/FileUtils.h>
 #include <Common/Utils/StringUtils.h>
 
-#include <Editor/Recursion/ArchiveExtractionNode.h>
+#include <Common/Recursion/ArchiveExtractionNode.h>
 
 ///////////////////////////////////////////////////////////
 // Implementation
@@ -81,20 +80,23 @@ namespace ark
     }
   }
 
-  void ArchiveExtractionNode::ExtractRecursive(U32 Count, const fs::path& File, ArchiveExtractionNode* Node)
+  void ArchiveExtractionNode::ExtractRecursive(U32 Count, const fs::path& File, ArchiveExtractionNode* Node, bool Verbose)
   {
     if (!Node)
     {
       Node = this;
     }
 
-    for (U32 i = 0; i < Count; i++)
+    if (Verbose)
     {
-      if ((i % 2 == 0) && (i >= 2)) LOG("|");
-      else LOG(" ");
-    }
+      for (U32 i = 0; i < Count; i++)
+      {
+        if ((i % 2 == 0) && (i >= 2)) LOG("|");
+        else LOG(" ");
+      }
 
-    LOG("%05u @ %20s @ %4s\n", Node->mIndex, Node->mName.c_str(), Node->mType.c_str());
+      LOG("%05u @ %20s @ %4s\n", Node->mIndex, Node->mName.c_str(), Node->mType.c_str());
+    }
 
     std::string fileName = GetFileName(Node);
 
@@ -104,7 +106,7 @@ namespace ark
       {
         for (const auto& node : Node->mNodes)
         {
-          ExtractRecursive(Count + 2, File, node);
+          ExtractRecursive(Count + 2, File, node, Verbose);
         }
       }
       else
@@ -113,7 +115,7 @@ namespace ark
 
         for (const auto& node : Node->mNodes)
         {
-          ExtractRecursive(Count + 2, (File / fileName).string(), node);
+          ExtractRecursive(Count + 2, (File / fileName).string(), node, Verbose);
         }
       }
     }
@@ -162,35 +164,54 @@ namespace ark
 
   bool ArchiveExtractionNode::IsDirectory()
   {
+    bool isDirectory = false;
+
     if (mBinaryReader.GetSize() > 0)
     {
       mBinaryReader.SeekAbsolute(0);
 
       U32 size = mBinaryReader.Read<U32>();
 
-      if (size > 0 && size < 65535)
+      mBinaryReader.SeekAbsolute(0);
+
+      std::string probe = StringUtils::RemoveNulls(mBinaryReader.String(4));
+
+      if (!sKnownArchiveTypes.contains(probe))
       {
-        for (U32 i = 0; i < size; i++)
+        if (size > 0 && size < 65535)
         {
-          U32 offset = mBinaryReader.Read<U32>();
-
-          if (offset >= mBinaryReader.GetSize())
+          for (U32 i = 0; i < size; i++)
           {
-            return false;
+            if ((i * 4) >= ((U32)mBinaryReader.GetSize() - 4))
+            {
+              return false;
+            }
+
+            U32 offset = mBinaryReader.Read<U32>();
+
+            if (offset >= mBinaryReader.GetSize())
+            {
+              return false;
+            }
           }
-        }
 
-        for (U32 i = 0; i < size; i++)
-        {
-          std::string type = StringUtils::RemoveNulls(mBinaryReader.String(4));
-
-          if (!sKnownArchiveTypes.contains(type))
+          for (U32 i = 0; i < size; i++)
           {
-            return false;
-          }
-        }
+            if ((i * 4) >= ((U32)mBinaryReader.GetSize() - 4))
+            {
+              return false;
+            }
 
-        return true;
+            std::string type = StringUtils::RemoveNulls(mBinaryReader.String(4));
+
+            if (!sKnownArchiveTypes.contains(type))
+            {
+              return false;
+            }
+          }
+
+          return true;
+        }
       }
     }
 
