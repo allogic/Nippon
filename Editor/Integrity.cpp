@@ -1,5 +1,6 @@
 #include <Common/Debug.h>
 
+#include <Common/Utils/ByteUtils.h>
 #include <Common/Utils/FileUtils.h>
 #include <Common/Utils/IntegrityUtils.h>
 #include <Common/Utils/StringUtils.h>
@@ -90,12 +91,55 @@ namespace ark
 
   bool Integrity::CompareRepackedWithDecrypted()
   {
-    return false;
+    U32 failCount = 0;
+    U32 passCount = 0;
+
+    fs::path decryptDir = gConfig["decryptDir"].GetString();
+    fs::path repackDir = gConfig["repackDir"].GetString();
+
+    for (const auto& entry : fs::directory_iterator{ repackDir })
+    {
+      for (const auto& subEntry : fs::directory_iterator{ entry })
+      {
+        for (const auto& file : fs::directory_iterator{ subEntry })
+        {
+          fs::path decryptedFile = decryptDir / entry.path().stem() / subEntry.path().stem() / file.path().filename();
+          fs::path repackedFile = repackDir / entry.path().stem() / subEntry.path().stem() / file.path().filename();
+
+          std::vector<U8> decryptedBytes = FileUtils::ReadBinary(decryptedFile.string());
+          std::vector<U8> repackedBytes = FileUtils::ReadBinary(repackedFile.string());
+
+          U64 index = ByteUtils::Compare(decryptedBytes, repackedBytes);
+
+          if (index == 0)
+          {
+            passCount++;
+
+            LOG("%s -> Passed\n", file.path().string().c_str());
+          }
+          else
+          {
+            failCount++;
+
+            LOG("%s -> Missmatch at 0x%llX\n", file.path().string().c_str(), index);
+          }
+        }
+      }
+    }
+
+    LOG("\n");
+    LOG("Failed: %10d\n", failCount);
+    LOG("Passed: %10d\n", passCount);
+    LOG("\n");
+
+    return failCount == 0;
   }
 
   bool Integrity::CompareEncryptedWithOriginal()
   {
-    return false;
+    bool intact = true;
+
+    return intact;
   }
 
   void Integrity::GenerateEncryptedMap()

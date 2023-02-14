@@ -1,10 +1,9 @@
-#include <cstring>
 #include <vector>
-#include <cmath>
 
 #include <Common/Debug.h>
 #include <Common/Types.h>
 
+#include <Common/Utils/ByteUtils.h>
 #include <Common/Utils/FileUtils.h>
 
 ark::I32 main(ark::I32 Argc, char** Argv)
@@ -16,20 +15,11 @@ ark::I32 main(ark::I32 Argc, char** Argv)
     std::vector<ark::U8> bytesLeft = ark::FileUtils::ReadBinary(Argv[2]);
     std::vector<ark::U8> bytesRight = ark::FileUtils::ReadBinary(Argv[3]);
 
-    LOG("BytesLeft:  %10llu\n", bytesLeft.size());
-    LOG("BytesRight: %10llu\n", bytesRight.size());
-    LOG("\n");
+    ark::U64 index = ark::ByteUtils::Compare(bytesLeft, bytesRight);
 
-    ark::U64 byteSize = std::min(bytesLeft.size(), bytesRight.size());
-
-    for (ark::U64 i = 0; i < byteSize; i++)
+    if (index != 0)
     {
-      if (bytesLeft[i] != bytesRight[i])
-      {
-        LOG("Missmatch at 0x%llX\n", i);
-
-        break;
-      }
+      LOG("Missmatch at 0x%llX\n", index);
     }
   }
 
@@ -38,26 +28,11 @@ ark::I32 main(ark::I32 Argc, char** Argv)
     std::vector<ark::U8> bytes = ark::FileUtils::ReadBinary(Argv[2]);
     std::string pattern = Argv[3];
 
-    for (ark::U64 i = 0; i < bytes.size(); i++)
+    std::vector<ark::U64> indices = ark::ByteUtils::Search(bytes, { pattern.begin(), pattern.end() });
+
+    for (const auto index : indices)
     {
-      bool found = true;
-
-      for (ark::U32 j = 0; j < pattern.size(); j++)
-      {
-        if (bytes[i + j] != pattern[j])
-        {
-          found = false;
-
-          break;
-        }
-      }
-
-      if (found)
-      {
-        LOG("Found at 0x%llX\n", i);
-
-        i += pattern.size();
-      }
+      LOG("Found at 0x%llX\n", index);
     }
   }
 

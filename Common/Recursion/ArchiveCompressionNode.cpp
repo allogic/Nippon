@@ -19,6 +19,7 @@ namespace ark
     , mParent{ Parent }
   {
     mFileName = mFile.filename().string();
+    mIsDirectory = fs::is_directory(mFile);
 
     StringUtils::ArchiveNameToComponents(mFileName, mIndex, mName, mType);
 

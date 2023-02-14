@@ -86,7 +86,7 @@ namespace ark
       if (selection == SubEntry)
       {
         fs::path srcFile = repackDir / Entry / file.path().filename().string();
-        fs::path dstFile = encryptDir / Entry / file.path().filename().string();
+        fs::path dstFile = encryptDir / Entry / SubEntry / file.path().filename().string();
 
         if (fs::exists(srcFile))
         {
@@ -149,6 +149,7 @@ namespace ark
 
     DirUtils::CreateIfNotExists(repackDir);
     DirUtils::CreateIfNotExists(repackDir / Entry);
+    DirUtils::CreateIfNotExists(repackDir / Entry / SubEntry);
 
     for (const auto& file : fs::directory_iterator{ unpackDir / Entry / SubEntry })
     {
@@ -160,7 +161,7 @@ namespace ark
 
         compressor.CompressRecursive(2);
 
-        FileUtils::WriteBinary((repackDir / Entry / fileName).string(), compressor.GetBytes());
+        FileUtils::WriteBinary((repackDir / Entry / SubEntry / fileName).string(), compressor.GetBytes());
 
         std::string posixSrcFile = StringUtils::PosixPath((unpackDir / Entry / SubEntry).string());
         std::string posixDstFile = StringUtils::PosixPath((repackDir / Entry / SubEntry).string());
