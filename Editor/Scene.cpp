@@ -209,7 +209,7 @@ namespace ark
       std::string name = "";
       std::string type = "";
 
-      StringUtils::ArchiveNameToComponents(file.path().stem().string(), index, name, type);
+      StringUtils::FromArchiveName(file.path().stem().string(), index, name, type);
 
       if (type == "SCR")
       {

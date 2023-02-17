@@ -21,7 +21,7 @@ namespace ark
     mFileName = mFile.filename().string();
     mIsDirectory = fs::is_directory(mFile);
 
-    StringUtils::ArchiveNameToComponents(mFileName, mIndex, mName, mType);
+    StringUtils::FromArchiveName(mFileName, mIndex, mName, mType);
 
     if (mIsDirectory)
     {
@@ -67,22 +67,37 @@ namespace ark
     if (Node->mIsDirectory)
     {
       Node->WriteHeader();
-      Node->WriteFolder();
+      
+      if (mType == "AKT")
+      {
+        Node->mBinaryWriter.SeekRelative(80);
+
+        for (U16 i = 0; i < (U16)Node->mNodes.size(); i++)
+        {
+          Node->mBinaryWriter.Write(Node->mNodes[i]->mBinaryWriter.GetBytes());
+
+          if ((Node->mNodes.size() > 1) && (i < (Node->mNodes.size() - 1)))
+          {
+            Node->mBinaryWriter.SeekRelative(24);
+          }
+        }
+      }
+      else
+      {
+        for (U16 i = 0; i < (U16)Node->mNodes.size(); i++)
+        {
+          Node->mBinaryWriter.Write(Node->mNodes[i]->mBinaryWriter.GetBytes());
+        }
+      }
     }
     else
     {
-      Node->WriteFile();
+      Node->mBinaryWriter.Write(FileUtils::ReadBinary(Node->mFile.string()));
     }
   }
 
   void ArchiveCompressionNode::WriteHeader()
   {
-    if (mParent)
-    {
-      mBinaryWriter.String(mType, 4);
-      mBinaryWriter.String(mName, 20);
-    }
-
     mBinaryWriter.Write<U32>((U32)mNodes.size());
     
     U32 fileOffset = 4;
@@ -90,26 +105,29 @@ namespace ark
     fileOffset += (U32)mNodes.size() * 4;
     fileOffset += (U32)mNodes.size() * 4;
 
-    switch (fileOffset % 16)
-    {
-      case 0: fileOffset += 8; break;
-      case 4: fileOffset += 20; break;
-      case 8: fileOffset += 16; break;
-      case 12: fileOffset += 12; break;
-    }
+    fileOffset = Align<32>::Up(fileOffset);
+    fileOffset += 32;
 
-    fileOffset += (U32)GetMinOffsetByType();
-    fileOffset = (U32)GetAlignmentByType(fileOffset);
+    //switch (fileOffset % 16)
+    //{
+    //  case 0: fileOffset += 8; break;
+    //  case 4: fileOffset += 20; break;
+    //  case 8: fileOffset += 16; break;
+    //  case 12: fileOffset += 12; break;
+    //}
+
+    //fileOffset += (U32)GetMinOffsetByType();
+    //fileOffset = (U32)GetAlignmentByType(fileOffset);
     
     for (const auto& node : mNodes)
     {
       mBinaryWriter.Write<U32>(fileOffset);
     
       fileOffset += (U32)node->mBinaryWriter.GetSize();
-    
-      if (!node->mIsDirectory)
+
+      if (node->mParent)
       {
-        fileOffset += 24;
+        fileOffset += 32;
       }
     }
 
@@ -118,70 +136,23 @@ namespace ark
       mBinaryWriter.String(node->mType, 4);
     }
 
-    U64 headerSize = mBinaryWriter.GetPosition();
+    mBinaryWriter.SeekAbsolute(Align<32>::Up(mBinaryWriter.GetPosition()));
 
-    if (mParent)
-    {
-      headerSize -= 24;
-    }
+    //U64 headerSize = mBinaryWriter.GetPosition();
+    //
+    //if (mParent)
+    //{
+    //  headerSize -= 24;
+    //}
+    //
+    //switch (headerSize % 16)
+    //{
+    //  case 0: mBinaryWriter.SeekRelative(8); break;
+    //  case 4: mBinaryWriter.SeekRelative(20); break;
+    //  case 8: mBinaryWriter.SeekRelative(16); break;
+    //  case 12: mBinaryWriter.SeekRelative(12); break;
+    //}
 
-    switch (headerSize % 16)
-    {
-      case 0: mBinaryWriter.SeekRelative(8); break;
-      case 4: mBinaryWriter.SeekRelative(20); break;
-      case 8: mBinaryWriter.SeekRelative(16); break;
-      case 12: mBinaryWriter.SeekRelative(12); break;
-    }
-
-    mBinaryWriter.SeekAbsolute(GetAlignmentByType(mBinaryWriter.GetPosition()));
-  }
-
-  void ArchiveCompressionNode::WriteFolder()
-  {
-    if (mType == "AKT")
-    {
-      mBinaryWriter.SeekRelative(80);
-
-      for (U16 i = 0; i < (U16)mNodes.size(); i++)
-      {
-        mBinaryWriter.Write(mNodes[i]->mBinaryWriter.GetBytes());
-
-        if ((mNodes.size() > 1) && (i < (mNodes.size() - 1)))
-        {
-          mBinaryWriter.SeekRelative(24);
-        }
-      }
-    }
-    else
-    {
-      for (U16 i = 0; i < (U16)mNodes.size(); i++)
-      {
-        if (!mNodes[i]->mIsDirectory)
-        {
-          mBinaryWriter.String(mNodes[i]->mType, 4);
-          mBinaryWriter.String(mNodes[i]->mName, 20);
-        }
-
-        mBinaryWriter.Write(mNodes[i]->mBinaryWriter.GetBytes());
-      }
-    }    
-  }
-
-  void ArchiveCompressionNode::WriteFile()
-  {
-    mBinaryWriter.Write(FileUtils::ReadBinary(mFile.string()));
-  }
-
-  U64 ArchiveCompressionNode::GetMinOffsetByType()
-  {
-    if (mType == "AKT") return 80;
-    else return 24;
-  }
-
-  U64 ArchiveCompressionNode::GetAlignmentByType(U64 Position)
-  {
-    if (mType == "DDP") return Align<32>::Up(Position);
-    else if (mType == "CMP") return Align<32>::Up(Position);
-    else return Align<8>::Up(Position);
+    //mBinaryWriter.SeekAbsolute(GetAlignmentByType(mBinaryWriter.GetPosition()));
   }
 }

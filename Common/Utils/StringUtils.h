@@ -32,6 +32,7 @@ namespace ark
     static std::string PosixPath(const std::string& String);
     static std::string SelectExpr(const std::string& String, const std::string& Expr);
 
-    static void ArchiveNameToComponents(const std::string& String, U16& Index, std::string& Name, std::string& Type);
+    static void FromArchiveName(const std::string& String, U16& Index, std::string& Name, std::string& Type);
+    static std::string ToArchiveName(U16 Index, const std::string& Name, const std::string& Type);
   };
 }

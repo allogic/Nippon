@@ -1,3 +1,4 @@
+#include <cstring>
 #include <vector>
 
 #include <Common/Debug.h>
@@ -5,6 +6,10 @@
 
 #include <Common/Utils/ByteUtils.h>
 #include <Common/Utils/FileUtils.h>
+
+///////////////////////////////////////////////////////////
+// Entry Point
+///////////////////////////////////////////////////////////
 
 ark::I32 main(ark::I32 Argc, char** Argv)
 {

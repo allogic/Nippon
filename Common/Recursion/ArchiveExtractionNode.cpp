@@ -1,4 +1,5 @@
-﻿#include <Common/Debug.h>
+﻿#include <Common/Alignment.h>
+#include <Common/Debug.h>
 
 #include <Common/Utils/DirUtils.h>
 #include <Common/Utils/FileUtils.h>
@@ -12,22 +13,27 @@
 
 namespace ark
 {
-  static const std::set<std::string> sKnownArchiveTypes
+  static const std::set<std::string> sKnownDirectoryTypes
   {
-    "A00", "A01", "ACT", "AK", "AKT", "ANS",
-    "B00", "B01", "BIN", "BMH",
-    "C00", "CAM", "CCH", "CMP",
-    "D00", "DAT", "DDP", "DDS",
-    "EAR", "ECT", "EFF", "EFP", "EMD", "EST",
+    "AKT", "BIN", "CMP", "DAT", "DDP", "EFF", "IDD", "SCP", "TBL",
+  };
+
+  static const std::set<std::string> sKnownFileTypes
+  {
+    "A00", "A01", "ACT", "AK", "ANS",
+    "B00", "B01", "BMH",
+    "C00", "CAM", "CCH",
+    "D00", "DDS",
+    "EAR", "ECT", "EFP", "EMD", "EST",
     "FI2", "FIS",
-    "ICO", "IDD", "IDP", "ISL", "ITS",
+    "ICO", "IDP", "ISL", "ITS",
     "JMP",
     "LI3",
     "MD", "MEH", "MOT", "MRT", "MSA", "MSD", "MSS",
     "PSN",
     "RHT", "RNI", "ROF",
-    "S00", "S01", "S02", "S03", "S04", "S05", "SCA", "SCI", "SCL", "SCM", "SCP", "SCR", "SEH", "SEQ", "SES", "SSD", "SSL",
-    "TAT", "TBL", "TRE", "TS", "TSC",
+    "S00", "S01", "S02", "S03", "S04", "S05", "SCA", "SCI", "SCL", "SCM", "SCR", "SEH", "SEQ", "SES", "SSD", "SSL",
+    "TAT", "TRE", "TS", "TSC",
     "V00", "V01", "V02", "V03",
   };
 
@@ -47,7 +53,7 @@ namespace ark
     , mType{ Type }
     , mName{ Name }
   {
-    mIsDirectory = IsDirectory();
+    mIsDirectory = sKnownDirectoryTypes.contains(mType);
 
     if (mIsDirectory)
     {
@@ -57,7 +63,7 @@ namespace ark
       {
         mBinaryReader.SeekAbsolute(mEntries[i].Offset);
 
-        ArchiveExtractionNode* node = mNodes.emplace_back(new ArchiveExtractionNode
+        mNodes.emplace_back(new ArchiveExtractionNode
         {
           mBinaryReader.Bytes(mEntries[i].Size),
           this,
@@ -80,7 +86,7 @@ namespace ark
     }
   }
 
-  void ArchiveExtractionNode::ExtractRecursive(U32 Count, const fs::path& File, ArchiveExtractionNode* Node, bool Verbose)
+  void ArchiveExtractionNode::ExtractRecursive(U32 Count, fs::path File, ArchiveExtractionNode* Node, bool Verbose)
   {
     if (!Node)
     {
@@ -98,7 +104,8 @@ namespace ark
       LOG("%05u @ %20s @ %4s\n", Node->mIndex, Node->mName.c_str(), Node->mType.c_str());
     }
 
-    std::string fileName = GetFileName(Node);
+    std::string fileName = StringUtils::ToArchiveName(Node->mIndex, Node->mName, Node->mType);
+    std::string fileNameNext = (File / fileName.c_str()).string();
 
     if (Node->mIsDirectory)
     {
@@ -111,23 +118,30 @@ namespace ark
       }
       else
       {
-        DirUtils::CreateIfNotExists((File / fileName).string());
+        DirUtils::CreateIfNotExists(fileNameNext);
 
         for (const auto& node : Node->mNodes)
         {
-          ExtractRecursive(Count + 2, (File / fileName).string(), node, Verbose);
+          ExtractRecursive(Count + 2, fileNameNext, node, Verbose);
         }
       }
     }
     else
     {
-      FileUtils::WriteBinary((File / fileName).string(), Node->GetBytes());
+      FileUtils::WriteBinary(fileNameNext, Node->GetBytes());
     }
   }
 
   void ArchiveExtractionNode::ReadHeader()
   {
-    mBinaryReader.SeekAbsolute(0);
+    if (mParent)
+    {
+      mBinaryReader.SeekAbsolute(32);
+    }
+    else
+    {
+      mBinaryReader.SeekAbsolute(0);
+    }
 
     mEntries.resize(mBinaryReader.Read<U32>());
 
@@ -143,8 +157,23 @@ namespace ark
 
     for (U32 i = 0; i < mEntries.size(); i++)
     {
+      if (mParent)
+      {
+        if (mType == "ROF")
+        {
+          mEntries[i].Offset -= 8;
+        }
+      }
+      else
+      {
+        mEntries[i].Offset -= 32;
+      }
+    }
+
+    for (U32 i = 0; i < mEntries.size(); i++)
+    {
       mBinaryReader.SeekAbsolute(mEntries[i].Offset);
-      mBinaryReader.SeekRelative(-20);
+      mBinaryReader.SeekRelative(12);
 
       mEntries[i].Name = StringUtils::RemoveNulls(mBinaryReader.String(20));
     }
@@ -152,82 +181,8 @@ namespace ark
     for (U32 i = 1; i < mEntries.size(); i++)
     {
       mEntries[i - 1].Size = mEntries[i].Offset - mEntries[i - 1].Offset;
-
-      if (mEntries[i - 1].Type != "ROF")
-      {
-        mEntries[i - 1].Size -= 24;
-      }
     }
 
     mEntries[mEntries.size() - 1].Size = (U32)mBinaryReader.GetSize() - mEntries[mEntries.size() - 1].Offset;
-  }
-
-  bool ArchiveExtractionNode::IsDirectory()
-  {
-    bool isDirectory = false;
-
-    if (mBinaryReader.GetSize() > 0)
-    {
-      mBinaryReader.SeekAbsolute(0);
-
-      U32 size = mBinaryReader.Read<U32>();
-
-      mBinaryReader.SeekAbsolute(0);
-
-      std::string probe = StringUtils::RemoveNulls(mBinaryReader.String(4));
-
-      if (!sKnownArchiveTypes.contains(probe))
-      {
-        if (size > 0 && size < 65535)
-        {
-          for (U32 i = 0; i < size; i++)
-          {
-            if ((i * 4) >= ((U32)mBinaryReader.GetSize() - 4))
-            {
-              return false;
-            }
-
-            U32 offset = mBinaryReader.Read<U32>();
-
-            if (offset >= mBinaryReader.GetSize())
-            {
-              return false;
-            }
-          }
-
-          for (U32 i = 0; i < size; i++)
-          {
-            if ((i * 4) >= ((U32)mBinaryReader.GetSize() - 4))
-            {
-              return false;
-            }
-
-            std::string type = StringUtils::RemoveNulls(mBinaryReader.String(4));
-
-            if (!sKnownArchiveTypes.contains(type))
-            {
-              return false;
-            }
-          }
-
-          return true;
-        }
-      }
-    }
-
-    return false;
-  }
-
-  std::string ArchiveExtractionNode::GetFileName(ArchiveExtractionNode* Node) const
-  {
-    char fileName[32] = {};
-
-    std::snprintf(fileName, 6, "%05u", Node->mIndex);
-    fileName[5] = '@';
-    std::memcpy(&fileName[6], &Node->mName[0], Node->mName.size());
-    fileName[6 + Node->mName.size()] = '@';
-    std::memcpy(&fileName[7 + Node->mName.size()], &Node->mType[0], Node->mType.size());
-
-    return fileName;
   }
 }

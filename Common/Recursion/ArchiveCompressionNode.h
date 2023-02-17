@@ -39,13 +39,6 @@ namespace ark
   private:
 
     void WriteHeader();
-    void WriteFolder();
-    void WriteFile();
-
-  private:
-
-    U64 GetMinOffsetByType();
-    U64 GetAlignmentByType(U64 Position);
 
   private:
 

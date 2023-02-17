@@ -41,14 +41,11 @@ namespace ark
 
   public:
 
-    void ExtractRecursive(U32 Count, const fs::path& File, ArchiveExtractionNode* Node = nullptr, bool Verbose = false);
+    void ExtractRecursive(U32 Count, fs::path File, ArchiveExtractionNode* Node = nullptr, bool Verbose = false);
 
   private:
 
     void ReadHeader();
-    bool IsDirectory();
-
-    std::string GetFileName(ArchiveExtractionNode* Node) const;
 
   private:
 
