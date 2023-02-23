@@ -39,6 +39,13 @@ namespace ark
   private:
 
     void WriteHeader();
+    void WriteFile();
+
+  private:
+
+    void WriteMeta();
+    void WriteIndices();
+    void WriteTypes();
 
   private:
 
@@ -46,7 +53,6 @@ namespace ark
     ArchiveCompressionNode* mParent;
 
     BinaryWriter mBinaryWriter = {};
-
     bool mIsDirectory = false;
     std::string mFileName = "";
     U16 mIndex = 0;

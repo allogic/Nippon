@@ -26,7 +26,7 @@ extern rj::Document gConfig;
 
 namespace ark
 {
-  const std::set<std::string> sSupportedArchiveExtensions =
+  static const std::set<std::string> sSupportedArchiveExtensions =
   {
     ".dat",
     ".bin",
@@ -53,13 +53,13 @@ namespace ark
 
         if (fs::exists(srcFile))
         {
-          std::vector<U8> bytes = FileUtils::ReadBinary(srcFile.string());
+          std::vector<U8> bytes = FileUtils::ReadBinary(srcFile);
 
           BlowFish cipher{ gConfig["encryptionKey"].GetString() };
 
           cipher.Decrypt(bytes);
 
-          FileUtils::WriteBinary(dstFile.string(), bytes);
+          FileUtils::WriteBinary(dstFile, bytes);
 
           std::string posixSrcFile = StringUtils::PosixPath(srcFile.string());
           std::string posixDstFile = StringUtils::PosixPath(dstFile.string());
@@ -90,13 +90,13 @@ namespace ark
 
         if (fs::exists(srcFile))
         {
-          std::vector<U8> bytes = FileUtils::ReadBinary(srcFile.string());
+          std::vector<U8> bytes = FileUtils::ReadBinary(srcFile);
 
           BlowFish cipher{ gConfig["encryptionKey"].GetString() };
 
           cipher.Encrypt(bytes);
 
-          FileUtils::WriteBinary(dstFile.string(), bytes);
+          FileUtils::WriteBinary(dstFile, bytes);
 
           std::string posixSrcFile = StringUtils::PosixPath(srcFile.string());
           std::string posixDstFile = StringUtils::PosixPath(dstFile.string());
@@ -125,11 +125,11 @@ namespace ark
 
         if (sSupportedArchiveExtensions.contains(archiveExt))
         {
-          std::vector<U8> bytes = FileUtils::ReadBinary(file.path().string());
+          std::vector<U8> bytes = FileUtils::ReadBinary(file.path());
 
           DirUtils::CreateIfNotExists(unpackDir / Entry / SubEntry / archiveName);
 
-          ArchiveExtractionNode extractor{ bytes, nullptr, 0, 0, 0, "", "" };
+          ArchiveExtractionNode extractor{ bytes, nullptr, 0, 0, 0, "", "", true };
           
           extractor.ExtractRecursive(2, unpackDir / Entry / SubEntry / archiveName);
 
@@ -161,7 +161,7 @@ namespace ark
 
         compressor.CompressRecursive(2);
 
-        FileUtils::WriteBinary((repackDir / Entry / SubEntry / fileName).string(), compressor.GetBytes());
+        FileUtils::WriteBinary(repackDir / Entry / SubEntry / fileName, compressor.GetBytes());
 
         std::string posixSrcFile = StringUtils::PosixPath((unpackDir / Entry / SubEntry).string());
         std::string posixDstFile = StringUtils::PosixPath((repackDir / Entry / SubEntry).string());

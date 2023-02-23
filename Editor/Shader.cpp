@@ -14,8 +14,8 @@ namespace ark
 {
   Shader::Shader(const fs::path& VertexFile, const fs::path& FragmentFile)
   {
-    std::string vertexShader = FileUtils::ReadText(VertexFile.string());
-    std::string fragmentShader = FileUtils::ReadText(FragmentFile.string());
+    std::string vertexShader = FileUtils::ReadText(VertexFile);
+    std::string fragmentShader = FileUtils::ReadText(FragmentFile);
 
     mProgram = glCreateProgram();
 

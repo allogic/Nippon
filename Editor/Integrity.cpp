@@ -42,7 +42,7 @@ namespace ark
         std::string keyValue = StringUtils::CutFront(posixFile, posixDir.size());
 
         U32 origCrc32 = integrity[keyValue.c_str()].GetUint();
-        U32 currCrc32 = IntegrityUtils::Crc32FromBytes(FileUtils::ReadBinary(posixFile));
+        U32 currCrc32 = IntegrityUtils::Crc32FromBytes(FileUtils::ReadBinary(file.path()));
 
         if (origCrc32 != currCrc32)
         {
@@ -75,7 +75,7 @@ namespace ark
         std::string keyValue = StringUtils::CutFront(posixFile, posixDir.size());
 
         U32 origCrc32 = integrity[keyValue.c_str()].GetUint();
-        U32 currCrc32 = IntegrityUtils::Crc32FromBytes(FileUtils::ReadBinary(posixFile));
+        U32 currCrc32 = IntegrityUtils::Crc32FromBytes(FileUtils::ReadBinary(file.path()));
 
         if (origCrc32 != currCrc32)
         {
@@ -106,8 +106,8 @@ namespace ark
           fs::path decryptedFile = decryptDir / entry.path().stem() / subEntry.path().stem() / file.path().filename();
           fs::path repackedFile = repackDir / entry.path().stem() / subEntry.path().stem() / file.path().filename();
 
-          std::vector<U8> decryptedBytes = FileUtils::ReadBinary(decryptedFile.string());
-          std::vector<U8> repackedBytes = FileUtils::ReadBinary(repackedFile.string());
+          std::vector<U8> decryptedBytes = FileUtils::ReadBinary(decryptedFile);
+          std::vector<U8> repackedBytes = FileUtils::ReadBinary(repackedFile);
 
           U64 index = ByteUtils::Compare(decryptedBytes, repackedBytes);
 
@@ -159,7 +159,7 @@ namespace ark
         std::string posixDir = StringUtils::PosixPath(encryptDir.string());
         std::string keyValue = StringUtils::CutFront(posixFile, posixDir.size());
 
-        U32 crc32 = IntegrityUtils::Crc32FromBytes(FileUtils::ReadBinary(posixFile));
+        U32 crc32 = IntegrityUtils::Crc32FromBytes(FileUtils::ReadBinary(file.path()));
 
         integrities.AddMember(
           rj::Value{ rj::kStringType }.SetString(keyValue.c_str(), document.GetAllocator()),
@@ -192,7 +192,7 @@ namespace ark
         std::string posixDir = StringUtils::PosixPath(decryptDir.string());
         std::string keyValue = StringUtils::CutFront(posixFile, posixDir.size());
 
-        U32 crc32 = IntegrityUtils::Crc32FromBytes(FileUtils::ReadBinary(posixFile));
+        U32 crc32 = IntegrityUtils::Crc32FromBytes(FileUtils::ReadBinary(file.path()));
 
         integrities.AddMember(
           rj::Value{ rj::kStringType }.SetString(keyValue.c_str(), document.GetAllocator()),

@@ -4,6 +4,7 @@
 #include <Common/Utils/DirUtils.h>
 #include <Common/Utils/FileUtils.h>
 #include <Common/Utils/StringUtils.h>
+#include <Common/Utils/ArchiveUtils.h>
 
 #include <Common/Recursion/ArchiveExtractionNode.h>
 
@@ -44,7 +45,8 @@ namespace ark
     U32 Offset,
     U32 Size,
     const std::string& Type,
-    const std::string& Name)
+    const std::string& Name,
+    bool IsDirectory)
     : mBinaryReader{ Bytes }
     , mParent{ Parent }
     , mIndex{ Index }
@@ -52,9 +54,8 @@ namespace ark
     , mSize{ Size }
     , mType{ Type }
     , mName{ Name }
+    , mIsDirectory{ IsDirectory }
   {
-    mIsDirectory = sKnownDirectoryTypes.contains(mType);
-
     if (mIsDirectory)
     {
       ReadHeader();
@@ -72,6 +73,7 @@ namespace ark
           mEntries[i].Size,
           mEntries[i].Type,
           mEntries[i].Name,
+          ValidateDirectory(mEntries[i]),
         });
       }
     }
@@ -104,8 +106,11 @@ namespace ark
       LOG("%05u @ %20s @ %4s\n", Node->mIndex, Node->mName.c_str(), Node->mType.c_str());
     }
 
-    std::string fileName = StringUtils::ToArchiveName(Node->mIndex, Node->mName, Node->mType);
-    std::string fileNameNext = (File / fileName.c_str()).string();
+    std::string fileName = ArchiveUtils::ToArchiveName(Node->mIndex, Node->mName, Node->mType);
+    std::string metaName = ArchiveUtils::ToArchiveName(-1, "meta", "DIR");
+
+    fs::path fileNameNext = File / fileName.c_str();
+    fs::path metaNameNext = File / fileName.c_str() / metaName;
 
     if (Node->mIsDirectory)
     {
@@ -118,7 +123,11 @@ namespace ark
       }
       else
       {
-        DirUtils::CreateIfNotExists(fileNameNext);
+        if (Node->mParent)
+        {
+          DirUtils::CreateIfNotExists(fileNameNext);
+          FileUtils::WriteBinary(metaNameNext, Node->mBinaryReader.Bytes(32, 0));
+        }
 
         for (const auto& node : Node->mNodes)
         {
@@ -184,5 +193,49 @@ namespace ark
     }
 
     mEntries[mEntries.size() - 1].Size = (U32)mBinaryReader.GetSize() - mEntries[mEntries.size() - 1].Offset;
+  }
+
+  bool ArchiveExtractionNode::ValidateDirectory(const ArchiveEntry& Entry)
+  {
+    mBinaryReader.SeekAbsolute(Entry.Offset + 32);
+
+    U32 size = mBinaryReader.Read<U32>();
+
+    if (size > 0 && size < 65535)
+    {
+      for (U32 i = 0; i < size; i++)
+      {
+        if ((i * 4) >= ((U32)mBinaryReader.GetSize() - 4))
+        {
+          return false;
+        }
+
+        U32 offset = mBinaryReader.Read<U32>();
+
+        if (offset >= mBinaryReader.GetSize())
+        {
+          return false;
+        }
+      }
+
+      for (U32 i = 0; i < size; i++)
+      {
+        if ((i * 4) >= ((U32)mBinaryReader.GetSize() - 4))
+        {
+          return false;
+        }
+
+        std::string type = StringUtils::RemoveNulls(mBinaryReader.String(4));
+
+        if (!sKnownDirectoryTypes.contains(type) && !sKnownFileTypes.contains(type))
+        {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    return false;
   }
 }

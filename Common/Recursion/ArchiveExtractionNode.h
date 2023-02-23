@@ -21,6 +21,14 @@ namespace fs = std::filesystem;
 
 namespace ark
 {
+  struct ArchiveEntry
+  {
+    U32 Offset;
+    U32 Size;
+    std::string Type;
+    std::string Name;
+  };
+
   class ArchiveExtractionNode
   {
   public:
@@ -32,7 +40,8 @@ namespace ark
       U32 Offset,
       U32 Size,
       const std::string& Type,
-      const std::string& Name);
+      const std::string& Name,
+      bool IsDirectory);
     virtual ~ArchiveExtractionNode();
 
   public:
@@ -46,6 +55,7 @@ namespace ark
   private:
 
     void ReadHeader();
+    bool ValidateDirectory(const ArchiveEntry& Entry);
 
   private:
 
@@ -56,16 +66,7 @@ namespace ark
     U32 mSize;
     std::string mType;
     std::string mName;
-
-    bool mIsDirectory = false;
-
-    struct ArchiveEntry
-    {
-      U32 Offset;
-      U32 Size;
-      std::string Type;
-      std::string Name;
-    };
+    bool mIsDirectory;
 
     std::vector<ArchiveEntry> mEntries = {};
     std::vector<ArchiveExtractionNode*> mNodes = {};

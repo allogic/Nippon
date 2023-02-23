@@ -41,7 +41,10 @@ namespace ark
     void Read(std::vector<T>& Values, U64 Count);
 
     std::vector<U8> Bytes(U64 Count);
+    std::vector<U8> Bytes(U64 Count, U64 Offset) const;
+
     std::string String(U64 Count);
+    std::string String(U64 Count, U64 Offset) const;
 
   private:
 

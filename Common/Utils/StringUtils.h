@@ -3,16 +3,9 @@
 #include <cstdlib>
 #include <string>
 #include <sstream>
-#include <filesystem>
 #include <algorithm>
 
 #include <Common/Types.h>
-
-///////////////////////////////////////////////////////////
-// Namespaces
-///////////////////////////////////////////////////////////
-
-namespace fs = std::filesystem;
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -31,8 +24,5 @@ namespace ark
     static std::string ToUpper(std::string String);
     static std::string PosixPath(const std::string& String);
     static std::string SelectExpr(const std::string& String, const std::string& Expr);
-
-    static void FromArchiveName(const std::string& String, U16& Index, std::string& Name, std::string& Type);
-    static std::string ToArchiveName(U16 Index, const std::string& Name, const std::string& Type);
   };
 }

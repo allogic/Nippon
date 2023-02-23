@@ -1,3 +1,4 @@
+#include <Common/Utils/ArchiveUtils.h>
 #include <Common/Utils/StringUtils.h>
 #include <Common/Utils/FileUtils.h>
 
@@ -209,11 +210,11 @@ namespace ark
       std::string name = "";
       std::string type = "";
 
-      StringUtils::FromArchiveName(file.path().stem().string(), index, name, type);
+      ArchiveUtils::FromArchiveName(file.path().stem().string(), index, name, type);
 
       if (type == "SCR")
       {
-        auto models = ModelSerializer::ToModels(FileUtils::ReadBinary(file.path().string()));
+        auto models = ModelSerializer::ToModels(FileUtils::ReadBinary(file.path()));
 
         mModels.insert(mModels.end(), models.begin(), models.end());
       }

@@ -6,7 +6,7 @@
 
 namespace ark
 {
-  std::vector<U8> FileUtils::ReadBinary(const std::string& File, U64 Size)
+  std::vector<U8> FileUtils::ReadBinary(const fs::path& File, U64 Size)
   {
     std::vector<U8> bytes;
     std::ifstream stream = std::ifstream{ File, std::ios::ate | std::ios::binary };
@@ -37,7 +37,7 @@ namespace ark
     return bytes;
   }
 
-  std::string FileUtils::ReadText(const std::string& File, U64 Size)
+  std::string FileUtils::ReadText(const fs::path& File, U64 Size)
   {
     std::string text;
     std::ifstream stream = std::ifstream{ File, std::ios::ate };
@@ -68,7 +68,7 @@ namespace ark
     return text;
   }
 
-  void FileUtils::WriteBinary(const std::string& File, const std::vector<U8>& Bytes, U64 Size)
+  void FileUtils::WriteBinary(const fs::path& File, const std::vector<U8>& Bytes, U64 Size)
   {
     std::ofstream stream = std::ofstream{ File, std::ios::binary };
 
@@ -92,7 +92,7 @@ namespace ark
     }
   }
 
-  void FileUtils::WriteText(const std::string& File, const std::string& Text, U64 Size)
+  void FileUtils::WriteText(const fs::path& File, const std::string& Text, U64 Size)
   {
     std::ofstream stream = std::ofstream{ File };
 

@@ -6,6 +6,8 @@
 
 namespace ark
 {
+  class ArchiveUtils;
+  class ByteUtils;
   class DirUtils;
   class FileUtils;
   class IntegrityUtils;
