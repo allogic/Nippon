@@ -18,10 +18,9 @@ namespace ark
     : mFile{ File }
     , mParent{ Parent }
   {
-    mFileName = mFile.filename().string();
     mIsDirectory = fs::is_directory(mFile);
 
-    ArchiveUtils::FromArchiveName(mFileName, mIndex, mName, mType);
+    ArchiveUtils::FromArchiveName(mFile.filename().string(), mIndex, mName, mType);
 
     if (mIsDirectory)
     {

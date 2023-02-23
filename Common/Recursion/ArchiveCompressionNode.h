@@ -54,7 +54,6 @@ namespace ark
 
     BinaryWriter mBinaryWriter = {};
     bool mIsDirectory = false;
-    std::string mFileName = "";
     U16 mIndex = 0;
     std::string mName = "";
     std::string mType = "";
