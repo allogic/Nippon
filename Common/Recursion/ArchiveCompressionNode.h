@@ -43,7 +43,6 @@ namespace ark
 
   private:
 
-    void WriteMeta();
     void WriteIndices();
     void WriteTypes();
 

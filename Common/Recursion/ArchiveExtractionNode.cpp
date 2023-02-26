@@ -106,11 +106,13 @@ namespace ark
       LOG("%05u @ %20s @ %4s\n", Node->mIndex, Node->mName.c_str(), Node->mType.c_str());
     }
 
-    std::string fileName = ArchiveUtils::ToArchiveName(Node->mIndex, Node->mName, Node->mType);
-    std::string metaName = ArchiveUtils::ToArchiveName(-1, "meta", "DIR");
+    fs::path fileName = ArchiveUtils::ToArchiveName(Node->mIndex, Node->mName, Node->mType);
+    fs::path fileHeaderName = ArchiveUtils::ToArchiveName(Node->mIndex, Node->mName, "HDR");
+    fs::path dirHeaderName = ArchiveUtils::ToArchiveName(-1, Node->mName, "HDR");
 
-    fs::path fileNameNext = File / fileName.c_str();
-    fs::path metaNameNext = File / fileName.c_str() / metaName;
+    fs::path fullFileName = File / fileName;
+    fs::path fullFileHeaderName = File / fileHeaderName;
+    fs::path fullDirHeaderName = File / fileName / dirHeaderName;
 
     if (Node->mIsDirectory)
     {
@@ -125,19 +127,21 @@ namespace ark
       {
         if (Node->mParent)
         {
-          DirUtils::CreateIfNotExists(fileNameNext);
-          FileUtils::WriteBinary(metaNameNext, Node->mBinaryReader.Bytes(32, 0));
+          DirUtils::CreateIfNotExists(fullFileName);
+
+          FileUtils::WriteBinary(fullDirHeaderName, Node->mBinaryReader.Bytes(32, 0));
         }
 
         for (const auto& node : Node->mNodes)
         {
-          ExtractRecursive(Count + 2, fileNameNext, node, Verbose);
+          ExtractRecursive(Count + 2, fullFileName, node, Verbose);
         }
       }
     }
     else
     {
-      FileUtils::WriteBinary(fileNameNext, Node->GetBytes());
+      FileUtils::WriteBinary(fullFileName, Node->mBinaryReader.Bytes(Node->mBinaryReader.GetSize() - 32, 32));
+      FileUtils::WriteBinary(fullFileHeaderName, Node->mBinaryReader.Bytes(32));
     }
   }
 

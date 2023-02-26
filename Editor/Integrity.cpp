@@ -111,17 +111,19 @@ namespace ark
 
           U64 index = ByteUtils::Compare(decryptedBytes, repackedBytes);
 
+          fs::path posixFile = StringUtils::PosixPath(file.path().string());
+
           if (index == 0)
           {
             passCount++;
 
-            LOG("%s -> Passed\n", file.path().string().c_str());
+            LOG("%s -> Passed\n", posixFile.string().c_str());
           }
           else
           {
             failCount++;
 
-            LOG("%s -> Missmatch at 0x%llX\n", file.path().string().c_str(), index);
+            LOG("%s -> Missmatch at 0x%llX\n", posixFile.string().c_str(), index);
           }
         }
       }

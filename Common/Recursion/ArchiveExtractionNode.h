@@ -46,10 +46,6 @@ namespace ark
 
   public:
 
-    inline const auto& GetBytes() const { return mBinaryReader.GetBytes(); }
-
-  public:
-
     void ExtractRecursive(U32 Count, fs::path File, ArchiveExtractionNode* Node = nullptr, bool Verbose = false);
 
   private:

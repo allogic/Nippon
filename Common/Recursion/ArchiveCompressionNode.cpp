@@ -24,11 +24,15 @@ namespace ark
 
     if (mIsDirectory)
     {
-      std::string metaName = ArchiveUtils::ToArchiveName(-1, "meta", "DIR");
-
       for (const auto& file : fs::directory_iterator{ mFile })
       {
-        if (file.path().filename() != metaName)
+        U16 subIndex = 0;
+        std::string subName = "";
+        std::string subType = "";
+
+        ArchiveUtils::FromArchiveName(file.path().filename().string(), subIndex, subName, subType);
+
+        if (subType != "HDR")
         {
           mNodes.emplace_back(new ArchiveCompressionNode{ file, this });
         }
@@ -85,15 +89,20 @@ namespace ark
 
   void ArchiveCompressionNode::WriteHeader()
   {
+    if (mParent && mIsDirectory)
+    {
+      fs::path dirHeaderName = ArchiveUtils::ToArchiveName(-1, mName, "HDR");
+
+      mBinaryWriter.Write(FileUtils::ReadBinary(mFile / dirHeaderName));
+    }
+
     mBinaryWriter.Write<U32>((U32)mNodes.size());
 
-    WriteMeta();
     WriteIndices();
     WriteTypes();
 
     if (mParent && mIsDirectory)
     {
-      //mBinaryWriter.SeekRelative(32);
       mBinaryWriter.SeekRelative(mBinaryWriter.GetPosition() % 32);
     }
 
@@ -102,25 +111,26 @@ namespace ark
 
   void ArchiveCompressionNode::WriteFile()
   {
-    mBinaryWriter.Write(FileUtils::ReadBinary(mFile));
+    fs::path fileName = ArchiveUtils::ToArchiveName(mIndex, mName, mType);
+    fs::path fileHeaderName = ArchiveUtils::ToArchiveName(mIndex, mName, "HDR");
 
-    if (mType == "ROF")
+    fs::path fullFileName = mFile.parent_path() / fileName;
+    fs::path fullFileHeaderName = mFile.parent_path() / fileHeaderName;
+
+    mBinaryWriter.Write(FileUtils::ReadBinary(fullFileHeaderName));
+    mBinaryWriter.Write(FileUtils::ReadBinary(fullFileName));
+
+    if (mType == "DDS")
     {
-      mBinaryWriter.SeekAbsolute(Align<16>::Up(mBinaryWriter.GetPosition()));
+
+    }
+    else if (mType == "ROF")
+    {
+      mBinaryWriter.SeekAbsolute(Align<8>::Up(mBinaryWriter.GetPosition()));
     }
     else
     {
       mBinaryWriter.SeekAbsolute(Align<32>::Up(mBinaryWriter.GetPosition()));
-    }
-  }
-
-  void ArchiveCompressionNode::WriteMeta()
-  {
-    if (mParent && mIsDirectory)
-    {
-      std::string metaName = ArchiveUtils::ToArchiveName(-1, "meta", "DIR");
-
-      mBinaryWriter.Write(FileUtils::ReadBinary(mFile / metaName.c_str()));
     }
   }
 
@@ -139,25 +149,12 @@ namespace ark
     fileOffset = Align<32>::Up(fileOffset);
     fileOffset += 32;
 
-    for (U16 i = 0; i < (U16)mNodes.size(); i++)
+    for (const auto& node : mNodes)
     {
-      if (i < ((U16)mNodes.size() - 1))
-      {
-        mBinaryWriter.Write<U32>(fileOffset);
-      }
+      mBinaryWriter.Write<U32>(fileOffset);
 
-      fileOffset += (U32)mNodes[i]->mBinaryWriter.GetSize();
-
-      if (mNodes[i]->mParent && !mNodes[i]->mIsDirectory)
-      {
-        //fileOffset += 32;
-      }
+      fileOffset += (U32)node->mBinaryWriter.GetSize();
     }
-
-    //fileOffset += 64;
-    //fileOffset -= 512;
-
-    mBinaryWriter.Write<U32>(fileOffset);
   }
 
   void ArchiveCompressionNode::WriteTypes()
