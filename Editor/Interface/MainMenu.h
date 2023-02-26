@@ -35,8 +35,6 @@ namespace ark
 
     using MenuItemProc = void(*)(const std::string&, const std::string&);
 
-    static void MapItem(const std::string& Entry, const std::string& SubEntry);
-
     static void DrawMenuTree(const std::string& Name, rj::Value& Entry, MenuItemProc Procedure);
     static void DoProcFor(rj::Value& Entry, MenuItemProc Procedure);
   };

@@ -22,7 +22,11 @@ ark::I32 main(ark::I32 Argc, char** Argv)
 
     ark::U64 index = ark::ByteUtils::Compare(bytesLeft, bytesRight);
 
-    if (index != 0)
+    if (index == 0)
+    {
+      LOG("Passed\n");
+    }
+    else
     {
       LOG("Missmatch at 0x%llX\n", index);
     }

@@ -76,6 +76,11 @@
  *  - hx::File
  *  - hx::FileDDS
  *  - hx::Texture
+ * 
+ * Missing Archives:
+ *  - event
+ *  - hl
+ *  - hm
  */
 
 /*

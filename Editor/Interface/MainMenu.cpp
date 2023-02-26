@@ -140,8 +140,45 @@ namespace ark
 
       ImGui::Separator();
 
-      if (ImGui::Selectable("Compare Repacked With Decrypted")) Integrity::CompareRepackedWithDecrypted();
-      if (ImGui::Selectable("Compare Encrypted With Original")) Integrity::CompareEncryptedWithOriginal();
+      if (ImGui::BeginMenu("Compare Repacked With Decrypted"))
+      {
+        if (ImGui::Selectable("All"))
+        {
+          DoProcFor(gArchive["regions"], Integrity::CompareRepackedWithDecrypted);
+          DoProcFor(gArchive["characters"], Integrity::CompareRepackedWithDecrypted);
+          DoProcFor(gArchive["items"], Integrity::CompareRepackedWithDecrypted);
+          DoProcFor(gArchive["unknown"], Integrity::CompareRepackedWithDecrypted);
+        }
+
+        ImGui::Separator();
+
+        DrawMenuTree("Regions", gArchive["regions"], Integrity::CompareRepackedWithDecrypted);
+        DrawMenuTree("Characters", gArchive["characters"], Integrity::CompareRepackedWithDecrypted);
+        DrawMenuTree("Items", gArchive["items"], Integrity::CompareRepackedWithDecrypted);
+        DrawMenuTree("Unknown", gArchive["unknown"], Integrity::CompareRepackedWithDecrypted);
+
+        ImGui::EndMenu();
+      }
+
+      if (ImGui::BeginMenu("Compare Encrypted With Original"))
+      {
+        if (ImGui::Selectable("All"))
+        {
+          DoProcFor(gArchive["regions"], Integrity::CompareEncryptedWithOriginal);
+          DoProcFor(gArchive["characters"], Integrity::CompareEncryptedWithOriginal);
+          DoProcFor(gArchive["items"], Integrity::CompareEncryptedWithOriginal);
+          DoProcFor(gArchive["unknown"], Integrity::CompareEncryptedWithOriginal);
+        }
+
+        ImGui::Separator();
+
+        DrawMenuTree("Regions", gArchive["regions"], Integrity::CompareEncryptedWithOriginal);
+        DrawMenuTree("Characters", gArchive["characters"], Integrity::CompareEncryptedWithOriginal);
+        DrawMenuTree("Items", gArchive["items"], Integrity::CompareEncryptedWithOriginal);
+        DrawMenuTree("Unknown", gArchive["unknown"], Integrity::CompareEncryptedWithOriginal);
+
+        ImGui::EndMenu();
+      }
 
       ImGui::Separator();
 

@@ -27,8 +27,8 @@ namespace ark
     static bool CheckEncrypted();
     static bool CheckDecrypted();
 
-    static bool CompareRepackedWithDecrypted();
-    static bool CompareEncryptedWithOriginal();
+    static void CompareRepackedWithDecrypted(const std::string& Entry, const std::string& SubEntry);
+    static void CompareEncryptedWithOriginal(const std::string& Entry, const std::string& SubEntry);
 
     static void GenerateEncryptedMap();
     static void GenerateDecryptedMap();

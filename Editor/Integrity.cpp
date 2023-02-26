@@ -89,59 +89,37 @@ namespace ark
     return intact;
   }
 
-  bool Integrity::CompareRepackedWithDecrypted()
+  void Integrity::CompareRepackedWithDecrypted(const std::string& Entry, const std::string& SubEntry)
   {
-    U32 failCount = 0;
-    U32 passCount = 0;
-
     fs::path decryptDir = gConfig["decryptDir"].GetString();
     fs::path repackDir = gConfig["repackDir"].GetString();
 
-    for (const auto& entry : fs::directory_iterator{ repackDir })
+    for (const auto& file : fs::directory_iterator{ repackDir / Entry / SubEntry })
     {
-      for (const auto& subEntry : fs::directory_iterator{ entry })
+      fs::path decryptedFile = decryptDir / Entry / SubEntry / file.path().filename();
+      fs::path repackedFile = repackDir / Entry / SubEntry / file.path().filename();
+
+      std::vector<U8> decryptedBytes = FileUtils::ReadBinary(decryptedFile);
+      std::vector<U8> repackedBytes = FileUtils::ReadBinary(repackedFile);
+
+      U64 index = ByteUtils::Compare(decryptedBytes, repackedBytes);
+
+      fs::path posixFile = StringUtils::PosixPath(file.path().string());
+
+      if (index == 0)
       {
-        for (const auto& file : fs::directory_iterator{ subEntry })
-        {
-          fs::path decryptedFile = decryptDir / entry.path().stem() / subEntry.path().stem() / file.path().filename();
-          fs::path repackedFile = repackDir / entry.path().stem() / subEntry.path().stem() / file.path().filename();
-
-          std::vector<U8> decryptedBytes = FileUtils::ReadBinary(decryptedFile);
-          std::vector<U8> repackedBytes = FileUtils::ReadBinary(repackedFile);
-
-          U64 index = ByteUtils::Compare(decryptedBytes, repackedBytes);
-
-          fs::path posixFile = StringUtils::PosixPath(file.path().string());
-
-          if (index == 0)
-          {
-            passCount++;
-
-            LOG("%s -> Passed\n", posixFile.string().c_str());
-          }
-          else
-          {
-            failCount++;
-
-            LOG("%s -> Missmatch at 0x%llX\n", posixFile.string().c_str(), index);
-          }
-        }
+        LOG("%s -> Passed\n", posixFile.string().c_str());
+      }
+      else
+      {
+        LOG("%s -> Missmatch at 0x%llX\n", posixFile.string().c_str(), index);
       }
     }
-
-    LOG("\n");
-    LOG("Failed: %10d\n", failCount);
-    LOG("Passed: %10d\n", passCount);
-    LOG("\n");
-
-    return failCount == 0;
   }
 
-  bool Integrity::CompareEncryptedWithOriginal()
+  void Integrity::CompareEncryptedWithOriginal(const std::string& Entry, const std::string& SubEntry)
   {
-    bool intact = true;
 
-    return intact;
   }
 
   void Integrity::GenerateEncryptedMap()
