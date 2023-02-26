@@ -103,7 +103,7 @@ namespace ark
 
     if (mParent && mIsDirectory)
     {
-      mBinaryWriter.SeekRelative(mBinaryWriter.GetPosition() % 32);
+      mBinaryWriter.SeekRelative(mBinaryWriter.GetPosition() % 16);
     }
 
     mBinaryWriter.SeekAbsolute(Align<32>::Up(mBinaryWriter.GetPosition()));
@@ -126,7 +126,7 @@ namespace ark
     }
     else if (mType == "ROF")
     {
-      mBinaryWriter.SeekAbsolute(Align<8>::Up(mBinaryWriter.GetPosition()));
+
     }
     else
     {
@@ -143,7 +143,7 @@ namespace ark
 
     if (mParent && mIsDirectory)
     {
-      fileOffset += fileOffset % 32;
+      fileOffset += fileOffset % 16;
     }
 
     fileOffset = Align<32>::Up(fileOffset);

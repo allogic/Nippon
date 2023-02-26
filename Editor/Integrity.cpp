@@ -104,7 +104,7 @@ namespace ark
 
       U64 index = ByteUtils::Compare(decryptedBytes, repackedBytes);
 
-      fs::path posixFile = StringUtils::PosixPath(file.path().string());
+      fs::path posixFile = StringUtils::PosixPath(decryptedFile.string());
 
       if (index == 0)
       {

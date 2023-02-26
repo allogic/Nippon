@@ -20,6 +20,8 @@ ark::I32 main(ark::I32 Argc, char** Argv)
     std::vector<ark::U8> bytesLeft = ark::FileUtils::ReadBinary(Argv[2]);
     std::vector<ark::U8> bytesRight = ark::FileUtils::ReadBinary(Argv[3]);
 
+    LOG("%llu %llu\n", bytesLeft.size(), bytesRight.size());
+
     ark::U64 index = ark::ByteUtils::Compare(bytesLeft, bytesRight);
 
     if (index == 0)
