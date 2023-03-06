@@ -25,7 +25,8 @@ namespace ark
 
     ArchiveCompressionNode(
       const fs::path& File,
-      ArchiveCompressionNode* Parent);
+      ArchiveCompressionNode* Parent,
+      bool IsDat);
     virtual ~ArchiveCompressionNode();
 
   public:
@@ -50,6 +51,7 @@ namespace ark
 
     fs::path mFile;
     ArchiveCompressionNode* mParent;
+    bool mIsDat;
 
     BinaryWriter mBinaryWriter = {};
     bool mIsDirectory = false;

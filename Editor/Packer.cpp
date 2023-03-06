@@ -154,10 +154,11 @@ namespace ark
     for (const auto& file : fs::directory_iterator{ unpackDir / Entry / SubEntry })
     {
       std::string fileName = file.path().filename().string();
+      std::string fileExt = file.path().extension().string();
 
       if (fs::exists(unpackDir / Entry / SubEntry / fileName))
       {
-        ArchiveCompressionNode compressor{ unpackDir / Entry / SubEntry / fileName, nullptr };
+        ArchiveCompressionNode compressor{ unpackDir / Entry / SubEntry / fileName, nullptr, fileExt == ".dat" };
 
         compressor.CompressRecursive(2);
 

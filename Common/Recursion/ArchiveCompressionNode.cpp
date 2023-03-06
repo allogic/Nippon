@@ -14,9 +14,11 @@ namespace ark
 {
   ArchiveCompressionNode::ArchiveCompressionNode(
     const fs::path& File,
-    ArchiveCompressionNode* Parent)
+    ArchiveCompressionNode* Parent,
+    bool IsDat)
     : mFile{ File }
     , mParent{ Parent }
+    , mIsDat{ IsDat }
   {
     mIsDirectory = fs::is_directory(mFile);
 
@@ -34,7 +36,7 @@ namespace ark
 
         if (subType != "HDR")
         {
-          mNodes.emplace_back(new ArchiveCompressionNode{ file, this });
+          mNodes.emplace_back(new ArchiveCompressionNode{ file, this, mIsDat });
         }
       }
     }
@@ -103,10 +105,40 @@ namespace ark
 
     if (mParent && mIsDirectory)
     {
-      mBinaryWriter.SeekRelative(mBinaryWriter.GetPosition() % 16);
+      if (mType == "AKT")
+      {
+        mBinaryWriter.SeekAbsolute(Align<32>::Up(mBinaryWriter.GetPosition()));
+        mBinaryWriter.SeekRelative(40);
+      }
+      else if (mType == "TBL")
+      {
+        mBinaryWriter.SeekRelative(mBinaryWriter.GetPosition() % 16);
+        mBinaryWriter.SeekAbsolute(Align<16>::Up(mBinaryWriter.GetPosition()));
+      }
+      else if (mType == "SCP")
+      {
+        mBinaryWriter.SeekRelative(mBinaryWriter.GetPosition() % 8);
+        mBinaryWriter.SeekAbsolute(Align<32>::Up(mBinaryWriter.GetPosition()));
+      }
+      else
+      {
+        mBinaryWriter.SeekRelative(mBinaryWriter.GetPosition() % 16);
+        mBinaryWriter.SeekAbsolute(Align<32>::Up(mBinaryWriter.GetPosition()));
+      }
     }
-
-    mBinaryWriter.SeekAbsolute(Align<32>::Up(mBinaryWriter.GetPosition()));
+    else if (!mParent && mIsDirectory)
+    {
+      if (mIsDat)
+      {
+        mBinaryWriter.SeekRelative(mBinaryWriter.GetPosition() % 8);
+        mBinaryWriter.SeekAbsolute(Align<32>::Up(mBinaryWriter.GetPosition()));
+      }
+      else
+      {
+        mBinaryWriter.SeekRelative(mBinaryWriter.GetPosition() % 8);
+        mBinaryWriter.SeekAbsolute(Align<16>::Up(mBinaryWriter.GetPosition()));
+      }
+    }
   }
 
   void ArchiveCompressionNode::WriteFile()
@@ -128,9 +160,13 @@ namespace ark
     {
 
     }
+    else if (mType == "AK")
+    {
+      mBinaryWriter.SeekAbsolute(Align<8>::Up(mBinaryWriter.GetPosition()));
+    }
     else
     {
-      mBinaryWriter.SeekAbsolute(Align<32>::Up(mBinaryWriter.GetPosition()));
+      mBinaryWriter.SeekAbsolute(Align<16>::Up(mBinaryWriter.GetPosition()));
     }
   }
 
@@ -143,10 +179,41 @@ namespace ark
 
     if (mParent && mIsDirectory)
     {
-      fileOffset += fileOffset % 16;
+      if (mType == "AKT")
+      {
+        fileOffset = Align<32>::Up(fileOffset);
+        fileOffset += 40;
+      }
+      else if (mType == "TBL")
+      {
+        fileOffset += fileOffset % 16;
+        fileOffset = Align<16>::Up(fileOffset);
+      }
+      else if (mType == "SCP")
+      {
+        fileOffset += fileOffset % 8;
+        fileOffset = Align<32>::Up(fileOffset);
+      }
+      else
+      {
+        fileOffset += fileOffset % 16;
+        fileOffset = Align<32>::Up(fileOffset);
+      }
+    }
+    else if (!mParent && mIsDirectory)
+    {
+      if (mIsDat)
+      {
+        fileOffset += fileOffset % 8;
+        fileOffset = Align<32>::Up(fileOffset);
+      }
+      else
+      {
+        fileOffset += fileOffset % 8;
+        fileOffset = Align<16>::Up(fileOffset);
+      }
     }
 
-    fileOffset = Align<32>::Up(fileOffset);
     fileOffset += 32;
 
     for (const auto& node : mNodes)
