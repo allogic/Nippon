@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <string>
+#include <cstring>
 
 #include <Common/Types.h>
 
