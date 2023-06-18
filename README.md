@@ -11,6 +11,8 @@ The editor requires a configuration file. Inside the `Binary` directory update t
 ```jsonc
 {
   "gameDir": "/../Steam/steamapps/common/Okami",
+  "decryptDir": "/../Nippon/Decrypt",
+  "encryptDir": "/../Nippon/Encrypt",
   "unpackDir": "/../Nippon/Unpack",
   "repackDir": "/../Nippon/Repack",
 }
@@ -43,10 +45,6 @@ cmake -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++ ..
 cmake --build .
 # cmake --fresh .
 ```
-
-## How To Run
-
-Once all binaries are built, first launch the editor and start the integrity check under `Packer/Check Integrity`. After that unpack your game files with `Packer/Unpack`. Once all files are decrypted, one can jump into levels `Map/<Region>/<Level>`.
 
 ## Troubleshooting
 
