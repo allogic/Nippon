@@ -14,6 +14,7 @@ namespace ark
   {
   public:
 
+    virtual void Reset() override;
     virtual void Draw() override;
 
   private:

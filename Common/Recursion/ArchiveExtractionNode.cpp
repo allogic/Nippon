@@ -1,10 +1,8 @@
 ﻿#include <Common/Alignment.h>
 #include <Common/Debug.h>
 
-#include <Common/Utils/DirUtils.h>
-#include <Common/Utils/FileUtils.h>
+#include <Common/Utils/FsUtils.h>
 #include <Common/Utils/StringUtils.h>
-#include <Common/Utils/ArchiveUtils.h>
 
 #include <Common/Recursion/ArchiveExtractionNode.h>
 
@@ -106,9 +104,9 @@ namespace ark
       LOG("%05u @ %20s @ %4s\n", Node->mIndex, Node->mName.c_str(), Node->mType.c_str());
     }
 
-    fs::path fileName = ArchiveUtils::ToArchiveName(Node->mIndex, Node->mName, Node->mType);
-    fs::path fileHeaderName = ArchiveUtils::ToArchiveName(Node->mIndex, Node->mName, "HDR");
-    fs::path dirHeaderName = ArchiveUtils::ToArchiveName(-1, Node->mName, "HDR");
+    fs::path fileName = FsUtils::ToArchiveName(Node->mIndex, Node->mName, Node->mType);
+    fs::path fileHeaderName = FsUtils::ToArchiveName(Node->mIndex, Node->mName, "HDR");
+    fs::path dirHeaderName = FsUtils::ToArchiveName(-1, Node->mName, "HDR");
 
     fs::path fullFileName = File / fileName;
     fs::path fullFileHeaderName = File / fileHeaderName;
@@ -127,9 +125,9 @@ namespace ark
       {
         if (Node->mParent)
         {
-          DirUtils::CreateIfNotExists(fullFileName);
+          FsUtils::CreateIfNotExists(fullFileName);
 
-          FileUtils::WriteBinary(fullDirHeaderName, Node->mBinaryReader.Bytes(32, 0));
+          FsUtils::WriteBinary(fullDirHeaderName, Node->mBinaryReader.Bytes(32, 0));
         }
 
         for (const auto& node : Node->mNodes)
@@ -140,8 +138,8 @@ namespace ark
     }
     else
     {
-      FileUtils::WriteBinary(fullFileName, Node->mBinaryReader.Bytes(Node->mBinaryReader.GetSize() - 32, 32));
-      FileUtils::WriteBinary(fullFileHeaderName, Node->mBinaryReader.Bytes(32));
+      FsUtils::WriteBinary(fullFileName, Node->mBinaryReader.Bytes(Node->mBinaryReader.GetSize() - 32, 32));
+      FsUtils::WriteBinary(fullFileHeaderName, Node->mBinaryReader.Bytes(32));
     }
   }
 

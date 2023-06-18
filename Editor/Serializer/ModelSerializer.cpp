@@ -3,6 +3,8 @@
 #include <Common/BinaryReader.h>
 #include <Common/BinaryWriter.h>
 
+#include <Common/Utils/FsUtils.h>
+
 #include <Editor/Serializer/ModelSerializer.h>
 
 ///////////////////////////////////////////////////////////
@@ -11,11 +13,17 @@
 
 namespace ark
 {
-  std::vector<std::pair<Model, ScrTransform>> ModelSerializer::ToModels(const std::vector<U8>& Bytes)
+  std::vector<std::pair<Model, ScrTransform>> ModelSerializer::FromFile(const fs::path& File)
   {
     std::vector<std::pair<Model, ScrTransform>> models = {};
 
-    BinaryReader binaryReader{ Bytes };
+    U16 index = 0;
+    std::string name = "";
+    std::string type = "";
+
+    FsUtils::FromArchiveName(File.stem().string(), index, name, type);
+
+    BinaryReader binaryReader{ FsUtils::ReadBinary(File) };
 
     ScrHeader scrHeader = binaryReader.Read<ScrHeader>();
 
@@ -32,6 +40,7 @@ namespace ark
       U64 mdbStart = binaryReader.GetPosition();
 
       model.Header = binaryReader.Read<MdbHeader>();
+      model.Name = name;
 
       if (model.Header.MdbId == 0x0062646D)
       {
@@ -48,7 +57,7 @@ namespace ark
           U64 mdStart = binaryReader.GetPosition();
 
           division.Header = binaryReader.Read<MdHeader>();
-
+          
           if (division.Header.VertexOffset != 0)
           {
             binaryReader.SeekAbsolute(mdStart + division.Header.VertexOffset);
@@ -90,12 +99,12 @@ namespace ark
     return models;
   }
 
-  std::vector<U8> ModelSerializer::ToBytes(const std::vector<std::pair<Model, ScrTransform>>& Models)
+  void ModelSerializer::ToFile(const fs::path& File, const std::vector<std::pair<Model, ScrTransform>>& Objects)
   {
     BinaryWriter binaryWriter = {};
 
     
 
-    return binaryWriter.GetBytes();
+    FsUtils::WriteBinary(File, binaryWriter.GetBytes());
   }
 }

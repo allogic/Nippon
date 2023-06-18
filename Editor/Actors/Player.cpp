@@ -22,14 +22,14 @@ namespace ark
   {
     R32 keyboardMovementSpeed = (Event::KeyHeld(Event::eKeyCodeLeftShift)) ? mKeyboardMovementSpeedFast : mKeyboardMovementSpeedNormal;
 
-    if (Event::KeyHeld(Event::eKeyCodeD)) GetTransform()->AddWorldPosition(-GetTransform()->GetLocalRight() * keyboardMovementSpeed);
-    if (Event::KeyHeld(Event::eKeyCodeA)) GetTransform()->AddWorldPosition(GetTransform()->GetLocalRight() * keyboardMovementSpeed);
+    if (Event::KeyHeld(Event::eKeyCodeD)) GetTransform()->AddPosition(-GetTransform()->GetLocalRight() * keyboardMovementSpeed);
+    if (Event::KeyHeld(Event::eKeyCodeA)) GetTransform()->AddPosition(GetTransform()->GetLocalRight() * keyboardMovementSpeed);
 
-    if (Event::KeyHeld(Event::eKeyCodeE)) GetTransform()->AddWorldPosition(GetTransform()->GetWorldUp() * keyboardMovementSpeed);
-    if (Event::KeyHeld(Event::eKeyCodeQ)) GetTransform()->AddWorldPosition(-GetTransform()->GetWorldUp() * keyboardMovementSpeed);
+    if (Event::KeyHeld(Event::eKeyCodeE)) GetTransform()->AddPosition(GetTransform()->GetWorldUp() * keyboardMovementSpeed);
+    if (Event::KeyHeld(Event::eKeyCodeQ)) GetTransform()->AddPosition(-GetTransform()->GetWorldUp() * keyboardMovementSpeed);
 
-    if (Event::KeyHeld(Event::eKeyCodeW)) GetTransform()->AddWorldPosition(GetTransform()->GetLocalFront() * keyboardMovementSpeed);
-    if (Event::KeyHeld(Event::eKeyCodeS)) GetTransform()->AddWorldPosition(-GetTransform()->GetLocalFront() * keyboardMovementSpeed);
+    if (Event::KeyHeld(Event::eKeyCodeW)) GetTransform()->AddPosition(GetTransform()->GetLocalFront() * keyboardMovementSpeed);
+    if (Event::KeyHeld(Event::eKeyCodeS)) GetTransform()->AddPosition(-GetTransform()->GetLocalFront() * keyboardMovementSpeed);
 
     static R32V2 mousePositionStart;
     static R32V2 mousePositionDelta;
@@ -42,20 +42,20 @@ namespace ark
     {
       mousePositionDelta = mousePositionStart - Event::GetMousePosition();
 
-      R32V3 worldPosition = GetTransform()->GetWorldPosition();
+      R32V3 worldPosition = GetTransform()->GetPosition();
 
       R32 mouseMovementSpeed = (Event::KeyHeld(Event::eKeyCodeLeftShift)) ? mMouseMovementSpeedFast : mMouseMovementSpeedNormal;
 
       worldPosition += GetTransform()->GetLocalRight() * mousePositionDelta.x * mouseMovementSpeed;
       worldPosition += GetTransform()->GetWorldUp() * mousePositionDelta.y * mouseMovementSpeed;
 
-      GetTransform()->SetWorldPosition(worldPosition);
+      GetTransform()->SetPosition(worldPosition);
     }
     else if (Event::MouseHeld(Event::eMouseCodeRight))
     {
       mousePositionDelta = mousePositionStart - Event::GetMousePosition();
 
-      R32V3 worldRotation = GetTransform()->GetWorldRotation();
+      R32V3 worldRotation = GetTransform()->GetRotation();
 
       worldRotation.x -= mousePositionDelta.y * mMouseRotationSpeed;
       worldRotation.y += mousePositionDelta.x * mMouseRotationSpeed;
@@ -63,7 +63,7 @@ namespace ark
       if (worldRotation.x < -90.0F) worldRotation.x = -90.0F;
       if (worldRotation.x > 90.0F) worldRotation.x = 90.0F;
 
-      GetTransform()->SetLocalRotation(worldRotation);
+      GetTransform()->SetRotation(worldRotation);
     }
 
     mousePositionStart -= mousePositionDelta * mMouseDragDamping;

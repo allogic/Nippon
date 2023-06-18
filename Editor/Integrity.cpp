@@ -1,7 +1,7 @@
 #include <Common/Debug.h>
 
 #include <Common/Utils/ByteUtils.h>
-#include <Common/Utils/FileUtils.h>
+#include <Common/Utils/FsUtils.h>
 #include <Common/Utils/IntegrityUtils.h>
 #include <Common/Utils/StringUtils.h>
 
@@ -31,7 +31,7 @@ namespace ark
 
     rj::Document integrity = {};
 
-    integrity.Parse(FileUtils::ReadText("EncryptedIntegrity.json").c_str());
+    integrity.Parse(FsUtils::ReadText("EncryptedIntegrity.json").c_str());
 
     for (const auto& file : fs::recursive_directory_iterator{ encryptDir })
     {
@@ -42,7 +42,7 @@ namespace ark
         std::string keyValue = StringUtils::CutFront(posixFile, posixDir.size());
 
         U32 origCrc32 = integrity[keyValue.c_str()].GetUint();
-        U32 currCrc32 = IntegrityUtils::Crc32FromBytes(FileUtils::ReadBinary(file.path()));
+        U32 currCrc32 = IntegrityUtils::Crc32FromBytes(FsUtils::ReadBinary(file.path()));
 
         if (origCrc32 != currCrc32)
         {
@@ -64,7 +64,7 @@ namespace ark
 
     rj::Document integrity = {};
 
-    integrity.Parse(FileUtils::ReadText("DecryptedIntegrity.json").c_str());
+    integrity.Parse(FsUtils::ReadText("DecryptedIntegrity.json").c_str());
 
     for (const auto& file : fs::recursive_directory_iterator{ decryptDir })
     {
@@ -75,7 +75,7 @@ namespace ark
         std::string keyValue = StringUtils::CutFront(posixFile, posixDir.size());
 
         U32 origCrc32 = integrity[keyValue.c_str()].GetUint();
-        U32 currCrc32 = IntegrityUtils::Crc32FromBytes(FileUtils::ReadBinary(file.path()));
+        U32 currCrc32 = IntegrityUtils::Crc32FromBytes(FsUtils::ReadBinary(file.path()));
 
         if (origCrc32 != currCrc32)
         {
@@ -99,8 +99,8 @@ namespace ark
       fs::path decryptedFile = decryptDir / Entry / SubEntry / file.path().filename();
       fs::path repackedFile = repackDir / Entry / SubEntry / file.path().filename();
 
-      std::vector<U8> decryptedBytes = FileUtils::ReadBinary(decryptedFile);
-      std::vector<U8> repackedBytes = FileUtils::ReadBinary(repackedFile);
+      std::vector<U8> decryptedBytes = FsUtils::ReadBinary(decryptedFile);
+      std::vector<U8> repackedBytes = FsUtils::ReadBinary(repackedFile);
 
       U64 index = ByteUtils::Compare(decryptedBytes, repackedBytes);
 
@@ -139,7 +139,7 @@ namespace ark
         std::string posixDir = StringUtils::PosixPath(encryptDir.string());
         std::string keyValue = StringUtils::CutFront(posixFile, posixDir.size());
 
-        U32 crc32 = IntegrityUtils::Crc32FromBytes(FileUtils::ReadBinary(file.path()));
+        U32 crc32 = IntegrityUtils::Crc32FromBytes(FsUtils::ReadBinary(file.path()));
 
         integrities.AddMember(
           rj::Value{ rj::kStringType }.SetString(keyValue.c_str(), document.GetAllocator()),
@@ -152,7 +152,7 @@ namespace ark
 
     integrities.Accept(writer);
 
-    FileUtils::WriteText("EncryptedIntegrity.json", buffer.GetString());
+    FsUtils::WriteText("EncryptedIntegrity.json", buffer.GetString());
   }
 
   void Integrity::GenerateDecryptedMap()
@@ -172,7 +172,7 @@ namespace ark
         std::string posixDir = StringUtils::PosixPath(decryptDir.string());
         std::string keyValue = StringUtils::CutFront(posixFile, posixDir.size());
 
-        U32 crc32 = IntegrityUtils::Crc32FromBytes(FileUtils::ReadBinary(file.path()));
+        U32 crc32 = IntegrityUtils::Crc32FromBytes(FsUtils::ReadBinary(file.path()));
 
         integrities.AddMember(
           rj::Value{ rj::kStringType }.SetString(keyValue.c_str(), document.GetAllocator()),
@@ -185,6 +185,6 @@ namespace ark
 
     integrities.Accept(writer);
 
-    FileUtils::WriteText("DecryptedIntegrity.json", buffer.GetString());
+    FsUtils::WriteText("DecryptedIntegrity.json", buffer.GetString());
   }
 }

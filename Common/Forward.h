@@ -6,13 +6,12 @@
 
 namespace ark
 {
-  class ArchiveUtils;
   class ByteUtils;
-  class DirUtils;
-  class FileUtils;
+  class FsUtils;
   class IntegrityUtils;
   class JsonUtils;
   class StringUtils;
+  class TextureUtils;
 
   class BinaryReader;
   class BinaryWriter;

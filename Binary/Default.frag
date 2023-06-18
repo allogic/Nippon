@@ -7,6 +7,7 @@
 layout (location = 0) in Vertex
 {
   vec3 Position;
+  vec2 Uv;
   vec4 Color;
 } vertex;
 
@@ -17,10 +18,16 @@ layout (location = 0) in Vertex
 layout (location = 0) out vec4 OutputColor;
 
 ///////////////////////////////////////////////////////////
+// Uniforms
+///////////////////////////////////////////////////////////
+
+layout (binding = 0) uniform sampler2D uAlbedo;
+
+///////////////////////////////////////////////////////////
 // Entry point
 ///////////////////////////////////////////////////////////
 
 void main()
 {
-  OutputColor = vertex.Color;
+  OutputColor = texture(uAlbedo, vertex.Uv);
 }

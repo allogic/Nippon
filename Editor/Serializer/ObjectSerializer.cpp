@@ -1,6 +1,8 @@
 #include <Common/BinaryReader.h>
 #include <Common/BinaryWriter.h>
 
+#include <Common/Utils/FsUtils.h>
+
 #include <Editor/Serializer/ObjectSerializer.h>
 
 ///////////////////////////////////////////////////////////
@@ -9,11 +11,11 @@
 
 namespace ark
 {
-  std::vector<Object> ObjectSerializer::ToObjects(const std::vector<U8>& Bytes)
+  std::vector<Object> ObjectSerializer::FromFile(const fs::path& File)
   {
     std::vector<Object> objects = {};
 
-    BinaryReader binaryReader{ Bytes };
+    BinaryReader binaryReader{ FsUtils::ReadBinary(File) };
 
     U32 size = binaryReader.Read<U32>();
     binaryReader.Read<Object>(objects, size);
@@ -21,13 +23,13 @@ namespace ark
     return objects;
   }
 
-  std::vector<U8> ObjectSerializer::ToBytes(const std::vector<Object>& Objects)
+  void ObjectSerializer::ToFile(const fs::path& File, const std::vector<Object>& Objects)
   {
     BinaryWriter binaryWriter = {};
 
     binaryWriter.Write<U32>((U32)Objects.size());
     binaryWriter.Write<Object>(Objects);
 
-    return binaryWriter.GetBytes();
+    FsUtils::WriteBinary(File, binaryWriter.GetBytes());
   }
 }

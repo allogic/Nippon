@@ -15,7 +15,12 @@ namespace ark
   {
   public:
 
+    virtual void Reset() override;
     virtual void Draw() override;
+
+  public:
+
+    const auto GetSelectedActor() const { return mSelectedActor; }
 
   private:
 

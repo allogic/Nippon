@@ -34,7 +34,7 @@ namespace ark
 
   R32M4 Camera::GetViewMatrix()
   {
-    R32V3 position = mActor->GetTransform()->GetWorldPosition();
+    R32V3 position = mActor->GetTransform()->GetPosition();
     R32V3 up = mActor->GetTransform()->GetLocalUp();
     R32V3 front = mActor->GetTransform()->GetLocalFront();
 

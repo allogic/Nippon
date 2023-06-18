@@ -1,8 +1,15 @@
 #pragma once
 
 #include <vector>
+#include <filesystem>
 
 #include <Common/Types.h>
+
+///////////////////////////////////////////////////////////
+// Namespaces
+///////////////////////////////////////////////////////////
+
+namespace fs = std::filesystem;
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -33,7 +40,7 @@ namespace ark
   {
   public:
 
-    static std::vector<Object> ToObjects(const std::vector<U8>& Bytes);
-    static std::vector<U8> ToBytes(const std::vector<Object>& Objects);
+    static std::vector<Object> FromFile(const fs::path& File);
+    static void ToFile(const fs::path& File, const std::vector<Object>& Objects);
   };
 }

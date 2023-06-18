@@ -16,6 +16,11 @@ extern ark::Scene* gScene;
 
 namespace ark
 {
+  void ModelBrowser::Reset()
+  {
+
+  }
+
   void ModelBrowser::Draw()
   {
     ImGui::Begin("Model Browser");

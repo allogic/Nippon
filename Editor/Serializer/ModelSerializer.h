@@ -1,9 +1,17 @@
 #pragma once
 
+#include <string>
 #include <vector>
 #include <utility>
+#include <filesystem>
 
 #include <Common/Types.h>
+
+///////////////////////////////////////////////////////////
+// Namespaces
+///////////////////////////////////////////////////////////
+
+namespace fs = std::filesystem;
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -84,6 +92,7 @@ namespace ark
   struct Model
   {
     MdbHeader Header;
+    std::string Name;
     std::vector<Division> Divisions;
   };
 
@@ -91,7 +100,7 @@ namespace ark
   {
   public:
 
-    static std::vector<std::pair<Model, ScrTransform>> ToModels(const std::vector<U8>& Bytes);
-    static std::vector<U8> ToBytes(const std::vector<std::pair<Model, ScrTransform>>& Models);
+    static std::vector<std::pair<Model, ScrTransform>> FromFile(const fs::path& File);
+    static void ToFile(const fs::path& File, const std::vector<std::pair<Model, ScrTransform>>& Objects);
   };
 }

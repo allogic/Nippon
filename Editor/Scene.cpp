@@ -1,8 +1,9 @@
-#include <Common/Utils/ArchiveUtils.h>
+#include <Common/Utils/FsUtils.h>
 #include <Common/Utils/StringUtils.h>
-#include <Common/Utils/FileUtils.h>
+#include <Common/Utils/TextureUtils.h>
 
 #include <Editor/Scene.h>
+#include <Editor/Texture.h>
 
 #include <Editor/Actors/Player.h>
 
@@ -16,6 +17,8 @@
 #include <Editor/Converter/ElementConverter.h>
 #include <Editor/Converter/VertexConverter.h>
 
+#include <Editor/Interface/Scene/Outline.h>
+
 #include <Vendor/rapidjson/document.h>
 
 #include <Vendor/GLAD/glad.h>
@@ -28,6 +31,8 @@ extern rj::Document gConfig;
 
 extern ark::Scene* gScene;
 
+extern ark::Outline* gOutline;
+
 ///////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////
@@ -37,7 +42,18 @@ namespace ark
   Scene::Scene(const std::string& Region, const std::string& Level)
     : mRegion{ Region }
     , mLevel{ Level }
+    , mMapId{ StringUtils::CutFront(Region, 2) }
   {
+    mLvlDir = fs::path{ gConfig["unpackDir"].GetString() } / mRegion / mLevel;
+    mDatDir = mLvlDir / fs::path{ "r" + mMapId + mLevel + ".dat" };
+
+    mScpDir = FsUtils::SearchFileByType(mDatDir, "SCP");
+    mDdpDir = FsUtils::SearchFileByType(mScpDir, "DDP");
+
+    mTscFile = FsUtils::SearchFileByType(mDatDir, "TSC");
+    mTreFile = FsUtils::SearchFileByType(mDatDir, "TRE");
+    mTatFile = FsUtils::SearchFileByType(mDatDir, "TAT");
+
     DeSerialize();
 
     mMainActor = CreateActor<Player>("Player", nullptr);
@@ -61,6 +77,8 @@ namespace ark
   {
     U32 prevWidth = 1;
     U32 prevHeight = 1;
+
+    gOutline->Reset();
 
     if (gScene)
     {
@@ -130,25 +148,25 @@ namespace ark
 
       if (transform && renderable)
       {
-        mDefaultRenderer.AddRenderTask(RenderTask{ transform, renderable->GetMeshPtr() });
+        mDefaultRenderer.AddRenderTask(RenderTask{ transform, &renderable->GetMesh(), renderable->GetTexture() });
       }
 
       if (actor != mMainActor)
       {
-        mDebugRenderer.DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetWorldRight(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
-        mDebugRenderer.DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetWorldUp(), R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
-        mDebugRenderer.DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetWorldFront(), R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
+        mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition() + transform->GetWorldRight(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
+        mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition() + transform->GetWorldUp(), R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
+        mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition() + transform->GetWorldFront(), R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
 
-        mDebugRenderer.DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetLocalRight(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
-        mDebugRenderer.DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetLocalUp(), R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
-        mDebugRenderer.DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetLocalFront(), R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
+        mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition() + transform->GetLocalRight(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
+        mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition() + transform->GetLocalUp(), R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
+        mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition() + transform->GetLocalFront(), R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
 
         if (actor->GetParent())
         {
-          mDebugRenderer.DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition(), R32V4{ 1.0F, 1.0F, 1.0F, 1.0F });
+          mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition(), R32V4{ 1.0F, 1.0F, 1.0F, 1.0F });
         }
 
-        mDebugRenderer.DebugBox(transform->GetWorldPosition(), transform->GetWorldScale(), R32V4{ 1.0F, 1.0F, 0.0F, 1.0F }, transform->GetQuaternion());
+        mDebugRenderer.DebugBox(transform->GetPosition(), transform->GetScale(), R32V4{ 1.0F, 1.0F, 0.0F, 1.0F }, transform->GetQuaternion());
       }
     }
   }
@@ -186,38 +204,27 @@ namespace ark
 
   void Scene::DeSerialize()
   {
-    fs::path targetDir = fs::path{ gConfig["unpackDir"].GetString() } / mRegion / mLevel;
-
-    std::string mapId = StringUtils::CutFront(mRegion, 2);
-
-    std::string tscFile = targetDir.string() + "/r" + mapId + mLevel + ".dat" + "/00000@r" + mapId + mLevel + "_objtbl@TSC";
-    std::string treFile = targetDir.string() + "/r" + mapId + mLevel + ".dat" + "/00001@r" + mapId + mLevel + "_objtbl2@TRE";
-    std::string tatFile = targetDir.string() + "/r" + mapId + mLevel + ".dat" + "/00002@r" + mapId + mLevel + "_objtbl3@TAT";
-
-    auto tscObjects = ObjectSerializer::ToObjects(FileUtils::ReadBinary(tscFile));
-    auto treObjects = ObjectSerializer::ToObjects(FileUtils::ReadBinary(treFile));
-    auto tatObjects = ObjectSerializer::ToObjects(FileUtils::ReadBinary(tatFile));
+    auto tscObjects = ObjectSerializer::FromFile(mTscFile);
+    auto treObjects = ObjectSerializer::FromFile(mTreFile);
+    auto tatObjects = ObjectSerializer::FromFile(mTatFile);
 
     mObjects.insert(mObjects.end(), tscObjects.begin(), tscObjects.end());
     mObjects.insert(mObjects.end(), treObjects.begin(), treObjects.end());
     mObjects.insert(mObjects.end(), tatObjects.begin(), tatObjects.end());
 
-    std::string scrDir = targetDir.string() + "/r" + mapId + mLevel + ".dat" + "/00005@r" + mapId + mLevel + "@SCP";
+    mScrFiles = FsUtils::SearchFilesByTypeRecursive(mDatDir, "SCR");
+    mDdsFiles = FsUtils::SearchFilesByTypeRecursive(mDatDir, "DDS");
 
-    for (const auto& file : fs::directory_iterator{ scrDir })
+    for (const auto& file : mScrFiles)
     {
-      U16 index = 0;
-      std::string name = "";
-      std::string type = "";
+      auto models = ModelSerializer::FromFile(file);
 
-      ArchiveUtils::FromArchiveName(file.path().stem().string(), index, name, type);
+      mModels.insert(mModels.end(), models.begin(), models.end());
+    }
 
-      if (type == "SCR")
-      {
-        auto models = ModelSerializer::ToModels(FileUtils::ReadBinary(file.path()));
-
-        mModels.insert(mModels.end(), models.begin(), models.end());
-      }
+    for (const auto& file : mDdsFiles)
+    {
+      mTextures.emplace_back(TextureUtils::LoadDDS(file));
     }
   }
 
@@ -225,13 +232,13 @@ namespace ark
   {
     for (const auto& [model, transform] : mModels)
     {
-      Actor* modelActor = CreateActor<Actor>("Model", nullptr);
+      Actor* modelActor = CreateActor<Actor>(model.Name, nullptr);
 
       Transform* modelTransform = modelActor->GetTransform();
 
-      modelTransform->SetWorldPosition(R32V3{ transform.Position.x, transform.Position.y, transform.Position.z });
-      modelTransform->SetWorldRotation(R32V3{ transform.Rotation.x, transform.Rotation.y, transform.Rotation.z });
-      modelTransform->SetWorldScale(R32V3{ transform.Scale.x, transform.Scale.y, transform.Scale.z });
+      modelTransform->SetPosition(R32V3{ transform.Position.x, transform.Position.y, transform.Position.z });
+      modelTransform->SetRotation(R32V3{ transform.Rotation.x, transform.Rotation.y, transform.Rotation.z });
+      modelTransform->SetScale(R32V3{ transform.Scale.x, transform.Scale.y, transform.Scale.z });
 
       for (const auto& division : model.Divisions)
       {
@@ -241,6 +248,7 @@ namespace ark
 
         divisionRenderable->SetVertexBuffer(VertexConverter::ToVertexBuffer(division.Vertices, division.TextureMaps, division.TextureUvs, division.ColorWeights));
         divisionRenderable->SetElementBuffer(ElementConverter::ToElementBuffer(division.Vertices));
+        divisionRenderable->SetTexture((division.Header.TextureIndex < mTextures.size()) ? mTextures[division.Header.TextureIndex] : nullptr);
       }
     }
   }
@@ -253,9 +261,9 @@ namespace ark
     
       Transform* objectTransform = objectActor->GetTransform();
 
-      objectTransform->SetWorldPosition(R32V3{ object.Position.x, object.Position.y, object.Position.z });
-      objectTransform->SetWorldRotation(R32V3{ object.Rotation.x, object.Rotation.y, object.Rotation.z });
-      objectTransform->SetWorldScale(R32V3{ object.Scale.x, object.Scale.y, object.Scale.z });
+      objectTransform->SetPosition(R32V3{ object.Position.x, object.Position.y, object.Position.z });
+      objectTransform->SetRotation(R32V3{ object.Rotation.x, object.Rotation.y, object.Rotation.z });
+      objectTransform->SetScale(R32V3{ object.Scale.x, object.Scale.y, object.Scale.z });
     }
   }
 }

@@ -50,6 +50,7 @@ namespace ark
 
     inline const auto& GetObjects() const { return mObjects; }
     inline const auto& GetModels() const { return mModels; }
+    inline const auto& GetTextures() const { return mTextures; }
     inline const auto& GetActors() const { return mActors; }
 
     inline const auto& GetFrameBuffer() const { return mFrameBuffer; }
@@ -93,8 +94,23 @@ namespace ark
     std::vector<Actor*> mActors = {};
     Actor* mMainActor = nullptr;
 
+    std::string mMapId = "";
+
+    fs::path mLvlDir = "";
+    fs::path mDatDir = "";
+    fs::path mScpDir = "";
+    fs::path mDdpDir = "";
+
+    fs::path mTscFile = "";
+    fs::path mTreFile = "";
+    fs::path mTatFile = "";
+
+    std::vector<fs::path> mScrFiles = {};
+    std::vector<fs::path> mDdsFiles = {};
+
     std::vector<Object> mObjects = {};
     std::vector<std::pair<Model, ScrTransform>> mModels = {};
+    std::vector<Texture2D*> mTextures = {};
 
     DebugRenderer mDebugRenderer = { 65535, 65535 * 2 };
     DefaultRenderer mDefaultRenderer = {};

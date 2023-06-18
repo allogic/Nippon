@@ -23,6 +23,7 @@ namespace ark
   {
     const Transform* TransformPtr;
     const Mesh<DefaultVertex, U32>* MeshPtr;
+    const Texture2D* TexturePtr;
   };
 
   class DefaultRenderer

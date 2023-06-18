@@ -23,9 +23,12 @@ namespace ark
   class DefaultRenderer;
 
   class MainMenu;
+  class Inspector;
   class ModelBrowser;
   class ObjectBrowser;
+  class TextureBrowser;
   class Outline;
+  class Viewport;
 
   class Actor;
   class Archive;
@@ -41,9 +44,9 @@ namespace ark
   class Packer;
   class Scene;
   class Shader;
-
-  template<U32 Type, U32 Layout, U32 Format, U32 FormatInternal, typename T>
-  class Texture;
+  class Texture2D;
+  class RenderTexture;
+  class DepthStencilTexture;
 
   struct DefaultVertex;
   struct DebugVertex;

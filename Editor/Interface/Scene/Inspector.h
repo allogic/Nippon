@@ -1,0 +1,18 @@
+#pragma once
+
+#include <Editor/Interface.h>
+
+///////////////////////////////////////////////////////////
+// Definition
+///////////////////////////////////////////////////////////
+
+namespace ark
+{
+  class Inspector : public Interface
+  {
+  public:
+
+    virtual void Reset() override;
+    virtual void Draw() override;
+  };
+}

@@ -1,8 +1,7 @@
 #include <Common/Debug.h>
 #include <Common/Alignment.h>
 
-#include <Common/Utils/ArchiveUtils.h>
-#include <Common/Utils/FileUtils.h>
+#include <Common/Utils/FsUtils.h>
 
 #include <Common/Recursion/ArchiveCompressionNode.h>
 
@@ -22,7 +21,7 @@ namespace ark
   {
     mIsDirectory = fs::is_directory(mFile);
 
-    ArchiveUtils::FromArchiveName(mFile.filename().string(), mIndex, mName, mType);
+    FsUtils::FromArchiveName(mFile.filename().string(), mIndex, mName, mType);
 
     if (mIsDirectory)
     {
@@ -32,7 +31,7 @@ namespace ark
         std::string subName = "";
         std::string subType = "";
 
-        ArchiveUtils::FromArchiveName(file.path().filename().string(), subIndex, subName, subType);
+        FsUtils::FromArchiveName(file.path().filename().string(), subIndex, subName, subType);
 
         if (subType != "HDR")
         {
@@ -93,9 +92,9 @@ namespace ark
   {
     if (mParent && mIsDirectory)
     {
-      fs::path dirHeaderName = ArchiveUtils::ToArchiveName(-1, mName, "HDR");
+      fs::path dirHeaderName = FsUtils::ToArchiveName(-1, mName, "HDR");
 
-      mBinaryWriter.Write(FileUtils::ReadBinary(mFile / dirHeaderName));
+      mBinaryWriter.Write(FsUtils::ReadBinary(mFile / dirHeaderName));
     }
 
     mBinaryWriter.Write<U32>((U32)mNodes.size());
@@ -143,14 +142,14 @@ namespace ark
 
   void ArchiveCompressionNode::WriteFile()
   {
-    fs::path fileName = ArchiveUtils::ToArchiveName(mIndex, mName, mType);
-    fs::path fileHeaderName = ArchiveUtils::ToArchiveName(mIndex, mName, "HDR");
+    fs::path fileName = FsUtils::ToArchiveName(mIndex, mName, mType);
+    fs::path fileHeaderName = FsUtils::ToArchiveName(mIndex, mName, "HDR");
 
     fs::path fullFileName = mFile.parent_path() / fileName;
     fs::path fullFileHeaderName = mFile.parent_path() / fileHeaderName;
 
-    mBinaryWriter.Write(FileUtils::ReadBinary(fullFileHeaderName));
-    mBinaryWriter.Write(FileUtils::ReadBinary(fullFileName));
+    mBinaryWriter.Write(FsUtils::ReadBinary(fullFileHeaderName));
+    mBinaryWriter.Write(FsUtils::ReadBinary(fullFileName));
 
     if (mType == "DDS")
     {

@@ -2,7 +2,7 @@
 
 #include <Common/Types.h>
 
-#include <Editor/Texture.h>
+#include <Editor/Forward.h>
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -20,7 +20,8 @@ namespace ark
   public:
 
     inline auto GetId() const { return mFbo; }
-    inline const auto& GetColorTexture() const { return mColorTexture; }
+    inline const auto GetColorTexture() const { return mColorTexture; }
+    inline const auto GetDepthStencilTexture() const { return mDepthStencilTexture; }
 
   public:
 
@@ -30,7 +31,7 @@ namespace ark
 
     U32 mFbo = 0;
 
-    Texture2DR32RGBA mColorTexture = { 1, 1, ClampToEdge, Linear };
-    Texture2DU24U8DS mDepthStencilTexture = { 1, 1, ClampToEdge, Linear };
+    RenderTexture* mColorTexture = nullptr;
+    DepthStencilTexture* mDepthStencilTexture = nullptr;
   };
 }

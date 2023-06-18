@@ -1,6 +1,7 @@
 #include <Editor/Mesh.h>
 #include <Editor/Scene.h>
 #include <Editor/Shader.h>
+#include <Editor/Texture.h>
 #include <Editor/Vertex.h>
 
 #include <Editor/Components/Camera.h>
@@ -50,6 +51,11 @@ namespace ark
             mShader->SetUniformR32M4("UniformProjectionMatrix", camera->GetProjectionMatrix());
             mShader->SetUniformR32M4("UniformViewMatrix", camera->GetViewMatrix());
             mShader->SetUniformR32M4("UniformModelMatrix", renderTask.TransformPtr->GetModelMatrix());
+
+            if (renderTask.TexturePtr)
+            {
+              renderTask.TexturePtr->Mount(0);
+            }
 
             renderTask.MeshPtr->Bind();
             renderTask.MeshPtr->Render(eRenderModeTriangles);

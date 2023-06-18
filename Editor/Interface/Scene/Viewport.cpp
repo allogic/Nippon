@@ -1,6 +1,7 @@
 #include <Common/Debug.h>
 
 #include <Editor/Scene.h>
+#include <Editor/Texture.h>
 
 #include <Editor/Interface/Scene/Viewport.h>
 
@@ -18,6 +19,11 @@ extern ark::Scene* gScene;
 
 namespace ark
 {
+  void Viewport::Reset()
+  {
+
+  }
+
   void Viewport::Draw()
   {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0F, 0.0F });
@@ -31,7 +37,7 @@ namespace ark
         gScene->Resize(mWidth, mHeight);
       }
 
-      ImGui::Image((void*)(U64)gScene->GetFrameBuffer().GetColorTexture().GetId(), ImVec2{ (R32)mWidth, (R32)mHeight }, ImVec2{ 0.0F, 1.0F }, ImVec2{ 1.0F, 0.0F });
+      ImGui::Image((void*)(U64)gScene->GetFrameBuffer().GetColorTexture()->GetId(), ImVec2{ (R32)mWidth, (R32)mHeight }, ImVec2{ 0.0F, 1.0F }, ImVec2{ 1.0F, 0.0F });
     }
 
     ImGui::End();

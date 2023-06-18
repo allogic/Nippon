@@ -1,8 +1,7 @@
 #include <Common/Debug.h>
 #include <Common/BlowFish.h>
 
-#include <Common/Utils/DirUtils.h>
-#include <Common/Utils/FileUtils.h>
+#include <Common/Utils/FsUtils.h>
 #include <Common/Utils/JsonUtils.h>
 #include <Common/Utils/StringUtils.h>
 
@@ -38,9 +37,9 @@ namespace ark
     fs::path dataDir = gameDir / "data_pc";
     fs::path decryptDir = gConfig["decryptDir"].GetString();
 
-    DirUtils::CreateIfNotExists(decryptDir);
-    DirUtils::CreateIfNotExists(decryptDir / Entry);
-    DirUtils::CreateIfNotExists(decryptDir / Entry / SubEntry);
+    FsUtils::CreateIfNotExists(decryptDir);
+    FsUtils::CreateIfNotExists(decryptDir / Entry);
+    FsUtils::CreateIfNotExists(decryptDir / Entry / SubEntry);
 
     for (const auto& file : fs::directory_iterator{ dataDir / Entry })
     {
@@ -53,13 +52,13 @@ namespace ark
 
         if (fs::exists(srcFile))
         {
-          std::vector<U8> bytes = FileUtils::ReadBinary(srcFile);
+          std::vector<U8> bytes = FsUtils::ReadBinary(srcFile);
 
           BlowFish cipher{ gConfig["encryptionKey"].GetString() };
 
           cipher.Decrypt(bytes);
 
-          FileUtils::WriteBinary(dstFile, bytes);
+          FsUtils::WriteBinary(dstFile, bytes);
 
           std::string posixSrcFile = StringUtils::PosixPath(srcFile.string());
           std::string posixDstFile = StringUtils::PosixPath(dstFile.string());
@@ -75,9 +74,9 @@ namespace ark
     fs::path repackDir = gConfig["repackDir"].GetString();
     fs::path encryptDir = gConfig["encryptDir"].GetString();
 
-    DirUtils::CreateIfNotExists(encryptDir);
-    DirUtils::CreateIfNotExists(encryptDir / Entry);
-    DirUtils::CreateIfNotExists(encryptDir / Entry / SubEntry);
+    FsUtils::CreateIfNotExists(encryptDir);
+    FsUtils::CreateIfNotExists(encryptDir / Entry);
+    FsUtils::CreateIfNotExists(encryptDir / Entry / SubEntry);
 
     for (const auto& file : fs::directory_iterator{ repackDir / Entry })
     {
@@ -90,13 +89,13 @@ namespace ark
 
         if (fs::exists(srcFile))
         {
-          std::vector<U8> bytes = FileUtils::ReadBinary(srcFile);
+          std::vector<U8> bytes = FsUtils::ReadBinary(srcFile);
 
           BlowFish cipher{ gConfig["encryptionKey"].GetString() };
 
           cipher.Encrypt(bytes);
 
-          FileUtils::WriteBinary(dstFile, bytes);
+          FsUtils::WriteBinary(dstFile, bytes);
 
           std::string posixSrcFile = StringUtils::PosixPath(srcFile.string());
           std::string posixDstFile = StringUtils::PosixPath(dstFile.string());
@@ -112,9 +111,9 @@ namespace ark
     fs::path decryptDir = gConfig["decryptDir"].GetString();
     fs::path unpackDir = gConfig["unpackDir"].GetString();
 
-    DirUtils::CreateIfNotExists(unpackDir);
-    DirUtils::CreateIfNotExists(unpackDir / Entry);
-    DirUtils::CreateIfNotExists(unpackDir / Entry / SubEntry);
+    FsUtils::CreateIfNotExists(unpackDir);
+    FsUtils::CreateIfNotExists(unpackDir / Entry);
+    FsUtils::CreateIfNotExists(unpackDir / Entry / SubEntry);
 
     if (fs::exists(decryptDir / Entry / SubEntry))
     {
@@ -125,9 +124,9 @@ namespace ark
 
         if (sSupportedArchiveExtensions.contains(archiveExt))
         {
-          std::vector<U8> bytes = FileUtils::ReadBinary(file.path());
+          std::vector<U8> bytes = FsUtils::ReadBinary(file.path());
 
-          DirUtils::CreateIfNotExists(unpackDir / Entry / SubEntry / archiveName);
+          FsUtils::CreateIfNotExists(unpackDir / Entry / SubEntry / archiveName);
 
           ArchiveExtractionNode extractor{ bytes, nullptr, 0, 0, 0, "", "", true };
           
@@ -147,9 +146,9 @@ namespace ark
     fs::path unpackDir = gConfig["unpackDir"].GetString();
     fs::path repackDir = gConfig["repackDir"].GetString();
 
-    DirUtils::CreateIfNotExists(repackDir);
-    DirUtils::CreateIfNotExists(repackDir / Entry);
-    DirUtils::CreateIfNotExists(repackDir / Entry / SubEntry);
+    FsUtils::CreateIfNotExists(repackDir);
+    FsUtils::CreateIfNotExists(repackDir / Entry);
+    FsUtils::CreateIfNotExists(repackDir / Entry / SubEntry);
 
     for (const auto& file : fs::directory_iterator{ unpackDir / Entry / SubEntry })
     {
@@ -162,7 +161,7 @@ namespace ark
 
         compressor.CompressRecursive(2);
 
-        FileUtils::WriteBinary(repackDir / Entry / SubEntry / fileName, compressor.GetBytes());
+        FsUtils::WriteBinary(repackDir / Entry / SubEntry / fileName, compressor.GetBytes());
 
         std::string posixSrcFile = StringUtils::PosixPath((unpackDir / Entry / SubEntry).string());
         std::string posixDstFile = StringUtils::PosixPath((repackDir / Entry / SubEntry).string());

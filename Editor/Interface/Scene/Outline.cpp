@@ -19,6 +19,11 @@ extern ark::Scene* gScene;
 
 namespace ark
 {
+  void Outline::Reset()
+  {
+    mSelectedActor = nullptr;
+  }
+
   void Outline::Draw()
   {
     ImGui::Begin("Outline");

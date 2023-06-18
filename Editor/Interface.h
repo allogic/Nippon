@@ -14,6 +14,7 @@ namespace ark
 
   public:
 
+    virtual void Reset() = 0;
     virtual void Draw() = 0;
   };
 }

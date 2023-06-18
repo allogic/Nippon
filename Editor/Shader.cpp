@@ -1,6 +1,6 @@
 #include <Common/Debug.h>
 
-#include <Common/Utils/FileUtils.h>
+#include <Common/Utils/FsUtils.h>
 
 #include <Editor/Shader.h>
 
@@ -14,8 +14,8 @@ namespace ark
 {
   Shader::Shader(const fs::path& VertexFile, const fs::path& FragmentFile)
   {
-    std::string vertexShader = FileUtils::ReadText(VertexFile);
-    std::string fragmentShader = FileUtils::ReadText(FragmentFile);
+    std::string vertexShader = FsUtils::ReadText(VertexFile);
+    std::string fragmentShader = FsUtils::ReadText(FragmentFile);
 
     mProgram = glCreateProgram();
 

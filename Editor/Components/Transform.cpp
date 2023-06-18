@@ -29,11 +29,13 @@ namespace ark
     return model;
   }
 
-  R32V3 Transform::GetWorldPosition() const
+  R32V3 Transform::GetPosition() const
   {
-    if (mActor->GetParent())
+    Actor* parent = mActor->GetParent();
+
+    if (parent)
     {
-      return mActor->GetParent()->GetTransform()->GetWorldPosition() + mPosition;
+      return parent->GetTransform()->GetPosition() + mPosition;
     }
     else
     {
@@ -41,109 +43,54 @@ namespace ark
     }
   }
 
-  R32V3 Transform::GetWorldRotation() const
+  R32V3 Transform::GetRotation() const
   {
     return glm::degrees(mRotation);
   }
 
-  R32Q Transform::GetWorldQuaternion() const
+  R32Q Transform::GetQuaternion() const
   {
     return mRotation;
   }
 
-  R32V3 Transform::GetWorldScale() const
+  R32V3 Transform::GetScale() const
   {
     return mScale;
   }
 
-  void Transform::SetWorldPosition(const R32V3& Position)
+  void Transform::SetPosition(const R32V3& Position)
   {
     mPosition = Position;
   }
 
-  void Transform::SetWorldRotation(const R32V3& Rotation)
-  {
-    mRotation = glm::radians(Rotation);
-  }
-
-  void Transform::SetWorldScale(const R32V3& Scale)
-  {
-    mScale = Scale;
-  }
-
-  void Transform::SetLocalPosition(const R32V3& Position)
-  {
-    mPosition = Position;
-  }
-
-  void Transform::SetLocalRotation(const R32V3& Rotation)
+  void Transform::SetRotation(const R32V3& Rotation)
   {
     mRotation = glm::radians(Rotation);
 
     R32Q q = mRotation;
+
     mLocalRight = q * mWorldRight;
     mLocalUp = q * mWorldUp;
     mLocalFront = q * mWorldFront;
-
-    for (auto child : mActor->GetChildren())
-    {
-      child->GetTransform()->SetLocalRotation(GetRotation());
-    }
   }
 
-  void Transform::SetLocalScale(const R32V3& Scale)
+  void Transform::SetScale(const R32V3& Scale)
   {
     mScale = Scale;
-
-    for (auto child : mActor->GetChildren())
-    {
-      child->GetTransform()->SetLocalScale(GetScale());
-    }
   }
 
-  void Transform::AddWorldPosition(const R32V3& Position)
+  void Transform::AddPosition(const R32V3& Position)
   {
     mPosition += Position;
   }
 
-  void Transform::AddWorldRotation(const R32V3& Rotation)
+  void Transform::AddRotation(const R32V3& Rotation)
   {
     mRotation += glm::radians(Rotation);
   }
 
-  void Transform::AddWorldScale(const R32V3& Scale)
+  void Transform::AddScale(const R32V3& Scale)
   {
     mScale += Scale;
   }
-
-  void Transform::AddLocalPosition(const R32V3& Position)
-  {
-    mPosition += Position;
-  }
-
-  void Transform::AddLocalRotation(const R32V3& Rotation)
-  {
-    mRotation += glm::radians(Rotation);
-
-    R32Q q = mRotation;
-    mLocalRight = q * mWorldRight;
-    mLocalUp = q * mWorldUp;
-    mLocalFront = q * mWorldFront;
-
-    for (auto child : mActor->GetChildren())
-    {
-      child->GetTransform()->SetLocalRotation(GetRotation());
-    }
-  }
-
-  void Transform::AddLocalScale(const R32V3& Scale)
-  {
-    mScale += Scale;
-
-    for (auto child : mActor->GetChildren())
-    {
-      child->GetTransform()->SetLocalScale(GetScale());
-    }
-  }
-
 }
