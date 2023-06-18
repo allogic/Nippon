@@ -1,10 +1,11 @@
 #pragma once
 
 #include <vector>
+#include <limits>
 
 #include <Common/Types.h>
 
-#include <Editor/Header.h>
+#include <Editor/Vertex.h>
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -12,10 +13,16 @@
 
 namespace ark
 {
-  class ElementConverter
+  struct AABB
+  {
+    R32V3 Min;
+    R32V3 Max;
+  };
+
+  class Math
   {
   public:
 
-    static std::vector<U32> ToElementBuffer(const std::vector<ScrVertex>& Vertices);
+    static AABB ComputeBoundingBox(const std::vector<DefaultVertex>& Vertices);
   };
 }

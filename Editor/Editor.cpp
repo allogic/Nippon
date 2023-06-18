@@ -121,6 +121,8 @@ namespace rj = rapidjson;
 rj::Document gArchive = {};
 rj::Document gConfig = {};
 
+GLFWwindow* gGlfwContext = nullptr;
+
 ark::Scene* gScene = nullptr;
 
 ark::MainMenu* gMainMenu = {};
@@ -134,8 +136,6 @@ ark::Viewport* gViewport = {};
 ///////////////////////////////////////////////////////////
 // Locals
 ///////////////////////////////////////////////////////////
-
-static GLFWwindow* sGlfwContext = nullptr;
 
 static ark::R32 sTime = 0.0F;
 static ark::R32 sTimePrev = 0.0F;
@@ -206,13 +206,13 @@ ark::I32 main()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, 1);
 
-    sGlfwContext = glfwCreateWindow((ark::I32)sWidth, (ark::I32)sHeight, "Nippon", nullptr, nullptr);
+    gGlfwContext = glfwCreateWindow((ark::I32)sWidth, (ark::I32)sHeight, "Nippon", nullptr, nullptr);
 
-    if (sGlfwContext)
+    if (gGlfwContext)
     {
-      glfwSetWindowSizeCallback(sGlfwContext, GlfwResizeProc);
-      glfwSetCursorPosCallback(sGlfwContext, GlfwMouseProc);
-      glfwMakeContextCurrent(sGlfwContext);
+      glfwSetWindowSizeCallback(gGlfwContext, GlfwResizeProc);
+      glfwSetCursorPosCallback(gGlfwContext, GlfwMouseProc);
+      glfwMakeContextCurrent(gGlfwContext);
       glfwSwapInterval(0);
 
       if (gladLoadGL())
@@ -234,10 +234,10 @@ ark::I32 main()
         imGuiStyle.FrameBorderSize = 0.0F;
         imGuiStyle.Colors[ImGuiCol_WindowBg].w = 1.0F;
 
-        ImGui_ImplGlfw_InitForOpenGL(sGlfwContext, 1);
+        ImGui_ImplGlfw_InitForOpenGL(gGlfwContext, 1);
         ImGui_ImplOpenGL3_Init("#version 450 core");
 
-        while (!glfwWindowShouldClose(sGlfwContext))
+        while (!glfwWindowShouldClose(gGlfwContext))
         {
           sTime = (ark::R32)glfwGetTime();
           sTimeDelta = sTime - sTimePrev;
@@ -273,10 +273,10 @@ ark::I32 main()
           ImGui::UpdatePlatformWindows();
           ImGui::RenderPlatformWindowsDefault();
 
-          glfwMakeContextCurrent(sGlfwContext);
-          glfwSwapBuffers(sGlfwContext);
+          glfwMakeContextCurrent(gGlfwContext);
+          glfwSwapBuffers(gGlfwContext);
 
-          ark::Event::Poll(sGlfwContext);
+          ark::Event::Poll(gGlfwContext);
         }
 
         ImGui_ImplOpenGL3_Shutdown();
@@ -289,7 +289,7 @@ ark::I32 main()
         LOG("Failed initializing GL\n");
       }
 
-      glfwDestroyWindow(sGlfwContext);
+      glfwDestroyWindow(gGlfwContext);
       glfwTerminate();
     }
     else

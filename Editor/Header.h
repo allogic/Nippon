@@ -1,17 +1,6 @@
 #pragma once
 
-#include <string>
-#include <vector>
-#include <utility>
-#include <filesystem>
-
 #include <Common/Types.h>
-
-///////////////////////////////////////////////////////////
-// Namespaces
-///////////////////////////////////////////////////////////
-
-namespace fs = std::filesystem;
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -19,7 +8,7 @@ namespace fs = std::filesystem;
 
 namespace ark
 {
-  #pragma pack(push, 1)
+#pragma pack(push, 1)
   struct ScrHeader
   {
     U32 ScrId; // always 0x00726373
@@ -27,9 +16,9 @@ namespace ark
     U32 SubMeshCount; // for many but not all files, this is the number of submeshes.
     U32 Padding; // always zero
   };
-  #pragma pack(pop)
+#pragma pack(pop)
 
-  #pragma pack(push, 1)
+#pragma pack(push, 1)
   struct ScrTransform
   {
     I16 Unknown1;
@@ -46,17 +35,17 @@ namespace ark
     I16V3 Rotation;
     I16V3 Position;
   };
-  #pragma pack(pop)
+#pragma pack(pop)
 
-  #pragma pack(push, 1)
+#pragma pack(push, 1)
   struct ScrVertex
   {
     I16V3 Position;
     U16 Connection;
   };
-  #pragma pack(pop)
+#pragma pack(pop)
 
-  #pragma pack(push, 1)
+#pragma pack(push, 1)
   struct MdbHeader
   {
     U32 MdbId; // always 0x0062646D
@@ -65,9 +54,9 @@ namespace ark
     U16 MeshDivisions;
     U8 Padding[20];
   };
-  #pragma pack(pop)
+#pragma pack(pop)
 
-  #pragma pack(push, 1)
+#pragma pack(push, 1)
   struct MdHeader
   {
     U32 VertexOffset; // offset from this spot to vertex info
@@ -78,29 +67,39 @@ namespace ark
     U16 VertexCount; // count
     U16 TextureIndex; // file index of DDS in DDP
   };
-  #pragma pack(pop)
+#pragma pack(pop)
 
-  struct Division
+#pragma pack(push, 1)
+  struct ObjEntry
   {
-    MdHeader Header;
-    std::vector<ScrVertex> Vertices;
-    std::vector<U16V2> TextureMaps;
-    std::vector<U16V2> TextureUvs;
-    std::vector<U32> ColorWeights;
+    U8 Id; // lots of values 00-fe 
+    U8 Category; // category id - which folder it comes from
+    U8 Unknown3; // 00, 10, 20, 30, 40, 50, 60, 70, 80, 90
+    U8 Unknown4; // always 00
+    U8V3 Scale;
+    U8V3 Rotation;
+    U16V3 Position;
+    U32 Unknown5; // a lot of values, only first byte is used.
+    U32 Unknown6; // a lot of values, only first byte is used.
+    U8 Unknown7; // 00-0c
+    U8 Unknown8; // lots of values
+    U8 Unknown9; // bunch, 0*, 4* or 70 (not all values of * though)
+    U8 UnknownA; // lots of values
   };
+#pragma pack(pop)
 
-  struct Model
+#pragma pack(push, 1)
+  struct ItsEntry
   {
-    MdbHeader Header;
-    std::string Name;
-    std::vector<Division> Divisions;
+    U8 ContentId;
+    U8 Unknown1; // always 0a
+    U8 Unknown2; // always 01
+    U8 ContainerState;
+    U8V3 Scale;
+    U8V3 Rotation;
+    U8V3 Position;
+    U8 ContainerType;
+    U8 Unknowns[23];
   };
-
-  class ModelSerializer
-  {
-  public:
-
-    static std::vector<std::pair<Model, ScrTransform>> FromFile(const fs::path& File);
-    static void ToFile(const fs::path& File, const std::vector<std::pair<Model, ScrTransform>>& Objects);
-  };
+#pragma pack(pop)
 }

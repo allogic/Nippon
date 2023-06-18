@@ -5,7 +5,7 @@
 
 #include <Common/Utils/FsUtils.h>
 
-#include <Editor/Serializer/ModelSerializer.h>
+#include <Editor/Serializer/ScrSerializer.h>
 
 ///////////////////////////////////////////////////////////
 // Implementation
@@ -13,7 +13,7 @@
 
 namespace ark
 {
-  std::vector<std::pair<Model, ScrTransform>> ModelSerializer::FromFile(const fs::path& File)
+  std::vector<std::pair<Model, ScrTransform>> ScrSerializer::FromFile(const fs::path& File)
   {
     std::vector<std::pair<Model, ScrTransform>> models = {};
 
@@ -99,7 +99,7 @@ namespace ark
     return models;
   }
 
-  void ModelSerializer::ToFile(const fs::path& File, const std::vector<std::pair<Model, ScrTransform>>& Objects)
+  void ScrSerializer::ToFile(const fs::path& File, const std::vector<std::pair<Model, ScrTransform>>& Objects)
   {
     BinaryWriter binaryWriter = {};
 

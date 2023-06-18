@@ -14,4 +14,21 @@ namespace ark
   {
 
   }
+
+  void Renderable::SetVertexBuffer(const std::vector<DefaultVertex>& Verties)
+  {
+    mMesh.UploadVertices(&Verties[0], (U32)Verties.size());
+
+    mAABB = Math::ComputeBoundingBox(Verties);
+  }
+
+  void Renderable::SetElementBuffer(const std::vector<U32>& Elements)
+  {
+    mMesh.UploadElements(&Elements[0], (U32)Elements.size());
+  }
+
+  void Renderable::SetTexture(Texture2D* Texture)
+  {
+    mTexture = Texture;
+  }
 }

@@ -2,6 +2,7 @@
 #include <Common/Utils/StringUtils.h>
 #include <Common/Utils/TextureUtils.h>
 
+#include <Editor/Math.h>
 #include <Editor/Scene.h>
 #include <Editor/Texture.h>
 
@@ -23,9 +24,13 @@
 
 #include <Vendor/GLAD/glad.h>
 
+#include <Vendor/GLFW/glfw3.h>
+
 ///////////////////////////////////////////////////////////
 // Globals
 ///////////////////////////////////////////////////////////
+
+extern GLFWwindow* gGlfwContext;
 
 extern rj::Document gConfig;
 
@@ -44,15 +49,25 @@ namespace ark
     , mLevel{ Level }
     , mMapId{ StringUtils::CutFront(Region, 2) }
   {
+    std::string windowTitle = "Nippon - /" + mRegion + "/" + mLevel;
+
+    glfwSetWindowTitle(gGlfwContext, windowTitle.c_str());
+
     mLvlDir = fs::path{ gConfig["unpackDir"].GetString() } / mRegion / mLevel;
+
     mDatDir = mLvlDir / fs::path{ "r" + mMapId + mLevel + ".dat" };
+    mBinDir = mLvlDir / fs::path{ "r" + mMapId + mLevel + ".bin" };
+    mBinFDir = mLvlDir / fs::path{ "r" + mMapId + mLevel + "_f.bin" };
+    mBinGDir = mLvlDir / fs::path{ "r" + mMapId + mLevel + "_g.bin" };
+    mBinJDir = mLvlDir / fs::path{ "r" + mMapId + mLevel + "_j.bin" };
 
     mScpDir = FsUtils::SearchFileByType(mDatDir, "SCP");
     mDdpDir = FsUtils::SearchFileByType(mScpDir, "DDP");
-
+    
     mTscFile = FsUtils::SearchFileByType(mDatDir, "TSC");
     mTreFile = FsUtils::SearchFileByType(mDatDir, "TRE");
     mTatFile = FsUtils::SearchFileByType(mDatDir, "TAT");
+    mItsFile = FsUtils::SearchFileByType(mBinDir, "ITS");
 
     DeSerialize();
 
@@ -70,6 +85,12 @@ namespace ark
     {
       delete actor;
       actor = nullptr;
+    }
+
+    for (auto& texture : mTextures)
+    {
+      delete texture;
+      texture = nullptr;
     }
   }
 
@@ -142,33 +163,10 @@ namespace ark
     for (const auto& actor : mActors)
     {
       actor->Update(TimeDelta);
-
-      Transform* transform = actor->GetTransform();
-      Renderable* renderable = actor->GetComponent<Renderable>();
-
-      if (transform && renderable)
-      {
-        mDefaultRenderer.AddRenderTask(RenderTask{ transform, &renderable->GetMesh(), renderable->GetTexture() });
-      }
-
-      if (actor != mMainActor)
-      {
-        mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition() + transform->GetWorldRight(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
-        mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition() + transform->GetWorldUp(), R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
-        mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition() + transform->GetWorldFront(), R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
-
-        mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition() + transform->GetLocalRight(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
-        mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition() + transform->GetLocalUp(), R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
-        mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition() + transform->GetLocalFront(), R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
-
-        if (actor->GetParent())
-        {
-          mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition(), R32V4{ 1.0F, 1.0F, 1.0F, 1.0F });
-        }
-
-        mDebugRenderer.DebugBox(transform->GetPosition(), transform->GetScale(), R32V4{ 1.0F, 1.0F, 0.0F, 1.0F }, transform->GetQuaternion());
-      }
     }
+
+    SubmitRenderTasks();
+    DoSelectionHighlights();
   }
 
   void Scene::Render()
@@ -197,6 +195,67 @@ namespace ark
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   }
 
+  void Scene::SubmitRenderTasks()
+  {
+    for (const auto& actor : mActors)
+    {
+      Transform* transform = actor->GetTransform();
+      Renderable* renderable = actor->GetComponent<Renderable>();
+
+      if (transform && renderable)
+      {
+        mDefaultRenderer.AddRenderTask(RenderTask{ transform, &renderable->GetMesh(), renderable->GetTexture() });
+      }
+    }
+  }
+
+  void Scene::DoSelectionHighlights()
+  {
+    for (const auto& actor : mActors)
+    {
+      if (actor != mMainActor)
+      {
+        Transform* transform = actor->GetComponent<Transform>();
+        Renderable* renderable = actor->GetComponent<Renderable>();
+
+        if (transform)
+        {
+          if (actor == gOutline->GetSelectedActor())
+          {
+            mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition() + transform->GetWorldRight(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
+            mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition() + transform->GetWorldUp(), R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
+            mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition() + transform->GetWorldFront(), R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
+
+            mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition() + transform->GetLocalRight(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
+            mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition() + transform->GetLocalUp(), R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
+            mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition() + transform->GetLocalFront(), R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
+
+            for (Actor* childActor : *actor)
+            {
+              Transform* childTransform = childActor->GetComponent<Transform>();
+              Renderable* childRenderable = childActor->GetComponent<Renderable>();
+
+              if (childTransform && childRenderable)
+              {
+                mDebugRenderer.DebugLine(childTransform->GetPosition(), childTransform->GetPosition() + childTransform->GetWorldRight(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
+                mDebugRenderer.DebugLine(childTransform->GetPosition(), childTransform->GetPosition() + childTransform->GetWorldUp(), R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
+                mDebugRenderer.DebugLine(childTransform->GetPosition(), childTransform->GetPosition() + childTransform->GetWorldFront(), R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
+
+                mDebugRenderer.DebugLine(childTransform->GetPosition(), childTransform->GetPosition() + childTransform->GetLocalRight(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
+                mDebugRenderer.DebugLine(childTransform->GetPosition(), childTransform->GetPosition() + childTransform->GetLocalUp(), R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
+                mDebugRenderer.DebugLine(childTransform->GetPosition(), childTransform->GetPosition() + childTransform->GetLocalFront(), R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
+
+                const auto& aabb = childRenderable->GetAABB();
+
+                mDebugRenderer.DebugAxisAlignedBoundingBox(aabb.Min, aabb.Max, R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
   void Scene::Serialize()
   {
 
@@ -204,20 +263,22 @@ namespace ark
 
   void Scene::DeSerialize()
   {
-    auto tscObjects = ObjectSerializer::FromFile(mTscFile);
-    auto treObjects = ObjectSerializer::FromFile(mTreFile);
-    auto tatObjects = ObjectSerializer::FromFile(mTatFile);
+    auto tsc = TblSerializer::FromFile(mTscFile);
+    auto tre = TblSerializer::FromFile(mTreFile);
+    auto tat = TblSerializer::FromFile(mTatFile);
 
-    mObjects.insert(mObjects.end(), tscObjects.begin(), tscObjects.end());
-    mObjects.insert(mObjects.end(), treObjects.begin(), treObjects.end());
-    mObjects.insert(mObjects.end(), tatObjects.begin(), tatObjects.end());
+    mObjects.insert(mObjects.end(), tsc.begin(), tsc.end());
+    mObjects.insert(mObjects.end(), tre.begin(), tre.end());
+    mObjects.insert(mObjects.end(), tat.begin(), tat.end());
+
+    mIts = ItsSerializer::FromFile(mItsFile);
 
     mScrFiles = FsUtils::SearchFilesByTypeRecursive(mDatDir, "SCR");
     mDdsFiles = FsUtils::SearchFilesByTypeRecursive(mDatDir, "DDS");
 
     for (const auto& file : mScrFiles)
     {
-      auto models = ModelSerializer::FromFile(file);
+      auto models = ScrSerializer::FromFile(file);
 
       mModels.insert(mModels.end(), models.begin(), models.end());
     }

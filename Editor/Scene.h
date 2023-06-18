@@ -9,13 +9,15 @@
 
 #include <Editor/Forward.h>
 #include <Editor/Actor.h>
+#include <Editor/Header.h>
 #include <Editor/FrameBuffer.h>
 
 #include <Editor/Renderer/DebugRenderer.h>
 #include <Editor/Renderer/DefaultRenderer.h>
 
-#include <Editor/Serializer/ModelSerializer.h>
-#include <Editor/Serializer/ObjectSerializer.h>
+#include <Editor/Serializer/ScrSerializer.h>
+#include <Editor/Serializer/TblSerializer.h>
+#include <Editor/Serializer/ItsSerializer.h>
 
 #include <Vendor/rapidjson/rapidjson.h>
 
@@ -73,6 +75,9 @@ namespace ark
     void Update(R32 TimeDelta);
     void Render();
 
+    void SubmitRenderTasks();
+    void DoSelectionHighlights();
+
   private:
 
     void Serialize();
@@ -97,19 +102,27 @@ namespace ark
     std::string mMapId = "";
 
     fs::path mLvlDir = "";
+
     fs::path mDatDir = "";
+    fs::path mBinDir = "";
+    fs::path mBinFDir = "";
+    fs::path mBinGDir = "";
+    fs::path mBinJDir = "";
+
     fs::path mScpDir = "";
     fs::path mDdpDir = "";
 
     fs::path mTscFile = "";
     fs::path mTreFile = "";
     fs::path mTatFile = "";
+    fs::path mItsFile = "";
 
     std::vector<fs::path> mScrFiles = {};
     std::vector<fs::path> mDdsFiles = {};
 
-    std::vector<Object> mObjects = {};
+    std::vector<ObjEntry> mObjects = {};
     std::vector<std::pair<Model, ScrTransform>> mModels = {};
+    std::vector<ItsEntry> mIts = {};
     std::vector<Texture2D*> mTextures = {};
 
     DebugRenderer mDebugRenderer = { 65535, 65535 * 2 };

@@ -1,10 +1,11 @@
 #pragma once
 
+#include <vector>
+
 #include <Common/Types.h>
 
 #include <Editor/Vertex.h>
-
-#include <Editor/Serializer/ModelSerializer.h>
+#include <Editor/Header.h>
 
 ///////////////////////////////////////////////////////////
 // Definition
