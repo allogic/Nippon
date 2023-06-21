@@ -5,7 +5,9 @@
 #include <Editor/Math.h>
 #include <Editor/Scene.h>
 #include <Editor/Texture.h>
+#include <Editor/Math.h>
 
+#include <Editor/Actors/Box.h>
 #include <Editor/Actors/Player.h>
 
 #include <Editor/Renderer/DebugRenderer.h>
@@ -74,7 +76,7 @@ namespace ark
     mMainActor = CreateActor<Player>("Player", nullptr);
 
     ModelsToActors();
-    ObjectsToActors();
+    //ObjectsToActors(); // TODO: fix this!
   }
 
   Scene::~Scene()
@@ -156,9 +158,9 @@ namespace ark
 
   void Scene::Update(R32 TimeDelta)
   {
-    mDebugRenderer.DebugLine(R32V3{ -10000.0F, 0.0F, 0.0F }, R32V3{ 10000.0F, 0.0F, 0.0F }, R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
-    mDebugRenderer.DebugLine(R32V3{ 0.0F, -10000.0F, 0.0F }, R32V3{ 0.0F, 10000.0F, 0.0F }, R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
-    mDebugRenderer.DebugLine(R32V3{ 0.0F, 0.0F, -10000.0F }, R32V3{ 0.0F, 0.0F, 10000.0F }, R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
+    mDebugRenderer.DebugLine(R32V3{ 0.0F, 0.0F, 0.0F }, R32V3{ 1000.0F, 0.0F, 0.0F }, R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
+    mDebugRenderer.DebugLine(R32V3{ 0.0F, 0.0F, 0.0F }, R32V3{ 0.0F, 1000.0F, 0.0F }, R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
+    mDebugRenderer.DebugLine(R32V3{ 0.0F, 0.0F, 0.0F }, R32V3{ 0.0F, 0.0F, 1000.0F }, R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
 
     for (const auto& actor : mActors)
     {
@@ -166,7 +168,7 @@ namespace ark
     }
 
     SubmitRenderTasks();
-    DoSelectionHighlights();
+    DoSelectionRecursive(gOutline->GetSelectedActor());
   }
 
   void Scene::Render()
@@ -199,58 +201,40 @@ namespace ark
   {
     for (const auto& actor : mActors)
     {
-      Transform* transform = actor->GetTransform();
-      Renderable* renderable = actor->GetComponent<Renderable>();
-
-      if (transform && renderable)
+      if (actor->IsActive())
       {
-        mDefaultRenderer.AddRenderTask(RenderTask{ transform, &renderable->GetMesh(), renderable->GetTexture() });
+        Transform* transform = actor->GetTransform();
+        Renderable* renderable = actor->GetComponent<Renderable>();
+
+        if (transform && renderable)
+        {
+          mDefaultRenderer.AddRenderTask(RenderTask{ transform, &renderable->GetMesh(), renderable->GetTexture() });
+        }
       }
     }
   }
 
-  void Scene::DoSelectionHighlights()
+  void Scene::DoSelectionRecursive(Actor* Actor)
   {
-    for (const auto& actor : mActors)
+    if (Actor && Actor != mMainActor)
     {
-      if (actor != mMainActor)
+      Transform* transform = Actor->GetComponent<Transform>();
+
+      if (transform)
       {
-        Transform* transform = actor->GetComponent<Transform>();
-        Renderable* renderable = actor->GetComponent<Renderable>();
+        mDebugRenderer.DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetWorldRight(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
+        mDebugRenderer.DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetWorldUp(), R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
+        mDebugRenderer.DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetWorldFront(), R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
 
-        if (transform)
+        mDebugRenderer.DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetLocalRight(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
+        mDebugRenderer.DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetLocalUp(), R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
+        mDebugRenderer.DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetLocalFront(), R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
+
+        mDebugRenderer.DebugAxisAlignedBoundingBox(Actor->GetAABB(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
+
+        for (const auto& child : Actor->GetChildren())
         {
-          if (actor == gOutline->GetSelectedActor())
-          {
-            mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition() + transform->GetWorldRight(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
-            mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition() + transform->GetWorldUp(), R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
-            mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition() + transform->GetWorldFront(), R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
-
-            mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition() + transform->GetLocalRight(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
-            mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition() + transform->GetLocalUp(), R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
-            mDebugRenderer.DebugLine(transform->GetPosition(), transform->GetPosition() + transform->GetLocalFront(), R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
-
-            for (Actor* childActor : *actor)
-            {
-              Transform* childTransform = childActor->GetComponent<Transform>();
-              Renderable* childRenderable = childActor->GetComponent<Renderable>();
-
-              if (childTransform && childRenderable)
-              {
-                mDebugRenderer.DebugLine(childTransform->GetPosition(), childTransform->GetPosition() + childTransform->GetWorldRight(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
-                mDebugRenderer.DebugLine(childTransform->GetPosition(), childTransform->GetPosition() + childTransform->GetWorldUp(), R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
-                mDebugRenderer.DebugLine(childTransform->GetPosition(), childTransform->GetPosition() + childTransform->GetWorldFront(), R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
-
-                mDebugRenderer.DebugLine(childTransform->GetPosition(), childTransform->GetPosition() + childTransform->GetLocalRight(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
-                mDebugRenderer.DebugLine(childTransform->GetPosition(), childTransform->GetPosition() + childTransform->GetLocalUp(), R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
-                mDebugRenderer.DebugLine(childTransform->GetPosition(), childTransform->GetPosition() + childTransform->GetLocalFront(), R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
-
-                const auto& aabb = childRenderable->GetAABB();
-
-                mDebugRenderer.DebugAxisAlignedBoundingBox(aabb.Min, aabb.Max, R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
-              }
-            }
-          }
+          DoSelectionRecursive(child);
         }
       }
     }
@@ -267,9 +251,9 @@ namespace ark
     auto tre = TblSerializer::FromFile(mTreFile);
     auto tat = TblSerializer::FromFile(mTatFile);
 
-    mObjects.insert(mObjects.end(), tsc.begin(), tsc.end());
-    mObjects.insert(mObjects.end(), tre.begin(), tre.end());
-    mObjects.insert(mObjects.end(), tat.begin(), tat.end());
+    mObj.insert(mObj.end(), tsc.begin(), tsc.end());
+    mObj.insert(mObj.end(), tre.begin(), tre.end());
+    mObj.insert(mObj.end(), tat.begin(), tat.end());
 
     mIts = ItsSerializer::FromFile(mItsFile);
 
@@ -291,40 +275,48 @@ namespace ark
 
   void Scene::ModelsToActors()
   {
-    for (const auto& [model, transform] : mModels)
+    for (const auto& [model, trans] : mModels)
     {
       Actor* modelActor = CreateActor<Actor>(model.Name, nullptr);
 
-      Transform* modelTransform = modelActor->GetTransform();
+      Transform* transform = modelActor->GetTransform();
 
-      modelTransform->SetPosition(R32V3{ transform.Position.x, transform.Position.y, transform.Position.z });
-      modelTransform->SetRotation(R32V3{ transform.Rotation.x, transform.Rotation.y, transform.Rotation.z });
-      modelTransform->SetScale(R32V3{ transform.Scale.x, transform.Scale.y, transform.Scale.z });
+      transform->SetLocalPosition(R32V3{ trans.Position.x, trans.Position.y, trans.Position.z });
+      transform->SetLocalRotation(glm::degrees(R32V3{ 0.0F, trans.Rotation.y, 0.0F } / 360.0F));
+      transform->SetLocalScale(R32V3{ trans.Scale.x, trans.Scale.y, trans.Scale.z } / 100000.0F);
 
       for (const auto& division : model.Divisions)
       {
-        Actor* divisionActor = CreateActor<Actor>("Division", modelActor);
+        Actor* childActor = CreateActor<Actor>("Division", modelActor);
 
-        Renderable* divisionRenderable = divisionActor->AttachComponent<Renderable>();
+        Renderable* renderable = childActor->AttachComponent<Renderable>();
 
-        divisionRenderable->SetVertexBuffer(VertexConverter::ToVertexBuffer(division.Vertices, division.TextureMaps, division.TextureUvs, division.ColorWeights));
-        divisionRenderable->SetElementBuffer(ElementConverter::ToElementBuffer(division.Vertices));
-        divisionRenderable->SetTexture((division.Header.TextureIndex < mTextures.size()) ? mTextures[division.Header.TextureIndex] : nullptr);
+        std::vector<DefaultVertex> vertices = VertexConverter::ToVertexBuffer(division.Vertices, division.TextureMaps, division.TextureUvs, division.ColorWeights);
+        std::vector<U32> elements = ElementConverter::ToElementBuffer(division.Vertices);
+        Texture2D* texture = (division.Header.TextureIndex < mTextures.size()) ? mTextures[division.Header.TextureIndex] : nullptr;
+
+        renderable->SetVertexBuffer(vertices);
+        renderable->SetElementBuffer(elements);
+        renderable->SetTexture(texture);
+
+        AABB aabb = Math::ComputeBoundingBox(vertices, transform->GetLocalScale());
+
+        childActor->SetAABB(aabb);
       }
     }
   }
 
   void Scene::ObjectsToActors()
   {
-    for (const auto& object : mObjects)
+    for (const auto& obj : mObj)
     {
-      Actor* objectActor = CreateActor<Actor>("Object", nullptr);
+      Actor* objActor = CreateActor<Actor>("Object", nullptr);
     
-      Transform* objectTransform = objectActor->GetTransform();
-
-      objectTransform->SetPosition(R32V3{ object.Position.x, object.Position.y, object.Position.z });
-      objectTransform->SetRotation(R32V3{ object.Rotation.x, object.Rotation.y, object.Rotation.z });
-      objectTransform->SetScale(R32V3{ object.Scale.x, object.Scale.y, object.Scale.z });
+      Transform* objTransform = objActor->GetTransform();
+    
+      objTransform->SetLocalPosition(R32V3{ obj.Position.x, obj.Position.y, obj.Position.z });
+      objTransform->SetLocalRotation(R32V3{ obj.Rotation.x, obj.Rotation.y, obj.Rotation.z } / 255.0F);
+      objTransform->SetLocalScale(R32V3{ obj.Scale.x, obj.Scale.y, obj.Scale.z } / 100000.0F);
     }
   }
 }

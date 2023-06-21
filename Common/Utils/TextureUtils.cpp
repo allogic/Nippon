@@ -33,7 +33,7 @@ namespace ark
     for (U32 i = 0; i < mips; i++)
     {
       const DirectX::Image* mip = image.GetImage(i, 0, 0);
-
+    
       glCompressedTexImage2D(GL_TEXTURE_2D, (I32)i, GL_COMPRESSED_RGBA_BPTC_UNORM, (I32)mip->width, (I32)mip->height, 0, (I32)(mip->width * mip->height), mip->pixels);
     }
 

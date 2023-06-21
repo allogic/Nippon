@@ -5,6 +5,16 @@
 #include <Editor/Components/Camera.h>
 #include <Editor/Components/Transform.h>
 
+#include <Editor/Interface/Scene/Viewport.h>
+
+#include <Vendor/GLM/gtx/euler_angles.hpp>
+
+///////////////////////////////////////////////////////////
+// Globals
+///////////////////////////////////////////////////////////
+
+extern ark::Viewport* gViewport;
+
 ///////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////
@@ -20,52 +30,55 @@ namespace ark
 
   void Player::Update(R32 TimeDelta)
   {
-    R32 keyboardMovementSpeed = (Event::KeyHeld(Event::eKeyCodeLeftShift)) ? mKeyboardMovementSpeedFast : mKeyboardMovementSpeedNormal;
-
-    if (Event::KeyHeld(Event::eKeyCodeD)) GetTransform()->AddPosition(-GetTransform()->GetLocalRight() * keyboardMovementSpeed);
-    if (Event::KeyHeld(Event::eKeyCodeA)) GetTransform()->AddPosition(GetTransform()->GetLocalRight() * keyboardMovementSpeed);
-
-    if (Event::KeyHeld(Event::eKeyCodeE)) GetTransform()->AddPosition(GetTransform()->GetWorldUp() * keyboardMovementSpeed);
-    if (Event::KeyHeld(Event::eKeyCodeQ)) GetTransform()->AddPosition(-GetTransform()->GetWorldUp() * keyboardMovementSpeed);
-
-    if (Event::KeyHeld(Event::eKeyCodeW)) GetTransform()->AddPosition(GetTransform()->GetLocalFront() * keyboardMovementSpeed);
-    if (Event::KeyHeld(Event::eKeyCodeS)) GetTransform()->AddPosition(-GetTransform()->GetLocalFront() * keyboardMovementSpeed);
-
-    static R32V2 mousePositionStart;
-    static R32V2 mousePositionDelta;
-
-    if (Event::MouseDown(Event::eMouseCodeRight))
+    if (gViewport->IsFocused())
     {
-      mousePositionStart = Event::GetMousePosition();
+      R32 keyboardMovementSpeed = (Event::KeyHeld(Event::eKeyCodeLeftShift)) ? mKeyboardMovementSpeedFast : mKeyboardMovementSpeedNormal;
+
+      if (Event::KeyHeld(Event::eKeyCodeD)) GetTransform()->AddLocalPosition(GetTransform()->GetLocalRight() * keyboardMovementSpeed);
+      if (Event::KeyHeld(Event::eKeyCodeA)) GetTransform()->AddLocalPosition(-GetTransform()->GetLocalRight() * keyboardMovementSpeed);
+
+      if (Event::KeyHeld(Event::eKeyCodeE)) GetTransform()->AddLocalPosition(GetTransform()->GetWorldUp() * keyboardMovementSpeed);
+      if (Event::KeyHeld(Event::eKeyCodeQ)) GetTransform()->AddLocalPosition(-GetTransform()->GetWorldUp() * keyboardMovementSpeed);
+
+      if (Event::KeyHeld(Event::eKeyCodeW)) GetTransform()->AddLocalPosition(-GetTransform()->GetLocalFront() * keyboardMovementSpeed);
+      if (Event::KeyHeld(Event::eKeyCodeS)) GetTransform()->AddLocalPosition(GetTransform()->GetLocalFront() * keyboardMovementSpeed);
+
+      static R32V2 mousePositionStart;
+      static R32V2 mousePositionDelta;
+
+      if (Event::MouseDown(Event::eMouseCodeRight))
+      {
+        mousePositionStart = Event::GetMousePosition();
+      }
+      if (Event::MouseHeld(Event::eMouseCodeRight) && Event::MouseHeld(Event::eMouseCodeLeft))
+      {
+        mousePositionDelta = mousePositionStart - Event::GetMousePosition();
+
+        R32V3 positionOffset = {};
+
+        R32 mouseMovementSpeed = (Event::KeyHeld(Event::eKeyCodeLeftShift)) ? mMouseMovementSpeedFast : mMouseMovementSpeedNormal;
+
+        positionOffset += GetTransform()->GetLocalRight() * mousePositionDelta.x * mouseMovementSpeed;
+        positionOffset -= GetTransform()->GetWorldUp() * mousePositionDelta.y * mouseMovementSpeed;
+
+        GetTransform()->AddLocalPosition(positionOffset);
+      }
+      else if (Event::MouseHeld(Event::eMouseCodeRight))
+      {
+        mousePositionDelta = mousePositionStart - Event::GetMousePosition();
+
+        R32V3 eulerAngles = GetTransform()->GetLocalEulerAngles();
+
+        eulerAngles.x += mousePositionDelta.y * mMouseRotationSpeed;
+        eulerAngles.y += mousePositionDelta.x * mMouseRotationSpeed;
+
+        if (eulerAngles.x <= -90.0F) eulerAngles.x = -90.0F;
+        if (eulerAngles.x >= 90.0F) eulerAngles.x = 90.0F;
+
+        GetTransform()->SetLocalRotation(eulerAngles);
+      }
+
+      mousePositionStart -= mousePositionDelta * mMouseDragDamping;
     }
-    if (Event::MouseHeld(Event::eMouseCodeRight) && Event::MouseHeld(Event::eMouseCodeLeft))
-    {
-      mousePositionDelta = mousePositionStart - Event::GetMousePosition();
-
-      R32V3 worldPosition = GetTransform()->GetPosition();
-
-      R32 mouseMovementSpeed = (Event::KeyHeld(Event::eKeyCodeLeftShift)) ? mMouseMovementSpeedFast : mMouseMovementSpeedNormal;
-
-      worldPosition += GetTransform()->GetLocalRight() * mousePositionDelta.x * mouseMovementSpeed;
-      worldPosition += GetTransform()->GetWorldUp() * mousePositionDelta.y * mouseMovementSpeed;
-
-      GetTransform()->SetPosition(worldPosition);
-    }
-    else if (Event::MouseHeld(Event::eMouseCodeRight))
-    {
-      mousePositionDelta = mousePositionStart - Event::GetMousePosition();
-
-      R32V3 worldRotation = GetTransform()->GetRotation();
-
-      worldRotation.x -= mousePositionDelta.y * mMouseRotationSpeed;
-      worldRotation.y += mousePositionDelta.x * mMouseRotationSpeed;
-
-      if (worldRotation.x < -90.0F) worldRotation.x = -90.0F;
-      if (worldRotation.x > 90.0F) worldRotation.x = 90.0F;
-
-      GetTransform()->SetRotation(worldRotation);
-    }
-
-    mousePositionStart -= mousePositionDelta * mMouseDragDamping;
   }
 }

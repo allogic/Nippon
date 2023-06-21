@@ -50,12 +50,15 @@ namespace ark
     inline auto GetWidth() const { return mWidth; }
     inline auto GetHeight() const { return mHeight; }
 
-    inline const auto& GetObjects() const { return mObjects; }
+    inline const auto& GetObjects() const { return mObj; }
     inline const auto& GetModels() const { return mModels; }
     inline const auto& GetTextures() const { return mTextures; }
     inline const auto& GetActors() const { return mActors; }
 
     inline const auto& GetFrameBuffer() const { return mFrameBuffer; }
+
+    inline auto& GetDebugRenderer() { return mDebugRenderer; }
+    inline auto& GetDefaultRenderer() { return mDefaultRenderer; }
 
   public:
 
@@ -76,7 +79,7 @@ namespace ark
     void Render();
 
     void SubmitRenderTasks();
-    void DoSelectionHighlights();
+    void DoSelectionRecursive(Actor* Actor);
 
   private:
 
@@ -120,9 +123,10 @@ namespace ark
     std::vector<fs::path> mScrFiles = {};
     std::vector<fs::path> mDdsFiles = {};
 
-    std::vector<ObjEntry> mObjects = {};
-    std::vector<std::pair<Model, ScrTransform>> mModels = {};
+    std::vector<ObjEntry> mObj = {};
     std::vector<ItsEntry> mIts = {};
+
+    std::vector<std::pair<Model, ScrTransform>> mModels = {};
     std::vector<Texture2D*> mTextures = {};
 
     DebugRenderer mDebugRenderer = { 65535, 65535 * 2 };

@@ -6,22 +6,27 @@
 
 namespace ark
 {
-  AABB Math::ComputeBoundingBox(const std::vector<DefaultVertex>& Vertices)
+  AABB Math::ComputeBoundingBox(const std::vector<DefaultVertex>& Vertices, const R32V3& Scale)
   {
-    R32V3 min = {};
-    R32V3 max = {};
+    R32V3 min = Vertices[0].Position * Scale;
+    R32V3 max = Vertices[0].Position * Scale;
 
     for (const auto& vertex : Vertices)
     {
-      if (vertex.Position.x < min.x) min.x = vertex.Position.x;
-      if (vertex.Position.y < min.y) min.y = vertex.Position.y;
-      if (vertex.Position.z < min.z) min.z = vertex.Position.z;
+      R32V3 position = vertex.Position * Scale;
 
-      if (vertex.Position.x > max.x) max.x = vertex.Position.x;
-      if (vertex.Position.y > max.y) max.y = vertex.Position.y;
-      if (vertex.Position.z > max.z) max.z = vertex.Position.z;
+      if (position.x < min.x) min.x = position.x;
+      if (position.y < min.y) min.y = position.y;
+      if (position.z < min.z) min.z = position.z;
+
+      if (position.x > max.x) max.x = position.x;
+      if (position.y > max.y) max.y = position.y;
+      if (position.z > max.z) max.z = position.z;
     }
 
-    return { min, max };
+    R32V3 size = glm::abs(min - max);
+    R32V3 center = min + size / 2.0F;
+
+    return { min, max, size, center };
   }
 }

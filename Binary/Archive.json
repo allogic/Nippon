@@ -1122,7 +1122,7 @@
     },
     "items": {
         "it": {
-            "name": "",
+            "name": "Buildings?",
             "entries": {
                 "00": {
                     "name": ""
@@ -2471,7 +2471,7 @@
             }
         },
         "et": {
-            "name": "",
+            "name": "Area Specific Entities?",
             "entries": {
                 "00": {
                     "name": ""
@@ -3342,7 +3342,7 @@
             }
         },
         "us": {
-            "name": "",
+            "name": "Large Geometry",
             "entries": {
                 "00": {
                     "name": ""
@@ -4612,7 +4612,7 @@
             }
         },
         "vt": {
-            "name": "",
+            "name": "Unspecific Entities?",
             "entries": {
                 "00": {
                     "name": ""
@@ -5241,7 +5241,7 @@
             }
         },
         "wp": {
-            "name": "",
+            "name": "Weapons",
             "entries": {
                 "00": {
                     "name": ""

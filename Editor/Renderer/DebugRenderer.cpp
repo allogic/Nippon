@@ -2,6 +2,7 @@
 #include <Editor/Scene.h>
 #include <Editor/Shader.h>
 #include <Editor/Vertex.h>
+#include <Editor/Math.h>
 
 #include <Editor/Components/Camera.h>
 
@@ -32,6 +33,7 @@ namespace ark
   {
     delete mShader;
     delete mMesh;
+
     delete[] mElementBuffer;
     delete[] mVertexBuffer;
   }
@@ -65,7 +67,7 @@ namespace ark
     mElementOffset = 0;
   }
 
-  void DebugRenderer::DebugLine(R32V3 P0, R32V3 P1, R32V4 C)
+  void DebugRenderer::DebugLine(const R32V3& P0, const R32V3& P1, const R32V4& C)
   {
     mVertexBuffer[mVertexOffset + 0].Position = P0;
     mVertexBuffer[mVertexOffset + 1].Position = P1;
@@ -80,7 +82,7 @@ namespace ark
     mElementOffset += 2;
   }
 
-  void DebugRenderer::DebugBox(R32V3 P, R32V3 S, R32V4 C, R32Q R)
+  void DebugRenderer::DebugBox(const R32V3& P, const R32V3& S, const R32V4& C, const R32Q& R)
   {
     R32V3 h{ S / 2.0F };
 
@@ -136,17 +138,17 @@ namespace ark
     mElementOffset += 24;
   }
 
-  void DebugRenderer::DebugAxisAlignedBoundingBox(R32V3 Min, R32V3 Max, R32V4 C, R32Q R)
+  void DebugRenderer::DebugAxisAlignedBoundingBox(const AABB& AABB, const R32V4& C)
   {
-    mVertexBuffer[mVertexOffset + 0].Position = R * R32V3{ Min.x, Min.y, Min.z };
-    mVertexBuffer[mVertexOffset + 1].Position = R * R32V3{ Max.x, Min.y, Min.z };
-    mVertexBuffer[mVertexOffset + 2].Position = R * R32V3{ Min.x, Max.y, Min.z };
-    mVertexBuffer[mVertexOffset + 3].Position = R * R32V3{ Max.x, Max.y, Min.z };
+    mVertexBuffer[mVertexOffset + 0].Position = R32V3{ AABB.Min.x, AABB.Min.y, AABB.Min.z };
+    mVertexBuffer[mVertexOffset + 1].Position = R32V3{ AABB.Max.x, AABB.Min.y, AABB.Min.z };
+    mVertexBuffer[mVertexOffset + 2].Position = R32V3{ AABB.Min.x, AABB.Max.y, AABB.Min.z };
+    mVertexBuffer[mVertexOffset + 3].Position = R32V3{ AABB.Max.x, AABB.Max.y, AABB.Min.z };
 
-    mVertexBuffer[mVertexOffset + 4].Position = R * R32V3{ Min.x, Min.y, Max.z };
-    mVertexBuffer[mVertexOffset + 5].Position = R * R32V3{ Max.x, Min.y, Max.z };
-    mVertexBuffer[mVertexOffset + 6].Position = R * R32V3{ Min.x, Max.y, Max.z };
-    mVertexBuffer[mVertexOffset + 7].Position = R * R32V3{ Max.x, Max.y, Max.z };
+    mVertexBuffer[mVertexOffset + 4].Position = R32V3{ AABB.Min.x, AABB.Min.y, AABB.Max.z };
+    mVertexBuffer[mVertexOffset + 5].Position = R32V3{ AABB.Max.x, AABB.Min.y, AABB.Max.z };
+    mVertexBuffer[mVertexOffset + 6].Position = R32V3{ AABB.Min.x, AABB.Max.y, AABB.Max.z };
+    mVertexBuffer[mVertexOffset + 7].Position = R32V3{ AABB.Max.x, AABB.Max.y, AABB.Max.z };
 
     mVertexBuffer[mVertexOffset + 0].Color = C;
     mVertexBuffer[mVertexOffset + 1].Color = C;

@@ -9,6 +9,7 @@
 #include <Common/Types.h>
 
 #include <Editor/Forward.h>
+#include <Editor/Math.h>
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -33,20 +34,24 @@ namespace ark
 
   public:
 
+    inline auto IsActive() const { return mActive; }
     inline auto IsChild() const { return mChildren.size() == 0; }
-    inline auto HasNoParent() const { return mParent == nullptr; }
-    inline auto HasChildren() const { return mChildren.size() > 0; }
+    inline auto HasParent() const { return mParent != nullptr; }
 
     inline const auto& GetName() const { return mName; }
     inline const auto& GetComponents() const { return mComponents; }
     inline const auto& GetChildren() const { return mChildren; }
+    inline const auto& GetAABB() const { return mAABB; }
 
     inline auto GetParent() const { return mParent; }
     inline auto GetTransform() const { return mTransform; }
 
   public:
 
+    void SetActive(bool Active);
+
     inline void SetParent(Actor* Parent) { mParent = Parent; }
+    inline void SetAABB(const AABB& AABB) { mAABB = AABB; }
 
   public:
 
@@ -73,6 +78,10 @@ namespace ark
 
     Actor* mParent = nullptr;
     Transform* mTransform = nullptr;
+
+    bool mActive = true;
+
+    AABB mAABB = {};
   };
 }
 

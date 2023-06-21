@@ -34,10 +34,10 @@ namespace ark
 
   R32M4 Camera::GetViewMatrix()
   {
-    R32V3 position = mActor->GetTransform()->GetPosition();
+    R32V3 position = mActor->GetTransform()->GetWorldPosition();
     R32V3 up = mActor->GetTransform()->GetLocalUp();
     R32V3 front = mActor->GetTransform()->GetLocalFront();
 
-    return glm::lookAt(position, position + front, up);
+    return glm::lookAtLH(position, position + front, up);
   }
 }

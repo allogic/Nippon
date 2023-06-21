@@ -46,6 +46,11 @@ namespace ark
     glBindTextureUnit(Index, mTid);
   }
 
+  void Texture2D::UnMount() const
+  {
+    glBindTextureUnit(0, mTid);
+  }
+
   void Texture2D::Unbind() const
   {
     glBindTexture(GL_TEXTURE_2D, 0);

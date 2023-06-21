@@ -3,6 +3,7 @@
 #include <Editor/Components/Transform.h>
 
 #include <Vendor/GLM/gtc/matrix_transform.hpp>
+#include <Vendor/GLM/gtx/euler_angles.hpp>
 
 ///////////////////////////////////////////////////////////
 // Implementation
@@ -20,77 +21,106 @@ namespace ark
   {
     R32M4 model = glm::identity<R32M4>();
 
-    model = glm::translate(model, mPosition);
-    model = glm::rotate(model, mRotation.x, mWorldRight);
-    model = glm::rotate(model, mRotation.y, mWorldUp);
-    model = glm::rotate(model, mRotation.z, mWorldFront);
-    model = glm::scale(model, mScale);
+    R32V3 position = GetWorldPosition();
+    R32Q rotation = GetWorldRotation();
+    R32V3 scale = GetWorldScale();
+
+    model = glm::translate(model, position);
+    model *= glm::mat4_cast(rotation);
+    model = glm::scale(model, scale);
 
     return model;
   }
 
-  R32V3 Transform::GetPosition() const
+  R32V3 Transform::GetWorldPosition() const
   {
     Actor* parent = mActor->GetParent();
 
     if (parent)
     {
-      return parent->GetTransform()->GetPosition() + mPosition;
+      return parent->GetTransform()->GetWorldPosition() + GetWorldRotation() * (mLocalPosition * mLocalScale);
     }
     else
     {
-      return mPosition;
+      return mLocalPosition * mLocalScale;
     }
   }
 
-  R32V3 Transform::GetRotation() const
+  R32Q Transform::GetWorldRotation() const
   {
-    return glm::degrees(mRotation);
+    Actor* parent = mActor->GetParent();
+
+    if (parent)
+    {
+      return parent->GetTransform()->GetWorldRotation() * mLocalRotation;
+    }
+    else
+    {
+      return mLocalRotation;
+    }
   }
 
-  R32Q Transform::GetQuaternion() const
+  R32V3 Transform::GetWorldScale() const
   {
-    return mRotation;
+    Actor* parent = mActor->GetParent();
+
+    if (parent)
+    {
+      return parent->GetTransform()->GetWorldScale() * mLocalScale;
+    }
+    else
+    {
+      return mLocalScale;
+    }
   }
 
-  R32V3 Transform::GetScale() const
+  void Transform::SetLocalPosition(R32V3 Position)
   {
-    return mScale;
+    mLocalPosition = Position;
   }
 
-  void Transform::SetPosition(const R32V3& Position)
+  void Transform::SetLocalRotation(R32V3 Rotation)
   {
-    mPosition = Position;
+    mLocalEulerAngles = glm::radians(Rotation);
+
+    mLocalRotationX = glm::angleAxis(mLocalEulerAngles.x, mWorldRight);
+    mLocalRotationY = glm::angleAxis(mLocalEulerAngles.y, mWorldUp);
+    mLocalRotationZ = glm::angleAxis(mLocalEulerAngles.z, mWorldFront);
+
+    mLocalRotation = glm::normalize(mLocalRotationZ * mLocalRotationY * mLocalRotationX);
+
+    mLocalRight = glm::normalize(mLocalRotation * mWorldRight);
+    mLocalUp = glm::normalize(mLocalRotation * mWorldUp);
+    mLocalFront = glm::normalize(mLocalRotation * mWorldFront);
   }
 
-  void Transform::SetRotation(const R32V3& Rotation)
+  void Transform::SetLocalScale(R32V3 Scale)
   {
-    mRotation = glm::radians(Rotation);
-
-    R32Q q = mRotation;
-
-    mLocalRight = q * mWorldRight;
-    mLocalUp = q * mWorldUp;
-    mLocalFront = q * mWorldFront;
+    mLocalScale = Scale;
   }
 
-  void Transform::SetScale(const R32V3& Scale)
+  void Transform::AddLocalPosition(R32V3 Position)
   {
-    mScale = Scale;
+    mLocalPosition += Position;
   }
 
-  void Transform::AddPosition(const R32V3& Position)
+  void Transform::AddLocalRotation(R32V3 Rotation)
   {
-    mPosition += Position;
+    mLocalEulerAngles += glm::radians(Rotation);
+
+    mLocalRotationX = glm::angleAxis(mLocalEulerAngles.x, mWorldRight);
+    mLocalRotationY = glm::angleAxis(mLocalEulerAngles.y, mWorldUp);
+    mLocalRotationZ = glm::angleAxis(mLocalEulerAngles.z, mWorldFront);
+
+    mLocalRotation = glm::normalize(mLocalRotationZ * mLocalRotationY * mLocalRotationX);
+
+    mLocalRight = glm::normalize(mLocalRotation * mWorldRight);
+    mLocalUp = glm::normalize(mLocalRotation * mWorldUp);
+    mLocalFront = glm::normalize(mLocalRotation * mWorldFront);
   }
 
-  void Transform::AddRotation(const R32V3& Rotation)
+  void Transform::AddLocalScale(R32V3 Scale)
   {
-    mRotation += glm::radians(Rotation);
-  }
-
-  void Transform::AddScale(const R32V3& Scale)
-  {
-    mScale += Scale;
+    mLocalScale += Scale;
   }
 }

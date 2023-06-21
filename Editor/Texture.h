@@ -41,6 +41,7 @@ namespace ark
 
     void Bind() const;
     void Mount(U32 Index) const;
+    void UnMount() const;
     void Unbind() const;
 
   private:

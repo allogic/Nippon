@@ -19,13 +19,21 @@ namespace ark
 
   public:
 
-    inline const auto& GetWorldRight() const { return mWorldRight; }
-    inline const auto& GetWorldUp() const { return mWorldUp; }
-    inline const auto& GetWorldFront() const { return mWorldFront; }
+    inline auto const& GetWorldRight() const { return mWorldRight; }
+    inline auto const& GetWorldUp() const { return mWorldUp; }
+    inline auto const& GetWorldFront() const { return mWorldFront; }
 
-    inline const auto& GetLocalRight() const { return mLocalRight; }
-    inline const auto& GetLocalUp() const { return mLocalUp; }
-    inline const auto& GetLocalFront() const { return mLocalFront; }
+    inline auto const& GetLocalRight() const { return mLocalRight; }
+    inline auto const& GetLocalUp() const { return mLocalUp; }
+    inline auto const& GetLocalFront() const { return mLocalFront; }
+
+  public:
+
+    inline const auto GetLocalEulerAngles() const { return glm::degrees(mLocalEulerAngles); }
+
+    inline const auto& GetLocalPosition() const { return mLocalPosition; }
+    inline const auto& GetLocalRotation() const { return mLocalRotation; }
+    inline const auto& GetLocalScale() const { return mLocalScale; }
 
   public:
 
@@ -33,35 +41,38 @@ namespace ark
 
   public:
 
-    R32V3 GetPosition() const;
-    R32V3 GetRotation() const;
-    R32Q GetQuaternion() const;
-    R32V3 GetScale() const;
+    R32V3 GetWorldPosition() const;
+    R32Q GetWorldRotation() const;
+    R32V3 GetWorldScale() const;
 
   public:
 
-    void SetPosition(const R32V3& Position);
-    void SetRotation(const R32V3& Rotation);
-    void SetScale(const R32V3& Scale);
+    void SetLocalPosition(R32V3 Position);
+    void SetLocalRotation(R32V3 Rotation);
+    void SetLocalScale(R32V3 Scale);
 
   public:
 
-    void AddPosition(const R32V3& Position);
-    void AddRotation(const R32V3& Rotation);
-    void AddScale(const R32V3& Scale);
+    void AddLocalPosition(R32V3 Position);
+    void AddLocalRotation(R32V3 Rotation);
+    void AddLocalScale(R32V3 Scale);
 
   private:
 
     const R32V3 mWorldRight = { 1.0F, 0.0F, 0.0F };
     const R32V3 mWorldUp = { 0.0F, 1.0F, 0.0F };
-    const R32V3 mWorldFront = { 0.0F, 0.0F, 1.0F };
+    const R32V3 mWorldFront = { 0.0f, 0.0F, 1.0F };
 
     R32V3 mLocalRight = { 1.0F, 0.0F, 0.0F };
     R32V3 mLocalUp = { 0.0F, 1.0F, 0.0F };
     R32V3 mLocalFront = { 0.0F, 0.0F, 1.0F };
 
-    R32V3 mPosition = { 0.0F, 0.0F, 0.0F };
-    R32V3 mRotation = { 0.0F, 0.0F, 0.0F };
-    R32V3 mScale = { 1.0F, 1.0F, 1.0F };
+    R32V3 mLocalPosition = { 0.0F, 0.0F, 0.0F };
+    R32V3 mLocalEulerAngles = { 0.0F, 0.0F, 0.0F };
+    R32Q mLocalRotationX = { 1.0F, 0.0F, 0.0F, 0.0F };
+    R32Q mLocalRotationY = { 1.0F, 0.0F, 0.0F, 0.0F };
+    R32Q mLocalRotationZ = { 1.0F, 0.0F, 0.0F, 0.0F };
+    R32Q mLocalRotation = { 1.0F, 0.0F, 0.0F, 0.0F };
+    R32V3 mLocalScale = { 1.0F, 1.0F, 1.0F };
   };
 }

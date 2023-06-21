@@ -61,6 +61,11 @@ namespace ark
             renderTask.MeshPtr->Render(eRenderModeTriangles);
             renderTask.MeshPtr->Unbind();
 
+            if (renderTask.TexturePtr)
+            {
+              renderTask.TexturePtr->UnMount();
+            }
+
             mShader->Unbind();
           }
         }

@@ -9,7 +9,6 @@
 #include <Editor/Mesh.h>
 #include <Editor/Texture.h>
 #include <Editor/Vertex.h>
-#include <Editor/Math.h>
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -27,7 +26,6 @@ namespace ark
 
     inline const auto& GetMesh() const { return mMesh; }
     inline const auto GetTexture() const { return mTexture; }
-    inline const auto& GetAABB() const { return mAABB; }
 
   public:
 
@@ -39,7 +37,5 @@ namespace ark
 
     Mesh<DefaultVertex, U32> mMesh = {};
     Texture2D* mTexture = nullptr;
-
-    AABB mAABB = {};
   };
 }

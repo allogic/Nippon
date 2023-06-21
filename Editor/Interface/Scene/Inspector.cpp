@@ -47,22 +47,22 @@ namespace ark
           {
             ImGui::PushItemWidth(ImGui::GetWindowWidth() - ImGui::GetTreeNodeToLabelSpacing() - 80);
 
-            R32V3 position = transform->GetPosition();
-            if (ImGui::InputFloat3("Position", &position[0], "%.3F", ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue))
+            R32V3 localPosition = transform->GetLocalPosition();
+            if (ImGui::DragFloat3("Position", &localPosition[0], 0.1F, -360.0F, 360.0F, "%.3F", 1.0F))
             {
-              transform->SetPosition(position);
+              transform->SetLocalPosition(localPosition);
             }
 
-            R32V3 rotation = transform->GetRotation();
-            if (ImGui::InputFloat3("Rotation", &rotation[0], "%.3F", ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue))
+            R32V3 eulerAngles = transform->GetLocalEulerAngles();
+            if (ImGui::DragFloat3("Rotation", &eulerAngles[0], 0.1F, -360.0F, 360.0F, "%.3F", 1.0F))
             {
-              transform->SetRotation(rotation);
+              transform->SetLocalRotation(eulerAngles);
             }
 
-            R32V3 scale = transform->GetScale();
-            if (ImGui::InputFloat3("Scale", &scale[0], "%.3F", ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue))
+            R32V3 localScale = transform->GetLocalScale();
+            if (ImGui::DragFloat3("Scale", &localScale[0], 0.1F, -360.0F, 360.0F, "%.3F", 1.0F))
             {
-              transform->SetScale(scale);
+              transform->SetLocalScale(localScale);
             }
 
             ImGui::PopItemWidth();

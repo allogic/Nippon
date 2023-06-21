@@ -23,4 +23,14 @@ namespace ark
       component = nullptr;
     }
   }
+
+  void Actor::SetActive(bool Active)
+  {
+    mActive = Active;
+
+    for (auto& child : mChildren)
+    {
+      child->SetActive(mActive);
+    }
+  }
 }

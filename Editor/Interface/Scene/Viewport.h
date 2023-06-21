@@ -14,6 +14,10 @@ namespace ark
   {
   public:
 
+    inline auto IsFocused() const { return mIsFocused; }
+
+  public:
+
     virtual void Reset() override;
     virtual void Draw() override;
 
@@ -25,5 +29,7 @@ namespace ark
 
     U32 mWidth = 0;
     U32 mHeight = 0;
+
+    bool mIsFocused = false;
   };
 }

@@ -31,9 +31,9 @@ namespace ark
 
   public:
 
-    void DebugLine(R32V3 P0, R32V3 P1, R32V4 C);
-    void DebugBox(R32V3 P, R32V3 S, R32V4 C, R32Q R = {});
-    void DebugAxisAlignedBoundingBox(R32V3 Min, R32V3 Max, R32V4 C, R32Q R = {});
+    void DebugLine(const R32V3& P0, const R32V3& P1, const R32V4& C);
+    void DebugBox(const R32V3& P, const R32V3& S, const R32V4& C, const R32Q& R = {});
+    void DebugAxisAlignedBoundingBox(const AABB& AABB, const R32V4& C);
 
   private:
 

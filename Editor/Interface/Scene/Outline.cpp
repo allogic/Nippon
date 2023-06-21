@@ -32,7 +32,7 @@ namespace ark
     {
       for (auto& actor : gScene->GetActors())
       {
-        if (actor->HasNoParent())
+        if (!actor->HasParent())
         {
           DrawActorRecursive(actor);
         }
@@ -46,7 +46,7 @@ namespace ark
   {
     ImGui::PushID(Actor);
 
-    U32 flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth;
+    U32 flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_AllowItemOverlap;
 
     if (Actor == mSelectedActor) flags |= ImGuiTreeNodeFlags_Selected;
 
@@ -60,6 +60,17 @@ namespace ark
     if (ImGui::IsItemClicked(0) || ImGui::IsItemClicked(1))
     {
       mSelectedActor = Actor;
+    }
+
+    ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 15.0F);
+    if (ImGui::Button("x", ImVec2{ 15.0F, 12.0F }))
+    {
+
+    }
+    ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 35.0F);
+    if (ImGui::Button("-", ImVec2{ 15.0F, 12.0F }))
+    {
+      Actor->SetActive(!Actor->IsActive());
     }
 
     if (opened)

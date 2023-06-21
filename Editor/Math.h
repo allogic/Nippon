@@ -17,12 +17,14 @@ namespace ark
   {
     R32V3 Min;
     R32V3 Max;
+    R32V3 Size;
+    R32V3 Center;
   };
 
   class Math
   {
   public:
 
-    static AABB ComputeBoundingBox(const std::vector<DefaultVertex>& Vertices);
+    static AABB ComputeBoundingBox(const std::vector<DefaultVertex>& Vertices, const R32V3& Scale);
   };
 }

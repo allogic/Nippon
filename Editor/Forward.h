@@ -10,6 +10,7 @@ struct GLFWwindow;
 
 namespace ark
 {
+  class Box;
   class Player;
 
   class Camera;

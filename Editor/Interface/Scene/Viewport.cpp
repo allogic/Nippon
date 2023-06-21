@@ -21,7 +21,7 @@ namespace ark
 {
   void Viewport::Reset()
   {
-
+    mIsFocused = false;
   }
 
   void Viewport::Draw()
@@ -29,6 +29,8 @@ namespace ark
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0F, 0.0F });
 
     ImGui::Begin("Viewport");
+
+    mIsFocused = ImGui::IsWindowFocused();
 
     if (gScene)
     {
