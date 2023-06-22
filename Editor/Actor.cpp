@@ -1,4 +1,5 @@
 #include <Editor/Actor.h>
+#include <Editor/Scene.h>
 
 #include <Editor/Components/Transform.h>
 
@@ -8,8 +9,9 @@
 
 namespace ark
 {
-  Actor::Actor(const std::string& Name)
-    : mName{ Name }
+  Actor::Actor(Scene* Scene, const std::string& Name)
+    : mScene{ Scene }
+    , mName{ Name }
     , mTransform{ AttachComponent<Transform>() }
   {
 

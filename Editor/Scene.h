@@ -10,14 +10,11 @@
 #include <Editor/Forward.h>
 #include <Editor/Actor.h>
 #include <Editor/Header.h>
+#include <Editor/Model.h>
 #include <Editor/FrameBuffer.h>
 
 #include <Editor/Renderer/DebugRenderer.h>
 #include <Editor/Renderer/DefaultRenderer.h>
-
-#include <Editor/Serializer/ScrSerializer.h>
-#include <Editor/Serializer/TblSerializer.h>
-#include <Editor/Serializer/ItsSerializer.h>
 
 #include <Vendor/rapidjson/rapidjson.h>
 
@@ -38,32 +35,24 @@ namespace ark
   {
   public:
 
-    Scene(const std::string& Region, const std::string& Level);
-    ~Scene();
+    Scene(const std::string& Entry, const std::string& SubEntry, const std::string& Name);
+    virtual ~Scene();
 
   public:
 
-    static void Switch(const std::string& Region, const std::string& Level);
-
-  public:
-
-    inline auto GetWidth() const { return mWidth; }
-    inline auto GetHeight() const { return mHeight; }
-
-    inline const auto& GetObjects() const { return mObj; }
+    inline const auto& GetName() const { return mName; }
+    inline const auto& GetWidth() const { return mWidth; }
+    inline const auto& GetHeight() const { return mHeight; }
+    inline const auto& GetActors() const { return mActors; }
     inline const auto& GetModels() const { return mModels; }
     inline const auto& GetTextures() const { return mTextures; }
-    inline const auto& GetActors() const { return mActors; }
-
     inline const auto& GetFrameBuffer() const { return mFrameBuffer; }
+    inline const auto& GetMainActor() const { return mMainActor; }
+    inline const auto& GetMainCamera() const { return mMainCamera; }
+    inline const auto& GetViewport() const { return mViewport; }
 
     inline auto& GetDebugRenderer() { return mDebugRenderer; }
     inline auto& GetDefaultRenderer() { return mDefaultRenderer; }
-
-  public:
-
-    Actor* GetMainActor();
-    Camera* GetMainCamera();
 
   public:
 
@@ -75,62 +64,36 @@ namespace ark
   public:
 
     void Resize(U32 Width, U32 Height);
-    void Update(R32 TimeDelta);
+    void Update();
     void Render();
 
     void SubmitRenderTasks();
     void DoSelectionRecursive(Actor* Actor);
 
-  private:
+  protected:
 
-    void Serialize();
-    void DeSerialize();
+    virtual void Load() = 0;
+    virtual void Save() = 0;
 
-  private:
+  protected:
 
-    void ModelsToActors();
-    void ObjectsToActors();
+    std::string mEntry;
+    std::string mSubEntry;
+    std::string mName;
+    Viewport* mViewport;
 
-  private:
-
-    std::string mRegion;
-    std::string mLevel;
-
-    U32 mWidth = 0;
-    U32 mHeight = 0;
+    Actor* mMainActor = nullptr;
+    Camera* mMainCamera = nullptr;
 
     std::vector<Actor*> mActors = {};
-    Actor* mMainActor = nullptr;
-
-    std::string mMapId = "";
-
-    fs::path mLvlDir = "";
-
-    fs::path mDatDir = "";
-    fs::path mBinDir = "";
-    fs::path mBinFDir = "";
-    fs::path mBinGDir = "";
-    fs::path mBinJDir = "";
-
-    fs::path mScpDir = "";
-    fs::path mDdpDir = "";
-
-    fs::path mTscFile = "";
-    fs::path mTreFile = "";
-    fs::path mTatFile = "";
-    fs::path mItsFile = "";
-
-    std::vector<fs::path> mScrFiles = {};
-    std::vector<fs::path> mDdsFiles = {};
-
-    std::vector<ObjEntry> mObj = {};
-    std::vector<ItsEntry> mIts = {};
-
     std::vector<std::pair<Model, ScrTransform>> mModels = {};
     std::vector<Texture2D*> mTextures = {};
 
-    DebugRenderer mDebugRenderer = { 65535, 65535 * 2 };
-    DefaultRenderer mDefaultRenderer = {};
+    U32 mWidth = 1;
+    U32 mHeight = 1;
+
+    DebugRenderer mDebugRenderer = { this, 65535, 65535 * 2 };
+    DefaultRenderer mDefaultRenderer = { this };
 
     FrameBuffer mFrameBuffer = {};
   };
@@ -145,7 +108,7 @@ namespace ark
   template<typename A, typename ... Args>
   A* Scene::CreateActor(const std::string& Name, Actor* Parent, Args&& ... Arguments)
   {
-    auto actor = mActors.emplace_back(new A{ Name, std::forward<Args>(Arguments) ... });
+    auto actor = mActors.emplace_back(new A{ this, Name, std::forward<Args>(Arguments) ... });
     if (Parent)
     {
       actor->SetParent(Parent);

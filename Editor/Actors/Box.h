@@ -17,7 +17,7 @@ namespace ark
   {
   public:
 
-    Box(std::string const& Name);
+    Box(Scene* Scene, std::string const& Name);
 
   public:
 

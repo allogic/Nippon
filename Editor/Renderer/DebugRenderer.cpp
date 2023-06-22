@@ -9,19 +9,14 @@
 #include <Editor/Renderer/DebugRenderer.h>
 
 ///////////////////////////////////////////////////////////
-// Globals
-///////////////////////////////////////////////////////////
-
-extern ark::Scene* gScene;
-
-///////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////
 
 namespace ark
 {
-  DebugRenderer::DebugRenderer(U32 VertexBufferSize, U32 ElementBufferSize)
-    : mVertexBuffer{ new DebugVertex[VertexBufferSize] }
+  DebugRenderer::DebugRenderer(Scene* Scene, U32 VertexBufferSize, U32 ElementBufferSize)
+    : mScene{ Scene }
+    , mVertexBuffer{ new DebugVertex[VertexBufferSize] }
     , mElementBuffer{ new U32[ElementBufferSize] }
     , mMesh{ new Mesh<DebugVertex, U32> }
     , mShader{ new Shader{ "Debug.vert", "Debug.frag" } }
@@ -40,27 +35,24 @@ namespace ark
 
   void DebugRenderer::Render()
   {
-    if (gScene)
+    Camera* camera = mScene->GetMainCamera();
+
+    if (camera)
     {
-      Camera* camera = gScene->GetMainCamera();
+      mShader->Bind();
 
-      if (camera)
-      {
-        mShader->Bind();
+      mShader->SetUniformR32M4("UniformProjectionMatrix", camera->GetProjectionMatrix());
+      mShader->SetUniformR32M4("UniformViewMatrix", camera->GetViewMatrix());
 
-        mShader->SetUniformR32M4("UniformProjectionMatrix", camera->GetProjectionMatrix());
-        mShader->SetUniformR32M4("UniformViewMatrix", camera->GetViewMatrix());
+      // Clear previous entries...
 
-        // Clear previous entries...
+      mMesh->Bind();
+      mMesh->UploadVertices(mVertexBuffer, mVertexOffset);
+      mMesh->UploadElements(mElementBuffer, mElementOffset);
+      mMesh->Render(eRenderModeLines);
+      mMesh->Unbind();
 
-        mMesh->Bind();
-        mMesh->UploadVertices(mVertexBuffer, mVertexOffset);
-        mMesh->UploadElements(mElementBuffer, mElementOffset);
-        mMesh->Render(eRenderModeLines);
-        mMesh->Unbind();
-
-        mShader->Unbind();
-      }
+      mShader->Unbind();
     }
 
     mVertexOffset = 0;

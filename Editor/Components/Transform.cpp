@@ -11,8 +11,8 @@
 
 namespace ark
 {
-  Transform::Transform(Actor* Actor)
-    : Component{ Actor }
+  Transform::Transform(Scene* Scene, Actor* Actor)
+    : Component{ Scene, Actor }
   {
 
   }

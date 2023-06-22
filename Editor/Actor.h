@@ -21,7 +21,7 @@ namespace ark
   {
   public:
 
-    Actor(const std::string& Name);
+    Actor(Scene* Scene, const std::string& Name);
     virtual ~Actor();
 
   public:
@@ -70,8 +70,9 @@ namespace ark
     template<typename C>
     C* GetComponent();
 
-  private:
-
+  protected:
+    
+    Scene* mScene;
     std::string mName;
     std::vector<Actor*> mChildren;
     std::map<U64, Component*> mComponents;
@@ -98,7 +99,7 @@ namespace ark
     auto const findIt = mComponents.find(hash);
     if (findIt == mComponents.end())
     {
-      auto const [emplaceIt, inserted] = mComponents.emplace(hash, new C{ this, std::forward<Args>(Arguments) ... });
+      auto const [emplaceIt, inserted] = mComponents.emplace(hash, new C{ mScene, this, std::forward<Args>(Arguments) ... });
       return (C*)emplaceIt->second;
     }
     return (C*)findIt->second;

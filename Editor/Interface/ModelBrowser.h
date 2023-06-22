@@ -1,6 +1,8 @@
 #pragma once
 
-#include <Editor/Forward.h>
+#include <Common/Types.h>
+
+#include <Editor/Interface.h>
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -8,16 +10,11 @@
 
 namespace ark
 {
-  class Component
+  class ModelBrowser : public Interface
   {
   public:
 
-    Component(Scene* Scene, Actor* Actor);
-    virtual ~Component();
-
-  protected:
-
-    Scene* mScene;
-    Actor* mActor;
+    virtual void Reset() override;
+    virtual void Draw() override;
   };
 }

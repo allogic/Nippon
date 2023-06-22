@@ -3,7 +3,7 @@
 
 #include <Common/Utils/FsUtils.h>
 
-#include <Editor/Serializer/TblSerializer.h>
+#include <Editor/Serializer/ObjSerializer.h>
 
 ///////////////////////////////////////////////////////////
 // Implementation
@@ -11,7 +11,7 @@
 
 namespace ark
 {
-  std::vector<ObjEntry> TblSerializer::FromFile(const fs::path& File)
+  std::vector<ObjEntry> ObjSerializer::FromFile(const fs::path& File)
   {
     std::vector<ObjEntry> entries = {};
 
@@ -23,7 +23,7 @@ namespace ark
     return entries;
   }
 
-  void TblSerializer::ToFile(const fs::path& File, const std::vector<ObjEntry>& Entries)
+  void ObjSerializer::ToFile(const fs::path& File, const std::vector<ObjEntry>& Entries)
   {
     BinaryWriter binaryWriter = {};
 

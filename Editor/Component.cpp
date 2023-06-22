@@ -1,4 +1,5 @@
 #include <Editor/Component.h>
+#include <Editor/Scene.h>
 #include <Editor/Actor.h>
 
 ///////////////////////////////////////////////////////////
@@ -7,8 +8,9 @@
 
 namespace ark
 {
-  Component::Component(Actor* Actor)
-    : mActor{ Actor }
+  Component::Component(Scene* Scene, Actor* Actor)
+    : mScene{ Scene }
+    , mActor{ Actor }
   {
 
   }

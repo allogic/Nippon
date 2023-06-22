@@ -19,7 +19,7 @@ namespace fs = std::filesystem;
 
 namespace ark
 {
-  class TblSerializer
+  class ObjSerializer
   {
   public:
 

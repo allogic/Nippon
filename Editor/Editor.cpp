@@ -1,6 +1,5 @@
 #include <string>
 #include <vector>
-#include <map>
 #include <filesystem>
 
 #include <Common/Debug.h>
@@ -16,14 +15,17 @@
 #include <Editor/Components/Camera.h>
 #include <Editor/Components/Transform.h>
 
-#include <Editor/Interface/MainMenu.h>
+#include <Editor/Scenes/EntityScene.h>
+#include <Editor/Scenes/LevelScene.h>
 
-#include <Editor/Interface/Scene/Inspector.h>
-#include <Editor/Interface/Scene/ModelBrowser.h>
-#include <Editor/Interface/Scene/ObjectBrowser.h>
-#include <Editor/Interface/Scene/TextureBrowser.h>
-#include <Editor/Interface/Scene/Outline.h>
-#include <Editor/Interface/Scene/Viewport.h>
+#include <Editor/Interface/MainMenu.h>
+#include <Editor/Interface/Inspector.h>
+#include <Editor/Interface/ModelBrowser.h>
+#include <Editor/Interface/ObjectBrowser.h>
+#include <Editor/Interface/TextureBrowser.h>
+#include <Editor/Interface/EntityBrowser.h>
+#include <Editor/Interface/Outline.h>
+#include <Editor/Interface/Viewport.h>
 
 #include <Vendor/GLAD/glad.h>
 
@@ -123,15 +125,18 @@ rj::Document gConfig = {};
 
 GLFWwindow* gGlfwContext = nullptr;
 
-ark::Scene* gScene = nullptr;
+std::vector<ark::LevelScene*> gLevelScenes = {};
+std::vector<ark::EntityScene*> gEntityScenes = {};
 
-ark::MainMenu* gMainMenu = {};
-ark::Inspector* gInspector = {};
-ark::ModelBrowser* gModelBrowser = {};
-ark::ObjectBrowser* gObjectBrowser = {};
-ark::TextureBrowser* gTextureBrowser = {};
-ark::Outline* gOutline = {};
-ark::Viewport* gViewport = {};
+ark::MainMenu* gMainMenu = nullptr;
+ark::Inspector* gInspector = nullptr;
+ark::ModelBrowser* gModelBrowser = nullptr;
+ark::ObjectBrowser* gObjectBrowser = nullptr;
+ark::TextureBrowser* gTextureBrowser = nullptr;
+ark::EntityBrowser* gEntityBrowser = nullptr;
+ark::Outline* gOutline = nullptr;
+
+ark::R32 gTimeDelta = 0.0F;
 
 ///////////////////////////////////////////////////////////
 // Locals
@@ -139,7 +144,6 @@ ark::Viewport* gViewport = {};
 
 static ark::R32 sTime = 0.0F;
 static ark::R32 sTimePrev = 0.0F;
-static ark::R32 sTimeDelta = 0.0F;
 
 static const ark::U32 sWidth = 1920;
 static const ark::U32 sHeight = 1080;
@@ -193,8 +197,8 @@ ark::I32 main()
   gModelBrowser = new ark::ModelBrowser;
   gObjectBrowser = new ark::ObjectBrowser;
   gTextureBrowser = new ark::TextureBrowser;
+  gEntityBrowser = new ark::EntityBrowser;
   gOutline = new ark::Outline;
-  gViewport = new ark::Viewport;
 
   glfwSetErrorCallback(GlfwDebugProc);
 
@@ -240,17 +244,11 @@ ark::I32 main()
         while (!glfwWindowShouldClose(gGlfwContext))
         {
           sTime = (ark::R32)glfwGetTime();
-          sTimeDelta = sTime - sTimePrev;
+          gTimeDelta = sTime - sTimePrev;
           sTimePrev = sTime;
 
           glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
           glClear(GL_COLOR_BUFFER_BIT);
-
-          if (gScene)
-          {
-            gScene->Update(sTimeDelta);
-            gScene->Render();
-          }
 
           ImGui_ImplGlfw_NewFrame();
           ImGui_ImplOpenGL3_NewFrame();
@@ -263,9 +261,19 @@ ark::I32 main()
           gModelBrowser->Draw();
           gObjectBrowser->Draw();
           gTextureBrowser->Draw();
+          gEntityBrowser->Draw();
           gOutline->Draw();
-          gViewport->Draw();
           
+          for (const auto& scene : gLevelScenes)
+          {
+            scene->GetViewport()->Draw();
+          }
+
+          for (const auto& scene : gEntityScenes)
+          {
+            scene->GetViewport()->Draw();
+          }
+
           ImGui::Render();
           
           ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -307,8 +315,8 @@ ark::I32 main()
   delete gModelBrowser;
   delete gObjectBrowser;
   delete gTextureBrowser;
+  delete gEntityBrowser;
   delete gOutline;
-  delete gViewport;
 
   return 0;
 }

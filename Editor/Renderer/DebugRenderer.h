@@ -5,6 +5,7 @@
 #include <Common/Types.h>
 
 #include <Editor/Forward.h>
+#include <Editor/Math.h>
 
 ///////////////////////////////////////////////////////////
 // Namespaces
@@ -22,7 +23,7 @@ namespace ark
   {
   public:
 
-    DebugRenderer(U32 VertexBufferSize, U32 ElementBufferSize);
+    DebugRenderer(Scene* Scene, U32 VertexBufferSize, U32 ElementBufferSize);
     virtual ~DebugRenderer();
 
   public:
@@ -37,6 +38,7 @@ namespace ark
 
   private:
 
+    Scene* mScene;
     DebugVertex* mVertexBuffer;
     U32* mElementBuffer;
     Mesh<DebugVertex, U32>* mMesh;

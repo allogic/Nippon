@@ -27,10 +27,10 @@ namespace ark
   {
   public:
 
-    static void DecryptArchive(const std::string& Entry, const std::string& SubEntry);
-    static void EncryptArchive(const std::string& Entry, const std::string& SubEntry);
+    static void DecryptArchive(const std::string& Entry, const std::string& SubEntry, const std::string& Name);
+    static void EncryptArchive(const std::string& Entry, const std::string& SubEntry, const std::string& Name);
 
-    static void UnpackArchive(const std::string& Entry, const std::string& SubEntry);
-    static void RepackArchive(const std::string& Entry, const std::string& SubEntry);
+    static void UnpackArchive(const std::string& Entry, const std::string& SubEntry, const std::string& Name);
+    static void RepackArchive(const std::string& Entry, const std::string& SubEntry, const std::string& Name);
   };
 }

@@ -14,6 +14,10 @@ namespace ark
   {
   public:
 
+    Viewport(Scene* Scene);
+
+  public:
+
     inline auto IsFocused() const { return mIsFocused; }
 
   public:
@@ -26,6 +30,8 @@ namespace ark
     bool HasResized();
 
   private:
+
+    Scene* mScene;
 
     U32 mWidth = 0;
     U32 mHeight = 0;

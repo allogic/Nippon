@@ -7,26 +7,20 @@
 #include <Editor/Renderer/DebugRenderer.h>
 
 ///////////////////////////////////////////////////////////
-// Globals
-///////////////////////////////////////////////////////////
-
-extern ark::Scene* gScene;
-
-///////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////
 
 namespace ark
 {
-  Box::Box(std::string const& Name)
-    : Actor{ Name }
+  Box::Box(Scene* Scene, std::string const& Name)
+    : Actor{ Scene, Name }
   {
 
   }
 
   void Box::Update(R32 TimeDelta)
   {
-    auto& debugRenderer = gScene->GetDebugRenderer();
+    auto& debugRenderer = mScene->GetDebugRenderer();
 
     debugRenderer.DebugLine(GetTransform()->GetWorldPosition(), GetTransform()->GetWorldPosition() + GetTransform()->GetWorldRight() * 2.0F, R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
     debugRenderer.DebugLine(GetTransform()->GetWorldPosition(), GetTransform()->GetWorldPosition() + GetTransform()->GetWorldUp() * 2.0F, R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });

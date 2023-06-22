@@ -17,7 +17,7 @@ namespace ark
   {
   public:
 
-    Player(std::string const& Name);
+    Player(Scene* Scene, std::string const& Name);
 
   public:
 
@@ -33,7 +33,7 @@ namespace ark
     R32 mMouseMovementSpeedNormal = 0.005F;
     R32 mMouseMovementSpeedFast = 0.2F;
 
-    R32 mMouseRotationSpeed = 0.065F;
+    R32 mMouseRotationSpeed = 0.095F;
 
     R32 mMouseDragDamping = 0.5F;
   };

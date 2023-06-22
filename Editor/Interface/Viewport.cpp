@@ -3,15 +3,9 @@
 #include <Editor/Scene.h>
 #include <Editor/Texture.h>
 
-#include <Editor/Interface/Scene/Viewport.h>
+#include <Editor/Interface/Viewport.h>
 
 #include <Vendor/ImGui/imgui.h>
-
-///////////////////////////////////////////////////////////
-// Globals
-///////////////////////////////////////////////////////////
-
-extern ark::Scene* gScene;
 
 ///////////////////////////////////////////////////////////
 // Implementation
@@ -19,6 +13,12 @@ extern ark::Scene* gScene;
 
 namespace ark
 {
+  Viewport::Viewport(Scene* Scene)
+    : mScene{ Scene }
+  {
+
+  }
+
   void Viewport::Reset()
   {
     mIsFocused = false;
@@ -28,19 +28,22 @@ namespace ark
   {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0F, 0.0F });
 
-    ImGui::Begin("Viewport");
+    ImGui::Begin(mScene->GetName().c_str());
 
     mIsFocused = ImGui::IsWindowFocused();
 
-    if (gScene)
+    if (HasResized())
     {
-      if (HasResized())
-      {
-        gScene->Resize(mWidth, mHeight);
-      }
-
-      ImGui::Image((void*)(U64)gScene->GetFrameBuffer().GetColorTexture()->GetId(), ImVec2{ (R32)mWidth, (R32)mHeight }, ImVec2{ 0.0F, 1.0F }, ImVec2{ 1.0F, 0.0F });
+      mScene->Resize(mWidth, mHeight);
     }
+    
+    if (mIsFocused)
+    {
+      mScene->Update();
+      mScene->Render();
+    }
+
+    ImGui::Image((void*)(U64)mScene->GetFrameBuffer().GetColorTexture()->GetId(), ImVec2{ (R32)mWidth, (R32)mHeight }, ImVec2{ 0.0F, 1.0F }, ImVec2{ 1.0F, 0.0F });
 
     ImGui::End();
 

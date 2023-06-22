@@ -15,7 +15,7 @@ namespace ark
   {
   public:
 
-    Transform(Actor* Actor);
+    Transform(Scene* Scene, Actor* Actor);
 
   public:
 

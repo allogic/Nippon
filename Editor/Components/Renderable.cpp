@@ -9,8 +9,8 @@
 
 namespace ark
 {
-  Renderable::Renderable(Actor* Actor)
-    : Component{ Actor }
+  Renderable::Renderable(Scene* Scene, Actor* Actor)
+    : Component{ Scene, Actor }
   {
 
   }

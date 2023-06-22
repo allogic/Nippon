@@ -15,7 +15,7 @@ namespace ark
   {
   public:
 
-    Camera(Actor* Actor);
+    Camera(Scene* Scene, Actor* Actor);
 
   public:
 

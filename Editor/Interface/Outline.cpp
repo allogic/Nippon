@@ -3,15 +3,9 @@
 
 #include <Editor/Components/Transform.h>
 
-#include <Editor/Interface/Scene/Outline.h>
+#include <Editor/Interface/Outline.h>
 
 #include <Vendor/ImGui/imgui.h>
-
-///////////////////////////////////////////////////////////
-// Globals
-///////////////////////////////////////////////////////////
-
-extern ark::Scene* gScene;
 
 ///////////////////////////////////////////////////////////
 // Implementation
@@ -28,16 +22,16 @@ namespace ark
   {
     ImGui::Begin("Outline");
 
-    if (gScene)
-    {
-      for (auto& actor : gScene->GetActors())
-      {
-        if (!actor->HasParent())
-        {
-          DrawActorRecursive(actor);
-        }
-      }
-    }
+    //if (gScene)
+    //{
+    //  for (auto& actor : gScene->GetActors())
+    //  {
+    //    if (!actor->HasParent())
+    //    {
+    //      DrawActorRecursive(actor);
+    //    }
+    //  }
+    //}
 
     ImGui::End();
   }

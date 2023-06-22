@@ -1,6 +1,6 @@
 #pragma once
 
-#include <algorithm>
+#include <Common/Types.h>
 
 #include <Editor/Interface.h>
 
@@ -10,7 +10,7 @@
 
 namespace ark
 {
-  class TextureBrowser : public Interface
+  class EntityBrowser : public Interface
   {
   public:
 

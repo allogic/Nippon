@@ -20,7 +20,7 @@ namespace ark
   {
   public:
 
-    Renderable(Actor* Actor);
+    Renderable(Scene* Scene, Actor* Actor);
 
   public:
 

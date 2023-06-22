@@ -30,7 +30,7 @@ namespace ark
   {
   public:
 
-    DefaultRenderer();
+    DefaultRenderer(Scene* Scene);
     virtual ~DefaultRenderer();
 
   public:
@@ -43,6 +43,7 @@ namespace ark
 
   private:
 
+    Scene* mScene;
     Shader* mShader;
 
     std::queue<RenderTask> mRenderQueue = {};

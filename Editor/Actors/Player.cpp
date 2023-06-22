@@ -1,19 +1,14 @@
 #include <Editor/Event.h>
+#include <Editor/Scene.h>
 
 #include <Editor/Actors/Player.h>
 
 #include <Editor/Components/Camera.h>
 #include <Editor/Components/Transform.h>
 
-#include <Editor/Interface/Scene/Viewport.h>
+#include <Editor/Interface/Viewport.h>
 
 #include <Vendor/GLM/gtx/euler_angles.hpp>
-
-///////////////////////////////////////////////////////////
-// Globals
-///////////////////////////////////////////////////////////
-
-extern ark::Viewport* gViewport;
 
 ///////////////////////////////////////////////////////////
 // Implementation
@@ -21,8 +16,8 @@ extern ark::Viewport* gViewport;
 
 namespace ark
 {
-  Player::Player(std::string const& Name)
-    : Actor{ Name }
+  Player::Player(Scene* Scene, std::string const& Name)
+    : Actor{ Scene, Name }
     , mCamera{ AttachComponent<Camera>() }
   {
 
@@ -30,7 +25,7 @@ namespace ark
 
   void Player::Update(R32 TimeDelta)
   {
-    if (gViewport->IsFocused())
+    if (mScene->GetViewport()->IsFocused())
     {
       R32 keyboardMovementSpeed = (Event::KeyHeld(Event::eKeyCodeLeftShift)) ? mKeyboardMovementSpeedFast : mKeyboardMovementSpeedNormal;
 

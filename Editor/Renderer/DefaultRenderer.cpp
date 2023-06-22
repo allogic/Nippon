@@ -10,19 +10,14 @@
 #include <Editor/Renderer/DefaultRenderer.h>
 
 ///////////////////////////////////////////////////////////
-// Globals
-///////////////////////////////////////////////////////////
-
-extern ark::Scene* gScene;
-
-///////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////
 
 namespace ark
 {
-  DefaultRenderer::DefaultRenderer()
-    : mShader{ new Shader{ "Default.vert", "Default.frag" } }
+  DefaultRenderer::DefaultRenderer(Scene* Scene)
+    : mScene{ Scene }
+    , mShader{ new Shader{ "Default.vert", "Default.frag" } }
   {
 
   }
@@ -40,34 +35,31 @@ namespace ark
 
       if (renderTask.TransformPtr && renderTask.MeshPtr)
       {
-        if (gScene)
+        Camera* camera = mScene->GetMainCamera();
+
+        if (camera)
         {
-          Camera* camera = gScene->GetMainCamera();
+          mShader->Bind();
 
-          if (camera)
+          mShader->SetUniformR32M4("UniformProjectionMatrix", camera->GetProjectionMatrix());
+          mShader->SetUniformR32M4("UniformViewMatrix", camera->GetViewMatrix());
+          mShader->SetUniformR32M4("UniformModelMatrix", renderTask.TransformPtr->GetModelMatrix());
+
+          if (renderTask.TexturePtr)
           {
-            mShader->Bind();
-
-            mShader->SetUniformR32M4("UniformProjectionMatrix", camera->GetProjectionMatrix());
-            mShader->SetUniformR32M4("UniformViewMatrix", camera->GetViewMatrix());
-            mShader->SetUniformR32M4("UniformModelMatrix", renderTask.TransformPtr->GetModelMatrix());
-
-            if (renderTask.TexturePtr)
-            {
-              renderTask.TexturePtr->Mount(0);
-            }
-
-            renderTask.MeshPtr->Bind();
-            renderTask.MeshPtr->Render(eRenderModeTriangles);
-            renderTask.MeshPtr->Unbind();
-
-            if (renderTask.TexturePtr)
-            {
-              renderTask.TexturePtr->UnMount();
-            }
-
-            mShader->Unbind();
+            renderTask.TexturePtr->Mount(0);
           }
+
+          renderTask.MeshPtr->Bind();
+          renderTask.MeshPtr->Render(eRenderModeTriangles);
+          renderTask.MeshPtr->Unbind();
+
+          if (renderTask.TexturePtr)
+          {
+            renderTask.TexturePtr->UnMount();
+          }
+
+          mShader->Unbind();
         }
       }
 

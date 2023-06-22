@@ -7,19 +7,13 @@
 #include <Vendor/GLM/gtc/matrix_transform.hpp>
 
 ///////////////////////////////////////////////////////////
-// Globals
-///////////////////////////////////////////////////////////
-
-extern ark::Scene* gScene;
-
-///////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////
 
 namespace ark
 {
-  Camera::Camera(Actor* Actor)
-    : Component{ Actor }
+  Camera::Camera(Scene* Scene, Actor* Actor)
+    : Component{ Scene, Actor }
   {
 
   }
@@ -27,7 +21,7 @@ namespace ark
   R32M4 Camera::GetProjectionMatrix()
   {
     R32 fov = glm::radians(mFov);
-    R32 aspectRatio = (gScene) ? ((R32)gScene->GetWidth() / gScene->GetHeight()) : 1.0F;
+    R32 aspectRatio = ((R32)mScene->GetWidth() / mScene->GetHeight());
 
     return glm::perspective(fov, aspectRatio, mNear, mFar);
   }

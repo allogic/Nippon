@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Common/Types.h>
+
 #include <Editor/Interface.h>
 
 ///////////////////////////////////////////////////////////
@@ -8,7 +10,7 @@
 
 namespace ark
 {
-  class Inspector : public Interface
+  class ObjectBrowser : public Interface
   {
   public:
 

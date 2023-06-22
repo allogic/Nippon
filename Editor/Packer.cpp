@@ -31,7 +31,7 @@ namespace ark
     ".bin",
   };
 
-  void Packer::DecryptArchive(const std::string& Entry, const std::string& SubEntry)
+  void Packer::DecryptArchive(const std::string& Entry, const std::string& SubEntry, const std::string& Name)
   {
     fs::path gameDir = gConfig["gameDir"].GetString();
     fs::path dataDir = gameDir / "data_pc";
@@ -69,7 +69,7 @@ namespace ark
     }
   }
 
-  void Packer::EncryptArchive(const std::string& Entry, const std::string& SubEntry)
+  void Packer::EncryptArchive(const std::string& Entry, const std::string& SubEntry, const std::string& Name)
   {
     fs::path repackDir = gConfig["repackDir"].GetString();
     fs::path encryptDir = gConfig["encryptDir"].GetString();
@@ -106,7 +106,7 @@ namespace ark
     }
   }
 
-  void Packer::UnpackArchive(const std::string& Entry, const std::string& SubEntry)
+  void Packer::UnpackArchive(const std::string& Entry, const std::string& SubEntry, const std::string& Name)
   {
     fs::path decryptDir = gConfig["decryptDir"].GetString();
     fs::path unpackDir = gConfig["unpackDir"].GetString();
@@ -141,7 +141,7 @@ namespace ark
     }
   }
 
-  void Packer::RepackArchive(const std::string& Entry, const std::string& SubEntry)
+  void Packer::RepackArchive(const std::string& Entry, const std::string& SubEntry, const std::string& Name)
   {
     fs::path unpackDir = gConfig["unpackDir"].GetString();
     fs::path repackDir = gConfig["repackDir"].GetString();

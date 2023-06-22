@@ -23,11 +23,15 @@ namespace ark
   class DebugRenderer;
   class DefaultRenderer;
 
+  class EntityScene;
+  class LevelScene;
+
   class MainMenu;
   class Inspector;
   class ModelBrowser;
   class ObjectBrowser;
   class TextureBrowser;
+  class EntityBrowser;
   class Outline;
   class Viewport;
 
@@ -42,9 +46,9 @@ namespace ark
   template<typename V, typename E>
   class Mesh;
 
+  class Scene;
   class Math;
   class Packer;
-  class Scene;
   class Shader;
   class Texture2D;
   class RenderTexture;

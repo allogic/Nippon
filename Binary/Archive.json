@@ -365,7 +365,7 @@
             }
         }
     },
-    "characters": {
+    "entities": {
         "pl": {
             "name": "",
             "entries": {
@@ -1118,9 +1118,7 @@
                     "name": ""
                 }
             }
-        }
-    },
-    "items": {
+        },
         "it": {
             "name": "Buildings?",
             "entries": {
@@ -1737,9 +1735,7 @@
                     "name": ""
                 }
             }
-        }
-    },
-    "unknown": {
+        },
         "dr": {
             "name": "",
             "entries": {
