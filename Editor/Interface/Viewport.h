@@ -36,6 +36,7 @@ namespace ark
     U32 mWidth = 0;
     U32 mHeight = 0;
 
+    bool mIsFocusedPrev = false;
     bool mIsFocused = false;
     bool mIsOpen = true;
   };

@@ -1,5 +1,6 @@
 #include <Editor/Actor.h>
 #include <Editor/Scene.h>
+#include <Editor/SceneManager.h>
 
 #include <Editor/Components/Transform.h>
 
@@ -22,21 +23,23 @@ namespace ark
   {
     ImGui::Begin("Outline");
 
-    //if (gScene)
-    //{
-    //  for (auto& actor : gScene->GetActors())
-    //  {
-    //    if (!actor->HasParent())
-    //    {
-    //      DrawActorRecursive(actor);
-    //    }
-    //  }
-    //}
+    Scene* scene = SceneManager::GetActiveScene();
+
+    if (scene)
+    {
+      for (auto& actor : scene->GetActors())
+      {
+        if (!actor->HasParent())
+        {
+          DrawActorRecursive(scene, actor);
+        }
+      }
+    }
 
     ImGui::End();
   }
 
-  void Outline::DrawActorRecursive(Actor* Actor)
+  void Outline::DrawActorRecursive(Scene* Scene, Actor* Actor)
   {
     ImGui::PushID(Actor);
 
@@ -54,24 +57,31 @@ namespace ark
     if (ImGui::IsItemClicked(0) || ImGui::IsItemClicked(1))
     {
       mSelectedActor = Actor;
+
+      Scene->Update();
+      Scene->Render();
     }
 
     ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 15.0F);
     if (ImGui::Button("x", ImVec2{ 15.0F, 12.0F }))
     {
-
+      Scene->Update();
+      Scene->Render();
     }
     ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 35.0F);
     if (ImGui::Button("-", ImVec2{ 15.0F, 12.0F }))
     {
       Actor->SetActive(!Actor->IsActive());
+
+      Scene->Update();
+      Scene->Render();
     }
 
     if (opened)
     {
       for (auto& child : *Actor)
       {
-        DrawActorRecursive(child);
+        DrawActorRecursive(Scene, child);
       }
 
       ImGui::TreePop();

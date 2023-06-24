@@ -24,7 +24,7 @@ namespace ark
 
   private:
 
-    void DrawActorRecursive(Actor* Actor);
+    void DrawActorRecursive(Scene* Scene, Actor* Actor);
 
   private:
 

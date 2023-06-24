@@ -1,6 +1,6 @@
 #include <Editor/Texture.h>
-#include <Editor/Scene.h>
 #include <Editor/Math.h>
+#include <Editor/Scene.h>
 
 #include <Editor/Actors/Player.h>
 
@@ -8,6 +8,7 @@
 #include <Editor/Renderer/DefaultRenderer.h>
 
 #include <Editor/Interface/Viewport.h>
+#include <Editor/Interface/Outline.h>
 
 #include <Editor/Components/Camera.h>
 #include <Editor/Components/Transform.h>
@@ -18,6 +19,8 @@
 ///////////////////////////////////////////////////////////
 // Globals
 ///////////////////////////////////////////////////////////
+
+extern ark::Outline* gOutline;
 
 extern ark::R32 gTimeDelta;
 
@@ -96,7 +99,7 @@ namespace ark
     }
 
     SubmitRenderTasks();
-    DoSelectionRecursive(nullptr);
+    DoSelectionRecursive(gOutline->GetSelectedActor());
   }
 
   void Scene::Render()

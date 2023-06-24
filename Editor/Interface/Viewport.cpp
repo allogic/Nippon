@@ -20,6 +20,7 @@ namespace ark
 
   void Viewport::Reset()
   {
+    mIsFocusedPrev = false;
     mIsFocused = false;
     mIsOpen = true;
   }
@@ -39,6 +40,16 @@ namespace ark
       }
 
       mIsFocused = ImGui::IsWindowFocused();
+
+      if (mIsFocused != mIsFocusedPrev)
+      {
+        if (mIsFocused)
+        {
+          SceneManager::SetActiveScene(mScene);
+        }
+
+        mIsFocusedPrev = mIsFocused;
+      }
 
       if (mIsFocused)
       {
