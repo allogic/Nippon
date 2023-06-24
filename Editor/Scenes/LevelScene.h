@@ -21,11 +21,11 @@ namespace ark
   {
   public:
 
-    static void Create(const std::string& Entry, const std::string& SubEntry, const std::string& Name, std::vector<LevelScene*>& Scenes);
-
-  public:
-
-    LevelScene(const std::string& Entry, const std::string& SubEntry, const std::string& Name);
+    LevelScene(
+      const std::string& Entry,
+      const std::string& SubEntry,
+      const std::string& SceneName,
+      const std::string& WindowName);
     virtual ~LevelScene();
 
   public:

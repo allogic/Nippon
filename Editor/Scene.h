@@ -3,6 +3,7 @@
 #include <string>
 #include <filesystem>
 #include <vector>
+#include <map>
 #include <utility>
 
 #include <Common/Types.h>
@@ -31,16 +32,29 @@ namespace rj = rapidjson;
 
 namespace ark
 {
+  enum SceneType
+  {
+    eSceneTypeLevel,
+    eSceneTypeEntity,
+  };
+
   class Scene
   {
   public:
 
-    Scene(const std::string& Entry, const std::string& SubEntry, const std::string& Name);
+    Scene(
+      SceneType SceneType,
+      const std::string& Entry,
+      const std::string& SubEntry,
+      const std::string& SceneName,
+      const std::string& WindowName);
     virtual ~Scene();
 
   public:
 
-    inline const auto& GetName() const { return mName; }
+    inline const auto& GetSceneType() const { return mSceneType; }
+    inline const auto& GetSceneName() const { return mSceneName; }
+    inline const auto& GetWindowName() const { return mWindowName; }
     inline const auto& GetWidth() const { return mWidth; }
     inline const auto& GetHeight() const { return mHeight; }
     inline const auto& GetActors() const { return mActors; }
@@ -77,10 +91,13 @@ namespace ark
 
   protected:
 
+    SceneType mSceneType;
     std::string mEntry;
     std::string mSubEntry;
-    std::string mName;
-    Viewport* mViewport;
+    std::string mSceneName;
+    std::string mWindowName;
+
+    Viewport* mViewport = nullptr;
 
     Actor* mMainActor = nullptr;
     Camera* mMainCamera = nullptr;

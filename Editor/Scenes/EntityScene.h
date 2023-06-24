@@ -21,16 +21,20 @@ namespace ark
   {
   public:
 
-    static void Create(const std::string& Entry, const std::string& SubEntry, const std::string& Name, std::vector<EntityScene*>& Scenes);
-
-  public:
-
-    EntityScene(const std::string& Entry, const std::string& SubEntry, const std::string& Name);
+    EntityScene(
+      const std::string& Entry,
+      const std::string& SubEntry,
+      const std::string& SceneName,
+      const std::string& WindowName);
     virtual ~EntityScene();
 
   protected:
 
     virtual void Load() override;
     virtual void Save() override;
+
+  private:
+
+    void ModelsToActors();
   };
 }

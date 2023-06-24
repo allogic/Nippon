@@ -47,6 +47,7 @@ namespace ark
   class Mesh;
 
   class Scene;
+  class SceneManager;
   class Math;
   class Packer;
   class Shader;

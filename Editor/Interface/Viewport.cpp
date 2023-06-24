@@ -1,7 +1,6 @@
-#include <Common/Debug.h>
-
 #include <Editor/Scene.h>
 #include <Editor/Texture.h>
+#include <Editor/SceneManager.h>
 
 #include <Editor/Interface/Viewport.h>
 
@@ -22,31 +21,39 @@ namespace ark
   void Viewport::Reset()
   {
     mIsFocused = false;
+    mIsOpen = true;
   }
 
   void Viewport::Draw()
   {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0F, 0.0F });
+    ImGui::Begin(mScene->GetWindowName().c_str(), &mIsOpen);
 
-    ImGui::Begin(mScene->GetName().c_str());
-
-    mIsFocused = ImGui::IsWindowFocused();
-
-    if (HasResized())
+    if (mIsOpen)
     {
-      mScene->Resize(mWidth, mHeight);
-    }
-    
-    if (mIsFocused)
-    {
-      mScene->Update();
-      mScene->Render();
-    }
+      if (HasResized())
+      {
+        mScene->Resize(mWidth, mHeight);
+        mScene->Update();
+        mScene->Render();
+      }
 
-    ImGui::Image((void*)(U64)mScene->GetFrameBuffer().GetColorTexture()->GetId(), ImVec2{ (R32)mWidth, (R32)mHeight }, ImVec2{ 0.0F, 1.0F }, ImVec2{ 1.0F, 0.0F });
+      mIsFocused = ImGui::IsWindowFocused();
+
+      if (mIsFocused)
+      {
+        mScene->Update();
+        mScene->Render();
+      }
+
+      ImGui::Image((void*)(U64)mScene->GetFrameBuffer().GetColorTexture()->GetId(), ImVec2{ (R32)mWidth, (R32)mHeight }, ImVec2{ 0.0F, 1.0F }, ImVec2{ 1.0F, 0.0F });
+    }
+    else
+    {
+      SceneManager::Destroy(mScene);
+    }
 
     ImGui::End();
-
     ImGui::PopStyleVar();
   }
 

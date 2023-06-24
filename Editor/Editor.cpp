@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <map>
 #include <filesystem>
 
 #include <Common/Debug.h>
@@ -11,12 +12,10 @@
 #include <Editor/Event.h>
 #include <Editor/Interface.h>
 #include <Editor/Scene.h>
+#include <Editor/SceneManager.h>
 
 #include <Editor/Components/Camera.h>
 #include <Editor/Components/Transform.h>
-
-#include <Editor/Scenes/EntityScene.h>
-#include <Editor/Scenes/LevelScene.h>
 
 #include <Editor/Interface/MainMenu.h>
 #include <Editor/Interface/Inspector.h>
@@ -124,9 +123,6 @@ rj::Document gArchive = {};
 rj::Document gConfig = {};
 
 GLFWwindow* gGlfwContext = nullptr;
-
-std::vector<ark::LevelScene*> gLevelScenes = {};
-std::vector<ark::EntityScene*> gEntityScenes = {};
 
 ark::MainMenu* gMainMenu = nullptr;
 ark::Inspector* gInspector = nullptr;
@@ -264,15 +260,7 @@ ark::I32 main()
           gEntityBrowser->Draw();
           gOutline->Draw();
           
-          for (const auto& scene : gLevelScenes)
-          {
-            scene->GetViewport()->Draw();
-          }
-
-          for (const auto& scene : gEntityScenes)
-          {
-            scene->GetViewport()->Draw();
-          }
+          ark::SceneManager::DrawAllViewports();
 
           ImGui::Render();
           

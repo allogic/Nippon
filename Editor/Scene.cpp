@@ -27,12 +27,20 @@ extern ark::R32 gTimeDelta;
 
 namespace ark
 {
-  Scene::Scene(const std::string& Entry, const std::string& SubEntry, const std::string& Name)
-    : mEntry{ Entry }
+  Scene::Scene(
+    SceneType SceneType,
+    const std::string& Entry,
+    const std::string& SubEntry,
+    const std::string& SceneName,
+    const std::string& WindowName)
+    : mSceneType{ SceneType }
+    , mEntry{ Entry }
     , mSubEntry{ SubEntry }
-    , mName{ "/" + Entry + "/" + SubEntry + " - " + Name }
-    , mViewport{ new Viewport{ this } }
+    , mSceneName{ SceneName }
+    , mWindowName{ WindowName }
   {
+    mViewport = new Viewport{ this };
+
     mMainActor = CreateActor<Player>("Player", nullptr);
     mMainCamera = mMainActor->GetComponent<Camera>();
   }

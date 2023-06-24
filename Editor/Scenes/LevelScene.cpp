@@ -25,19 +25,20 @@
 
 extern rj::Document gConfig;
 
+extern std::map<std::string, ark::LevelScene*> gLevelScenes;
+
 ///////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////
 
 namespace ark
 {
-  void LevelScene::Create(const std::string& Entry, const std::string& SubEntry, const std::string& Name, std::vector<LevelScene*>& Scenes)
-  {
-    Scenes.emplace_back(new LevelScene{ Entry, SubEntry, Name });
-  }
-
-  LevelScene::LevelScene(const std::string& Entry, const std::string& SubEntry, const std::string& Name)
-    : Scene{ Entry, SubEntry, Name }
+  LevelScene::LevelScene(
+    const std::string& Entry,
+    const std::string& SubEntry,
+    const std::string& SceneName,
+    const std::string& WindowName)
+    : Scene{ eSceneTypeLevel, Entry, SubEntry, SceneName, WindowName }
   {
     Load();
 

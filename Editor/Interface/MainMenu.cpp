@@ -2,9 +2,7 @@
 
 #include <Editor/Packer.h>
 #include <Editor/Integrity.h>
-
-#include <Editor/Scenes/EntityScene.h>
-#include <Editor/Scenes/LevelScene.h>
+#include <Editor/SceneManager.h>
 
 #include <Editor/Interface/MainMenu.h>
 
@@ -13,9 +11,6 @@
 ///////////////////////////////////////////////////////////
 
 extern rj::Document gArchive;
-
-extern std::vector<ark::LevelScene*> gLevelScenes;
-extern std::vector<ark::EntityScene*> gEntityScenes;
 
 ///////////////////////////////////////////////////////////
 // Implementation
@@ -38,8 +33,8 @@ namespace ark
   {
     if (ImGui::BeginMenu("Scene"))
     {
-      DrawMenuTree("Entities", gArchive["entities"], EntityScene::Create, gEntityScenes);
-      DrawMenuTree("Regions", gArchive["regions"], LevelScene::Create, gLevelScenes);
+      DrawMenuTree("Entities", gArchive["entities"], SceneManager::CreateEntity);
+      DrawMenuTree("Regions", gArchive["regions"], SceneManager::CreateLevel);
 
       ImGui::EndMenu();
     }
