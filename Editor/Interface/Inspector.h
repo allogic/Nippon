@@ -1,5 +1,7 @@
 #pragma once
 
+#include <limits>
+
 #include <Common/Types.h>
 
 #include <Editor/Interface.h>

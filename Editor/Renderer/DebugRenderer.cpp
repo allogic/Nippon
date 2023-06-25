@@ -44,11 +44,11 @@ namespace ark
       mShader->SetUniformR32M4("UniformProjectionMatrix", camera->GetProjectionMatrix());
       mShader->SetUniformR32M4("UniformViewMatrix", camera->GetViewMatrix());
 
-      // Clear previous entries...
+      // TODO: Clear previous entries..
 
       mMesh->Bind();
-      mMesh->UploadVertices(mVertexBuffer, mVertexOffset);
-      mMesh->UploadElements(mElementBuffer, mElementOffset);
+      mMesh->SetVertices(mVertexBuffer, mVertexOffset);
+      mMesh->SetElements(mElementBuffer, mElementOffset);
       mMesh->Render(eRenderModeLines);
       mMesh->Unbind();
 

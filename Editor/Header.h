@@ -38,10 +38,86 @@ namespace ark
 #pragma pack(pop)
 
 #pragma pack(push, 1)
+  struct MdTransform
+  {
+    I16 Unknown1;
+    I16 Unknown2;
+    U32 Unknown3;
+    R32V3 Scale;
+    R32V3 Rotation;
+    R32V3 Position;
+    U8 Padding[20];
+  };
+#pragma pack(pop)
+
+#pragma pack(push, 1)
   struct ScrVertex
   {
     I16V3 Position;
     U16 Connection;
+  };
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+  struct ScrTextureMap
+  {
+    U16 U;
+    U16 V;
+  };
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+  struct ScrUv
+  {
+    U16 U;
+    U16 V;
+  };
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+  struct ScrColorWeight
+  {
+    U8 R;
+    U8 G;
+    U8 B;
+    U8 A;
+  };
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+  struct MdVertex
+  {
+    R32V3 Position;
+    U16 Connection;
+    U16 Unknown1;
+  };
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+  struct MdTextureMap
+  {
+    U16 U;
+    U16 V;
+  };
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+  struct MdUv
+  {
+    U16 U;
+    U16 V;
+    U16 Unknown1;
+    U16 Unknown2;
+  };
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+  struct MdColorWeight
+  {
+    U8 R;
+    U8 G;
+    U8 B;
+    U8 A;
   };
 #pragma pack(pop)
 

@@ -15,18 +15,15 @@ namespace ark
 
   }
 
-  void Renderable::SetVertexBuffer(const std::vector<DefaultVertex>& Verties)
+  void Renderable::LocalToRemote()
   {
-    mMesh.UploadVertices(&Verties[0], (U32)Verties.size());
+    mMesh.SetVertices(&mVertexBuffer[0], (U32)mVertexBuffer.size());
+    mMesh.SetElements(&mElementBuffer[0], (U32)mElementBuffer.size());
   }
 
-  void Renderable::SetElementBuffer(const std::vector<U32>& Elements)
+  void Renderable::RemoteToLocal()
   {
-    mMesh.UploadElements(&Elements[0], (U32)Elements.size());
-  }
-
-  void Renderable::SetTexture(Texture2D* Texture)
-  {
-    mTexture = Texture;
+    mMesh.GetVertices(&mVertexBuffer[0], (U32)mVertexBuffer.size());
+    mMesh.GetElements(&mElementBuffer[0], (U32)mElementBuffer.size());
   }
 }

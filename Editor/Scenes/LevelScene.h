@@ -30,6 +30,7 @@ namespace ark
 
   public:
 
+    inline const auto& GetModels() const { return mModels; }
     inline const auto& GetObjects() const { return mObjects; }
 
   protected:
@@ -44,6 +45,7 @@ namespace ark
 
   private:
 
+    std::vector<std::pair<ScrModel, ScrTransform>> mModels = {};
     std::vector<ObjEntry> mObjects = {};
   };
 }

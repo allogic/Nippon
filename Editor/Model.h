@@ -13,19 +13,35 @@
 
 namespace ark
 {
-  struct Division
+  struct ScrDivision
   {
     MdHeader Header;
     std::vector<ScrVertex> Vertices;
-    std::vector<U16V2> TextureMaps;
-    std::vector<U16V2> TextureUvs;
-    std::vector<U32> ColorWeights;
+    std::vector<ScrTextureMap> TextureMaps;
+    std::vector<ScrUv> TextureUvs;
+    std::vector<ScrColorWeight> ColorWeights;
   };
 
-  struct Model
+  struct MdDivision
+  {
+    MdHeader Header;
+    std::vector<MdVertex> Vertices;
+    std::vector<MdTextureMap> TextureMaps;
+    std::vector<MdUv> TextureUvs;
+    std::vector<MdColorWeight> ColorWeights;
+  };
+
+  struct ScrModel
   {
     MdbHeader Header;
     std::string Name;
-    std::vector<Division> Divisions;
+    std::vector<ScrDivision> Divisions;
+  };
+
+  struct MdModel
+  {
+    MdbHeader Header;
+    std::string Name;
+    std::vector<MdDivision> Divisions;
   };
 }

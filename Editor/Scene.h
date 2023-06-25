@@ -58,7 +58,6 @@ namespace ark
     inline const auto& GetWidth() const { return mWidth; }
     inline const auto& GetHeight() const { return mHeight; }
     inline const auto& GetActors() const { return mActors; }
-    inline const auto& GetModels() const { return mModels; }
     inline const auto& GetTextures() const { return mTextures; }
     inline const auto& GetFrameBuffer() const { return mFrameBuffer; }
     inline const auto& GetMainActor() const { return mMainActor; }
@@ -103,7 +102,6 @@ namespace ark
     Camera* mMainCamera = nullptr;
 
     std::vector<Actor*> mActors = {};
-    std::vector<std::pair<Model, ScrTransform>> mModels = {};
     std::vector<Texture2D*> mTextures = {};
 
     U32 mWidth = 1;

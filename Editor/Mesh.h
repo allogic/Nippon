@@ -16,8 +16,10 @@ namespace ark
 {
   enum RenderMode
   {
+    eRenderModePoints = 0,
     eRenderModeLines = 1,
     eRenderModeTriangles = 4,
+    eRenderModeTriangleStrip = 5,
   };
 
   template<typename V, typename E>
@@ -36,8 +38,11 @@ namespace ark
 
   public:
 
-    void UploadVertices(const V* VertexBuffer, U32 VertexBufferSize);
-    void UploadElements(const E* ElementBuffer, U32 ElementBufferSize);
+    void GetVertices(V* VertexBuffer, U32 VertexBufferSize);
+    void GetElements(E* ElementBuffer, U32 ElementBufferSize);
+
+    void SetVertices(const V* VertexBuffer, U32 VertexBufferSize);
+    void SetElements(const E* ElementBuffer, U32 ElementBufferSize);
 
   private:
 
@@ -79,7 +84,7 @@ namespace ark
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(DefaultVertex), (void*)(0));
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(DefaultVertex), (void*)(sizeof(R32V3)));
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(DefaultVertex), (void*)(sizeof(R32V3) + sizeof(R32V2)));
-        glVertexAttribPointer(3, 1, GL_UNSIGNED_INT, GL_FALSE, sizeof(DefaultVertex), (void*)(sizeof(R32V3) + sizeof(R32V2) + sizeof(R32V2)));
+        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(DefaultVertex), (void*)(sizeof(R32V3) + sizeof(R32V2) + sizeof(R32V2)));
         break;
       }
       case VertexType::eVertexTypeDebug:
@@ -116,6 +121,7 @@ namespace ark
   template<typename V, typename E>
   void Mesh<V, E>::Render(RenderMode renderMode) const
   {
+    glPointSize(5);
     glDrawElements(renderMode, mElementSize, GL_UNSIGNED_INT, NULL);
   }
 
@@ -126,14 +132,28 @@ namespace ark
   }
 
   template<typename V, typename E>
-  void Mesh<V, E>::UploadVertices(const V* VertexBuffer, U32 VertexBufferSize)
+  void Mesh<V, E>::GetVertices(V* VertexBuffer, U32 VertexBufferSize)
+  {
+    glBindBuffer(GL_ARRAY_BUFFER, mVbo);
+    glGetBufferSubData(GL_ARRAY_BUFFER, 0, VertexBufferSize * sizeof(V), VertexBuffer);
+  }
+
+  template<typename V, typename E>
+  void Mesh<V, E>::GetElements(E* ElementBuffer, U32 ElementBufferSize)
+  {
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mEbo);
+    glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, ElementBufferSize * sizeof(E), ElementBuffer);
+  }
+
+  template<typename V, typename E>
+  void Mesh<V, E>::SetVertices(const V* VertexBuffer, U32 VertexBufferSize)
   {
     glBindBuffer(GL_ARRAY_BUFFER, mVbo);
     glBufferData(GL_ARRAY_BUFFER, VertexBufferSize * sizeof(V), VertexBuffer, GL_STATIC_READ | GL_STATIC_DRAW);
   }
 
   template<typename V, typename E>
-  void Mesh<V, E>::UploadElements(const E* ElementBuffer, U32 ElementBufferSize)
+  void Mesh<V, E>::SetElements(const E* ElementBuffer, U32 ElementBufferSize)
   {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mEbo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, ElementBufferSize * sizeof(E), ElementBuffer, GL_STATIC_READ | GL_STATIC_DRAW);

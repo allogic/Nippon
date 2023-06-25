@@ -17,6 +17,7 @@ namespace ark
   {
   public:
 
-    static std::vector<DefaultVertex> ToVertexBuffer(const std::vector<ScrVertex>& Vertices, const std::vector<U16V2>& TextureMaps, const std::vector<U16V2>& TextureUvs, const std::vector<U32>& ColorWeights);
+    static std::vector<DefaultVertex> ToVertexBuffer(const std::vector<ScrVertex>& Vertices, const std::vector<ScrTextureMap>& TextureMaps, const std::vector<ScrUv>& TextureUvs, const std::vector<ScrColorWeight>& ColorWeights);
+    static std::vector<DefaultVertex> ToVertexBuffer(const std::vector<MdVertex>& Vertices, const std::vector<MdTextureMap>& TextureMaps, const std::vector<MdUv>& TextureUvs, const std::vector<MdColorWeight>& ColorWeights);
   };
 }

@@ -12,7 +12,7 @@
 
 #include <Editor/Interface/Outline.h>
 
-#include <Editor/Serializer/ScrSerializer.h>
+#include <Editor/Serializer/MdSerializer.h>
 
 #include <Vendor/rapidjson/document.h>
 
@@ -58,7 +58,7 @@ namespace ark
 
     auto ddsFiles = FsUtils::SearchFilesByTypeRecursive(datDir, "DDS");
 
-    auto models = ScrSerializer::FromFile(mdFile);
+    auto models = MdSerializer::FromFile(mdFile);
 
     mModels.insert(mModels.end(), models.begin(), models.end());
 
@@ -82,9 +82,8 @@ namespace ark
       Transform* transform = modelActor->GetTransform();
 
       transform->SetLocalPosition(R32V3{ trans.Position.x, trans.Position.y, trans.Position.z });
-      transform->SetLocalRotation(glm::degrees(R32V3{ 0.0F, trans.Rotation.y, 0.0F } / 360.0F));
-      //transform->SetLocalScale(R32V3{ trans.Scale.x, trans.Scale.y, trans.Scale.z });
-      transform->SetLocalScale(R32V3{ 1.0F, 1.0F, 1.0F });
+      transform->SetLocalRotation(glm::degrees(R32V3{ trans.Rotation.x, trans.Rotation.y, trans.Rotation.z } / 360.0F));
+      transform->SetLocalScale(R32V3{ trans.Scale.x, trans.Scale.y, trans.Scale.z });
 
       for (const auto& division : model.Divisions)
       {
@@ -98,6 +97,7 @@ namespace ark
 
         renderable->SetVertexBuffer(vertices);
         renderable->SetElementBuffer(elements);
+        renderable->LocalToRemote();
         renderable->SetTexture(texture);
 
         AABB aabb = Math::ComputeBoundingBox(vertices, transform->GetLocalScale());

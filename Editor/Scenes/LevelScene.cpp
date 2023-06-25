@@ -100,7 +100,7 @@ namespace ark
       Transform* transform = modelActor->GetTransform();
 
       transform->SetLocalPosition(R32V3{ trans.Position.x, trans.Position.y, trans.Position.z });
-      transform->SetLocalRotation(glm::degrees(R32V3{ 0.0F, trans.Rotation.y, 0.0F } / 360.0F));
+      transform->SetLocalRotation(glm::degrees(R32V3{ trans.Rotation.x, trans.Rotation.y, trans.Rotation.z } / 360.0F));
       transform->SetLocalScale(R32V3{ trans.Scale.x, trans.Scale.y, trans.Scale.z } / 100000.0F);
 
       for (const auto& division : model.Divisions)
@@ -115,6 +115,7 @@ namespace ark
 
         renderable->SetVertexBuffer(vertices);
         renderable->SetElementBuffer(elements);
+        renderable->LocalToRemote();
         renderable->SetTexture(texture);
 
         AABB aabb = Math::ComputeBoundingBox(vertices, transform->GetLocalScale());

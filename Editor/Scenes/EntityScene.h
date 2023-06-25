@@ -28,6 +28,10 @@ namespace ark
       const std::string& WindowName);
     virtual ~EntityScene();
 
+  public:
+
+    inline const auto& GetModels() const { return mModels; }
+
   protected:
 
     virtual void Load() override;
@@ -36,5 +40,9 @@ namespace ark
   private:
 
     void ModelsToActors();
+
+  private:
+
+    std::vector<std::pair<MdModel, MdTransform>> mModels = {};
   };
 }

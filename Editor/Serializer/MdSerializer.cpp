@@ -5,7 +5,7 @@
 
 #include <Common/Utils/FsUtils.h>
 
-#include <Editor/Serializer/ScrSerializer.h>
+#include <Editor/Serializer/MdSerializer.h>
 
 ///////////////////////////////////////////////////////////
 // Implementation
@@ -13,9 +13,9 @@
 
 namespace ark
 {
-  std::vector<std::pair<ScrModel, ScrTransform>> ScrSerializer::FromFile(const fs::path& File)
+  std::vector<std::pair<MdModel, MdTransform>> MdSerializer::FromFile(const fs::path& File)
   {
-    std::vector<std::pair<ScrModel, ScrTransform>> models = {};
+    std::vector<std::pair<MdModel, MdTransform>> models = {};
 
     U16 index = 0;
     std::string name = "";
@@ -35,7 +35,7 @@ namespace ark
 
     for (U32 i = 0; i < scrHeader.SubMeshCount; i++)
     {
-      ScrModel& model = models[i].first;
+      MdModel& model = models[i].first;
 
       U64 mdbStart = binaryReader.GetPosition();
 
@@ -50,36 +50,36 @@ namespace ark
 
         for (U16 j = 0; j < model.Header.MeshDivisions; j++)
         {
-          ScrDivision& division = model.Divisions[j];
+          MdDivision& division = model.Divisions[j];
 
           binaryReader.SeekAbsolute(mdbStart + divisionOffsets[j]);
 
           U64 mdStart = binaryReader.GetPosition();
 
           division.Header = binaryReader.Read<MdHeader>();
-          
+
           if (division.Header.VertexOffset != 0)
           {
             binaryReader.SeekAbsolute(mdStart + division.Header.VertexOffset);
-            binaryReader.Read<ScrVertex>(division.Vertices, division.Header.VertexCount);
+            binaryReader.Read<MdVertex>(division.Vertices, division.Header.VertexCount);
           }
 
           if (division.Header.TextureMapOffset != 0)
           {
             binaryReader.SeekAbsolute(mdStart + division.Header.TextureMapOffset);
-            binaryReader.Read<ScrTextureMap>(division.TextureMaps, division.Header.VertexCount);
+            binaryReader.Read<MdTextureMap>(division.TextureMaps, division.Header.VertexCount);
           }
 
           if (division.Header.TextureUvOffset != 0)
           {
             binaryReader.SeekAbsolute(mdStart + division.Header.TextureUvOffset);
-            binaryReader.Read<ScrUv>(division.TextureUvs, division.Header.VertexCount);
+            binaryReader.Read<MdUv>(division.TextureUvs, division.Header.VertexCount);
           }
 
           if (division.Header.ColorWeightOffset != 0)
           {
             binaryReader.SeekAbsolute(mdStart + division.Header.ColorWeightOffset);
-            binaryReader.Read<ScrColorWeight>(division.ColorWeights, division.Header.VertexCount);
+            binaryReader.Read<MdColorWeight>(division.ColorWeights, division.Header.VertexCount);
           }
         }
       }
@@ -89,21 +89,21 @@ namespace ark
 
     for (U32 i = 0; i < scrHeader.SubMeshCount; i++)
     {
-      ScrTransform& transform = models[i].second;
+      MdTransform& transform = models[i].second;
 
       binaryReader.SeekAbsolute(transformOffsets[i]);
 
-      transform = binaryReader.Read<ScrTransform>();
+      transform = binaryReader.Read<MdTransform>();
     }
 
     return models;
   }
 
-  void ScrSerializer::ToFile(const fs::path& File, const std::vector<std::pair<ScrModel, ScrTransform>>& Objects)
+  void MdSerializer::ToFile(const fs::path& File, const std::vector<std::pair<MdModel, MdTransform>>& Objects)
   {
     BinaryWriter binaryWriter = {};
 
-    
+
 
     FsUtils::WriteBinary(File, binaryWriter.GetBytes());
   }

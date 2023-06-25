@@ -22,7 +22,7 @@ namespace ark
     R32V3 Position;
     R32V2 TextureMap;
     R32V2 TextureUv;
-    U32 ColorWeight;
+    R32V4 ColorWeight;
   };
 #pragma pack(pop)
 

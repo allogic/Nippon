@@ -7,7 +7,7 @@
 layout (location = 0) in vec3 InputPosition;
 layout (location = 1) in vec2 InputTextureMap;
 layout (location = 2) in vec2 InputTextureUv;
-layout (location = 3) in uint InputColorWeight;
+layout (location = 3) in vec4 InputColorWeight;
 
 ///////////////////////////////////////////////////////////
 // Vertex Outputs
