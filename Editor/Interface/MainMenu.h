@@ -31,7 +31,7 @@ namespace ark
 
   private:
 
-    void DrawMapMenu();
+    void DrawSceneMenu();
     void DrawPackerMenu();
     void DrawIntegrityMenu();
 

@@ -22,22 +22,17 @@ namespace ark
   {
     ImGui::BeginMainMenuBar();
 
-    DrawMapMenu();
+    DrawSceneMenu();
     DrawPackerMenu();
     DrawIntegrityMenu();
 
     ImGui::EndMainMenuBar();
   }
 
-  void MainMenu::DrawMapMenu()
+  void MainMenu::DrawSceneMenu()
   {
-    if (ImGui::BeginMenu("Scene"))
-    {
-      DrawMenuTree("Entities", gArchive["entities"], SceneManager::CreateEntity);
-      DrawMenuTree("Regions", gArchive["regions"], SceneManager::CreateLevel);
-
-      ImGui::EndMenu();
-    }
+    DrawMenuTree("Levels", gArchive["regions"], SceneManager::CreateLevel);
+    DrawMenuTree("Entities", gArchive["entities"], SceneManager::CreateEntity);
   }
 
   void MainMenu::DrawPackerMenu()
