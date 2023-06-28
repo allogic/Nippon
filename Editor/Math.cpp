@@ -6,6 +6,11 @@
 
 namespace ark
 {
+  R32 Math::Remap(R32 Value, R32 L0, R32 H0, R32 L1, R32 H1)
+  {
+    return L1 + (Value - L0) * (H1 - L1) / (H0 - L0);
+  }
+
   AABB Math::ComputeBoundingBox(const std::vector<DefaultVertex>& Vertices, const R32V3& Scale)
   {
     R32V3 min = Vertices[0].Position * Scale;

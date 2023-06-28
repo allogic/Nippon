@@ -39,7 +39,10 @@ namespace ark
   public:
 
     void SetUniformR32(const std::string& Name, R32 Value) const;
-    void SetUniformR32M4(const std::string& Name, R32M4 Value) const;
+    void SetUniformR32V2(const std::string& Name, const R32V2& Value) const;
+    void SetUniformR32V3(const std::string& Name, const R32V3& Value) const;
+    void SetUniformR32M3(const std::string& Name, const R32M3& Value) const;
+    void SetUniformR32M4(const std::string& Name, const R32M4& Value) const;
 
   private:
 

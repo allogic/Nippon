@@ -53,7 +53,9 @@ namespace ark
 #pragma pack(push, 1)
   struct ScrVertex
   {
-    I16V3 Position;
+    I16 X;
+    I16 Y;
+    I16 Z;
     U16 Connection;
   };
 #pragma pack(pop)
@@ -87,7 +89,9 @@ namespace ark
 #pragma pack(push, 1)
   struct MdVertex
   {
-    R32V3 Position;
+    R32 X;
+    R32 Y;
+    R32 Z;
     U16 Connection;
     U16 Unknown1;
   };

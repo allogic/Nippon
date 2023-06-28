@@ -127,7 +127,35 @@ namespace ark
     );
   }
 
-  void Shader::SetUniformR32M4(const std::string& Name, R32M4 Value) const
+  void Shader::SetUniformR32V2(const std::string& Name, const R32V2& Value) const
+  {
+    glUniform2fv(
+      glGetUniformLocation(mProgram, Name.c_str()),
+      1,
+      &Value[0]
+    );
+  }
+
+  void Shader::SetUniformR32V3(const std::string& Name, const R32V3& Value) const
+  {
+    glUniform3fv(
+      glGetUniformLocation(mProgram, Name.c_str()),
+      1,
+      &Value[0]
+    );
+  }
+
+  void Shader::SetUniformR32M3(const std::string& Name, const R32M3& Value) const
+  {
+    glUniformMatrix3fv(
+      glGetUniformLocation(mProgram, Name.c_str()),
+      1,
+      0,
+      &Value[0][0]
+    );
+  }
+
+  void Shader::SetUniformR32M4(const std::string& Name, const R32M4& Value) const
   {
     glUniformMatrix4fv(
       glGetUniformLocation(mProgram, Name.c_str()),

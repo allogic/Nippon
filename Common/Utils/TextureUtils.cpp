@@ -26,7 +26,7 @@ namespace ark
     U32 height = (U32)image.GetMetadata().height;
     U32 mips = 1;
 
-    Texture2D* texture = new Texture2D{ width, height, mips, TextureWrap::ClampToEdge, TextureFilter::Linear };
+    Texture2D* texture = new Texture2D{ width, height, mips, TextureWrap::Repeat, TextureFilter::Linear };
 
     texture->Bind();
 
@@ -52,7 +52,7 @@ namespace ark
     U32 height = (U32)image.GetMetadata().height;
     U32 mips = (U32)image.GetMetadata().mipLevels - 2;
 
-    Texture2D* texture = new Texture2D{ width, height, mips, TextureWrap::ClampToEdge, TextureFilter::Linear };
+    Texture2D* texture = new Texture2D{ width, height, mips, TextureWrap::Repeat, TextureFilter::Linear };
 
     texture->Bind();
 

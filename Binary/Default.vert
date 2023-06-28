@@ -15,9 +15,9 @@ layout (location = 3) in vec4 InputColorWeight;
 
 layout (location = 0) out Vertex
 {
-  vec3 Position;
-  vec2 Uv;
-  vec4 Color;
+	vec3 Position;
+	vec2 Uv;
+	vec4 Color;
 } vertex;
 
 ///////////////////////////////////////////////////////////
@@ -34,9 +34,9 @@ uniform mat4 UniformModelMatrix;
 
 void main()
 {
-  vertex.Position = vec3(UniformModelMatrix * vec4(InputPosition, 1.0));
-  vertex.Uv = InputTextureMap;
-  vertex.Color = vec4(InputTextureMap, 0.0, 1.0);
+	vertex.Position = vec3(UniformModelMatrix * vec4(InputPosition, 1.0));
+	vertex.Uv = InputTextureMap;
+	vertex.Color = InputColorWeight;
 
-  gl_Position = UniformProjectionMatrix * UniformViewMatrix * UniformModelMatrix * vec4(InputPosition, 1.0);
+	gl_Position = UniformProjectionMatrix * UniformViewMatrix * UniformModelMatrix * vec4(InputPosition, 1.0);
 }

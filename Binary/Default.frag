@@ -6,9 +6,9 @@
 
 layout (location = 0) in Vertex
 {
-  vec3 Position;
-  vec2 Uv;
-  vec4 Color;
+	vec3 Position;
+	vec2 Uv;
+	vec4 Color;
 } vertex;
 
 ///////////////////////////////////////////////////////////
@@ -18,10 +18,10 @@ layout (location = 0) in Vertex
 layout (location = 0) out vec4 OutputColor;
 
 ///////////////////////////////////////////////////////////
-// Uniforms
+// Sampler
 ///////////////////////////////////////////////////////////
 
-layout (binding = 0) uniform sampler2D uAlbedo;
+layout (binding = 0) uniform sampler2D SamplerAlbedo;
 
 ///////////////////////////////////////////////////////////
 // Entry point
@@ -29,5 +29,12 @@ layout (binding = 0) uniform sampler2D uAlbedo;
 
 void main()
 {
-  OutputColor = texture(uAlbedo, vertex.Uv);
+	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
+
+	if (gl_FrontFacing)
+	{
+		color = texture(SamplerAlbedo, vertex.Uv);
+	}
+
+	OutputColor = color;
 }

@@ -12,29 +12,24 @@ namespace ark
 
     U16 vertexCount = (U16)Vertices.size();
 
-    if (vertexCount >= 3)
+    for (U16 i = 2; i < vertexCount; i++)
     {
-      for (U16 i = 2; i < vertexCount; i++)
+      if (Vertices[i].Connection == 0x8000)
       {
-        if (Vertices[i].Connection == 0x8000)
-        {
-          continue;
-        }
-        else
-        {
-          if (Vertices[i].Connection)
-          {
-            elements.emplace_back(i - 2);
-            elements.emplace_back(i - 1);
-            elements.emplace_back(i - 0);
-          }
-          else
-          {
-            elements.emplace_back(i - 1);
-            elements.emplace_back(i - 2);
-            elements.emplace_back(i - 0);
-          }
-        }
+        continue;
+      }
+
+      if (Vertices[i].Connection)
+      {
+        elements.emplace_back(i - 2);
+        elements.emplace_back(i - 1);
+        elements.emplace_back(i - 0);
+      }
+      else
+      {
+        elements.emplace_back(i - 1);
+        elements.emplace_back(i - 2);
+        elements.emplace_back(i - 0);
       }
     }
 
@@ -47,29 +42,24 @@ namespace ark
 
     U16 vertexCount = (U16)Vertices.size();
 
-    if (vertexCount >= 3)
+    for (U16 i = 1; i < vertexCount; i++)
     {
-      for (U16 i = 2; i < vertexCount; i++)
+      if (Vertices[i].Connection == 0x8000)
       {
-        if (Vertices[i].Connection == 0x8000)
-        {
-          continue;
-        }
-        else
-        {
-          if (Vertices[i].Connection)
-          {
-            elements.emplace_back(i - 2);
-            elements.emplace_back(i - 1);
-            elements.emplace_back(i - 0);
-          }
-          else
-          {
-            elements.emplace_back(i - 1);
-            elements.emplace_back(i - 2);
-            elements.emplace_back(i - 0);
-          }
-        }
+        continue;
+      }
+
+      if (Vertices[i].Connection)
+      {
+        elements.emplace_back(i - 2);
+        elements.emplace_back(i - 1);
+        elements.emplace_back(i - 0);
+      }
+      else
+      {
+        elements.emplace_back(i - 1);
+        elements.emplace_back(i - 2);
+        elements.emplace_back(i - 0);
       }
     }
 
