@@ -17,33 +17,33 @@ namespace fs = std::filesystem;
 
 namespace ark
 {
-  class FileTreeNode
-  {
-  public:
+	class FileTreeNode
+	{
+	public:
 
-    FileTreeNode(const fs::path& File, U32 MaxDepth, U32 Depth = 0);
-    virtual ~FileTreeNode();
+		FileTreeNode(const fs::path& File, U32 MaxDepth, U32 Depth = 0);
+		virtual ~FileTreeNode();
 
-  public:
+	public:
 
-    inline auto IsDirectory() const { return fs::is_directory(mFile); }
-    inline auto IsFile() const { return !fs::is_directory(mFile); }
-    inline auto IsMaxDepth() const { return mDepth == mMaxDepth;  }
+		inline auto IsDirectory() const { return fs::is_directory(mFile); }
+		inline auto IsFile() const { return !fs::is_directory(mFile); }
+		inline auto IsMaxDepth() const { return mDepth == mMaxDepth;  }
 
-    inline auto GetParent() const { return mFile.parent_path(); }
-    inline auto GetPath() const { return mFile; }
-    inline auto GetName() const { return mFile.stem(); }
-    inline auto GetExtension() const { return mFile.extension(); }
-    inline auto GetSize() const { return fs::file_size(mFile); }
+		inline auto GetParent() const { return mFile.parent_path(); }
+		inline auto GetPath() const { return mFile; }
+		inline auto GetName() const { return mFile.stem(); }
+		inline auto GetExtension() const { return mFile.extension(); }
+		inline auto GetSize() const { return fs::file_size(mFile); }
 
-    inline auto& GetSubNodes() const { return mNodes; }
+		inline auto& GetSubNodes() const { return mNodes; }
 
-  private:
+	private:
 
-    fs::path mFile;
-    U32 mMaxDepth;
+		fs::path mFile;
+		U32 mMaxDepth;
 
-    U32 mDepth = 0;
-    std::map<fs::path, FileTreeNode*> mNodes = {};
-  };
+		U32 mDepth = 0;
+		std::map<fs::path, FileTreeNode*> mNodes = {};
+	};
 }

@@ -19,11 +19,11 @@ namespace fs = std::filesystem;
 
 namespace ark
 {
-  class ObjSerializer
-  {
-  public:
+	class ObjSerializer
+	{
+	public:
 
-    static std::vector<ObjEntry> FromFile(const fs::path& File);
-    static void ToFile(const fs::path& File, const std::vector<ObjEntry>& Entries);
-  };
+		static std::vector<ObjEntry> FromFile(const fs::path& File);
+		static void ToFile(const fs::path& File, const std::vector<ObjEntry>& Entries);
+	};
 }

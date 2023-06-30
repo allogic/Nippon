@@ -17,38 +17,38 @@
 
 namespace ark
 {
-  class LevelScene : public Scene
-  {
-  public:
+	class LevelScene : public Scene
+	{
+	public:
 
-    LevelScene(
-      const std::string& Entry,
-      const std::string& SubEntry);
-    LevelScene(
-      const std::string& Entry,
-      const std::string& SubEntry,
-      const std::string& SceneName,
-      const std::string& WindowName);
-    virtual ~LevelScene();
+		LevelScene(
+			const std::string& Entry,
+			const std::string& SubEntry);
+		LevelScene(
+			const std::string& Entry,
+			const std::string& SubEntry,
+			const std::string& SceneName,
+			const std::string& WindowName);
+		virtual ~LevelScene();
 
-  public:
+	public:
 
-    inline const auto& GetModels() const { return mModels; }
-    inline const auto& GetObjects() const { return mObjects; }
+		inline const auto& GetModels() const { return mModels; }
+		inline const auto& GetObjects() const { return mObjects; }
 
-  protected:
+	protected:
 
-    virtual void Load() override;
-    virtual void Save() override;
+		virtual void Load() override;
+		virtual void Save() override;
 
-  private:
+	private:
 
-    void ModelsToActors();
-    void ObjectsToActors();
+		void ModelsToActors();
+		void ObjectsToActors();
 
-  private:
+	private:
 
-    std::vector<std::pair<ScrModel, ScrTransform>> mModels = {};
-    std::vector<ObjEntry> mObjects = {};
-  };
+		std::vector<std::pair<ScrModel, ScrTransform>> mModels = {};
+		std::vector<ObjEntry> mObjects = {};
+	};
 }

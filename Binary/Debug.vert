@@ -13,8 +13,8 @@ layout (location = 1) in vec4 InputColor;
 
 layout (location = 0) out Vertex
 {
-  vec3 Position;
-  vec4 Color;
+	vec3 Position;
+	vec4 Color;
 } vertex;
 
 ///////////////////////////////////////////////////////////
@@ -30,8 +30,8 @@ uniform mat4 UniformViewMatrix;
 
 void main()
 {
-  vertex.Position = InputPosition;
-  vertex.Color = InputColor;
+	vertex.Position = InputPosition;
+	vertex.Color = InputColor;
 
-  gl_Position = UniformProjectionMatrix * UniformViewMatrix * vec4(InputPosition, 1.0);
+	gl_Position = UniformProjectionMatrix * UniformViewMatrix * vec4(InputPosition, 1.0);
 }

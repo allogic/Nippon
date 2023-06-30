@@ -12,29 +12,29 @@
 
 namespace ark
 {
-  Box::Box(Scene* Scene, std::string const& Name)
-    : Actor{ Scene, Name }
-  {
+	Box::Box(Scene* Scene, std::string const& Name)
+		: Actor{ Scene, Name }
+	{
 
-  }
+	}
 
-  void Box::Update(R32 TimeDelta)
-  {
-    auto& debugRenderer = mScene->GetDebugRenderer();
+	void Box::Update(R32 TimeDelta)
+	{
+		auto& debugRenderer = mScene->GetDebugRenderer();
 
-    debugRenderer.DebugLine(GetTransform()->GetWorldPosition(), GetTransform()->GetWorldPosition() + GetTransform()->GetWorldRight() * 2.0F, R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
-    debugRenderer.DebugLine(GetTransform()->GetWorldPosition(), GetTransform()->GetWorldPosition() + GetTransform()->GetWorldUp() * 2.0F, R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
-    debugRenderer.DebugLine(GetTransform()->GetWorldPosition(), GetTransform()->GetWorldPosition() + GetTransform()->GetWorldFront() * 2.0F, R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
+		debugRenderer.DebugLine(GetTransform()->GetWorldPosition(), GetTransform()->GetWorldPosition() + GetTransform()->GetWorldRight() * 2.0F, R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
+		debugRenderer.DebugLine(GetTransform()->GetWorldPosition(), GetTransform()->GetWorldPosition() + GetTransform()->GetWorldUp() * 2.0F, R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
+		debugRenderer.DebugLine(GetTransform()->GetWorldPosition(), GetTransform()->GetWorldPosition() + GetTransform()->GetWorldFront() * 2.0F, R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
 
-    debugRenderer.DebugLine(GetTransform()->GetWorldPosition(), GetTransform()->GetWorldPosition() + GetTransform()->GetLocalRight() * 2.0F, R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
-    debugRenderer.DebugLine(GetTransform()->GetWorldPosition(), GetTransform()->GetWorldPosition() + GetTransform()->GetLocalUp() * 2.0F, R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
-    debugRenderer.DebugLine(GetTransform()->GetWorldPosition(), GetTransform()->GetWorldPosition() + GetTransform()->GetLocalFront() * 2.0F, R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
+		debugRenderer.DebugLine(GetTransform()->GetWorldPosition(), GetTransform()->GetWorldPosition() + GetTransform()->GetLocalRight() * 2.0F, R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
+		debugRenderer.DebugLine(GetTransform()->GetWorldPosition(), GetTransform()->GetWorldPosition() + GetTransform()->GetLocalUp() * 2.0F, R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
+		debugRenderer.DebugLine(GetTransform()->GetWorldPosition(), GetTransform()->GetWorldPosition() + GetTransform()->GetLocalFront() * 2.0F, R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
 
-    if (GetParent())
-    {
-      debugRenderer.DebugLine(GetTransform()->GetWorldPosition(), GetParent()->GetTransform()->GetWorldPosition(), R32V4{ 1.0F, 1.0F, 1.0F, 1.0F });
-    }
+		if (GetParent())
+		{
+			debugRenderer.DebugLine(GetTransform()->GetWorldPosition(), GetParent()->GetTransform()->GetWorldPosition(), R32V4{ 1.0F, 1.0F, 1.0F, 1.0F });
+		}
 
-    debugRenderer.DebugBox(GetTransform()->GetWorldPosition(), GetTransform()->GetLocalScale(), R32V4{ 1.0F, 1.0F, 0.0F, 1.0F }, GetTransform()->GetWorldRotation());
-  }
+		debugRenderer.DebugBox(GetTransform()->GetWorldPosition(), GetTransform()->GetLocalScale(), R32V4{ 1.0F, 1.0F, 0.0F, 1.0F }, GetTransform()->GetWorldRotation());
+	}
 }

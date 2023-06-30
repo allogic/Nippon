@@ -22,11 +22,11 @@ namespace fs = std::filesystem;
 
 namespace ark
 {
-  class MdSerializer
-  {
-  public:
+	class MdSerializer
+	{
+	public:
 
-    static std::vector<std::pair<MdModel, MdTransform>> FromFile(const fs::path& File);
-    static void ToFile(const fs::path& File, const std::vector<std::pair<MdModel, MdTransform>>& Objects);
-  };
+		static std::vector<std::pair<MdModel, MdTransform>> FromFile(const fs::path& File);
+		static void ToFile(const fs::path& File, const std::vector<std::pair<MdModel, MdTransform>>& Objects);
+	};
 }

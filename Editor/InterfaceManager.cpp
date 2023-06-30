@@ -26,52 +26,52 @@ static ark::TextureBrowser* sTextureBrowser = nullptr;
 
 namespace ark
 {
-  EntityBrowser* InterfaceManager::GetEntityBrowser() { return sEntityBrowser; }
-  Inspector* InterfaceManager::GetInspector() { return sInspector; }
-  MainMenu* InterfaceManager::GetMainMenu() { return sMainMenu; }
-  ModelBrowser* InterfaceManager::GetModelBrowser() { return sModelBrowser; }
-  ObjectBrowser* InterfaceManager::GetObjectBrowser() { return sObjectBrowser; }
-  Outline* InterfaceManager::GetOutline() { return sOutline; }
-  TextureBrowser* InterfaceManager::GetTextureBrowser() { return sTextureBrowser; }
+	EntityBrowser* InterfaceManager::GetEntityBrowser() { return sEntityBrowser; }
+	Inspector* InterfaceManager::GetInspector() { return sInspector; }
+	MainMenu* InterfaceManager::GetMainMenu() { return sMainMenu; }
+	ModelBrowser* InterfaceManager::GetModelBrowser() { return sModelBrowser; }
+	ObjectBrowser* InterfaceManager::GetObjectBrowser() { return sObjectBrowser; }
+	Outline* InterfaceManager::GetOutline() { return sOutline; }
+	TextureBrowser* InterfaceManager::GetTextureBrowser() { return sTextureBrowser; }
 
-  void InterfaceManager::Create()
-  {
-    sEntityBrowser = new EntityBrowser;
-    sInspector = new Inspector;
-    sMainMenu = new MainMenu;
-    sModelBrowser = new ModelBrowser;
-    sObjectBrowser = new ObjectBrowser;
-    sOutline = new Outline;
-    sTextureBrowser = new TextureBrowser;
-  }
+	void InterfaceManager::Create()
+	{
+		sEntityBrowser = new EntityBrowser;
+		sInspector = new Inspector;
+		sMainMenu = new MainMenu;
+		sModelBrowser = new ModelBrowser;
+		sObjectBrowser = new ObjectBrowser;
+		sOutline = new Outline;
+		sTextureBrowser = new TextureBrowser;
+	}
 
-  void InterfaceManager::Draw()
-  {
-    sEntityBrowser->Draw();
-    sInspector->Draw();
-    sMainMenu->Draw();
-    sModelBrowser->Draw();
-    sObjectBrowser->Draw();
-    sOutline->Draw();
-    sTextureBrowser->Draw();
-  }
+	void InterfaceManager::Draw()
+	{
+		sEntityBrowser->Draw();
+		sInspector->Draw();
+		sMainMenu->Draw();
+		sModelBrowser->Draw();
+		sObjectBrowser->Draw();
+		sOutline->Draw();
+		sTextureBrowser->Draw();
+	}
 
-  void InterfaceManager::Destroy()
-  {
-    if (sEntityBrowser) delete sEntityBrowser;
-    if (sInspector) delete sInspector;
-    if (sMainMenu) delete sMainMenu;
-    if (sModelBrowser) delete sModelBrowser;
-    if (sObjectBrowser) delete sObjectBrowser;
-    if (sOutline) delete sOutline;
-    if (sTextureBrowser) delete sTextureBrowser;
+	void InterfaceManager::Destroy()
+	{
+		if (sEntityBrowser) delete sEntityBrowser;
+		if (sInspector) delete sInspector;
+		if (sMainMenu) delete sMainMenu;
+		if (sModelBrowser) delete sModelBrowser;
+		if (sObjectBrowser) delete sObjectBrowser;
+		if (sOutline) delete sOutline;
+		if (sTextureBrowser) delete sTextureBrowser;
 
-    sEntityBrowser = nullptr;
-    sInspector = nullptr;
-    sMainMenu = nullptr;
-    sModelBrowser = nullptr;
-    sObjectBrowser = nullptr;
-    sOutline = nullptr;
-    sTextureBrowser = nullptr;
-  }
+		sEntityBrowser = nullptr;
+		sInspector = nullptr;
+		sMainMenu = nullptr;
+		sModelBrowser = nullptr;
+		sObjectBrowser = nullptr;
+		sOutline = nullptr;
+		sTextureBrowser = nullptr;
+	}
 }

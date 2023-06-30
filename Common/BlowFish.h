@@ -11,25 +11,25 @@
 
 namespace ark
 {
-  class BlowFish
-  {
-  public:
+	class BlowFish
+	{
+	public:
 
-    BlowFish(const std::string& Key);
+		BlowFish(const std::string& Key);
 
-  public:
+	public:
 
-    void Encrypt(U32* XL, U32* XR);
-    void Decrypt(U32* XL, U32* XR);
+		void Encrypt(U32* XL, U32* XR);
+		void Decrypt(U32* XL, U32* XR);
 
-    void Encrypt(std::vector<U8>& Bytes);
-    void Decrypt(std::vector<U8>& Bytes);
+		void Encrypt(std::vector<U8>& Bytes);
+		void Decrypt(std::vector<U8>& Bytes);
 
-  private:
+	private:
 
-    U32 Feistel(U32 X);
+		U32 Feistel(U32 X);
 
-    U32 mP[16 + 2] = {};
-    U32 mS[4][256] = {};
-  };
+		U32 mP[16 + 2] = {};
+		U32 mS[4][256] = {};
+	};
 }

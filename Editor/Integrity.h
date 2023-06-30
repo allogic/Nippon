@@ -21,17 +21,17 @@ namespace rj = rapidjson;
 
 namespace ark
 {
-  class Integrity
-  {
-  public:
+	class Integrity
+	{
+	public:
 
-    static bool CheckEncrypted();
-    static bool CheckDecrypted();
+		static bool CheckEncrypted();
+		static bool CheckDecrypted();
 
-    static void CompareRepackedWithDecrypted(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
-    static void CompareEncryptedWithOriginal(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
+		static void CompareRepackedWithDecrypted(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
+		static void CompareEncryptedWithOriginal(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
 
-    static void GenerateEncryptedMap();
-    static void GenerateDecryptedMap();
-  };
+		static void GenerateEncryptedMap();
+		static void GenerateDecryptedMap();
+	};
 }

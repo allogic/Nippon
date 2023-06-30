@@ -10,28 +10,28 @@
 
 namespace ark
 {
-  class FrameBuffer
-  {
-  public:
+	class FrameBuffer
+	{
+	public:
 
-    FrameBuffer();
-    virtual ~FrameBuffer();
+		FrameBuffer();
+		virtual ~FrameBuffer();
 
-  public:
+	public:
 
-    inline auto GetId() const { return mFbo; }
-    inline const auto GetColorTexture() const { return mColorTexture; }
-    inline const auto GetDepthStencilTexture() const { return mDepthStencilTexture; }
+		inline auto GetId() const { return mFbo; }
+		inline const auto GetColorTexture() const { return mColorTexture; }
+		inline const auto GetDepthStencilTexture() const { return mDepthStencilTexture; }
 
-  public:
+	public:
 
-    void Resize(U32 Width, U32 Height);
+		void Resize(U32 Width, U32 Height);
 
-  private:
+	private:
 
-    U32 mFbo = 0;
+		U32 mFbo = 0;
 
-    RenderTexture* mColorTexture = nullptr;
-    DepthStencilTexture* mDepthStencilTexture = nullptr;
-  };
+		RenderTexture* mColorTexture = nullptr;
+		DepthStencilTexture* mDepthStencilTexture = nullptr;
+	};
 }

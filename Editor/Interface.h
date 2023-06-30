@@ -6,15 +6,15 @@
 
 namespace ark
 {
-  class Interface
-  {
-  public:
+	class Interface
+	{
+	public:
 
-    virtual ~Interface() {};
+		virtual ~Interface() {};
 
-  public:
+	public:
 
-    virtual void Reset() = 0;
-    virtual void Draw() = 0;
-  };
+		virtual void Reset() = 0;
+		virtual void Draw() = 0;
+	};
 }

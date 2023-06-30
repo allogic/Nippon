@@ -5,7 +5,7 @@
 ///////////////////////////////////////////////////////////
 
 #if defined(_WIN32) || defined(WIN32)
-  #define OS_WINDOWS
+	#define OS_WINDOWS
 #elif defined(__linux__)
-  #define OS_LINUX
+	#define OS_LINUX
 #endif

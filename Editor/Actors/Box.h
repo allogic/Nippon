@@ -13,14 +13,14 @@
 
 namespace ark
 {
-  class Box : public Actor
-  {
-  public:
+	class Box : public Actor
+	{
+	public:
 
-    Box(Scene* Scene, std::string const& Name);
+		Box(Scene* Scene, std::string const& Name);
 
-  public:
+	public:
 
-    void Update(R32 TimeDelta) override;
-  };
+		void Update(R32 TimeDelta) override;
+	};
 }

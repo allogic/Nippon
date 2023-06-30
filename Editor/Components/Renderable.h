@@ -16,36 +16,36 @@
 
 namespace ark
 {
-  class Renderable : public Component
-  {
-  public:
+	class Renderable : public Component
+	{
+	public:
 
-    Renderable(Scene* Scene, Actor* Actor);
+		Renderable(Scene* Scene, Actor* Actor);
 
-  public:
+	public:
 
-    inline const auto& GetMesh() const { return mMesh; }
-    inline const auto& GetTexture() const { return mTexture; }
-    inline const auto& GetVertexBuffer() const { return mVertexBuffer; }
-    inline const auto& GetElementBuffer() const { return mElementBuffer; }
+		inline const auto& GetMesh() const { return mMesh; }
+		inline const auto& GetTexture() const { return mTexture; }
+		inline const auto& GetVertexBuffer() const { return mVertexBuffer; }
+		inline const auto& GetElementBuffer() const { return mElementBuffer; }
 
-  public:
+	public:
 
-    inline void SetVertexBuffer(const std::vector<DefaultVertex>& VertexBuffer) { mVertexBuffer = VertexBuffer; }
-    inline void SetElementBuffer(const std::vector<U32>& ElementBuffer) { mElementBuffer = ElementBuffer; }
-    inline void SetTexture(Texture2D* Texture) { mTexture = Texture; }
+		inline void SetVertexBuffer(const std::vector<DefaultVertex>& VertexBuffer) { mVertexBuffer = VertexBuffer; }
+		inline void SetElementBuffer(const std::vector<U32>& ElementBuffer) { mElementBuffer = ElementBuffer; }
+		inline void SetTexture(Texture2D* Texture) { mTexture = Texture; }
 
-  public:
+	public:
 
-    void LocalToRemote();
-    void RemoteToLocal();
+		void LocalToRemote();
+		void RemoteToLocal();
 
-  private:
+	private:
 
-    std::vector<DefaultVertex> mVertexBuffer = {};
-    std::vector<U32> mElementBuffer = {};
+		std::vector<DefaultVertex> mVertexBuffer = {};
+		std::vector<U32> mElementBuffer = {};
 
-    Mesh<DefaultVertex, U32> mMesh = {};
-    Texture2D* mTexture = nullptr;
-  };
+		Mesh<DefaultVertex, U32> mMesh = {};
+		Texture2D* mTexture = nullptr;
+	};
 }

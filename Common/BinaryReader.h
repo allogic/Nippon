@@ -12,46 +12,46 @@
 
 namespace ark
 {
-  class BinaryReader
-  {
-  public:
+	class BinaryReader
+	{
+	public:
 
-    BinaryReader(const std::vector<U8>& Bytes) : mBytes{ Bytes } {}
+		BinaryReader(const std::vector<U8>& Bytes) : mBytes{ Bytes } {}
 
-  public:
+	public:
 
-    inline auto GetPosition() const { return mPosition; }
-    inline auto GetSize() const { return mBytes.size(); }
-    inline const auto& GetBytes() const { return mBytes; }
+		inline auto GetPosition() const { return mPosition; }
+		inline auto GetSize() const { return mBytes.size(); }
+		inline const auto& GetBytes() const { return mBytes; }
 
-  public:
+	public:
 
-    inline void SeekRelative(I64 Value) { mPosition += Value; }
-    inline void SeekAbsolute(I64 Value) { mPosition = Value; }
+		inline void SeekRelative(I64 Value) { mPosition += Value; }
+		inline void SeekAbsolute(I64 Value) { mPosition = Value; }
 
-  public:
+	public:
 
-    template<typename T>
-    T Read();
+		template<typename T>
+		T Read();
 
-    template<typename T>
-    std::vector<T> Read(U64 Count);
+		template<typename T>
+		std::vector<T> Read(U64 Count);
 
-    template<typename T>
-    void Read(std::vector<T>& Values, U64 Count);
+		template<typename T>
+		void Read(std::vector<T>& Values, U64 Count);
 
-    std::vector<U8> Bytes(U64 Count);
-    std::vector<U8> Bytes(U64 Count, U64 Offset) const;
+		std::vector<U8> Bytes(U64 Count);
+		std::vector<U8> Bytes(U64 Count, U64 Offset) const;
 
-    std::string String(U64 Count);
-    std::string String(U64 Count, U64 Offset) const;
+		std::string String(U64 Count);
+		std::string String(U64 Count, U64 Offset) const;
 
-  private:
+	private:
 
-    std::vector<U8> mBytes;
+		std::vector<U8> mBytes;
 
-    U64 mPosition = 0;
-  };
+		U64 mPosition = 0;
+	};
 }
 
 ///////////////////////////////////////////////////////////
@@ -60,45 +60,45 @@ namespace ark
 
 namespace ark
 {
-  template<typename T>
-  T BinaryReader::Read()
-  {
-    T value = {};
+	template<typename T>
+	T BinaryReader::Read()
+	{
+		T value = {};
 
-    std::memcpy((U8*)&value, &mBytes[mPosition], sizeof(T));
+		std::memcpy((U8*)&value, &mBytes[mPosition], sizeof(T));
 
-    mPosition += sizeof(T);
+		mPosition += sizeof(T);
 
-    return value;
-  }
+		return value;
+	}
 
-  template<typename T>
-  std::vector<T> BinaryReader::Read(U64 Count)
-  {
-    std::vector<T> values = {};
+	template<typename T>
+	std::vector<T> BinaryReader::Read(U64 Count)
+	{
+		std::vector<T> values = {};
 
-    values.resize(Count);
+		values.resize(Count);
 
-    if (Count > 0)
-    {
-      std::memcpy((U8*)&values[0], &mBytes[mPosition], Count * sizeof(T));
-    }
+		if (Count > 0)
+		{
+			std::memcpy((U8*)&values[0], &mBytes[mPosition], Count * sizeof(T));
+		}
 
-    mPosition += Count * sizeof(T);
+		mPosition += Count * sizeof(T);
 
-    return values;
-  }
+		return values;
+	}
 
-  template<typename T>
-  void BinaryReader::Read(std::vector<T>& Values, U64 Count)
-  {
-    Values.resize(Count);
+	template<typename T>
+	void BinaryReader::Read(std::vector<T>& Values, U64 Count)
+	{
+		Values.resize(Count);
 
-    if (Count > 0)
-    {
-      std::memcpy((U8*)&Values[0], &mBytes[mPosition], Count * sizeof(T));
-    }
+		if (Count > 0)
+		{
+			std::memcpy((U8*)&Values[0], &mBytes[mPosition], Count * sizeof(T));
+		}
 
-    mPosition += Count * sizeof(T);
-  }
+		mPosition += Count * sizeof(T);
+	}
 }

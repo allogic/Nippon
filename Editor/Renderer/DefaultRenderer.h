@@ -19,33 +19,33 @@ namespace fs = std::filesystem;
 
 namespace ark
 {
-  struct RenderTask
-  {
-    const Transform* TransformPtr;
-    const Mesh<DefaultVertex, U32>* MeshPtr;
-    const Texture2D* TexturePtr;
-  };
+	struct RenderTask
+	{
+		const Transform* TransformPtr;
+		const Mesh<DefaultVertex, U32>* MeshPtr;
+		const Texture2D* TexturePtr;
+	};
 
-  class DefaultRenderer
-  {
-  public:
+	class DefaultRenderer
+	{
+	public:
 
-    DefaultRenderer(Scene* Scene);
-    virtual ~DefaultRenderer();
+		DefaultRenderer(Scene* Scene);
+		virtual ~DefaultRenderer();
 
-  public:
+	public:
 
-    void Render();
+		void Render();
 
-  public:
+	public:
 
-    void AddRenderTask(const RenderTask& RenderTask);
+		void AddRenderTask(const RenderTask& RenderTask);
 
-  private:
+	private:
 
-    Scene* mScene;
-    Shader* mShader;
+		Scene* mScene;
+		Shader* mShader;
 
-    std::queue<RenderTask> mRenderQueue = {};
-  };
+		std::queue<RenderTask> mRenderQueue = {};
+	};
 }

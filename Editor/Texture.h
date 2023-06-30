@@ -11,99 +11,99 @@
 
 namespace ark
 {
-  enum TextureWrap
-  {
-    Repeat = 0x2901,
-    ClampToEdge = 0x812F,
-  };
+	enum TextureWrap
+	{
+		Repeat = 0x2901,
+		ClampToEdge = 0x812F,
+	};
 
-  enum TextureFilter
-  {
-    Nearest = 0x2600,
-    Linear = 0x2601,
-  };
+	enum TextureFilter
+	{
+		Nearest = 0x2600,
+		Linear = 0x2601,
+	};
 
-  class Texture2D
-  {
-  public:
+	class Texture2D
+	{
+	public:
 
-    Texture2D(U32 Width, U32 Height, U32 Mips, TextureWrap Wrap, TextureFilter Filter);
-    virtual ~Texture2D();
+		Texture2D(U32 Width, U32 Height, U32 Mips, TextureWrap Wrap, TextureFilter Filter);
+		virtual ~Texture2D();
 
-  public:
+	public:
 
-    inline auto GetId() const { return mTid; }
-    inline auto GetWidth() const { return mWidth; }
-    inline auto GetHeight() const { return mHeight; }
-    inline auto GetMips() const { return mMips; }
+		inline auto GetId() const { return mTid; }
+		inline auto GetWidth() const { return mWidth; }
+		inline auto GetHeight() const { return mHeight; }
+		inline auto GetMips() const { return mMips; }
 
-  public:
+	public:
 
-    void Bind() const;
-    void Mount(U32 Index) const;
-    void UnMount() const;
-    void Unbind() const;
+		void Bind() const;
+		void Mount(U32 Index) const;
+		void UnMount() const;
+		void Unbind() const;
 
-  private:
+	private:
 
-    U32 mWidth;
-    U32 mHeight;
-    U32 mMips;
-    TextureWrap mWrap;
-    TextureFilter mFilter;
+		U32 mWidth;
+		U32 mHeight;
+		U32 mMips;
+		TextureWrap mWrap;
+		TextureFilter mFilter;
 
-    U32 mTid = 0;
-  };
+		U32 mTid = 0;
+	};
 
-  class RenderTexture
-  {
-  public:
+	class RenderTexture
+	{
+	public:
 
-    RenderTexture(TextureWrap Wrap, TextureFilter Filter);
-    virtual ~RenderTexture();
+		RenderTexture(TextureWrap Wrap, TextureFilter Filter);
+		virtual ~RenderTexture();
 
-  public:
+	public:
 
-    inline auto GetId() const { return mTid; }
+		inline auto GetId() const { return mTid; }
 
-  public:
+	public:
 
-    void Bind() const;
-    void Resize(U32 Width, U32 Height);
-    void Mount(U32 Index) const;
-    void Unbind() const;
+		void Bind() const;
+		void Resize(U32 Width, U32 Height);
+		void Mount(U32 Index) const;
+		void Unbind() const;
 
-  private:
+	private:
 
-    TextureWrap mWrap;
-    TextureFilter mFilter;
+		TextureWrap mWrap;
+		TextureFilter mFilter;
 
-    U32 mTid = 0;
-  };
+		U32 mTid = 0;
+	};
 
-  class DepthStencilTexture
-  {
-  public:
+	class DepthStencilTexture
+	{
+	public:
 
-    DepthStencilTexture(TextureWrap Wrap, TextureFilter Filter);
-    virtual ~DepthStencilTexture();
+		DepthStencilTexture(TextureWrap Wrap, TextureFilter Filter);
+		virtual ~DepthStencilTexture();
 
-  public:
+	public:
 
-    inline auto GetId() const { return mTid; }
+		inline auto GetId() const { return mTid; }
 
-  public:
+	public:
 
-    void Bind() const;
-    void Resize(U32 Width, U32 Height);
-    void Mount(U32 Index) const;
-    void Unbind() const;
+		void Bind() const;
+		void Resize(U32 Width, U32 Height);
+		void Mount(U32 Index) const;
+		void Unbind() const;
 
-  private:
+	private:
 
-    TextureWrap mWrap;
-    TextureFilter mFilter;
+		TextureWrap mWrap;
+		TextureFilter mFilter;
 
-    U32 mTid = 0;
-  };
+		U32 mTid = 0;
+	};
 }

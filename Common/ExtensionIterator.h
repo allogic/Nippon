@@ -19,14 +19,14 @@ namespace fs = std::filesystem;
 
 namespace ark
 {
-  class ExtensionIterator
-  {
-  public:
+	class ExtensionIterator
+	{
+	public:
 
-    ExtensionIterator(const fs::path& File, const std::set<std::string>& Extensions);
+		ExtensionIterator(const fs::path& File, const std::set<std::string>& Extensions);
 
-  private:
+	private:
 
-    std::vector<fs::path> mFiles = {};
-  };
+		std::vector<fs::path> mFiles = {};
+	};
 }

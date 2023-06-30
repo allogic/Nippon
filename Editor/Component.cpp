@@ -8,15 +8,15 @@
 
 namespace ark
 {
-  Component::Component(Scene* Scene, Actor* Actor)
-    : mScene{ Scene }
-    , mActor{ Actor }
-  {
+	Component::Component(Scene* Scene, Actor* Actor)
+		: mScene{ Scene }
+		, mActor{ Actor }
+	{
 
-  }
+	}
 
-  Component::~Component()
-  {
+	Component::~Component()
+	{
 
-  }
+	}
 }

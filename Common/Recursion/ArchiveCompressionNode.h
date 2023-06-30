@@ -19,46 +19,46 @@ namespace fs = std::filesystem;
 
 namespace ark
 {
-  class ArchiveCompressionNode
-  {
-  public:
+	class ArchiveCompressionNode
+	{
+	public:
 
-    ArchiveCompressionNode(
-      const fs::path& File,
-      ArchiveCompressionNode* Parent,
-      bool IsDat);
-    virtual ~ArchiveCompressionNode();
+		ArchiveCompressionNode(
+			const fs::path& File,
+			ArchiveCompressionNode* Parent,
+			bool IsDat);
+		virtual ~ArchiveCompressionNode();
 
-  public:
+	public:
 
-    inline const auto& GetBytes() const { return mBinaryWriter.GetBytes(); }
+		inline const auto& GetBytes() const { return mBinaryWriter.GetBytes(); }
 
-  public:
+	public:
 
-    void CompressRecursive(U32 Count, ArchiveCompressionNode* Node = nullptr, bool Verbose = false);
+		void CompressRecursive(U32 Count, ArchiveCompressionNode* Node = nullptr, bool Verbose = false);
 
-  private:
+	private:
 
-    void WriteHeader();
-    void WriteFile();
+		void WriteHeader();
+		void WriteFile();
 
-  private:
+	private:
 
-    void WriteIndices();
-    void WriteTypes();
+		void WriteIndices();
+		void WriteTypes();
 
-  private:
+	private:
 
-    fs::path mFile;
-    ArchiveCompressionNode* mParent;
-    bool mIsDat;
+		fs::path mFile;
+		ArchiveCompressionNode* mParent;
+		bool mIsDat;
 
-    BinaryWriter mBinaryWriter = {};
-    bool mIsDirectory = false;
-    U16 mIndex = 0;
-    std::string mName = "";
-    std::string mType = "";
+		BinaryWriter mBinaryWriter = {};
+		bool mIsDirectory = false;
+		U16 mIndex = 0;
+		std::string mName = "";
+		std::string mType = "";
 
-    std::vector<ArchiveCompressionNode*> mNodes = {};
-  };
+		std::vector<ArchiveCompressionNode*> mNodes = {};
+	};
 }

@@ -19,153 +19,153 @@ extern rj::Document gArchive;
 
 namespace ark
 {
-  void MainMenu::Draw()
-  {
-    ImGui::BeginMainMenuBar();
+	void MainMenu::Draw()
+	{
+		ImGui::BeginMainMenuBar();
 
-    DrawSceneMenu();
-    DrawPackerMenu();
-    DrawIntegrityMenu();
-    DrawToolsMenu();
+		DrawSceneMenu();
+		DrawPackerMenu();
+		DrawIntegrityMenu();
+		DrawToolsMenu();
 
-    ImGui::EndMainMenuBar();
-  }
+		ImGui::EndMainMenuBar();
+	}
 
-  void MainMenu::DrawSceneMenu()
-  {
-    DrawMenuTree("Levels", gArchive["regions"], SceneManager::CreateLevel);
-    DrawMenuTree("Entities", gArchive["entities"], SceneManager::CreateEntity);
-  }
+	void MainMenu::DrawSceneMenu()
+	{
+		DrawMenuTree("Levels", gArchive["regions"], SceneManager::CreateLevel);
+		DrawMenuTree("Entities", gArchive["entities"], SceneManager::CreateEntity);
+	}
 
-  void MainMenu::DrawPackerMenu()
-  {
-    if (ImGui::BeginMenu("Packer"))
-    {
-      if (ImGui::BeginMenu("Decrypt"))
-      {
-        if (ImGui::Selectable("All"))
-        {
-          DoProcFor(gArchive["regions"], Packer::DecryptArchive);
-          DoProcFor(gArchive["entities"], Packer::DecryptArchive);
-        }
+	void MainMenu::DrawPackerMenu()
+	{
+		if (ImGui::BeginMenu("Packer"))
+		{
+			if (ImGui::BeginMenu("Decrypt"))
+			{
+				if (ImGui::Selectable("All"))
+				{
+					DoProcFor(gArchive["regions"], Packer::DecryptArchive);
+					DoProcFor(gArchive["entities"], Packer::DecryptArchive);
+				}
 
-        ImGui::Separator();
+				ImGui::Separator();
 
-        DrawMenuTree("Regions", gArchive["regions"], Packer::DecryptArchive);
-        DrawMenuTree("Entities", gArchive["entities"], Packer::DecryptArchive);
+				DrawMenuTree("Regions", gArchive["regions"], Packer::DecryptArchive);
+				DrawMenuTree("Entities", gArchive["entities"], Packer::DecryptArchive);
 
-        ImGui::EndMenu();
-      }
+				ImGui::EndMenu();
+			}
 
-      if (ImGui::BeginMenu("Unpack"))
-      {
-        if (ImGui::Selectable("All"))
-        {
-          DoProcFor(gArchive["regions"], Packer::UnpackArchive);
-          DoProcFor(gArchive["entities"], Packer::UnpackArchive);
-        }
+			if (ImGui::BeginMenu("Unpack"))
+			{
+				if (ImGui::Selectable("All"))
+				{
+					DoProcFor(gArchive["regions"], Packer::UnpackArchive);
+					DoProcFor(gArchive["entities"], Packer::UnpackArchive);
+				}
 
-        ImGui::Separator();
+				ImGui::Separator();
 
-        DrawMenuTree("Regions", gArchive["regions"], Packer::UnpackArchive);
-        DrawMenuTree("Entities", gArchive["entities"], Packer::UnpackArchive);
+				DrawMenuTree("Regions", gArchive["regions"], Packer::UnpackArchive);
+				DrawMenuTree("Entities", gArchive["entities"], Packer::UnpackArchive);
 
-        ImGui::EndMenu();
-      }
+				ImGui::EndMenu();
+			}
 
-      if (ImGui::BeginMenu("Repack"))
-      {
-        if (ImGui::Selectable("All"))
-        {
-          DoProcFor(gArchive["regions"], Packer::RepackArchive);
-          DoProcFor(gArchive["entities"], Packer::RepackArchive);
-        }
+			if (ImGui::BeginMenu("Repack"))
+			{
+				if (ImGui::Selectable("All"))
+				{
+					DoProcFor(gArchive["regions"], Packer::RepackArchive);
+					DoProcFor(gArchive["entities"], Packer::RepackArchive);
+				}
 
-        ImGui::Separator();
+				ImGui::Separator();
 
-        DrawMenuTree("Regions", gArchive["regions"], Packer::RepackArchive);
-        DrawMenuTree("Entities", gArchive["entities"], Packer::RepackArchive);
+				DrawMenuTree("Regions", gArchive["regions"], Packer::RepackArchive);
+				DrawMenuTree("Entities", gArchive["entities"], Packer::RepackArchive);
 
-        ImGui::EndMenu();
-      }
+				ImGui::EndMenu();
+			}
 
-      if (ImGui::BeginMenu("Encrypt"))
-      {
-        if (ImGui::Selectable("All"))
-        {
-          DoProcFor(gArchive["regions"], Packer::EncryptArchive);
-          DoProcFor(gArchive["entities"], Packer::EncryptArchive);
-        }
+			if (ImGui::BeginMenu("Encrypt"))
+			{
+				if (ImGui::Selectable("All"))
+				{
+					DoProcFor(gArchive["regions"], Packer::EncryptArchive);
+					DoProcFor(gArchive["entities"], Packer::EncryptArchive);
+				}
 
-        ImGui::Separator();
+				ImGui::Separator();
 
-        DrawMenuTree("Regions", gArchive["regions"], Packer::EncryptArchive);
-        DrawMenuTree("Entities", gArchive["entities"], Packer::EncryptArchive);
+				DrawMenuTree("Regions", gArchive["regions"], Packer::EncryptArchive);
+				DrawMenuTree("Entities", gArchive["entities"], Packer::EncryptArchive);
 
-        ImGui::EndMenu();
-      }
+				ImGui::EndMenu();
+			}
 
-      ImGui::EndMenu();
-    }
-  }
+			ImGui::EndMenu();
+		}
+	}
 
-  void MainMenu::DrawIntegrityMenu()
-  {
-    if (ImGui::BeginMenu("Integrity"))
-    {
-      if (ImGui::Selectable("Check Encrypted")) Integrity::CheckEncrypted();
-      if (ImGui::Selectable("Check Decrypted")) Integrity::CheckDecrypted();
+	void MainMenu::DrawIntegrityMenu()
+	{
+		if (ImGui::BeginMenu("Integrity"))
+		{
+			if (ImGui::Selectable("Check Encrypted")) Integrity::CheckEncrypted();
+			if (ImGui::Selectable("Check Decrypted")) Integrity::CheckDecrypted();
 
-      ImGui::Separator();
+			ImGui::Separator();
 
-      if (ImGui::BeginMenu("Compare Repacked With Decrypted"))
-      {
-        if (ImGui::Selectable("All"))
-        {
-          DoProcFor(gArchive["regions"], Integrity::CompareRepackedWithDecrypted);
-          DoProcFor(gArchive["entities"], Integrity::CompareRepackedWithDecrypted);
-        }
+			if (ImGui::BeginMenu("Compare Repacked With Decrypted"))
+			{
+				if (ImGui::Selectable("All"))
+				{
+					DoProcFor(gArchive["regions"], Integrity::CompareRepackedWithDecrypted);
+					DoProcFor(gArchive["entities"], Integrity::CompareRepackedWithDecrypted);
+				}
 
-        ImGui::Separator();
+				ImGui::Separator();
 
-        DrawMenuTree("Regions", gArchive["regions"], Integrity::CompareRepackedWithDecrypted);
-        DrawMenuTree("Entities", gArchive["entities"], Integrity::CompareRepackedWithDecrypted);
+				DrawMenuTree("Regions", gArchive["regions"], Integrity::CompareRepackedWithDecrypted);
+				DrawMenuTree("Entities", gArchive["entities"], Integrity::CompareRepackedWithDecrypted);
 
-        ImGui::EndMenu();
-      }
+				ImGui::EndMenu();
+			}
 
-      if (ImGui::BeginMenu("Compare Encrypted With Original"))
-      {
-        if (ImGui::Selectable("All"))
-        {
-          DoProcFor(gArchive["regions"], Integrity::CompareEncryptedWithOriginal);
-          DoProcFor(gArchive["entities"], Integrity::CompareEncryptedWithOriginal);
-        }
+			if (ImGui::BeginMenu("Compare Encrypted With Original"))
+			{
+				if (ImGui::Selectable("All"))
+				{
+					DoProcFor(gArchive["regions"], Integrity::CompareEncryptedWithOriginal);
+					DoProcFor(gArchive["entities"], Integrity::CompareEncryptedWithOriginal);
+				}
 
-        ImGui::Separator();
+				ImGui::Separator();
 
-        DrawMenuTree("Regions", gArchive["regions"], Integrity::CompareEncryptedWithOriginal);
-        DrawMenuTree("Entities", gArchive["entities"], Integrity::CompareEncryptedWithOriginal);
+				DrawMenuTree("Regions", gArchive["regions"], Integrity::CompareEncryptedWithOriginal);
+				DrawMenuTree("Entities", gArchive["entities"], Integrity::CompareEncryptedWithOriginal);
 
-        ImGui::EndMenu();
-      }
+				ImGui::EndMenu();
+			}
 
-      ImGui::Separator();
+			ImGui::Separator();
 
-      if (ImGui::Selectable("Generate Encrypted Map")) Integrity::GenerateEncryptedMap();
-      if (ImGui::Selectable("Generate Decrypted Map")) Integrity::GenerateDecryptedMap();
+			if (ImGui::Selectable("Generate Encrypted Map")) Integrity::GenerateEncryptedMap();
+			if (ImGui::Selectable("Generate Decrypted Map")) Integrity::GenerateDecryptedMap();
 
-      ImGui::EndMenu();
-    }
-  }
+			ImGui::EndMenu();
+		}
+	}
 
-  void MainMenu::DrawToolsMenu()
-  {
-    if (ImGui::BeginMenu("Tools"))
-    {
-      DrawMenuTree("Generate Entity Thumbnails", gArchive["entities"], Tools::GenerateEntityThumnail);
+	void MainMenu::DrawToolsMenu()
+	{
+		if (ImGui::BeginMenu("Tools"))
+		{
+			DrawMenuTree("Generate Entity Thumbnails", gArchive["entities"], Tools::GenerateEntityThumnail);
 
-      ImGui::EndMenu();
-    }
-  }
+			ImGui::EndMenu();
+		}
+	}
 }

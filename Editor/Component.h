@@ -8,16 +8,16 @@
 
 namespace ark
 {
-  class Component
-  {
-  public:
+	class Component
+	{
+	public:
 
-    Component(Scene* Scene, Actor* Actor);
-    virtual ~Component();
+		Component(Scene* Scene, Actor* Actor);
+		virtual ~Component();
 
-  protected:
+	protected:
 
-    Scene* mScene;
-    Actor* mActor;
-  };
+		Scene* mScene;
+		Actor* mActor;
+	};
 }

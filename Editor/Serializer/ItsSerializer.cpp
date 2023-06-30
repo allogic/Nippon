@@ -11,25 +11,25 @@
 
 namespace ark
 {
-  std::vector<ItsEntry> ItsSerializer::FromFile(const fs::path& File)
-  {
-    std::vector<ItsEntry> entries = {};
+	std::vector<ItsEntry> ItsSerializer::FromFile(const fs::path& File)
+	{
+		std::vector<ItsEntry> entries = {};
 
-    BinaryReader binaryReader = { FsUtils::ReadBinary(File) };
+		BinaryReader binaryReader = { FsUtils::ReadBinary(File) };
 
-    U32 size = binaryReader.Read<U32>();
-    binaryReader.Read<ItsEntry>(entries, size);
+		U32 size = binaryReader.Read<U32>();
+		binaryReader.Read<ItsEntry>(entries, size);
 
-    return entries;
-  }
+		return entries;
+	}
 
-  void ItsSerializer::ToFile(const fs::path& File, const std::vector<ItsEntry>& Entries)
-  {
-    BinaryWriter binaryWriter = {};
+	void ItsSerializer::ToFile(const fs::path& File, const std::vector<ItsEntry>& Entries)
+	{
+		BinaryWriter binaryWriter = {};
 
-    binaryWriter.Write<U32>((U32)Entries.size());
-    binaryWriter.Write<ItsEntry>(Entries);
+		binaryWriter.Write<U32>((U32)Entries.size());
+		binaryWriter.Write<ItsEntry>(Entries);
 
-    FsUtils::WriteBinary(File, binaryWriter.GetBytes());
-  }
+		FsUtils::WriteBinary(File, binaryWriter.GetBytes());
+	}
 }

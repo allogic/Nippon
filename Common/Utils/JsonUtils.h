@@ -19,10 +19,10 @@ namespace rj = rapidjson;
 
 namespace ark
 {
-  class JsonUtils
-  {
-  public:
+	class JsonUtils
+	{
+	public:
 
-    static std::set<std::string> ToStringSet(const rj::Value& Value);
-  };
+		static std::set<std::string> ToStringSet(const rj::Value& Value);
+	};
 }

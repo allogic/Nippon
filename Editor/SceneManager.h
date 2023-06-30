@@ -22,18 +22,18 @@ namespace rj = rapidjson;
 
 namespace ark
 {
-  class SceneManager
-  {
-  public:
+	class SceneManager
+	{
+	public:
 
-    static Scene* GetActiveScene();
-    static void SetActiveScene(Scene* Scene);
+		static Scene* GetActiveScene();
+		static void SetActiveScene(Scene* Scene);
 
-    static void CreateLevel(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
-    static void CreateEntity(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
+		static void CreateLevel(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
+		static void CreateEntity(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
 
-    static void Draw();
+		static void Draw();
 
-    static void Destroy(Scene* Scene);
-  };
+		static void Destroy(Scene* Scene);
+	};
 }

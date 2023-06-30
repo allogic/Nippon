@@ -17,35 +17,35 @@
 
 namespace ark
 {
-  class EntityScene : public Scene
-  {
-  public:
+	class EntityScene : public Scene
+	{
+	public:
 
-    EntityScene(
-      const std::string& Entry,
-      const std::string& SubEntry);
-    EntityScene(
-      const std::string& Entry,
-      const std::string& SubEntry,
-      const std::string& SceneName,
-      const std::string& WindowName);
-    virtual ~EntityScene();
+		EntityScene(
+			const std::string& Entry,
+			const std::string& SubEntry);
+		EntityScene(
+			const std::string& Entry,
+			const std::string& SubEntry,
+			const std::string& SceneName,
+			const std::string& WindowName);
+		virtual ~EntityScene();
 
-  public:
+	public:
 
-    inline const auto& GetModels() const { return mModels; }
+		inline const auto& GetModels() const { return mModels; }
 
-  protected:
+	protected:
 
-    virtual void Load() override;
-    virtual void Save() override;
+		virtual void Load() override;
+		virtual void Save() override;
 
-  private:
+	private:
 
-    void ModelsToActors();
+		void ModelsToActors();
 
-  private:
+	private:
 
-    std::vector<std::pair<MdModel, MdTransform>> mModels = {};
-  };
+		std::vector<std::pair<MdModel, MdTransform>> mModels = {};
+	};
 }

@@ -10,34 +10,34 @@
 
 namespace ark
 {
-  class Viewport : public Interface
-  {
-  public:
+	class Viewport : public Interface
+	{
+	public:
 
-    Viewport(Scene* Scene);
+		Viewport(Scene* Scene);
 
-  public:
+	public:
 
-    inline auto IsFocused() const { return mIsFocused; }
+		inline auto IsFocused() const { return mIsFocused; }
 
-  public:
+	public:
 
-    virtual void Reset() override;
-    virtual void Draw() override;
+		virtual void Reset() override;
+		virtual void Draw() override;
 
-  private:
+	private:
 
-    bool HasResized();
+		bool HasResized();
 
-  private:
+	private:
 
-    Scene* mScene;
+		Scene* mScene;
 
-    U32 mWidth = 0;
-    U32 mHeight = 0;
+		U32 mWidth = 0;
+		U32 mHeight = 0;
 
-    bool mIsFocusedPrev = false;
-    bool mIsFocused = false;
-    bool mIsOpen = true;
-  };
+		bool mIsFocusedPrev = false;
+		bool mIsFocused = false;
+		bool mIsOpen = true;
+	};
 }

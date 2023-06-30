@@ -23,27 +23,27 @@ namespace rj = rapidjson;
 
 namespace ark
 {
-  class MainMenu
-  {
-  public:
+	class MainMenu
+	{
+	public:
 
-    void Draw();
+		void Draw();
 
-  private:
+	private:
 
-    void DrawSceneMenu();
-    void DrawPackerMenu();
-    void DrawIntegrityMenu();
-    void DrawToolsMenu();
+		void DrawSceneMenu();
+		void DrawPackerMenu();
+		void DrawIntegrityMenu();
+		void DrawToolsMenu();
 
-  private:
+	private:
 
-    template<typename Proc, typename ... Args>
-    static void DrawMenuTree(const std::string& Name, rj::Value& Entry, Proc Procedure, Args&& ... Arguments);
+		template<typename Proc, typename ... Args>
+		static void DrawMenuTree(const std::string& Name, rj::Value& Entry, Proc Procedure, Args&& ... Arguments);
 
-    template<typename Proc, typename ... Args>
-    static void DoProcFor(rj::Value& Entry, Proc Procedure, Args&& ... Arguments);
-  };
+		template<typename Proc, typename ... Args>
+		static void DoProcFor(rj::Value& Entry, Proc Procedure, Args&& ... Arguments);
+	};
 }
 
 ///////////////////////////////////////////////////////////
@@ -52,103 +52,103 @@ namespace ark
 
 namespace ark
 {
-  template<typename Proc, typename ... Args>
-  void MainMenu::DrawMenuTree(const std::string& Name, rj::Value& Entry, Proc Procedure, Args&& ... Arguments)
-  {
-    ImGui::PushID(&Entry);
+	template<typename Proc, typename ... Args>
+	void MainMenu::DrawMenuTree(const std::string& Name, rj::Value& Entry, Proc Procedure, Args&& ... Arguments)
+	{
+		ImGui::PushID(&Entry);
 
-    if (ImGui::BeginMenu(Name.c_str()))
-    {
-      if (ImGui::Selectable("All"))
-      {
-        for (auto entryIt = Entry.MemberBegin(); entryIt != Entry.MemberEnd(); entryIt++)
-        {
-          std::string entryDir = entryIt->name.GetString();
+		if (ImGui::BeginMenu(Name.c_str()))
+		{
+			if (ImGui::Selectable("All"))
+			{
+				for (auto entryIt = Entry.MemberBegin(); entryIt != Entry.MemberEnd(); entryIt++)
+				{
+					std::string entryDir = entryIt->name.GetString();
 
-          rj::Value& subEntries = entryIt->value["entries"];
+					rj::Value& subEntries = entryIt->value["entries"];
 
-          for (auto subEntryIt = subEntries.MemberBegin(); subEntryIt != subEntries.MemberEnd(); subEntryIt++)
-          {
-            std::string subEntryDir = subEntryIt->name.GetString();
+					for (auto subEntryIt = subEntries.MemberBegin(); subEntryIt != subEntries.MemberEnd(); subEntryIt++)
+					{
+						std::string subEntryDir = subEntryIt->name.GetString();
 
-            Procedure(entryDir, subEntryDir, subEntryIt->value, std::forward<Args>(Arguments) ...);
-          }
-        }
-      }
+						Procedure(entryDir, subEntryDir, subEntryIt->value, std::forward<Args>(Arguments) ...);
+					}
+				}
+			}
 
-      ImGui::Separator();
+			ImGui::Separator();
 
-      for (auto entryIt = Entry.MemberBegin(); entryIt != Entry.MemberEnd(); entryIt++)
-      {
-        ImGui::PushID(&entryIt);
+			for (auto entryIt = Entry.MemberBegin(); entryIt != Entry.MemberEnd(); entryIt++)
+			{
+				ImGui::PushID(&entryIt);
 
-        std::string entryDir = entryIt->name.GetString();
-        std::string entryName = entryIt->value["name"].GetString();
+				std::string entryDir = entryIt->name.GetString();
+				std::string entryName = entryIt->value["name"].GetString();
 
-        if (entryName == "") entryName = entryDir;
+				if (entryName == "") entryName = entryDir;
 
-        if (ImGui::BeginMenu(entryName.c_str()))
-        {
-          if (ImGui::Selectable("All"))
-          {
-            rj::Value& subEntries = entryIt->value["entries"];
+				if (ImGui::BeginMenu(entryName.c_str()))
+				{
+					if (ImGui::Selectable("All"))
+					{
+						rj::Value& subEntries = entryIt->value["entries"];
 
-            for (auto subEntryIt = subEntries.MemberBegin(); subEntryIt != subEntries.MemberEnd(); subEntryIt++)
-            {
-              std::string subEntryDir = subEntryIt->name.GetString();
+						for (auto subEntryIt = subEntries.MemberBegin(); subEntryIt != subEntries.MemberEnd(); subEntryIt++)
+						{
+							std::string subEntryDir = subEntryIt->name.GetString();
 
-              Procedure(entryDir, subEntryDir, subEntryIt->value, std::forward<Args>(Arguments) ...);
-            }
-          }
+							Procedure(entryDir, subEntryDir, subEntryIt->value, std::forward<Args>(Arguments) ...);
+						}
+					}
 
-          ImGui::Separator();
+					ImGui::Separator();
 
-          rj::Value& subEntries = entryIt->value["entries"];
+					rj::Value& subEntries = entryIt->value["entries"];
 
-          for (auto subEntryIt = subEntries.MemberBegin(); subEntryIt != subEntries.MemberEnd(); subEntryIt++)
-          {
-            ImGui::PushID(&subEntryIt);
+					for (auto subEntryIt = subEntries.MemberBegin(); subEntryIt != subEntries.MemberEnd(); subEntryIt++)
+					{
+						ImGui::PushID(&subEntryIt);
 
-            std::string subEntryDir = subEntryIt->name.GetString();
-            std::string subEntryName = subEntryIt->value["name"].GetString();
+						std::string subEntryDir = subEntryIt->name.GetString();
+						std::string subEntryName = subEntryIt->value["name"].GetString();
 
-            if (subEntryName == "") subEntryName = subEntryDir;
+						if (subEntryName == "") subEntryName = subEntryDir;
 
-            if (ImGui::Selectable(subEntryName.c_str()))
-            {
-              Procedure(entryDir, subEntryDir, subEntryIt->value, std::forward<Args>(Arguments) ...);
-            }
+						if (ImGui::Selectable(subEntryName.c_str()))
+						{
+							Procedure(entryDir, subEntryDir, subEntryIt->value, std::forward<Args>(Arguments) ...);
+						}
 
-            ImGui::PopID();
-          }
+						ImGui::PopID();
+					}
 
-          ImGui::EndMenu();
-        }
+					ImGui::EndMenu();
+				}
 
-        ImGui::PopID();
-      }
+				ImGui::PopID();
+			}
 
-      ImGui::EndMenu();
-    }
+			ImGui::EndMenu();
+		}
 
-    ImGui::PopID();
-  }
+		ImGui::PopID();
+	}
 
-  template<typename Proc, typename ... Args>
-  void MainMenu::DoProcFor(rj::Value& Entry, Proc Procedure, Args&& ... Arguments)
-  {
-    for (auto entryIt = Entry.MemberBegin(); entryIt != Entry.MemberEnd(); entryIt++)
-    {
-      std::string entryDir = entryIt->name.GetString();
+	template<typename Proc, typename ... Args>
+	void MainMenu::DoProcFor(rj::Value& Entry, Proc Procedure, Args&& ... Arguments)
+	{
+		for (auto entryIt = Entry.MemberBegin(); entryIt != Entry.MemberEnd(); entryIt++)
+		{
+			std::string entryDir = entryIt->name.GetString();
 
-      rj::Value& subEntries = entryIt->value["entries"];
+			rj::Value& subEntries = entryIt->value["entries"];
 
-      for (auto subEntryIt = subEntries.MemberBegin(); subEntryIt != subEntries.MemberEnd(); subEntryIt++)
-      {
-        std::string subEntryDir = subEntryIt->name.GetString();
+			for (auto subEntryIt = subEntries.MemberBegin(); subEntryIt != subEntries.MemberEnd(); subEntryIt++)
+			{
+				std::string subEntryDir = subEntryIt->name.GetString();
 
-        Procedure(entryDir, subEntryDir, subEntryIt->value, std::forward<Args>(Arguments) ...);
-      }
-    }
-  }
+				Procedure(entryDir, subEntryDir, subEntryIt->value, std::forward<Args>(Arguments) ...);
+			}
+		}
+	}
 }

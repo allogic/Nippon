@@ -24,14 +24,14 @@ namespace rj = rapidjson;
 
 namespace ark
 {
-  class Packer
-  {
-  public:
+	class Packer
+	{
+	public:
 
-    static void DecryptArchive(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
-    static void EncryptArchive(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
+		static void DecryptArchive(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
+		static void EncryptArchive(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
 
-    static void UnpackArchive(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
-    static void RepackArchive(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
-  };
+		static void UnpackArchive(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
+		static void RepackArchive(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
+	};
 }

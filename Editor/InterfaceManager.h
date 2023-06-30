@@ -10,22 +10,22 @@
 
 namespace ark
 {
-  class InterfaceManager
-  {
-  public:
+	class InterfaceManager
+	{
+	public:
 
-    static EntityBrowser* GetEntityBrowser();
-    static Inspector* GetInspector();
-    static MainMenu* GetMainMenu();
-    static ModelBrowser* GetModelBrowser();
-    static ObjectBrowser* GetObjectBrowser();
-    static Outline* GetOutline();
-    static TextureBrowser* GetTextureBrowser();
+		static EntityBrowser* GetEntityBrowser();
+		static Inspector* GetInspector();
+		static MainMenu* GetMainMenu();
+		static ModelBrowser* GetModelBrowser();
+		static ObjectBrowser* GetObjectBrowser();
+		static Outline* GetOutline();
+		static TextureBrowser* GetTextureBrowser();
 
-  public:
+	public:
 
-    static void Create();
-    static void Draw();
-    static void Destroy();
-  };
+		static void Create();
+		static void Draw();
+		static void Destroy();
+	};
 }

@@ -25,22 +25,22 @@ namespace rj = rapidjson;
 
 namespace ark
 {
-  class EntityBrowser : public Interface
-  {
-  public:
+	class EntityBrowser : public Interface
+	{
+	public:
 
-    EntityBrowser();
-    virtual ~EntityBrowser();
+		EntityBrowser();
+		virtual ~EntityBrowser();
 
-  public:
+	public:
 
-    virtual void Reset() override;
-    virtual void Draw() override;
+		virtual void Reset() override;
+		virtual void Draw() override;
 
-  private:
+	private:
 
-    std::map<std::string, std::map<std::string, Texture2D*>> mThumbnails = {};
+		std::map<std::string, std::map<std::string, Texture2D*>> mThumbnails = {};
 
-    std::string mSelectedEntryDir = "";
-  };
+		std::string mSelectedEntryDir = "";
+	};
 }

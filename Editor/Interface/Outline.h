@@ -11,23 +11,23 @@
 
 namespace ark
 {
-  class Outline : public Interface
-  {
-  public:
+	class Outline : public Interface
+	{
+	public:
 
-    virtual void Reset() override;
-    virtual void Draw() override;
+		virtual void Reset() override;
+		virtual void Draw() override;
 
-  public:
+	public:
 
-    const auto GetSelectedActor() const { return mSelectedActor; }
+		const auto GetSelectedActor() const { return mSelectedActor; }
 
-  private:
+	private:
 
-    void DrawActorRecursive(Scene* Scene, Actor* Actor);
+		void DrawActorRecursive(Scene* Scene, Actor* Actor);
 
-  private:
+	private:
 
-    Actor* mSelectedActor = nullptr;
-  };
+		Actor* mSelectedActor = nullptr;
+	};
 }

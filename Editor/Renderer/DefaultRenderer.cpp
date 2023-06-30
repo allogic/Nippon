@@ -15,60 +15,60 @@
 
 namespace ark
 {
-  DefaultRenderer::DefaultRenderer(Scene* Scene)
-    : mScene{ Scene }
-    , mShader{ new Shader{ "Default.vert", "Default.frag" } }
-  {
+	DefaultRenderer::DefaultRenderer(Scene* Scene)
+		: mScene{ Scene }
+		, mShader{ new Shader{ "Default.vert", "Default.frag" } }
+	{
 
-  }
+	}
 
-  DefaultRenderer::~DefaultRenderer()
-  {
-    delete mShader;
-  }
+	DefaultRenderer::~DefaultRenderer()
+	{
+		delete mShader;
+	}
 
-  void DefaultRenderer::Render()
-  {
-    while (!mRenderQueue.empty())
-    {
-      RenderTask& renderTask = mRenderQueue.front();
+	void DefaultRenderer::Render()
+	{
+		while (!mRenderQueue.empty())
+		{
+			RenderTask& renderTask = mRenderQueue.front();
 
-      if (renderTask.TransformPtr && renderTask.MeshPtr)
-      {
-        Camera* camera = mScene->GetMainCamera();
+			if (renderTask.TransformPtr && renderTask.MeshPtr)
+			{
+				Camera* camera = mScene->GetMainCamera();
 
-        if (camera)
-        {
-          mShader->Bind();
+				if (camera)
+				{
+					mShader->Bind();
 
-          mShader->SetUniformR32M4("UniformProjectionMatrix", camera->GetProjectionMatrix());
-          mShader->SetUniformR32M4("UniformViewMatrix", camera->GetViewMatrix());
-          mShader->SetUniformR32M4("UniformModelMatrix", renderTask.TransformPtr->GetModelMatrix());
+					mShader->SetUniformR32M4("UniformProjectionMatrix", camera->GetProjectionMatrix());
+					mShader->SetUniformR32M4("UniformViewMatrix", camera->GetViewMatrix());
+					mShader->SetUniformR32M4("UniformModelMatrix", renderTask.TransformPtr->GetModelMatrix());
 
-          if (renderTask.TexturePtr)
-          {
-            renderTask.TexturePtr->Mount(0);
-          }
+					if (renderTask.TexturePtr)
+					{
+						renderTask.TexturePtr->Mount(0);
+					}
 
-          renderTask.MeshPtr->Bind();
-          renderTask.MeshPtr->Render(eRenderModeTriangles);
-          renderTask.MeshPtr->Unbind();
+					renderTask.MeshPtr->Bind();
+					renderTask.MeshPtr->Render(eRenderModeTriangles);
+					renderTask.MeshPtr->Unbind();
 
-          if (renderTask.TexturePtr)
-          {
-            renderTask.TexturePtr->UnMount();
-          }
+					if (renderTask.TexturePtr)
+					{
+						renderTask.TexturePtr->UnMount();
+					}
 
-          mShader->Unbind();
-        }
-      }
+					mShader->Unbind();
+				}
+			}
 
-      mRenderQueue.pop();
-    }
-  }
+			mRenderQueue.pop();
+		}
+	}
 
-  void DefaultRenderer::AddRenderTask(const RenderTask& RenderTask)
-  {
-    mRenderQueue.emplace(RenderTask);
-  }
+	void DefaultRenderer::AddRenderTask(const RenderTask& RenderTask)
+	{
+		mRenderQueue.emplace(RenderTask);
+	}
 }

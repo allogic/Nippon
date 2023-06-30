@@ -6,15 +6,15 @@
 
 namespace ark
 {
-  std::set<std::string> JsonUtils::ToStringSet(const rj::Value& Value)
-  {
-    std::set<std::string> result;
+	std::set<std::string> JsonUtils::ToStringSet(const rj::Value& Value)
+	{
+		std::set<std::string> result;
 
-    for (auto it = Value.Begin(); it != Value.End(); it++)
-    {
-      result.emplace(it->GetString());
-    }
+		for (auto it = Value.Begin(); it != Value.End(); it++)
+		{
+			result.emplace(it->GetString());
+		}
 
-    return result;
-  }
+		return result;
+	}
 }

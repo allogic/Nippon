@@ -32,93 +32,93 @@ namespace rj = rapidjson;
 
 namespace ark
 {
-  enum SceneType
-  {
-    eSceneTypeLevel,
-    eSceneTypeEntity,
-  };
+	enum SceneType
+	{
+		eSceneTypeLevel,
+		eSceneTypeEntity,
+	};
 
-  class Scene
-  {
-  public:
+	class Scene
+	{
+	public:
 
-    Scene(
-      SceneType SceneType,
-      const std::string& Entry,
-      const std::string& SubEntry);
-    Scene(
-      SceneType SceneType,
-      const std::string& Entry,
-      const std::string& SubEntry,
-      const std::string& SceneName,
-      const std::string& WindowName);
-    virtual ~Scene();
+		Scene(
+			SceneType SceneType,
+			const std::string& Entry,
+			const std::string& SubEntry);
+		Scene(
+			SceneType SceneType,
+			const std::string& Entry,
+			const std::string& SubEntry,
+			const std::string& SceneName,
+			const std::string& WindowName);
+		virtual ~Scene();
 
-  public:
+	public:
 
-    inline const auto& GetSceneType() const { return mSceneType; }
-    inline const auto& GetSceneName() const { return mSceneName; }
-    inline const auto& GetWindowName() const { return mWindowName; }
-    inline const auto& GetWidth() const { return mWidth; }
-    inline const auto& GetHeight() const { return mHeight; }
-    inline const auto& GetActors() const { return mActors; }
-    inline const auto& GetTextures() const { return mTextures; }
-    inline const auto& GetFrameBuffer() const { return mFrameBuffer; }
-    inline const auto& GetMainActor() const { return mMainActor; }
-    inline const auto& GetMainCamera() const { return mMainCamera; }
-    inline const auto& GetViewport() const { return mViewport; }
+		inline const auto& GetSceneType() const { return mSceneType; }
+		inline const auto& GetSceneName() const { return mSceneName; }
+		inline const auto& GetWindowName() const { return mWindowName; }
+		inline const auto& GetWidth() const { return mWidth; }
+		inline const auto& GetHeight() const { return mHeight; }
+		inline const auto& GetActors() const { return mActors; }
+		inline const auto& GetTextures() const { return mTextures; }
+		inline const auto& GetFrameBuffer() const { return mFrameBuffer; }
+		inline const auto& GetMainActor() const { return mMainActor; }
+		inline const auto& GetMainCamera() const { return mMainCamera; }
+		inline const auto& GetViewport() const { return mViewport; }
 
-    inline auto& GetDebugRenderer() { return mDebugRenderer; }
-    inline auto& GetDefaultRenderer() { return mDefaultRenderer; }
+		inline auto& GetDebugRenderer() { return mDebugRenderer; }
+		inline auto& GetDefaultRenderer() { return mDefaultRenderer; }
 
-  public:
+	public:
 
-    template<typename A, typename ... Args>
-    A* CreateActor(const std::string& Name, Actor* Parent, Args&& ... Arguments);
+		template<typename A, typename ... Args>
+		A* CreateActor(const std::string& Name, Actor* Parent, Args&& ... Arguments);
 
-    void DestroyActor(Actor* Actor);
+		void DestroyActor(Actor* Actor);
 
-  public:
+	public:
 
-    void Resize(U32 Width, U32 Height);
-    void Update();
-    void Render();
+		void Resize(U32 Width, U32 Height);
+		void Update();
+		void Render();
 
-    void SubmitRenderTasks();
-    void DoSelectionRecursive(Actor* Actor);
+		void SubmitRenderTasks();
+		void DoSelectionRecursive(Actor* Actor);
 
-    std::vector<U8> Snapshot() const;
+		std::vector<U8> Snapshot() const;
 
-  protected:
+	protected:
 
-    virtual void Load() = 0;
-    virtual void Save() = 0;
+		virtual void Load() = 0;
+		virtual void Save() = 0;
 
-  protected:
+	protected:
 
-    SceneType mSceneType;
-    std::string mEntry;
-    std::string mSubEntry;
-    std::string mSceneName;
-    std::string mWindowName;
-    bool mEnableDebug;
+		SceneType mSceneType;
+		std::string mEntry;
+		std::string mSubEntry;
+		std::string mSceneName;
+		std::string mWindowName;
+		bool mEnableDebug;
 
-    Viewport* mViewport = nullptr;
+		Viewport* mViewport = nullptr;
 
-    Actor* mMainActor = nullptr;
-    Camera* mMainCamera = nullptr;
+		Actor* mMainActor = nullptr;
+		Camera* mMainCamera = nullptr;
 
-    std::vector<Actor*> mActors = {};
-    std::vector<Texture2D*> mTextures = {};
+		std::vector<Actor*> mActors = {};
+		std::vector<Texture2D*> mTextures = {};
 
-    U32 mWidth = 1;
-    U32 mHeight = 1;
+		U32 mWidth = 1;
+		U32 mHeight = 1;
 
-    DebugRenderer mDebugRenderer = { this, 65535, 65535 * 2 };
-    DefaultRenderer mDefaultRenderer = { this };
+		DebugRenderer mDebugRenderer = { this, 65535, 65535 * 2 };
+		DefaultRenderer mDefaultRenderer = { this };
 
-    FrameBuffer mFrameBuffer = {};
-  };
+		FrameBuffer mFrameBuffer = {};
+	};
 }
 
 ///////////////////////////////////////////////////////////
@@ -127,15 +127,15 @@ namespace ark
 
 namespace ark
 {
-  template<typename A, typename ... Args>
-  A* Scene::CreateActor(const std::string& Name, Actor* Parent, Args&& ... Arguments)
-  {
-    auto actor = mActors.emplace_back(new A{ this, Name, std::forward<Args>(Arguments) ... });
-    if (Parent)
-    {
-      actor->SetParent(Parent);
-      Parent->AddChild(actor);
-    }
-    return (A*)actor;
-  }
+	template<typename A, typename ... Args>
+	A* Scene::CreateActor(const std::string& Name, Actor* Parent, Args&& ... Arguments)
+	{
+		auto actor = mActors.emplace_back(new A{ this, Name, std::forward<Args>(Arguments) ... });
+		if (Parent)
+		{
+			actor->SetParent(Parent);
+			Parent->AddChild(actor);
+		}
+		return (A*)actor;
+	}
 }

@@ -23,168 +23,168 @@ extern rj::Document gConfig;
 
 namespace ark
 {
-  bool Integrity::CheckEncrypted()
-  {
-    bool intact = true;
+	bool Integrity::CheckEncrypted()
+	{
+		bool intact = true;
 
-    fs::path encryptDir = gConfig["encryptDir"].GetString();
+		fs::path encryptDir = gConfig["encryptDir"].GetString();
 
-    rj::Document integrity = {};
+		rj::Document integrity = {};
 
-    integrity.Parse(FsUtils::ReadText("EncryptedIntegrity.json").c_str());
+		integrity.Parse(FsUtils::ReadText("EncryptedIntegrity.json").c_str());
 
-    for (const auto& file : fs::recursive_directory_iterator{ encryptDir })
-    {
-      if (fs::is_regular_file(file))
-      {
-        std::string posixFile = StringUtils::PosixPath(file.path().string());
-        std::string posixDir = StringUtils::PosixPath(encryptDir.string());
-        std::string keyValue = StringUtils::CutFront(posixFile, posixDir.size());
+		for (const auto& file : fs::recursive_directory_iterator{ encryptDir })
+		{
+			if (fs::is_regular_file(file))
+			{
+				std::string posixFile = StringUtils::PosixPath(file.path().string());
+				std::string posixDir = StringUtils::PosixPath(encryptDir.string());
+				std::string keyValue = StringUtils::CutFront(posixFile, posixDir.size());
 
-        U32 origCrc32 = integrity[keyValue.c_str()].GetUint();
-        U32 currCrc32 = IntegrityUtils::Crc32FromBytes(FsUtils::ReadBinary(file.path()));
+				U32 origCrc32 = integrity[keyValue.c_str()].GetUint();
+				U32 currCrc32 = IntegrityUtils::Crc32FromBytes(FsUtils::ReadBinary(file.path()));
 
-        if (origCrc32 != currCrc32)
-        {
-          intact = false;
-        }
+				if (origCrc32 != currCrc32)
+				{
+					intact = false;
+				}
 
-        LOG("%s -> %s\n", keyValue.c_str(), (origCrc32 == currCrc32) ? "Passed" : "Failed");
-      }
-    }
+				LOG("%s -> %s\n", keyValue.c_str(), (origCrc32 == currCrc32) ? "Passed" : "Failed");
+			}
+		}
 
-    return intact;
-  }
+		return intact;
+	}
 
-  bool Integrity::CheckDecrypted()
-  {
-    bool intact = true;
+	bool Integrity::CheckDecrypted()
+	{
+		bool intact = true;
 
-    fs::path decryptDir = gConfig["decryptDir"].GetString();
+		fs::path decryptDir = gConfig["decryptDir"].GetString();
 
-    rj::Document integrity = {};
+		rj::Document integrity = {};
 
-    integrity.Parse(FsUtils::ReadText("DecryptedIntegrity.json").c_str());
+		integrity.Parse(FsUtils::ReadText("DecryptedIntegrity.json").c_str());
 
-    for (const auto& file : fs::recursive_directory_iterator{ decryptDir })
-    {
-      if (fs::is_regular_file(file))
-      {
-        std::string posixFile = StringUtils::PosixPath(file.path().string());
-        std::string posixDir = StringUtils::PosixPath(decryptDir.string());
-        std::string keyValue = StringUtils::CutFront(posixFile, posixDir.size());
+		for (const auto& file : fs::recursive_directory_iterator{ decryptDir })
+		{
+			if (fs::is_regular_file(file))
+			{
+				std::string posixFile = StringUtils::PosixPath(file.path().string());
+				std::string posixDir = StringUtils::PosixPath(decryptDir.string());
+				std::string keyValue = StringUtils::CutFront(posixFile, posixDir.size());
 
-        U32 origCrc32 = integrity[keyValue.c_str()].GetUint();
-        U32 currCrc32 = IntegrityUtils::Crc32FromBytes(FsUtils::ReadBinary(file.path()));
+				U32 origCrc32 = integrity[keyValue.c_str()].GetUint();
+				U32 currCrc32 = IntegrityUtils::Crc32FromBytes(FsUtils::ReadBinary(file.path()));
 
-        if (origCrc32 != currCrc32)
-        {
-          intact = false;
-        }
+				if (origCrc32 != currCrc32)
+				{
+					intact = false;
+				}
 
-        LOG("%s -> %s\n", keyValue.c_str(), (origCrc32 == currCrc32) ? "Passed" : "Failed");
-      }
-    }
+				LOG("%s -> %s\n", keyValue.c_str(), (origCrc32 == currCrc32) ? "Passed" : "Failed");
+			}
+		}
 
-    return intact;
-  }
+		return intact;
+	}
 
-  void Integrity::CompareRepackedWithDecrypted(const std::string& Entry, const std::string& SubEntry, rj::Value& Value)
-  {
-    fs::path decryptDir = gConfig["decryptDir"].GetString();
-    fs::path repackDir = gConfig["repackDir"].GetString();
+	void Integrity::CompareRepackedWithDecrypted(const std::string& Entry, const std::string& SubEntry, rj::Value& Value)
+	{
+		fs::path decryptDir = gConfig["decryptDir"].GetString();
+		fs::path repackDir = gConfig["repackDir"].GetString();
 
-    for (const auto& file : fs::directory_iterator{ repackDir / Entry / SubEntry })
-    {
-      fs::path decryptedFile = decryptDir / Entry / SubEntry / file.path().filename();
-      fs::path repackedFile = repackDir / Entry / SubEntry / file.path().filename();
+		for (const auto& file : fs::directory_iterator{ repackDir / Entry / SubEntry })
+		{
+			fs::path decryptedFile = decryptDir / Entry / SubEntry / file.path().filename();
+			fs::path repackedFile = repackDir / Entry / SubEntry / file.path().filename();
 
-      std::vector<U8> decryptedBytes = FsUtils::ReadBinary(decryptedFile);
-      std::vector<U8> repackedBytes = FsUtils::ReadBinary(repackedFile);
+			std::vector<U8> decryptedBytes = FsUtils::ReadBinary(decryptedFile);
+			std::vector<U8> repackedBytes = FsUtils::ReadBinary(repackedFile);
 
-      U64 index = ByteUtils::Compare(decryptedBytes, repackedBytes);
+			U64 index = ByteUtils::Compare(decryptedBytes, repackedBytes);
 
-      fs::path posixFile = StringUtils::PosixPath(repackedFile.string());
+			fs::path posixFile = StringUtils::PosixPath(repackedFile.string());
 
-      if (index == 0)
-      {
-        LOG("%s -> Passed\n", posixFile.string().c_str());
-      }
-      else
-      {
-        LOG("%s -> Missmatch at 0x%llX\n", posixFile.string().c_str(), index);
-      }
-    }
-  }
+			if (index == 0)
+			{
+				LOG("%s -> Passed\n", posixFile.string().c_str());
+			}
+			else
+			{
+				LOG("%s -> Missmatch at 0x%llX\n", posixFile.string().c_str(), index);
+			}
+		}
+	}
 
-  void Integrity::CompareEncryptedWithOriginal(const std::string& Entry, const std::string& SubEntry, rj::Value& Value)
-  {
+	void Integrity::CompareEncryptedWithOriginal(const std::string& Entry, const std::string& SubEntry, rj::Value& Value)
+	{
 
-  }
+	}
 
-  void Integrity::GenerateEncryptedMap()
-  {
-    fs::path encryptDir = gConfig["encryptDir"].GetString();
+	void Integrity::GenerateEncryptedMap()
+	{
+		fs::path encryptDir = gConfig["encryptDir"].GetString();
 
-    rj::Document document;
-    rj::Value integrities = rj::Value{ rj::kObjectType };
-    rj::StringBuffer buffer;
-    rj::PrettyWriter<rj::StringBuffer> writer = rj::PrettyWriter<rj::StringBuffer>{ buffer };
+		rj::Document document;
+		rj::Value integrities = rj::Value{ rj::kObjectType };
+		rj::StringBuffer buffer;
+		rj::PrettyWriter<rj::StringBuffer> writer = rj::PrettyWriter<rj::StringBuffer>{ buffer };
 
-    for (const auto& file : fs::recursive_directory_iterator{ encryptDir })
-    {
-      if (fs::is_regular_file(file))
-      {
-        std::string posixFile = StringUtils::PosixPath(file.path().string());
-        std::string posixDir = StringUtils::PosixPath(encryptDir.string());
-        std::string keyValue = StringUtils::CutFront(posixFile, posixDir.size());
+		for (const auto& file : fs::recursive_directory_iterator{ encryptDir })
+		{
+			if (fs::is_regular_file(file))
+			{
+				std::string posixFile = StringUtils::PosixPath(file.path().string());
+				std::string posixDir = StringUtils::PosixPath(encryptDir.string());
+				std::string keyValue = StringUtils::CutFront(posixFile, posixDir.size());
 
-        U32 crc32 = IntegrityUtils::Crc32FromBytes(FsUtils::ReadBinary(file.path()));
+				U32 crc32 = IntegrityUtils::Crc32FromBytes(FsUtils::ReadBinary(file.path()));
 
-        integrities.AddMember(
-          rj::Value{ rj::kStringType }.SetString(keyValue.c_str(), document.GetAllocator()),
-          rj::Value{ rj::kNumberType }.SetUint(crc32),
-          document.GetAllocator());
+				integrities.AddMember(
+					rj::Value{ rj::kStringType }.SetString(keyValue.c_str(), document.GetAllocator()),
+					rj::Value{ rj::kNumberType }.SetUint(crc32),
+					document.GetAllocator());
 
-        LOG("0x%08X %s\n", crc32, keyValue.c_str());
-      }
-    }
+				LOG("0x%08X %s\n", crc32, keyValue.c_str());
+			}
+		}
 
-    integrities.Accept(writer);
+		integrities.Accept(writer);
 
-    FsUtils::WriteText("EncryptedIntegrity.json", buffer.GetString());
-  }
+		FsUtils::WriteText("EncryptedIntegrity.json", buffer.GetString());
+	}
 
-  void Integrity::GenerateDecryptedMap()
-  {
-    fs::path decryptDir = gConfig["decryptDir"].GetString();
+	void Integrity::GenerateDecryptedMap()
+	{
+		fs::path decryptDir = gConfig["decryptDir"].GetString();
 
-    rj::Document document;
-    rj::Value integrities = rj::Value{ rj::kObjectType };
-    rj::StringBuffer buffer;
-    rj::PrettyWriter<rj::StringBuffer> writer = rj::PrettyWriter<rj::StringBuffer>{ buffer };
+		rj::Document document;
+		rj::Value integrities = rj::Value{ rj::kObjectType };
+		rj::StringBuffer buffer;
+		rj::PrettyWriter<rj::StringBuffer> writer = rj::PrettyWriter<rj::StringBuffer>{ buffer };
 
-    for (const auto& file : fs::recursive_directory_iterator{ decryptDir })
-    {
-      if (fs::is_regular_file(file))
-      {
-        std::string posixFile = StringUtils::PosixPath(file.path().string());
-        std::string posixDir = StringUtils::PosixPath(decryptDir.string());
-        std::string keyValue = StringUtils::CutFront(posixFile, posixDir.size());
+		for (const auto& file : fs::recursive_directory_iterator{ decryptDir })
+		{
+			if (fs::is_regular_file(file))
+			{
+				std::string posixFile = StringUtils::PosixPath(file.path().string());
+				std::string posixDir = StringUtils::PosixPath(decryptDir.string());
+				std::string keyValue = StringUtils::CutFront(posixFile, posixDir.size());
 
-        U32 crc32 = IntegrityUtils::Crc32FromBytes(FsUtils::ReadBinary(file.path()));
+				U32 crc32 = IntegrityUtils::Crc32FromBytes(FsUtils::ReadBinary(file.path()));
 
-        integrities.AddMember(
-          rj::Value{ rj::kStringType }.SetString(keyValue.c_str(), document.GetAllocator()),
-          rj::Value{ rj::kNumberType }.SetUint(crc32),
-          document.GetAllocator());
+				integrities.AddMember(
+					rj::Value{ rj::kStringType }.SetString(keyValue.c_str(), document.GetAllocator()),
+					rj::Value{ rj::kNumberType }.SetUint(crc32),
+					document.GetAllocator());
 
-        LOG("0x%08X %s\n", crc32, keyValue.c_str());
-      }
-    }
+				LOG("0x%08X %s\n", crc32, keyValue.c_str());
+			}
+		}
 
-    integrities.Accept(writer);
+		integrities.Accept(writer);
 
-    FsUtils::WriteText("DecryptedIntegrity.json", buffer.GetString());
-  }
+		FsUtils::WriteText("DecryptedIntegrity.json", buffer.GetString());
+	}
 }

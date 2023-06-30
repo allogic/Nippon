@@ -25,114 +25,114 @@ static std::map<std::string, ark::EntityScene*> sEntityScenes = {};
 
 namespace ark
 {
-  Scene* SceneManager::GetActiveScene()
-  {
-    return sActiveScene;
-  }
+	Scene* SceneManager::GetActiveScene()
+	{
+		return sActiveScene;
+	}
 
-  void SceneManager::SetActiveScene(Scene* Scene)
-  {
-    sActiveScene = Scene;
+	void SceneManager::SetActiveScene(Scene* Scene)
+	{
+		sActiveScene = Scene;
 
-    if (sActiveScene != sActiveScenePrev)
-    {
-      InterfaceManager::GetOutline()->Reset();
+		if (sActiveScene != sActiveScenePrev)
+		{
+			InterfaceManager::GetOutline()->Reset();
 
-      sActiveScenePrev = sActiveScene;
-    }
-  }
+			sActiveScenePrev = sActiveScene;
+		}
+	}
 
-  void SceneManager::CreateLevel(const std::string& Entry, const std::string& SubEntry, rj::Value& Value)
-  {
-    std::string sceneName = "/" + Entry + "/" + SubEntry;
-    std::string windowName = "/" + Entry + "/" + SubEntry + " - " + Value["name"].GetString();
+	void SceneManager::CreateLevel(const std::string& Entry, const std::string& SubEntry, rj::Value& Value)
+	{
+		std::string sceneName = "/" + Entry + "/" + SubEntry;
+		std::string windowName = "/" + Entry + "/" + SubEntry + " - " + Value["name"].GetString();
 
-    if (sLevelScenes[sceneName])
-    {
-      delete sLevelScenes[sceneName];
-      sLevelScenes[sceneName] = nullptr;
-    }
+		if (sLevelScenes[sceneName])
+		{
+			delete sLevelScenes[sceneName];
+			sLevelScenes[sceneName] = nullptr;
+		}
 
-    sLevelScenes[sceneName] = new LevelScene{ Entry, SubEntry, sceneName, windowName };
-  }
+		sLevelScenes[sceneName] = new LevelScene{ Entry, SubEntry, sceneName, windowName };
+	}
 
-  void SceneManager::CreateEntity(const std::string& Entry, const std::string& SubEntry, rj::Value& Value)
-  {
-    std::string sceneName = "/" + Entry + "/" + SubEntry;
-    std::string windowName = "/" + Entry + "/" + SubEntry + " - " + Value["name"].GetString();
+	void SceneManager::CreateEntity(const std::string& Entry, const std::string& SubEntry, rj::Value& Value)
+	{
+		std::string sceneName = "/" + Entry + "/" + SubEntry;
+		std::string windowName = "/" + Entry + "/" + SubEntry + " - " + Value["name"].GetString();
 
-    if (sEntityScenes[sceneName])
-    {
-      delete sEntityScenes[sceneName];
-      sEntityScenes[sceneName] = nullptr;
-    }
+		if (sEntityScenes[sceneName])
+		{
+			delete sEntityScenes[sceneName];
+			sEntityScenes[sceneName] = nullptr;
+		}
 
-    sEntityScenes[sceneName] = new EntityScene{ Entry, SubEntry, sceneName, windowName };
-  }
+		sEntityScenes[sceneName] = new EntityScene{ Entry, SubEntry, sceneName, windowName };
+	}
 
-  void SceneManager::Draw()
-  {
-    for (const auto& [name, scene] : sLevelScenes)
-    {
-      if (scene)
-      {
-        Viewport* viewport = scene->GetViewport();
+	void SceneManager::Draw()
+	{
+		for (const auto& [name, scene] : sLevelScenes)
+		{
+			if (scene)
+			{
+				Viewport* viewport = scene->GetViewport();
 
-        if (viewport)
-        {
-          viewport->Draw();
-        }
-      }
-    }
+				if (viewport)
+				{
+					viewport->Draw();
+				}
+			}
+		}
 
-    for (const auto& [name, scene] : sEntityScenes)
-    {
-      if (scene)
-      {
-        Viewport* viewport = scene->GetViewport();
+		for (const auto& [name, scene] : sEntityScenes)
+		{
+			if (scene)
+			{
+				Viewport* viewport = scene->GetViewport();
 
-        if (viewport)
-        {
-          viewport->Draw();
-        }
-      }
-    }
-  }
+				if (viewport)
+				{
+					viewport->Draw();
+				}
+			}
+		}
+	}
 
-  void SceneManager::Destroy(Scene* Scene)
-  {
-    if (Scene == sActiveScene)
-    {
-      InterfaceManager::GetOutline()->Reset();
+	void SceneManager::Destroy(Scene* Scene)
+	{
+		if (Scene == sActiveScene)
+		{
+			InterfaceManager::GetOutline()->Reset();
 
-      sActiveScenePrev = nullptr;
-      sActiveScene = nullptr;
-    }
+			sActiveScenePrev = nullptr;
+			sActiveScene = nullptr;
+		}
 
-    std::string sceneName = Scene->GetSceneName();
+		std::string sceneName = Scene->GetSceneName();
 
-    switch (Scene->GetSceneType())
-    {
-      case eSceneTypeLevel:
-      {
-        if (sLevelScenes[sceneName])
-        {
-          delete sLevelScenes[sceneName];
-          sLevelScenes[sceneName] = nullptr;
-        }
+		switch (Scene->GetSceneType())
+		{
+			case eSceneTypeLevel:
+			{
+				if (sLevelScenes[sceneName])
+				{
+					delete sLevelScenes[sceneName];
+					sLevelScenes[sceneName] = nullptr;
+				}
 
-        break;
-      }
-      case eSceneTypeEntity:
-      {
-        if (sEntityScenes[sceneName])
-        {
-          delete sEntityScenes[sceneName];
-          sEntityScenes[sceneName] = nullptr;
-        }
+				break;
+			}
+			case eSceneTypeEntity:
+			{
+				if (sEntityScenes[sceneName])
+				{
+					delete sEntityScenes[sceneName];
+					sEntityScenes[sceneName] = nullptr;
+				}
 
-        break;
-      }
-    }
-  }
+				break;
+			}
+		}
+	}
 }

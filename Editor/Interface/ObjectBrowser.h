@@ -10,11 +10,11 @@
 
 namespace ark
 {
-  class ObjectBrowser : public Interface
-  {
-  public:
+	class ObjectBrowser : public Interface
+	{
+	public:
 
-    virtual void Reset() override;
-    virtual void Draw() override;
-  };
+		virtual void Reset() override;
+		virtual void Draw() override;
+	};
 }

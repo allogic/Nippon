@@ -12,11 +12,11 @@
 
 namespace ark
 {
-  class TextureBrowser : public Interface
-  {
-  public:
+	class TextureBrowser : public Interface
+	{
+	public:
 
-    virtual void Reset() override;
-    virtual void Draw() override;
-  };
+		virtual void Reset() override;
+		virtual void Draw() override;
+	};
 }

@@ -17,65 +17,65 @@
 
 namespace ark
 {
-  class Actor
-  {
-  public:
+	class Actor
+	{
+	public:
 
-    Actor(Scene* Scene, const std::string& Name);
-    virtual ~Actor();
+		Actor(Scene* Scene, const std::string& Name);
+		virtual ~Actor();
 
-  public:
+	public:
 
-    inline auto IsActive() const { return mActive; }
-    inline auto IsChild() const { return mChildren.size() == 0; }
-    inline auto HasParent() const { return mParent != nullptr; }
+		inline auto IsActive() const { return mActive; }
+		inline auto IsChild() const { return mChildren.size() == 0; }
+		inline auto HasParent() const { return mParent != nullptr; }
 
-    inline const auto& GetName() const { return mName; }
-    inline const auto& GetComponents() const { return mComponents; }
-    inline const auto& GetChildren() const { return mChildren; }
-    inline const auto& GetAABB() const { return mAABB; }
+		inline const auto& GetName() const { return mName; }
+		inline const auto& GetComponents() const { return mComponents; }
+		inline const auto& GetChildren() const { return mChildren; }
+		inline const auto& GetAABB() const { return mAABB; }
 
-    inline auto GetParent() const { return mParent; }
-    inline auto GetTransform() const { return mTransform; }
+		inline auto GetParent() const { return mParent; }
+		inline auto GetTransform() const { return mTransform; }
 
-  public:
+	public:
 
-    void SetActive(bool Active);
+		void SetActive(bool Active);
 
-    inline void SetParent(Actor* Parent) { mParent = Parent; }
-    inline void SetAABB(const AABB& AABB) { mAABB = AABB; }
+		inline void SetParent(Actor* Parent) { mParent = Parent; }
+		inline void SetAABB(const AABB& AABB) { mAABB = AABB; }
 
-  public:
+	public:
 
-    virtual void Update(R32 TimeDelta) {}
+		virtual void Update(R32 TimeDelta) {}
 
-  public:
+	public:
 
-    inline void AddChild(Actor* Child) { mChildren.emplace_back(Child); }
-    inline void RemoveChild(Actor* Child) { mChildren.erase(std::find(mChildren.begin(), mChildren.end(), Child)); }
+		inline void AddChild(Actor* Child) { mChildren.emplace_back(Child); }
+		inline void RemoveChild(Actor* Child) { mChildren.erase(std::find(mChildren.begin(), mChildren.end(), Child)); }
 
-  public:
+	public:
 
-    template<typename C, typename ... Args>
-    C* AttachComponent(Args&& ... Arguments);
+		template<typename C, typename ... Args>
+		C* AttachComponent(Args&& ... Arguments);
 
-    template<typename C>
-    C* GetComponent();
+		template<typename C>
+		C* GetComponent();
 
-  protected:
-    
-    Scene* mScene;
-    std::string mName;
-    std::vector<Actor*> mChildren;
-    std::map<U64, Component*> mComponents;
+	protected:
+		
+		Scene* mScene;
+		std::string mName;
+		std::vector<Actor*> mChildren;
+		std::map<U64, Component*> mComponents;
 
-    Actor* mParent = nullptr;
-    Transform* mTransform = nullptr;
+		Actor* mParent = nullptr;
+		Transform* mTransform = nullptr;
 
-    bool mActive = true;
+		bool mActive = true;
 
-    AABB mAABB = {};
-  };
+		AABB mAABB = {};
+	};
 }
 
 ///////////////////////////////////////////////////////////
@@ -84,22 +84,22 @@ namespace ark
 
 namespace ark
 {
-  template<typename C, typename ... Args>
-  C* Actor::AttachComponent(Args&& ... Arguments)
-  {
-    U64 hash = typeid(C).hash_code();
-    auto const findIt = mComponents.find(hash);
-    if (findIt == mComponents.end())
-    {
-      auto const [emplaceIt, inserted] = mComponents.emplace(hash, new C{ mScene, this, std::forward<Args>(Arguments) ... });
-      return (C*)emplaceIt->second;
-    }
-    return (C*)findIt->second;
-  }
+	template<typename C, typename ... Args>
+	C* Actor::AttachComponent(Args&& ... Arguments)
+	{
+		U64 hash = typeid(C).hash_code();
+		auto const findIt = mComponents.find(hash);
+		if (findIt == mComponents.end())
+		{
+			auto const [emplaceIt, inserted] = mComponents.emplace(hash, new C{ mScene, this, std::forward<Args>(Arguments) ... });
+			return (C*)emplaceIt->second;
+		}
+		return (C*)findIt->second;
+	}
 
-  template<typename C>
-  C* Actor::GetComponent()
-  {
-    return (C*)mComponents[typeid(C).hash_code()];
-  }
+	template<typename C>
+	C* Actor::GetComponent()
+	{
+		return (C*)mComponents[typeid(C).hash_code()];
+	}
 }

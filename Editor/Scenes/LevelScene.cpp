@@ -33,133 +33,133 @@ extern std::map<std::string, ark::LevelScene*> gLevelScenes;
 
 namespace ark
 {
-  LevelScene::LevelScene(
-    const std::string& Entry,
-    const std::string& SubEntry)
-    : Scene{ eSceneTypeLevel, Entry, SubEntry }
-  {
-    Load();
+	LevelScene::LevelScene(
+		const std::string& Entry,
+		const std::string& SubEntry)
+		: Scene{ eSceneTypeLevel, Entry, SubEntry }
+	{
+		Load();
 
-    ModelsToActors();
-    ObjectsToActors();
-  }
+		ModelsToActors();
+		ObjectsToActors();
+	}
 
-  LevelScene::LevelScene(
-    const std::string& Entry,
-    const std::string& SubEntry,
-    const std::string& SceneName,
-    const std::string& WindowName)
-    : Scene{ eSceneTypeLevel, Entry, SubEntry, SceneName, WindowName }
-  {
-    Load();
+	LevelScene::LevelScene(
+		const std::string& Entry,
+		const std::string& SubEntry,
+		const std::string& SceneName,
+		const std::string& WindowName)
+		: Scene{ eSceneTypeLevel, Entry, SubEntry, SceneName, WindowName }
+	{
+		Load();
 
-    ModelsToActors();
-    ObjectsToActors();
-  }
+		ModelsToActors();
+		ObjectsToActors();
+	}
 
-  LevelScene::~LevelScene()
-  {
-    Save();
-  }
+	LevelScene::~LevelScene()
+	{
+		Save();
+	}
 
-  void LevelScene::Load()
-  {
-    std::string mapId = StringUtils::CutFront(mEntry, 2);
+	void LevelScene::Load()
+	{
+		std::string mapId = StringUtils::CutFront(mEntry, 2);
 
-    fs::path lvlDir = fs::path{ gConfig["unpackDir"].GetString() } / mEntry / mSubEntry;
-    fs::path datDir = lvlDir / fs::path{ "r" + mapId + mSubEntry + "@dat" };
+		fs::path lvlDir = fs::path{ gConfig["unpackDir"].GetString() } / mEntry / mSubEntry;
+		fs::path datDir = lvlDir / fs::path{ "r" + mapId + mSubEntry + "@dat" };
 
-    fs::path tscFile = FsUtils::SearchFileByType(datDir, "TSC");
-    fs::path treFile = FsUtils::SearchFileByType(datDir, "TRE");
-    fs::path tatFile = FsUtils::SearchFileByType(datDir, "TAT");
+		fs::path tscFile = FsUtils::SearchFileByType(datDir, "TSC");
+		fs::path treFile = FsUtils::SearchFileByType(datDir, "TRE");
+		fs::path tatFile = FsUtils::SearchFileByType(datDir, "TAT");
 
-    if (fs::exists(tscFile))
-    {
-      auto tsc = ObjSerializer::FromFile(tscFile);
+		if (fs::exists(tscFile))
+		{
+			auto tsc = ObjSerializer::FromFile(tscFile);
 
-      mObjects.insert(mObjects.end(), tsc.begin(), tsc.end());
-    }
+			mObjects.insert(mObjects.end(), tsc.begin(), tsc.end());
+		}
 
-    if (fs::exists(treFile))
-    {
-      auto tre = ObjSerializer::FromFile(treFile);
+		if (fs::exists(treFile))
+		{
+			auto tre = ObjSerializer::FromFile(treFile);
 
-      mObjects.insert(mObjects.end(), tre.begin(), tre.end());
-    }
-    
-    if (fs::exists(tatFile))
-    {
-      auto tat = ObjSerializer::FromFile(tatFile);
+			mObjects.insert(mObjects.end(), tre.begin(), tre.end());
+		}
+		
+		if (fs::exists(tatFile))
+		{
+			auto tat = ObjSerializer::FromFile(tatFile);
 
-      mObjects.insert(mObjects.end(), tat.begin(), tat.end());
-    }
+			mObjects.insert(mObjects.end(), tat.begin(), tat.end());
+		}
 
-    auto scrFiles = FsUtils::SearchFilesByTypeRecursive(datDir, "SCR");
-    auto ddsFiles = FsUtils::SearchFilesByTypeRecursive(datDir, "DDS");
+		auto scrFiles = FsUtils::SearchFilesByTypeRecursive(datDir, "SCR");
+		auto ddsFiles = FsUtils::SearchFilesByTypeRecursive(datDir, "DDS");
 
-    for (const auto& file : scrFiles)
-    {
-      auto models = ScrSerializer::FromFile(file);
+		for (const auto& file : scrFiles)
+		{
+			auto models = ScrSerializer::FromFile(file);
 
-      mModels.insert(mModels.end(), models.begin(), models.end());
-    }
+			mModels.insert(mModels.end(), models.begin(), models.end());
+		}
 
-    for (const auto& file : ddsFiles)
-    {
-      mTextures.emplace_back(TextureUtils::LoadDirectDrawSurface(file));
-    }
-  }
+		for (const auto& file : ddsFiles)
+		{
+			mTextures.emplace_back(TextureUtils::LoadDirectDrawSurface(file));
+		}
+	}
 
-  void LevelScene::Save()
-  {
-    
-  }
+	void LevelScene::Save()
+	{
+		
+	}
 
-  void LevelScene::ModelsToActors()
-  {
-    for (const auto& [model, trans] : mModels)
-    {
-      Actor* modelActor = CreateActor<Actor>(model.Name, nullptr);
+	void LevelScene::ModelsToActors()
+	{
+		for (const auto& [model, trans] : mModels)
+		{
+			Actor* modelActor = CreateActor<Actor>(model.Name, nullptr);
 
-      Transform* transform = modelActor->GetTransform();
+			Transform* transform = modelActor->GetTransform();
 
-      transform->SetLocalPosition(R32V3{ trans.Position.x, trans.Position.y, trans.Position.z });
-      transform->SetLocalRotation(glm::degrees(R32V3{ trans.Rotation.x, trans.Rotation.y, trans.Rotation.z } / 360.0F));
-      transform->SetLocalScale(R32V3{ trans.Scale.x, trans.Scale.y, trans.Scale.z } / 100000.0F);
+			transform->SetLocalPosition(R32V3{ trans.Position.x, trans.Position.y, trans.Position.z });
+			transform->SetLocalRotation(glm::degrees(R32V3{ trans.Rotation.x, trans.Rotation.y, trans.Rotation.z } / 360.0F));
+			transform->SetLocalScale(R32V3{ trans.Scale.x, trans.Scale.y, trans.Scale.z } / 100000.0F);
 
-      for (const auto& division : model.Divisions)
-      {
-        Actor* childActor = CreateActor<Actor>("Division", modelActor);
+			for (const auto& division : model.Divisions)
+			{
+				Actor* childActor = CreateActor<Actor>("Division", modelActor);
 
-        Renderable* renderable = childActor->AttachComponent<Renderable>();
+				Renderable* renderable = childActor->AttachComponent<Renderable>();
 
-        std::vector<DefaultVertex> vertices = VertexConverter::ToVertexBuffer(division.Vertices, division.TextureMaps, division.TextureUvs, division.ColorWeights);
-        std::vector<U32> elements = ElementConverter::ToElementBuffer(division.Vertices);
-        Texture2D* texture = (division.Header.TextureIndex < mTextures.size()) ? mTextures[division.Header.TextureIndex] : nullptr;
+				std::vector<DefaultVertex> vertices = VertexConverter::ToVertexBuffer(division.Vertices, division.TextureMaps, division.TextureUvs, division.ColorWeights);
+				std::vector<U32> elements = ElementConverter::ToElementBuffer(division.Vertices);
+				Texture2D* texture = (division.Header.TextureIndex < mTextures.size()) ? mTextures[division.Header.TextureIndex] : nullptr;
 
-        renderable->SetVertexBuffer(vertices);
-        renderable->SetElementBuffer(elements);
-        renderable->LocalToRemote();
-        renderable->SetTexture(texture);
+				renderable->SetVertexBuffer(vertices);
+				renderable->SetElementBuffer(elements);
+				renderable->LocalToRemote();
+				renderable->SetTexture(texture);
 
-        AABB aabb = Math::ComputeBoundingBox(vertices, transform->GetLocalScale());
+				AABB aabb = Math::ComputeBoundingBox(vertices, transform->GetLocalScale());
 
-        childActor->SetAABB(aabb);
-      }
-    }
-  }
+				childActor->SetAABB(aabb);
+			}
+		}
+	}
 
-  void LevelScene::ObjectsToActors()
-  {
-    for (const auto& object : mObjects)
-    {
-      Actor* objActor = CreateActor<Actor>("Object", nullptr);
-    
-      Transform* objTransform = objActor->GetTransform();
-    
-      objTransform->SetLocalPosition(R32V3{ object.Position.x, object.Position.y, object.Position.z });
-      objTransform->SetLocalRotation(R32V3{ object.Rotation.x, object.Rotation.y, object.Rotation.z } / 255.0F);
-      objTransform->SetLocalScale(R32V3{ object.Scale.x, object.Scale.y, object.Scale.z } / 100000.0F);
-    }
-  }
+	void LevelScene::ObjectsToActors()
+	{
+		for (const auto& object : mObjects)
+		{
+			Actor* objActor = CreateActor<Actor>("Object", nullptr);
+		
+			Transform* objTransform = objActor->GetTransform();
+		
+			objTransform->SetLocalPosition(R32V3{ object.Position.x, object.Position.y, object.Position.z });
+			objTransform->SetLocalRotation(R32V3{ object.Rotation.x, object.Rotation.y, object.Rotation.z } / 255.0F);
+			objTransform->SetLocalScale(R32V3{ object.Scale.x, object.Scale.y, object.Scale.z } / 100000.0F);
+		}
+	}
 }

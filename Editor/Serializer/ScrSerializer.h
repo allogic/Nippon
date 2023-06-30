@@ -22,11 +22,11 @@ namespace fs = std::filesystem;
 
 namespace ark
 {
-  class ScrSerializer
-  {
-  public:
+	class ScrSerializer
+	{
+	public:
 
-    static std::vector<std::pair<ScrModel, ScrTransform>> FromFile(const fs::path& File);
-    static void ToFile(const fs::path& File, const std::vector<std::pair<ScrModel, ScrTransform>>& Objects);
-  };
+		static std::vector<std::pair<ScrModel, ScrTransform>> FromFile(const fs::path& File);
+		static void ToFile(const fs::path& File, const std::vector<std::pair<ScrModel, ScrTransform>>& Objects);
+	};
 }
