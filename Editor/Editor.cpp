@@ -115,6 +115,8 @@
 namespace fs = std::filesystem;
 namespace rj = rapidjson;
 
+using namespace ark;
+
 ///////////////////////////////////////////////////////////
 // Globals
 ///////////////////////////////////////////////////////////
@@ -124,187 +126,305 @@ rj::Document gConfig = {};
 
 GLFWwindow* gGlfwContext = nullptr;
 
-ark::MainMenu* gMainMenu = nullptr;
-ark::Inspector* gInspector = nullptr;
-ark::ModelBrowser* gModelBrowser = nullptr;
-ark::ObjectBrowser* gObjectBrowser = nullptr;
-ark::TextureBrowser* gTextureBrowser = nullptr;
-ark::EntityBrowser* gEntityBrowser = nullptr;
-ark::Outline* gOutline = nullptr;
+MainMenu* gMainMenu = nullptr;
+Inspector* gInspector = nullptr;
+ModelBrowser* gModelBrowser = nullptr;
+ObjectBrowser* gObjectBrowser = nullptr;
+TextureBrowser* gTextureBrowser = nullptr;
+EntityBrowser* gEntityBrowser = nullptr;
+Outline* gOutline = nullptr;
 
-ark::R32 gTimeDelta = 0.0F;
+R32 gTimeDelta = 0.0F;
 
 ///////////////////////////////////////////////////////////
 // Locals
 ///////////////////////////////////////////////////////////
 
-static ark::R32 sTime = 0.0F;
-static ark::R32 sTimePrev = 0.0F;
+static R32 sTime = 0.0F;
+static R32 sTimePrev = 0.0F;
 
-static const ark::U32 sWidth = 1920;
-static const ark::U32 sHeight = 1080;
+static const U32 sWidth = 1920;
+static const U32 sHeight = 1080;
 
 ///////////////////////////////////////////////////////////
 // Glfw Callbacks
 ///////////////////////////////////////////////////////////
 
-static void GlfwDebugProc(ark::I32 Error, char const* Msg)
+static void GlfwDebugProc(I32 Error, char const* Msg)
 {
-  LOG("Error:%d Message:%s\n", Error, Msg);
+	LOG("Error:%d Message:%s\n", Error, Msg);
 }
 
-static void GlfwResizeProc(GLFWwindow* Context, ark::I32 Width, ark::I32 Height)
+static void GlfwMouseProc(GLFWwindow* Context, R64 X, R64 Y)
 {
-
-}
-
-static void GlfwMouseProc(GLFWwindow* Context, ark::R64 X, ark::R64 Y)
-{
-  ark::Event::SetMouseX((ark::R32)X);
-  ark::Event::SetMouseY((ark::R32)Y);
+	Event::SetMouseX((R32)X);
+	Event::SetMouseY((R32)Y);
 }
 
 ///////////////////////////////////////////////////////////
 // Gl Callbacks
 ///////////////////////////////////////////////////////////
 
-static void GlDebugCallback(ark::U32 Source, ark::U32 Type, ark::U32 Id, ark::U32 Severity, ark::I32 Length, char const* Msg, void const* UserParam)
+static void GlDebugCallback(U32 Source, U32 Type, U32 Id, U32 Severity, I32 Length, char const* Msg, void const* UserParam)
 {
-  switch (Severity)
-  {
-    case GL_DEBUG_SEVERITY_NOTIFICATION: break;
-    case GL_DEBUG_SEVERITY_LOW: LOG("Severity:Low Type:0x%x Message:%s\n", Type, Msg); break;
-    case GL_DEBUG_SEVERITY_MEDIUM: LOG("Severity:Medium Type:0x%x Message:%s\n", Type, Msg); break;
-    case GL_DEBUG_SEVERITY_HIGH: LOG("Severity:High Type:0x%x Message:%s\n", Type, Msg); break;
-  }
+	switch (Severity)
+	{
+		case GL_DEBUG_SEVERITY_NOTIFICATION: break;
+		case GL_DEBUG_SEVERITY_LOW: LOG("Severity:Low Type:0x%x Message:%s\n", Type, Msg); break;
+		case GL_DEBUG_SEVERITY_MEDIUM: LOG("Severity:Medium Type:0x%x Message:%s\n", Type, Msg); break;
+		case GL_DEBUG_SEVERITY_HIGH: LOG("Severity:High Type:0x%x Message:%s\n", Type, Msg); break;
+	}
+}
+
+///////////////////////////////////////////////////////////
+// ImGui Setup
+///////////////////////////////////////////////////////////
+
+static void ImGuiSetupIo()
+{
+	ImGuiIO& io = ImGui::GetIO();
+
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
+	io.ConfigWindowsMoveFromTitleBarOnly = true;
+}
+
+static void ImGuiSetupStyle()
+{	
+	ImGuiStyle& style = ImGui::GetStyle();
+
+	style.Alpha = 1.0f;
+	style.DisabledAlpha = 0.6000000238418579f;
+	style.WindowPadding = ImVec2(8.0f, 8.0f);
+	style.WindowRounding = 0.0f;
+	style.WindowBorderSize = 1.0f;
+	style.WindowMinSize = ImVec2(32.0f, 32.0f);
+	style.WindowTitleAlign = ImVec2(0.0f, 0.5f);
+	style.WindowMenuButtonPosition = ImGuiDir_None;
+	style.ChildRounding = 4.0f;
+	style.ChildBorderSize = 1.0f;
+	style.PopupRounding = 2.0f;
+	style.PopupBorderSize = 1.0f;
+	style.FramePadding = ImVec2(4.0f, 3.0f);
+	style.FrameRounding = 2.0f;
+	style.FrameBorderSize = 0.0f;
+	style.ItemSpacing = ImVec2(8.0f, 4.0f);
+	style.ItemInnerSpacing = ImVec2(4.0f, 4.0f);
+	style.CellPadding = ImVec2(4.0f, 2.0f);
+	style.IndentSpacing = 21.0f;
+	style.ColumnsMinSpacing = 6.0f;
+	style.ScrollbarSize = 13.0f;
+	style.ScrollbarRounding = 12.0f;
+	style.GrabMinSize = 7.0f;
+	style.GrabRounding = 0.0f;
+	style.TabRounding = 0.0f;
+	style.TabBorderSize = 1.0f;
+	style.TabMinWidthForCloseButton = 0.0f;
+	style.ColorButtonPosition = ImGuiDir_Right;
+	style.ButtonTextAlign = ImVec2(0.5f, 0.5f);
+	style.SelectableTextAlign = ImVec2(0.0f, 0.0f);
+
+	style.Colors[ImGuiCol_Text] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+	style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.4980392158031464f, 0.4980392158031464f, 0.4980392158031464f, 1.0f);
+	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.1764705926179886f, 0.1764705926179886f, 0.1764705926179886f, 1.0f);
+	style.Colors[ImGuiCol_ChildBg] = ImVec4(0.2784313857555389f, 0.2784313857555389f, 0.2784313857555389f, 0.0f);
+	style.Colors[ImGuiCol_PopupBg] = ImVec4(0.3098039329051971f, 0.3098039329051971f, 0.3098039329051971f, 1.0f);
+	style.Colors[ImGuiCol_Border] = ImVec4(0.2627451121807098f, 0.2627451121807098f, 0.2627451121807098f, 1.0f);
+	style.Colors[ImGuiCol_BorderShadow] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+	style.Colors[ImGuiCol_FrameBg] = ImVec4(0.1568627506494522f, 0.1568627506494522f, 0.1568627506494522f, 1.0f);
+	style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.2000000029802322f, 0.2000000029802322f, 0.2000000029802322f, 1.0f);
+	style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.2784313857555389f, 0.2784313857555389f, 0.2784313857555389f, 1.0f);
+	style.Colors[ImGuiCol_TitleBg] = ImVec4(0.1450980454683304f, 0.1450980454683304f, 0.1450980454683304f, 1.0f);
+	style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.1450980454683304f, 0.1450980454683304f, 0.1450980454683304f, 1.0f);
+	style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.1450980454683304f, 0.1450980454683304f, 0.1450980454683304f, 1.0f);
+	style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.1921568661928177f, 0.1921568661928177f, 0.1921568661928177f, 1.0f);
+	style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.1568627506494522f, 0.1568627506494522f, 0.1568627506494522f, 1.0f);
+	style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.2745098173618317f, 0.2745098173618317f, 0.2745098173618317f, 1.0f);
+	style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.2980392277240753f, 0.2980392277240753f, 0.2980392277240753f, 1.0f);
+	style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(1.0f, 0.3882353007793427f, 0.0f, 1.0f);
+	style.Colors[ImGuiCol_CheckMark] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+	style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.3882353007793427f, 0.3882353007793427f, 0.3882353007793427f, 1.0f);
+	style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(1.0f, 0.3882353007793427f, 0.0f, 1.0f);
+	style.Colors[ImGuiCol_Button] = ImVec4(1.0f, 1.0f, 1.0f, 0.0f);
+	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(1.0f, 1.0f, 1.0f, 0.1560000032186508f);
+	style.Colors[ImGuiCol_ButtonActive] = ImVec4(1.0f, 1.0f, 1.0f, 0.3910000026226044f);
+	style.Colors[ImGuiCol_Header] = ImVec4(0.3098039329051971f, 0.3098039329051971f, 0.3098039329051971f, 1.0f);
+	style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.4666666686534882f, 0.4666666686534882f, 0.4666666686534882f, 1.0f);
+	style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.4666666686534882f, 0.4666666686534882f, 0.4666666686534882f, 1.0f);
+	style.Colors[ImGuiCol_Separator] = ImVec4(0.2627451121807098f, 0.2627451121807098f, 0.2627451121807098f, 1.0f);
+	style.Colors[ImGuiCol_SeparatorHovered] = ImVec4(0.3882353007793427f, 0.3882353007793427f, 0.3882353007793427f, 1.0f);
+	style.Colors[ImGuiCol_SeparatorActive] = ImVec4(1.0f, 0.3882353007793427f, 0.0f, 1.0f);
+	style.Colors[ImGuiCol_ResizeGrip] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+	style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+	style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+	style.Colors[ImGuiCol_Tab] = ImVec4(0.09411764889955521f, 0.09411764889955521f, 0.09411764889955521f, 1.0f);
+	style.Colors[ImGuiCol_TabHovered] = ImVec4(0.3490196168422699f, 0.3490196168422699f, 0.3490196168422699f, 1.0f);
+	style.Colors[ImGuiCol_TabActive] = ImVec4(0.1921568661928177f, 0.1921568661928177f, 0.1921568661928177f, 1.0f);
+	style.Colors[ImGuiCol_TabUnfocused] = ImVec4(0.09411764889955521f, 0.09411764889955521f, 0.09411764889955521f, 1.0f);
+	style.Colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.1921568661928177f, 0.1921568661928177f, 0.1921568661928177f, 1.0f);
+	style.Colors[ImGuiCol_PlotLines] = ImVec4(0.4666666686534882f, 0.4666666686534882f, 0.4666666686534882f, 1.0f);
+	style.Colors[ImGuiCol_PlotLinesHovered] = ImVec4(1.0f, 0.3882353007793427f, 0.0f, 1.0f);
+	style.Colors[ImGuiCol_PlotHistogram] = ImVec4(0.5843137502670288f, 0.5843137502670288f, 0.5843137502670288f, 1.0f);
+	style.Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.0f, 0.3882353007793427f, 0.0f, 1.0f);
+	style.Colors[ImGuiCol_TableHeaderBg] = ImVec4(0.1882352977991104f, 0.1882352977991104f, 0.2000000029802322f, 1.0f);
+	style.Colors[ImGuiCol_TableBorderStrong] = ImVec4(0.3098039329051971f, 0.3098039329051971f, 0.3490196168422699f, 1.0f);
+	style.Colors[ImGuiCol_TableBorderLight] = ImVec4(0.2274509817361832f, 0.2274509817361832f, 0.2470588237047195f, 1.0f);
+	style.Colors[ImGuiCol_TableRowBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+	style.Colors[ImGuiCol_TableRowBgAlt] = ImVec4(1.0f, 1.0f, 1.0f, 0.05999999865889549f);
+	style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(1.0f, 1.0f, 1.0f, 0.1560000032186508f);
+	style.Colors[ImGuiCol_DragDropTarget] = ImVec4(1.0f, 0.3882353007793427f, 0.0f, 1.0f);
+	style.Colors[ImGuiCol_NavHighlight] = ImVec4(1.0f, 0.3882353007793427f, 0.0f, 1.0f);
+	style.Colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.0f, 0.3882353007793427f, 0.0f, 1.0f);
+	style.Colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.5860000252723694f);
+	style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.5860000252723694f);
 }
 
 ///////////////////////////////////////////////////////////
 // Entry Point
 ///////////////////////////////////////////////////////////
 
-ark::I32 main()
+I32 main()
 {
-  gArchive.Parse(ark::FsUtils::ReadText("Archive.json").c_str());
-  gConfig.Parse(ark::FsUtils::ReadText("Config.json").c_str());
+	gArchive.Parse(FsUtils::ReadText("Archive.json").c_str());
+	gConfig.Parse(FsUtils::ReadText("Config.json").c_str());
 
-  gMainMenu = new ark::MainMenu;
-  gInspector = new ark::Inspector;
-  gModelBrowser = new ark::ModelBrowser;
-  gObjectBrowser = new ark::ObjectBrowser;
-  gTextureBrowser = new ark::TextureBrowser;
-  gEntityBrowser = new ark::EntityBrowser;
-  gOutline = new ark::Outline;
+	glfwSetErrorCallback(GlfwDebugProc);
+	glfwSetCursorPosCallback(gGlfwContext, GlfwMouseProc);
 
-  glfwSetErrorCallback(GlfwDebugProc);
+	if (glfwInit())
+	{
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+		glfwWindowHint(GLFW_SAMPLES, 8);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, 1);
 
-  if (glfwInit())
-  {
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-    glfwWindowHint(GLFW_SAMPLES, 16);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, 1);
+		gGlfwContext = glfwCreateWindow((I32)sWidth, (I32)sHeight, "Nippon", nullptr, nullptr);
 
-    gGlfwContext = glfwCreateWindow((ark::I32)sWidth, (ark::I32)sHeight, "Nippon", nullptr, nullptr);
+		if (gGlfwContext)
+		{
+			glfwMakeContextCurrent(gGlfwContext);
+			glfwSwapInterval(0);
 
-    if (gGlfwContext)
-    {
-      glfwSetWindowSizeCallback(gGlfwContext, GlfwResizeProc);
-      glfwSetCursorPosCallback(gGlfwContext, GlfwMouseProc);
-      glfwMakeContextCurrent(gGlfwContext);
-      glfwSwapInterval(0);
+			if (gladLoadGL())
+			{
+				glEnable(GL_DEBUG_OUTPUT);
+				glDebugMessageCallback(GlDebugCallback, 0);
 
-      if (gladLoadGL())
-      {
-        glEnable(GL_DEBUG_OUTPUT);
-        glDebugMessageCallback(GlDebugCallback, 0);
+				IMGUI_CHECKVERSION();
+				ImGuiContext* imGuiContext{ ImGui::CreateContext() };
 
-        IMGUI_CHECKVERSION();
-        ImGuiContext* imGuiContext{ ImGui::CreateContext() };
+				ImGuiSetupIo();
+				ImGuiSetupStyle();
 
-        ImGuiIO& imGuiIo{ ImGui::GetIO() };
-        imGuiIo.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-        imGuiIo.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-        imGuiIo.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-        imGuiIo.ConfigWindowsMoveFromTitleBarOnly = true;
+				ImGui_ImplGlfw_InitForOpenGL(gGlfwContext, 1);
+				ImGui_ImplOpenGL3_Init("#version 450 core");
 
-        ImGuiStyle& imGuiStyle{ ImGui::GetStyle() };
-        imGuiStyle.WindowRounding = 0.0F;
-        imGuiStyle.FrameBorderSize = 0.0F;
-        imGuiStyle.Colors[ImGuiCol_WindowBg].w = 1.0F;
+				gMainMenu = new MainMenu;
+				gInspector = new Inspector;
+				gModelBrowser = new ModelBrowser;
+				gObjectBrowser = new ObjectBrowser;
+				gTextureBrowser = new TextureBrowser;
+				gEntityBrowser = new EntityBrowser;
+				gOutline = new Outline;
 
-        ImGui_ImplGlfw_InitForOpenGL(gGlfwContext, 1);
-        ImGui_ImplOpenGL3_Init("#version 450 core");
+				while (!glfwWindowShouldClose(gGlfwContext))
+				{
+					sTime = (R32)glfwGetTime();
+					gTimeDelta = sTime - sTimePrev;
+					sTimePrev = sTime;
 
-        while (!glfwWindowShouldClose(gGlfwContext))
-        {
-          sTime = (ark::R32)glfwGetTime();
-          gTimeDelta = sTime - sTimePrev;
-          sTimePrev = sTime;
+					glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
+					glClear(GL_COLOR_BUFFER_BIT);
 
-          glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
-          glClear(GL_COLOR_BUFFER_BIT);
+					ImGui_ImplGlfw_NewFrame();
+					ImGui_ImplOpenGL3_NewFrame();
+					
+					ImGui::NewFrame();
+					ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+					
+					gMainMenu->Draw();
+					gInspector->Draw();
+					gModelBrowser->Draw();
+					gObjectBrowser->Draw();
+					gTextureBrowser->Draw();
+					gEntityBrowser->Draw();
+					gOutline->Draw();
+					
+					SceneManager::DrawAllViewports();
 
-          ImGui_ImplGlfw_NewFrame();
-          ImGui_ImplOpenGL3_NewFrame();
-          
-          ImGui::NewFrame();
-          ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
-          
-          gMainMenu->Draw();
-          gInspector->Draw();
-          gModelBrowser->Draw();
-          gObjectBrowser->Draw();
-          gTextureBrowser->Draw();
-          gEntityBrowser->Draw();
-          gOutline->Draw();
-          
-          ark::SceneManager::DrawAllViewports();
+					ImGui::Render();
+					
+					ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+					
+					ImGui::UpdatePlatformWindows();
+					ImGui::RenderPlatformWindowsDefault();
 
-          ImGui::Render();
-          
-          ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-          
-          ImGui::UpdatePlatformWindows();
-          ImGui::RenderPlatformWindowsDefault();
+					glfwMakeContextCurrent(gGlfwContext);
+					glfwSwapBuffers(gGlfwContext);
 
-          glfwMakeContextCurrent(gGlfwContext);
-          glfwSwapBuffers(gGlfwContext);
+					Event::Poll(gGlfwContext);
+				}
 
-          ark::Event::Poll(gGlfwContext);
-        }
+				ImGui_ImplOpenGL3_Shutdown();
+				ImGui_ImplGlfw_Shutdown();
 
-        ImGui_ImplOpenGL3_Shutdown();
-        ImGui_ImplGlfw_Shutdown();
+				ImGui::DestroyContext(imGuiContext);
+			}
+			else
+			{
+				LOG("Failed initializing GL\n");
+			}
 
-        ImGui::DestroyContext(imGuiContext);
-      }
-      else
-      {
-        LOG("Failed initializing GL\n");
-      }
+			glfwDestroyWindow(gGlfwContext);
+			glfwTerminate();
+		}
+		else
+		{
+			LOG("Failed creating window\n");
+		}
+	}
+	else
+	{
+		LOG("Failed initializing GLFW\n");
+	}
 
-      glfwDestroyWindow(gGlfwContext);
-      glfwTerminate();
-    }
-    else
-    {
-      LOG("Failed creating window\n");
-    }
-  }
-  else
-  {
-    LOG("Failed initializing GLFW\n");
-  }
+	if (gMainMenu)
+	{
+		delete gMainMenu;
+	}
 
-  delete gMainMenu;
-  delete gInspector;
-  delete gModelBrowser;
-  delete gObjectBrowser;
-  delete gTextureBrowser;
-  delete gEntityBrowser;
-  delete gOutline;
+	if (gInspector)
+	{
+		delete gInspector;
+	}
 
-  return 0;
+	if (gModelBrowser)
+	{
+		delete gModelBrowser;
+	}
+
+	if (gObjectBrowser)
+	{
+		delete gObjectBrowser;
+	}
+	
+	if (gTextureBrowser)
+	{
+		delete gTextureBrowser;
+	}
+
+	if (gEntityBrowser)
+	{
+		delete gEntityBrowser;
+	}
+
+	if (gOutline)
+	{
+		delete gOutline;
+	}
+
+	return 0;
 }
