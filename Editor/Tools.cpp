@@ -21,7 +21,7 @@ extern rj::Document gConfig;
 
 namespace ark
 {
-	void Tools::GenerateEntityThumnail(const std::string& Entry, const std::string& SubEntry, rj::Value& Value)
+	void Tools::GenerateEntityThumbnail(const std::string& Entry, const std::string& SubEntry, rj::Value& Value)
 	{
 		EntityScene scene = { Entry, SubEntry };
 

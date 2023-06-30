@@ -26,6 +26,6 @@ namespace ark
 	{
 	public:
 
-		static void GenerateEntityThumnail(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
+		static void GenerateEntityThumbnail(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
 	};
 }
