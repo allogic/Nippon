@@ -1,4 +1,5 @@
 #include <Editor/SceneManager.h>
+#include <Editor/InterfaceManager.h>
 
 #include <Editor/Scene.h>
 
@@ -7,12 +8,6 @@
 
 #include <Editor/Scenes/LevelScene.h>
 #include <Editor/Scenes/EntityScene.h>
-
-///////////////////////////////////////////////////////////
-// Globals
-///////////////////////////////////////////////////////////
-
-extern ark::Outline* gOutline;
 
 ///////////////////////////////////////////////////////////
 // Locals
@@ -41,16 +36,16 @@ namespace ark
 
     if (sActiveScene != sActiveScenePrev)
     {
-      gOutline->Reset();
+      InterfaceManager::GetOutline()->Reset();
 
       sActiveScenePrev = sActiveScene;
     }
   }
 
-  void SceneManager::CreateLevel(const std::string& Entry, const std::string& SubEntry, const std::string& Name)
+  void SceneManager::CreateLevel(const std::string& Entry, const std::string& SubEntry, rj::Value& Value)
   {
     std::string sceneName = "/" + Entry + "/" + SubEntry;
-    std::string windowName = "/" + Entry + "/" + SubEntry + " - " + Name;
+    std::string windowName = "/" + Entry + "/" + SubEntry + " - " + Value["name"].GetString();
 
     if (sLevelScenes[sceneName])
     {
@@ -61,10 +56,10 @@ namespace ark
     sLevelScenes[sceneName] = new LevelScene{ Entry, SubEntry, sceneName, windowName };
   }
 
-  void SceneManager::CreateEntity(const std::string& Entry, const std::string& SubEntry, const std::string& Name)
+  void SceneManager::CreateEntity(const std::string& Entry, const std::string& SubEntry, rj::Value& Value)
   {
     std::string sceneName = "/" + Entry + "/" + SubEntry;
-    std::string windowName = "/" + Entry + "/" + SubEntry + " - " + Name;
+    std::string windowName = "/" + Entry + "/" + SubEntry + " - " + Value["name"].GetString();
 
     if (sEntityScenes[sceneName])
     {
@@ -75,13 +70,18 @@ namespace ark
     sEntityScenes[sceneName] = new EntityScene{ Entry, SubEntry, sceneName, windowName };
   }
 
-  void SceneManager::DrawAllViewports()
+  void SceneManager::Draw()
   {
     for (const auto& [name, scene] : sLevelScenes)
     {
       if (scene)
       {
-        scene->GetViewport()->Draw();
+        Viewport* viewport = scene->GetViewport();
+
+        if (viewport)
+        {
+          viewport->Draw();
+        }
       }
     }
 
@@ -89,7 +89,12 @@ namespace ark
     {
       if (scene)
       {
-        scene->GetViewport()->Draw();
+        Viewport* viewport = scene->GetViewport();
+
+        if (viewport)
+        {
+          viewport->Draw();
+        }
       }
     }
   }
@@ -98,7 +103,7 @@ namespace ark
   {
     if (Scene == sActiveScene)
     {
-      gOutline->Reset();
+      InterfaceManager::GetOutline()->Reset();
 
       sActiveScenePrev = nullptr;
       sActiveScene = nullptr;

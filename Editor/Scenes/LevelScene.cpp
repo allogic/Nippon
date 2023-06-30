@@ -35,6 +35,17 @@ namespace ark
 {
   LevelScene::LevelScene(
     const std::string& Entry,
+    const std::string& SubEntry)
+    : Scene{ eSceneTypeLevel, Entry, SubEntry }
+  {
+    Load();
+
+    ModelsToActors();
+    ObjectsToActors();
+  }
+
+  LevelScene::LevelScene(
+    const std::string& Entry,
     const std::string& SubEntry,
     const std::string& SceneName,
     const std::string& WindowName)
@@ -56,19 +67,32 @@ namespace ark
     std::string mapId = StringUtils::CutFront(mEntry, 2);
 
     fs::path lvlDir = fs::path{ gConfig["unpackDir"].GetString() } / mEntry / mSubEntry;
-    fs::path datDir = lvlDir / fs::path{ "r" + mapId + mSubEntry + ".dat" };
+    fs::path datDir = lvlDir / fs::path{ "r" + mapId + mSubEntry + "@dat" };
 
     fs::path tscFile = FsUtils::SearchFileByType(datDir, "TSC");
     fs::path treFile = FsUtils::SearchFileByType(datDir, "TRE");
     fs::path tatFile = FsUtils::SearchFileByType(datDir, "TAT");
 
-    auto tsc = ObjSerializer::FromFile(tscFile);
-    auto tre = ObjSerializer::FromFile(treFile);
-    auto tat = ObjSerializer::FromFile(tatFile);
+    if (fs::exists(tscFile))
+    {
+      auto tsc = ObjSerializer::FromFile(tscFile);
 
-    mObjects.insert(mObjects.end(), tsc.begin(), tsc.end());
-    mObjects.insert(mObjects.end(), tre.begin(), tre.end());
-    mObjects.insert(mObjects.end(), tat.begin(), tat.end());
+      mObjects.insert(mObjects.end(), tsc.begin(), tsc.end());
+    }
+
+    if (fs::exists(treFile))
+    {
+      auto tre = ObjSerializer::FromFile(treFile);
+
+      mObjects.insert(mObjects.end(), tre.begin(), tre.end());
+    }
+    
+    if (fs::exists(tatFile))
+    {
+      auto tat = ObjSerializer::FromFile(tatFile);
+
+      mObjects.insert(mObjects.end(), tat.begin(), tat.end());
+    }
 
     auto scrFiles = FsUtils::SearchFilesByTypeRecursive(datDir, "SCR");
     auto ddsFiles = FsUtils::SearchFilesByTypeRecursive(datDir, "DDS");
@@ -82,7 +106,7 @@ namespace ark
 
     for (const auto& file : ddsFiles)
     {
-      mTextures.emplace_back(TextureUtils::LoadDDS(file));
+      mTextures.emplace_back(TextureUtils::LoadDirectDrawSurface(file));
     }
   }
 

@@ -23,6 +23,9 @@ namespace ark
 
     EntityScene(
       const std::string& Entry,
+      const std::string& SubEntry);
+    EntityScene(
+      const std::string& Entry,
       const std::string& SubEntry,
       const std::string& SceneName,
       const std::string& WindowName);

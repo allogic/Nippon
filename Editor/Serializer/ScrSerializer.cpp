@@ -23,7 +23,7 @@ namespace ark
 
     FsUtils::FromArchiveName(File.stem().string(), index, name, type);
 
-    BinaryReader binaryReader{ FsUtils::ReadBinary(File) };
+    BinaryReader binaryReader = { FsUtils::ReadBinary(File) };
 
     ScrHeader scrHeader = binaryReader.Read<ScrHeader>();
 

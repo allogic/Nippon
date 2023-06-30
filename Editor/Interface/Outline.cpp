@@ -79,7 +79,7 @@ namespace ark
 
     if (opened)
     {
-      for (auto& child : *Actor)
+      for (auto& child : Actor->GetChildren())
       {
         DrawActorRecursive(Scene, child);
       }

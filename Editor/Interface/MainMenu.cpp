@@ -3,6 +3,7 @@
 #include <Editor/Packer.h>
 #include <Editor/Integrity.h>
 #include <Editor/SceneManager.h>
+#include <Editor/Tools.h>
 
 #include <Editor/Interface/MainMenu.h>
 
@@ -25,6 +26,7 @@ namespace ark
     DrawSceneMenu();
     DrawPackerMenu();
     DrawIntegrityMenu();
+    DrawToolsMenu();
 
     ImGui::EndMainMenuBar();
   }
@@ -150,8 +152,18 @@ namespace ark
 
       ImGui::Separator();
 
-      if (ImGui::Selectable("Generated Encrypted Map")) Integrity::GenerateEncryptedMap();
-      if (ImGui::Selectable("Generated Decrypted Map")) Integrity::GenerateDecryptedMap();
+      if (ImGui::Selectable("Generate Encrypted Map")) Integrity::GenerateEncryptedMap();
+      if (ImGui::Selectable("Generate Decrypted Map")) Integrity::GenerateDecryptedMap();
+
+      ImGui::EndMenu();
+    }
+  }
+
+  void MainMenu::DrawToolsMenu()
+  {
+    if (ImGui::BeginMenu("Tools"))
+    {
+      DrawMenuTree("Generate Entity Thumbnails", gArchive["entities"], Tools::GenerateEntityThumnail);
 
       ImGui::EndMenu();
     }

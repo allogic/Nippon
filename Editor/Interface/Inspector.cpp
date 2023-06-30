@@ -2,6 +2,7 @@
 #include <Editor/Actor.h>
 #include <Editor/Scene.h>
 #include <Editor/SceneManager.h>
+#include <Editor/InterfaceManager.h>
 #include <Editor/Math.h>
 
 #include <Editor/Components/Camera.h>
@@ -12,12 +13,6 @@
 #include <Editor/Interface/Outline.h>
 
 #include <Vendor/ImGui/imgui.h>
-
-///////////////////////////////////////////////////////////
-// Globals
-///////////////////////////////////////////////////////////
-
-extern ark::Outline* gOutline;
 
 ///////////////////////////////////////////////////////////
 // Implementation
@@ -38,7 +33,7 @@ namespace ark
 
     if (scene)
     {
-      Actor* actor = gOutline->GetSelectedActor();
+      Actor* actor = InterfaceManager::GetOutline()->GetSelectedActor();
     
       if (actor)
       {

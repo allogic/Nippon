@@ -15,7 +15,7 @@ namespace ark
   {
     std::vector<ItsEntry> entries = {};
 
-    BinaryReader binaryReader{ FsUtils::ReadBinary(File) };
+    BinaryReader binaryReader = { FsUtils::ReadBinary(File) };
 
     U32 size = binaryReader.Read<U32>();
     binaryReader.Read<ItsEntry>(entries, size);

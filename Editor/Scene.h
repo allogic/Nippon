@@ -45,6 +45,10 @@ namespace ark
     Scene(
       SceneType SceneType,
       const std::string& Entry,
+      const std::string& SubEntry);
+    Scene(
+      SceneType SceneType,
+      const std::string& Entry,
       const std::string& SubEntry,
       const std::string& SceneName,
       const std::string& WindowName);
@@ -83,6 +87,8 @@ namespace ark
     void SubmitRenderTasks();
     void DoSelectionRecursive(Actor* Actor);
 
+    std::vector<U8> Snapshot() const;
+
   protected:
 
     virtual void Load() = 0;
@@ -95,6 +101,7 @@ namespace ark
     std::string mSubEntry;
     std::string mSceneName;
     std::string mWindowName;
+    bool mEnableDebug;
 
     Viewport* mViewport = nullptr;
 

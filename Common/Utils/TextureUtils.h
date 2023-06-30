@@ -24,7 +24,10 @@ namespace ark
 	{
 	public:
 
-		static Texture2D* LoadDDS(const fs::path& File);
-		static Texture2D* LoadDDS(const std::vector<U8>& Bytes);
+		static Texture2D* LoadDirectDrawSurface(const fs::path& File);
+		static Texture2D* LoadGeneric(const fs::path& File);
+
+		static void WriteJPG(U32 Width, U32 Height, std::vector<U8>& Bytes, const fs::path& File);
+		static void WritePNG(U32 Width, U32 Height, std::vector<U8>& Bytes, const fs::path& File);
 	};
 }

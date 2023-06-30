@@ -23,6 +23,9 @@ namespace ark
 
     LevelScene(
       const std::string& Entry,
+      const std::string& SubEntry);
+    LevelScene(
+      const std::string& Entry,
       const std::string& SubEntry,
       const std::string& SceneName,
       const std::string& WindowName);

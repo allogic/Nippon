@@ -34,6 +34,7 @@ namespace ark
     void DrawSceneMenu();
     void DrawPackerMenu();
     void DrawIntegrityMenu();
+    void DrawToolsMenu();
 
   private:
 
@@ -69,9 +70,8 @@ namespace ark
           for (auto subEntryIt = subEntries.MemberBegin(); subEntryIt != subEntries.MemberEnd(); subEntryIt++)
           {
             std::string subEntryDir = subEntryIt->name.GetString();
-            std::string subEntryName = subEntryIt->value["name"].GetString();
 
-            Procedure(entryDir, subEntryDir, subEntryName, std::forward<Args>(Arguments) ...);
+            Procedure(entryDir, subEntryDir, subEntryIt->value, std::forward<Args>(Arguments) ...);
           }
         }
       }
@@ -96,9 +96,8 @@ namespace ark
             for (auto subEntryIt = subEntries.MemberBegin(); subEntryIt != subEntries.MemberEnd(); subEntryIt++)
             {
               std::string subEntryDir = subEntryIt->name.GetString();
-              std::string subEntryName = subEntryIt->value["name"].GetString();
 
-              Procedure(entryDir, subEntryDir, subEntryName, std::forward<Args>(Arguments) ...);
+              Procedure(entryDir, subEntryDir, subEntryIt->value, std::forward<Args>(Arguments) ...);
             }
           }
 
@@ -117,7 +116,7 @@ namespace ark
 
             if (ImGui::Selectable(subEntryName.c_str()))
             {
-              Procedure(entryDir, subEntryDir, subEntryName, std::forward<Args>(Arguments) ...);
+              Procedure(entryDir, subEntryDir, subEntryIt->value, std::forward<Args>(Arguments) ...);
             }
 
             ImGui::PopID();
@@ -147,9 +146,8 @@ namespace ark
       for (auto subEntryIt = subEntries.MemberBegin(); subEntryIt != subEntries.MemberEnd(); subEntryIt++)
       {
         std::string subEntryDir = subEntryIt->name.GetString();
-        std::string subEntryName = subEntryIt->value["name"].GetString();
 
-        Procedure(entryDir, subEntryDir, subEntryName, std::forward<Args>(Arguments) ...);
+        Procedure(entryDir, subEntryDir, subEntryIt->value, std::forward<Args>(Arguments) ...);
       }
     }
   }

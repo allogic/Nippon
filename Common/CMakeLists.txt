@@ -20,6 +20,10 @@ set_target_properties(${TARGET_NAME} PROPERTIES
   CXX_STANDARD 23
 )
 
+target_compile_definitions(${TARGET_NAME}
+  PUBLIC _CRT_SECURE_NO_WARNINGS
+)
+
 target_include_directories(${TARGET_NAME}
   PUBLIC ${ROOT_DIR}
 )

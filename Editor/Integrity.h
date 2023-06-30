@@ -6,6 +6,7 @@
 #include <Common/Types.h>
 
 #include <Vendor/rapidjson/rapidjson.h>
+#include <Vendor/rapidjson/document.h>
 
 ///////////////////////////////////////////////////////////
 // Namespaces
@@ -27,8 +28,8 @@ namespace ark
     static bool CheckEncrypted();
     static bool CheckDecrypted();
 
-    static void CompareRepackedWithDecrypted(const std::string& Entry, const std::string& SubEntry, const std::string& Name);
-    static void CompareEncryptedWithOriginal(const std::string& Entry, const std::string& SubEntry, const std::string& Name);
+    static void CompareRepackedWithDecrypted(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
+    static void CompareEncryptedWithOriginal(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
 
     static void GenerateEncryptedMap();
     static void GenerateDecryptedMap();

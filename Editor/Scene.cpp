@@ -1,6 +1,7 @@
 #include <Editor/Texture.h>
 #include <Editor/Math.h>
 #include <Editor/Scene.h>
+#include <Editor/InterfaceManager.h>
 
 #include <Editor/Actors/Player.h>
 
@@ -20,8 +21,6 @@
 // Globals
 ///////////////////////////////////////////////////////////
 
-extern ark::Outline* gOutline;
-
 extern ark::R32 gTimeDelta;
 
 ///////////////////////////////////////////////////////////
@@ -33,6 +32,21 @@ namespace ark
   Scene::Scene(
     SceneType SceneType,
     const std::string& Entry,
+    const std::string& SubEntry)
+    : mSceneType{ SceneType }
+    , mEntry{ Entry }
+    , mSubEntry{ SubEntry }
+    , mSceneName{ "" }
+    , mWindowName{ "" }
+    , mEnableDebug{ false }
+  {
+    mMainActor = CreateActor<Player>("Player", nullptr);
+    mMainCamera = mMainActor->GetComponent<Camera>();
+  }
+
+  Scene::Scene(
+    SceneType SceneType,
+    const std::string& Entry,
     const std::string& SubEntry,
     const std::string& SceneName,
     const std::string& WindowName)
@@ -41,6 +55,7 @@ namespace ark
     , mSubEntry{ SubEntry }
     , mSceneName{ SceneName }
     , mWindowName{ WindowName }
+    , mEnableDebug{ true }
   {
     mViewport = new Viewport{ this };
 
@@ -62,8 +77,11 @@ namespace ark
       texture = nullptr;
     }
 
-    delete mViewport;
-    mViewport = nullptr;
+    if (mViewport)
+    {
+      delete mViewport;
+      mViewport = nullptr;
+    }
   }
 
   void Scene::DestroyActor(Actor* Actor)
@@ -89,9 +107,12 @@ namespace ark
 
   void Scene::Update()
   {
-    mDebugRenderer.DebugLine(R32V3{ 0.0F, 0.0F, 0.0F }, R32V3{ 1000.0F, 0.0F, 0.0F }, R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
-    mDebugRenderer.DebugLine(R32V3{ 0.0F, 0.0F, 0.0F }, R32V3{ 0.0F, 1000.0F, 0.0F }, R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
-    mDebugRenderer.DebugLine(R32V3{ 0.0F, 0.0F, 0.0F }, R32V3{ 0.0F, 0.0F, 1000.0F }, R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
+    if (mEnableDebug)
+    {
+      mDebugRenderer.DebugLine(R32V3{ 0.0F, 0.0F, 0.0F }, R32V3{ 1000.0F, 0.0F, 0.0F }, R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
+      mDebugRenderer.DebugLine(R32V3{ 0.0F, 0.0F, 0.0F }, R32V3{ 0.0F, 1000.0F, 0.0F }, R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
+      mDebugRenderer.DebugLine(R32V3{ 0.0F, 0.0F, 0.0F }, R32V3{ 0.0F, 0.0F, 1000.0F }, R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
+    }
 
     for (const auto& actor : mActors)
     {
@@ -99,7 +120,11 @@ namespace ark
     }
 
     SubmitRenderTasks();
-    DoSelectionRecursive(gOutline->GetSelectedActor());
+
+    if (mEnableDebug)
+    {
+      DoSelectionRecursive(InterfaceManager::GetOutline()->GetSelectedActor());
+    }
   }
 
   void Scene::Render()
@@ -169,5 +194,18 @@ namespace ark
         }
       }
     }
+  }
+
+  std::vector<U8> Scene::Snapshot() const
+  {
+    std::vector<U8> bytes = {};
+
+    bytes.resize(mWidth * mHeight * 4);
+
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, mFrameBuffer.GetId());
+    glReadPixels(0, 0, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, &bytes[0]);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+
+    return bytes;
   }
 }

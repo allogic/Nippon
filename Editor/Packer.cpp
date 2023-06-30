@@ -31,7 +31,7 @@ namespace ark
     ".bin",
   };
 
-  void Packer::DecryptArchive(const std::string& Entry, const std::string& SubEntry, const std::string& Name)
+  void Packer::DecryptArchive(const std::string& Entry, const std::string& SubEntry, rj::Value& Value)
   {
     fs::path gameDir = gConfig["gameDir"].GetString();
     fs::path dataDir = gameDir / "data_pc";
@@ -69,7 +69,7 @@ namespace ark
     }
   }
 
-  void Packer::EncryptArchive(const std::string& Entry, const std::string& SubEntry, const std::string& Name)
+  void Packer::EncryptArchive(const std::string& Entry, const std::string& SubEntry, rj::Value& Value)
   {
     fs::path repackDir = gConfig["repackDir"].GetString();
     fs::path encryptDir = gConfig["encryptDir"].GetString();
@@ -106,7 +106,7 @@ namespace ark
     }
   }
 
-  void Packer::UnpackArchive(const std::string& Entry, const std::string& SubEntry, const std::string& Name)
+  void Packer::UnpackArchive(const std::string& Entry, const std::string& SubEntry, rj::Value& Value)
   {
     fs::path decryptDir = gConfig["decryptDir"].GetString();
     fs::path unpackDir = gConfig["unpackDir"].GetString();
@@ -119,8 +119,8 @@ namespace ark
     {
       for (const auto& file : fs::directory_iterator{ decryptDir / Entry / SubEntry })
       {
-        std::string archiveName = file.path().filename().string();
         std::string archiveExt = file.path().extension().string();
+        std::string archiveName = file.path().stem().string() + "@" + StringUtils::CutFront(archiveExt, 1);
 
         if (sSupportedArchiveExtensions.contains(archiveExt))
         {
@@ -141,7 +141,7 @@ namespace ark
     }
   }
 
-  void Packer::RepackArchive(const std::string& Entry, const std::string& SubEntry, const std::string& Name)
+  void Packer::RepackArchive(const std::string& Entry, const std::string& SubEntry, rj::Value& Value)
   {
     fs::path unpackDir = gConfig["unpackDir"].GetString();
     fs::path repackDir = gConfig["repackDir"].GetString();
@@ -150,23 +150,26 @@ namespace ark
     FsUtils::CreateIfNotExists(repackDir / Entry);
     FsUtils::CreateIfNotExists(repackDir / Entry / SubEntry);
 
-    for (const auto& file : fs::directory_iterator{ unpackDir / Entry / SubEntry })
+    if (fs::exists(unpackDir / Entry / SubEntry))
     {
-      std::string fileName = file.path().filename().string();
-      std::string fileExt = file.path().extension().string();
-
-      if (fs::exists(unpackDir / Entry / SubEntry / fileName))
+      for (const auto& file : fs::directory_iterator{ unpackDir / Entry / SubEntry })
       {
-        ArchiveCompressionNode compressor{ unpackDir / Entry / SubEntry / fileName, nullptr, fileExt == ".dat" };
+        std::string fileName = file.path().filename().string();
+        std::string fileExt = file.path().extension().string();
 
-        compressor.CompressRecursive(2);
+        if (fs::exists(unpackDir / Entry / SubEntry / fileName))
+        {
+          ArchiveCompressionNode compressor{ unpackDir / Entry / SubEntry / fileName, nullptr, fileExt == "@dat" };
 
-        FsUtils::WriteBinary(repackDir / Entry / SubEntry / fileName, compressor.GetBytes());
+          compressor.CompressRecursive(2);
 
-        std::string posixSrcFile = StringUtils::PosixPath((unpackDir / Entry / SubEntry).string());
-        std::string posixDstFile = StringUtils::PosixPath((repackDir / Entry / SubEntry).string());
+          FsUtils::WriteBinary(repackDir / Entry / SubEntry / fileName, compressor.GetBytes());
 
-        LOG("%s -> %s\n", posixSrcFile.c_str(), posixDstFile.c_str());
+          std::string posixSrcFile = StringUtils::PosixPath((unpackDir / Entry / SubEntry).string());
+          std::string posixDstFile = StringUtils::PosixPath((repackDir / Entry / SubEntry).string());
+
+          LOG("%s -> %s\n", posixSrcFile.c_str(), posixDstFile.c_str());
+        }
       }
     }
   }

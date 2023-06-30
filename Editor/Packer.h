@@ -9,6 +9,7 @@
 #include <Common/Types.h>
 
 #include <Vendor/rapidjson/rapidjson.h>
+#include <Vendor/rapidjson/document.h>
 
 ///////////////////////////////////////////////////////////
 // Namespaces
@@ -27,10 +28,10 @@ namespace ark
   {
   public:
 
-    static void DecryptArchive(const std::string& Entry, const std::string& SubEntry, const std::string& Name);
-    static void EncryptArchive(const std::string& Entry, const std::string& SubEntry, const std::string& Name);
+    static void DecryptArchive(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
+    static void EncryptArchive(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
 
-    static void UnpackArchive(const std::string& Entry, const std::string& SubEntry, const std::string& Name);
-    static void RepackArchive(const std::string& Entry, const std::string& SubEntry, const std::string& Name);
+    static void UnpackArchive(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
+    static void RepackArchive(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
   };
 }

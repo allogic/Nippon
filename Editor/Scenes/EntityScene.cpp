@@ -34,6 +34,16 @@ namespace ark
 {
   EntityScene::EntityScene(
     const std::string& Entry,
+    const std::string& SubEntry)
+    : Scene{ eSceneTypeEntity, Entry, SubEntry }
+  {
+    Load();
+
+    ModelsToActors();
+  }
+
+  EntityScene::EntityScene(
+    const std::string& Entry,
     const std::string& SubEntry,
     const std::string& SceneName,
     const std::string& WindowName)
@@ -52,19 +62,22 @@ namespace ark
   void EntityScene::Load()
   {
     fs::path lvlDir = fs::path{ gConfig["unpackDir"].GetString() } / mEntry / mSubEntry;
-    fs::path datDir = lvlDir / fs::path{ mEntry + mSubEntry + ".dat" };
+    fs::path datDir = lvlDir / fs::path{ mEntry + mSubEntry + "@dat" };
 
     fs::path mdFile = FsUtils::SearchFileByType(datDir, "MD");
 
+    if (fs::exists(mdFile))
+    {
+      auto models = MdSerializer::FromFile(mdFile);
+
+      mModels.insert(mModels.end(), models.begin(), models.end());
+    }
+
     auto ddsFiles = FsUtils::SearchFilesByTypeRecursive(datDir, "DDS");
-
-    auto models = MdSerializer::FromFile(mdFile);
-
-    mModels.insert(mModels.end(), models.begin(), models.end());
 
     for (const auto& file : ddsFiles)
     {
-      mTextures.emplace_back(TextureUtils::LoadDDS(file));
+      mTextures.emplace_back(TextureUtils::LoadDirectDrawSurface(file));
     }
   }
 

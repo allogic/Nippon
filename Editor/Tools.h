@@ -2,12 +2,9 @@
 
 #include <string>
 #include <filesystem>
-#include <map>
+#include <vector>
 
 #include <Common/Types.h>
-
-#include <Editor/Interface.h>
-#include <Editor/Forward.h>
 
 #include <Vendor/rapidjson/rapidjson.h>
 #include <Vendor/rapidjson/document.h>
@@ -25,22 +22,10 @@ namespace rj = rapidjson;
 
 namespace ark
 {
-  class EntityBrowser : public Interface
-  {
-  public:
+	class Tools
+	{
+	public:
 
-    EntityBrowser();
-    virtual ~EntityBrowser();
-
-  public:
-
-    virtual void Reset() override;
-    virtual void Draw() override;
-
-  private:
-
-    std::map<std::string, std::map<std::string, Texture2D*>> mThumbnails = {};
-
-    std::string mSelectedEntryDir = "";
-  };
+		static void GenerateEntityThumnail(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
+	};
 }

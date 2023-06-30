@@ -12,19 +12,11 @@
 #include <Editor/Event.h>
 #include <Editor/Interface.h>
 #include <Editor/Scene.h>
+#include <Editor/InterfaceManager.h>
 #include <Editor/SceneManager.h>
 
 #include <Editor/Components/Camera.h>
 #include <Editor/Components/Transform.h>
-
-#include <Editor/Interface/MainMenu.h>
-#include <Editor/Interface/Inspector.h>
-#include <Editor/Interface/ModelBrowser.h>
-#include <Editor/Interface/ObjectBrowser.h>
-#include <Editor/Interface/TextureBrowser.h>
-#include <Editor/Interface/EntityBrowser.h>
-#include <Editor/Interface/Outline.h>
-#include <Editor/Interface/Viewport.h>
 
 #include <Vendor/GLAD/glad.h>
 
@@ -126,14 +118,6 @@ rj::Document gConfig = {};
 
 GLFWwindow* gGlfwContext = nullptr;
 
-MainMenu* gMainMenu = nullptr;
-Inspector* gInspector = nullptr;
-ModelBrowser* gModelBrowser = nullptr;
-ObjectBrowser* gObjectBrowser = nullptr;
-TextureBrowser* gTextureBrowser = nullptr;
-EntityBrowser* gEntityBrowser = nullptr;
-Outline* gOutline = nullptr;
-
 R32 gTimeDelta = 0.0F;
 
 ///////////////////////////////////////////////////////////
@@ -142,9 +126,6 @@ R32 gTimeDelta = 0.0F;
 
 static R32 sTime = 0.0F;
 static R32 sTimePrev = 0.0F;
-
-static const U32 sWidth = 1920;
-static const U32 sHeight = 1080;
 
 ///////////////////////////////////////////////////////////
 // Glfw Callbacks
@@ -290,8 +271,10 @@ I32 main()
 	gArchive.Parse(FsUtils::ReadText("Archive.json").c_str());
 	gConfig.Parse(FsUtils::ReadText("Config.json").c_str());
 
+	U32 width = gConfig["editorWidth"].GetInt();
+	U32 height = gConfig["editorHeight"].GetInt();
+
 	glfwSetErrorCallback(GlfwDebugProc);
-	glfwSetCursorPosCallback(gGlfwContext, GlfwMouseProc);
 
 	if (glfwInit())
 	{
@@ -301,10 +284,11 @@ I32 main()
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, 1);
 
-		gGlfwContext = glfwCreateWindow((I32)sWidth, (I32)sHeight, "Nippon", nullptr, nullptr);
+		gGlfwContext = glfwCreateWindow(width, height, "Nippon", nullptr, nullptr);
 
 		if (gGlfwContext)
 		{
+			glfwSetCursorPosCallback(gGlfwContext, GlfwMouseProc);
 			glfwMakeContextCurrent(gGlfwContext);
 			glfwSwapInterval(0);
 
@@ -322,13 +306,7 @@ I32 main()
 				ImGui_ImplGlfw_InitForOpenGL(gGlfwContext, 1);
 				ImGui_ImplOpenGL3_Init("#version 450 core");
 
-				gMainMenu = new MainMenu;
-				gInspector = new Inspector;
-				gModelBrowser = new ModelBrowser;
-				gObjectBrowser = new ObjectBrowser;
-				gTextureBrowser = new TextureBrowser;
-				gEntityBrowser = new EntityBrowser;
-				gOutline = new Outline;
+				InterfaceManager::Create();
 
 				while (!glfwWindowShouldClose(gGlfwContext))
 				{
@@ -345,15 +323,8 @@ I32 main()
 					ImGui::NewFrame();
 					ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
 					
-					gMainMenu->Draw();
-					gInspector->Draw();
-					gModelBrowser->Draw();
-					gObjectBrowser->Draw();
-					gTextureBrowser->Draw();
-					gEntityBrowser->Draw();
-					gOutline->Draw();
-					
-					SceneManager::DrawAllViewports();
+					InterfaceManager::Draw();
+					SceneManager::Draw();
 
 					ImGui::Render();
 					
@@ -391,40 +362,7 @@ I32 main()
 		LOG("Failed initializing GLFW\n");
 	}
 
-	if (gMainMenu)
-	{
-		delete gMainMenu;
-	}
-
-	if (gInspector)
-	{
-		delete gInspector;
-	}
-
-	if (gModelBrowser)
-	{
-		delete gModelBrowser;
-	}
-
-	if (gObjectBrowser)
-	{
-		delete gObjectBrowser;
-	}
-	
-	if (gTextureBrowser)
-	{
-		delete gTextureBrowser;
-	}
-
-	if (gEntityBrowser)
-	{
-		delete gEntityBrowser;
-	}
-
-	if (gOutline)
-	{
-		delete gOutline;
-	}
+	InterfaceManager::Destroy();
 
 	return 0;
 }

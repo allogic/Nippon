@@ -1,8 +1,10 @@
 {
-    "gameDir": "C:/Program Files (x86)/Steam/steamapps/common/Okami",
-    "decryptDir": "C:/Users/Michael/Downloads/Nippon/Decrypt",
-    "encryptDir": "C:/Users/Michael/Downloads/Nippon/Encrypt",
-    "unpackDir": "C:/Users/Michael/Downloads/Nippon/Unpack",
-    "repackDir": "C:/Users/Michael/Downloads/Nippon/Repack",
-    "encryptionKey": "YaKiNiKuM2rrVrPJpGMkfe3EK4RbpbHw"
+	"gameDir": "C:/Program Files (x86)/Steam/steamapps/common/Okami",
+	"decryptDir": "C:/Users/Michael/Downloads/Nippon/Decrypt",
+	"encryptDir": "C:/Users/Michael/Downloads/Nippon/Encrypt",
+	"unpackDir": "C:/Users/Michael/Downloads/Nippon/Unpack",
+	"repackDir": "C:/Users/Michael/Downloads/Nippon/Repack",
+	"editorWidth": 1920,
+	"editorHeight": 1080,
+	"encryptionKey": "YaKiNiKuM2rrVrPJpGMkfe3EK4RbpbHw"
 }

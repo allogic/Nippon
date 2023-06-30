@@ -26,14 +26,6 @@ namespace ark
 
   public:
 
-    inline auto begin() { return mChildren.begin(); }
-    inline const auto begin() const { return mChildren.cbegin(); }
-
-    inline auto end() { return mChildren.end(); }
-    inline const auto end() const { return mChildren.cend(); }
-
-  public:
-
     inline auto IsActive() const { return mActive; }
     inline auto IsChild() const { return mChildren.size() == 0; }
     inline auto HasParent() const { return mParent != nullptr; }

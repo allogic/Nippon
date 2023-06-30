@@ -89,7 +89,7 @@ namespace ark
     return intact;
   }
 
-  void Integrity::CompareRepackedWithDecrypted(const std::string& Entry, const std::string& SubEntry, const std::string& Name)
+  void Integrity::CompareRepackedWithDecrypted(const std::string& Entry, const std::string& SubEntry, rj::Value& Value)
   {
     fs::path decryptDir = gConfig["decryptDir"].GetString();
     fs::path repackDir = gConfig["repackDir"].GetString();
@@ -117,7 +117,7 @@ namespace ark
     }
   }
 
-  void Integrity::CompareEncryptedWithOriginal(const std::string& Entry, const std::string& SubEntry, const std::string& Name)
+  void Integrity::CompareEncryptedWithOriginal(const std::string& Entry, const std::string& SubEntry, rj::Value& Value)
   {
 
   }
