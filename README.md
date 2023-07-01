@@ -50,13 +50,13 @@ cmake --build .
 
 ## Decrypting / Unpacking Game Files
 
-The game files need to be extracted first in order for the editor to work correctly. Using the main menu packer option, all or only specific files can be decrypted and unpacked. There is also an option to repack and encrypt them again but this feature is still in development.
+The game files need to be extracted first in order for the editor to work correctly. Using the main menu `Packer` option, all or only specific files can be decrypted and unpacked. There is also an option to repack and encrypt them again but this feature is still in development.
 
 After the game files have been decrypted and unpacked, level and entity scenes can be opened successfully.
 
 ## Entity Browser
 
-With the help of the entity browser, game assets can be previewed and safed to disk. If only black images appear, then no thumbnails have yet been generated. Navigate to the main menu's tool dropdown and generate them. They should be visible after editor relaunch.
+With the help of the entity browser, game assets can be previewed and safed to disk. If only black images appear, then no thumbnails have yet been generated. Navigate to the main menu `Tool` option and generate them. They should be visible after editor relaunch.
 
 ## Editor Scene Controls
 
