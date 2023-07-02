@@ -15,6 +15,8 @@ The editor requires a configuration file. Inside the `Binary` directory update t
   "encryptDir": "/../Nippon/Encrypt",
   "unpackDir": "/../Nippon/Unpack",
   "repackDir": "/../Nippon/Repack",
+	"thumbnailDir": "/../Nippon/Thumbnail",
+	"exportDir": "/../Nippon/Export",
 }
 ```
 
