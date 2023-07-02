@@ -1,4 +1,4 @@
-![](README.jpg)
+<img src="README.jpg"/>
 
 # Nippon Modding Framework
 
@@ -59,6 +59,10 @@ After the game files have been decrypted and unpacked, level and entity scenes c
 ## Entity Browser
 
 With the help of the entity browser, game assets can be previewed and safed to disk. If only black images appear, then no thumbnails have yet been generated. Navigate to the main menu `Tool` option and generate them. They should be visible after editor relaunch. The `Export` function can be used to generate a wavefront object and material file which should be ready to be imported into blender or other 3D software. Be sure to enable backface culling to view the objects properly, otherwies only the black hull will be visible.
+
+<img src="OKI.jpg" width="300" style="display:inline"/>
+<img src="CROW.jpg" width="300" style="display:inline"/>
+<img src="RAO.jpg" width="300" style="display:inline"/>
 
 ## Editor Scene Controls
 
