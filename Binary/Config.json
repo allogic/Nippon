@@ -4,6 +4,8 @@
 	"encryptDir": "C:/Users/Michael/Downloads/Nippon/Encrypt",
 	"unpackDir": "C:/Users/Michael/Downloads/Nippon/Unpack",
 	"repackDir": "C:/Users/Michael/Downloads/Nippon/Repack",
+	"thumbnailDir": "C:/Users/Michael/Downloads/Nippon/Thumbnail",
+	"exportDir": "C:/Users/Michael/Downloads/Nippon/Export",
 	"editorWidth": 1920,
 	"editorHeight": 1080,
 	"encryptionKey": "YaKiNiKuM2rrVrPJpGMkfe3EK4RbpbHw"

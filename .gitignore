@@ -12,18 +12,19 @@ _deps
 out
 .vs
 
-Build
-
 Binary/*
 !Binary/*.json
 !Binary/imgui.ini
 !Binary/*.vert
 !Binary/*.frag
 
+Build
 Decrypt
 Encrypt
 Unpack
 Repack
+Export
+Thumbnail
 
 token.txt
 

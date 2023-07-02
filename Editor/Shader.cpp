@@ -62,7 +62,7 @@ namespace ark
 		glUseProgram(mProgram);
 	}
 
-	void Shader::Unbind() const
+	void Shader::UnBind() const
 	{
 		glUseProgram(0);
 	}

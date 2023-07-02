@@ -80,7 +80,7 @@ namespace ark
 
 			for (auto entryIt = Entry.MemberBegin(); entryIt != Entry.MemberEnd(); entryIt++)
 			{
-				ImGui::PushID(&entryIt);
+				ImGui::PushID(entryIt->name.GetString());
 
 				std::string entryDir = entryIt->name.GetString();
 				std::string entryName = entryIt->value["name"].GetString();
@@ -107,7 +107,7 @@ namespace ark
 
 					for (auto subEntryIt = subEntries.MemberBegin(); subEntryIt != subEntries.MemberEnd(); subEntryIt++)
 					{
-						ImGui::PushID(&subEntryIt);
+						ImGui::PushID(subEntryIt->name.GetString());
 
 						std::string subEntryDir = subEntryIt->name.GetString();
 						std::string subEntryName = subEntryIt->value["name"].GetString();

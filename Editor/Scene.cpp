@@ -135,6 +135,9 @@ namespace ark
 		glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 
@@ -149,6 +152,7 @@ namespace ark
 		mDebugRenderer.Render();
 
 		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
 
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	}

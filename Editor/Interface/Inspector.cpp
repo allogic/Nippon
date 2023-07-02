@@ -133,7 +133,13 @@ namespace ark
 		
 				if (Renderable* renderable = actor->GetComponent<Renderable>())
 				{
-					
+					ImGui::PushID(renderable);
+
+					ImGui::Text("Vertices: %U", (U32)renderable->GetVertexBuffer().size());
+					ImGui::Text("Indices: %U", (U32)renderable->GetElementBuffer().size());
+					ImGui::Text("Texture Index: %U", renderable->GetTextureIndex());
+
+					ImGui::PopID();
 				}
 
 				if (sceneDirty)

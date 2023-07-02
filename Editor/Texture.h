@@ -42,7 +42,11 @@ namespace ark
 		void Bind() const;
 		void Mount(U32 Index) const;
 		void UnMount() const;
-		void Unbind() const;
+		void UnBind() const;
+
+	public:
+
+		std::vector<U8> Snapshot() const;
 
 	private:
 
@@ -71,7 +75,7 @@ namespace ark
 		void Bind() const;
 		void Resize(U32 Width, U32 Height);
 		void Mount(U32 Index) const;
-		void Unbind() const;
+		void UnBind() const;
 
 	private:
 
@@ -97,7 +101,7 @@ namespace ark
 		void Bind() const;
 		void Resize(U32 Width, U32 Height);
 		void Mount(U32 Index) const;
-		void Unbind() const;
+		void UnBind() const;
 
 	private:
 

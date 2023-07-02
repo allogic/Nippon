@@ -42,7 +42,7 @@ namespace ark
 
 		U16 vertexCount = (U16)Vertices.size();
 
-		for (U16 i = 1; i < vertexCount; i++)
+		for (U16 i = 2; i < vertexCount; i++)
 		{
 			if (Vertices[i].Connection == 0x8000)
 			{

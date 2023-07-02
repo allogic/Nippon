@@ -25,6 +25,7 @@ namespace ark
 	public:
 
 		inline const auto& GetMesh() const { return mMesh; }
+		inline const auto& GetTextureIndex() const { return mTextureIndex; }
 		inline const auto& GetTexture() const { return mTexture; }
 		inline const auto& GetVertexBuffer() const { return mVertexBuffer; }
 		inline const auto& GetElementBuffer() const { return mElementBuffer; }
@@ -33,7 +34,7 @@ namespace ark
 
 		inline void SetVertexBuffer(const std::vector<DefaultVertex>& VertexBuffer) { mVertexBuffer = VertexBuffer; }
 		inline void SetElementBuffer(const std::vector<U32>& ElementBuffer) { mElementBuffer = ElementBuffer; }
-		inline void SetTexture(Texture2D* Texture) { mTexture = Texture; }
+		inline void SetTexture(U32 TextureIndex, Texture2D* Texture) { mTextureIndex = TextureIndex; mTexture = Texture; }
 
 	public:
 
@@ -46,6 +47,7 @@ namespace ark
 		std::vector<U32> mElementBuffer = {};
 
 		Mesh<DefaultVertex, U32> mMesh = {};
+		U32 mTextureIndex = 0;
 		Texture2D* mTexture = nullptr;
 	};
 }

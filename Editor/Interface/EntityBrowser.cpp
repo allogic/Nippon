@@ -1,8 +1,11 @@
 #include <Common/Recursion/FileTreeNode.h>
 
+#include <Common/Utils/FsUtils.h>
 #include <Common/Utils/TextureUtils.h>
 
 #include <Editor/Texture.h>
+
+#include <Editor/Exporter/ObjExporter.h>
 
 #include <Editor/Interface/EntityBrowser.h>
 
@@ -51,7 +54,7 @@ namespace ark
 		{
 			for (auto entryIt = gArchive["entities"].MemberBegin(); entryIt != gArchive["entities"].MemberEnd(); entryIt++)
 			{
-				ImGui::PushID(&entryIt);
+				ImGui::PushID(entryIt->name.GetString());
 
 				std::string entryDir = entryIt->name.GetString();
 
@@ -68,13 +71,15 @@ namespace ark
 
 						for (auto subEntryIt = subEntries.MemberBegin(); subEntryIt != subEntries.MemberEnd(); subEntryIt++)
 						{
+							ImGui::PushID(subEntryIt->name.GetString());
 							ImGui::TableNextRow();
 							ImGui::TableNextColumn();
 
 							std::string subEntryDir = subEntryIt->name.GetString();
 							std::string subEntryName = subEntryIt->value["name"].GetString();
+							std::string subEntryInfo = subEntryIt->value["info"].GetString();
 
-							fs::path thumbnail = fs::path{ gConfig["unpackDir"].GetString() } / entryDir / subEntryDir / fs::path{ "thumb.png" };
+							fs::path thumbnail = fs::path{ gConfig["thumbnailDir"].GetString() } / entryDir / subEntryDir / fs::path{ "thumb.png" };
 
 							auto& texture = mThumbnails[entryDir][subEntryDir];
 
@@ -99,13 +104,14 @@ namespace ark
 
 							ImGui::Text(subEntryDir.c_str());
 							ImGui::Text(subEntryName.c_str());
+							ImGui::Text(subEntryInfo.c_str());
 
-							ImGui::Separator();
-
-							if (ImGui::Button("Export as OBJ"))
+							if (ImGui::Button("Export"))
 							{
-
+								ObjExporter::ExportEntity(entryDir, subEntryDir);
 							}
+
+							ImGui::PopID();
 						}
 
 						ImGui::EndTable();

@@ -52,7 +52,7 @@ namespace ark
 			mMesh->Render(eRenderModeLines);
 			mMesh->Unbind();
 
-			mShader->Unbind();
+			mShader->UnBind();
 		}
 
 		mVertexOffset = 0;

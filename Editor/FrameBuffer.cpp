@@ -35,10 +35,10 @@ namespace ark
 	{
 		mColorTexture->Bind();
 		mColorTexture->Resize(Width, Height);
-		mColorTexture->Unbind();
+		mColorTexture->UnBind();
 
 		mDepthStencilTexture->Bind();
 		mDepthStencilTexture->Resize(Width, Height);
-		mDepthStencilTexture->Unbind();
+		mDepthStencilTexture->UnBind();
 	}
 }

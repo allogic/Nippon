@@ -1,5 +1,6 @@
 #include <Common/Debug.h>
 
+#include <Common/Utils/FsUtils.h>
 #include <Common/Utils/StringUtils.h>
 #include <Common/Utils/TextureUtils.h>
 
@@ -29,12 +30,13 @@ namespace ark
 
 		rj::Value& thumbnail = Value["thumbnail"];
 
-		R32 distance = thumbnail["distance"].GetFloat();
-		R32 height = thumbnail["height"].GetFloat();
+		R32 x = thumbnail["x"].GetFloat();
+		R32 y = thumbnail["y"].GetFloat();
+		R32 z = thumbnail["z"].GetFloat();
 		R32 pitch = thumbnail["pitch"].GetFloat();
 
-		player->GetTransform()->SetLocalPosition(R32V3{ distance, height, distance });
-		player->GetTransform()->SetLocalRotation(R32V3{ -45.0F, pitch, 0.0F });
+		player->GetTransform()->SetLocalPosition(R32V3{ x, y, z });
+		player->GetTransform()->SetLocalRotation(R32V3{ pitch, 45.0F, 0.0F });
 
 		scene.Resize(256, 256);
 		scene.Update();
@@ -42,11 +44,16 @@ namespace ark
 
 		std::vector<U8> bytes = scene.Snapshot();
 
-		fs::path file = fs::path{ gConfig["unpackDir"].GetString() } / Entry / SubEntry / "thumb.png";
+		fs::path thumbnailDir = gConfig["thumbnailDir"].GetString();
+		fs::path thumbnailFile = thumbnailDir / Entry / SubEntry / "thumb.png";
 
-		TextureUtils::WritePNG(scene.GetWidth(), scene.GetHeight(), bytes, file);
+		FsUtils::CreateIfNotExists(thumbnailDir);
+		FsUtils::CreateIfNotExists(thumbnailDir / Entry);
+		FsUtils::CreateIfNotExists(thumbnailDir / Entry / SubEntry);
 
-		std::string posixFile = StringUtils::PosixPath(file.string());
+		TextureUtils::WritePNG(scene.GetWidth(), scene.GetHeight(), bytes, thumbnailFile);
+
+		std::string posixFile = StringUtils::PosixPath(thumbnailFile.string());
 
 		LOG("%s\n", posixFile.c_str());
 	}

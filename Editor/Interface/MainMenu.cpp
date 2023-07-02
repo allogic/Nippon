@@ -33,8 +33,13 @@ namespace ark
 
 	void MainMenu::DrawSceneMenu()
 	{
-		DrawMenuTree("Levels", gArchive["regions"], SceneManager::CreateLevel);
-		DrawMenuTree("Entities", gArchive["entities"], SceneManager::CreateEntity);
+		if (ImGui::BeginMenu("Scene"))
+		{
+			DrawMenuTree("Levels", gArchive["regions"], SceneManager::CreateLevel);
+			DrawMenuTree("Entities", gArchive["entities"], SceneManager::CreateEntity);
+
+			ImGui::EndMenu();
+		}
 	}
 
 	void MainMenu::DrawPackerMenu()

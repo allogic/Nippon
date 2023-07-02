@@ -47,6 +47,7 @@ namespace ark
 
 					if (renderTask.TexturePtr)
 					{
+						renderTask.TexturePtr->Bind();
 						renderTask.TexturePtr->Mount(0);
 					}
 
@@ -57,9 +58,10 @@ namespace ark
 					if (renderTask.TexturePtr)
 					{
 						renderTask.TexturePtr->UnMount();
+						renderTask.TexturePtr->UnBind();
 					}
 
-					mShader->Unbind();
+					mShader->UnBind();
 				}
 			}
 

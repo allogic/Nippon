@@ -51,9 +51,22 @@ namespace ark
 		glBindTextureUnit(0, mTid);
 	}
 
-	void Texture2D::Unbind() const
+	void Texture2D::UnBind() const
 	{
 		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+	std::vector<U8> Texture2D::Snapshot() const
+	{
+		std::vector<U8> bytes = {};
+
+		bytes.resize(mWidth * mHeight * 4);
+
+		glBindTexture(GL_TEXTURE_2D, mTid);
+		glGetnTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, (U32)bytes.size(), &bytes[0]);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		return bytes;
 	}
 
 	RenderTexture::RenderTexture(TextureWrap Wrap, TextureFilter Filter)
@@ -95,7 +108,7 @@ namespace ark
 		glBindTextureUnit(Index, mTid);
 	}
 
-	void RenderTexture::Unbind() const
+	void RenderTexture::UnBind() const
 	{
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
@@ -139,7 +152,7 @@ namespace ark
 		glBindTextureUnit(Index, mTid);
 	}
 
-	void DepthStencilTexture::Unbind() const
+	void DepthStencilTexture::UnBind() const
 	{
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}

@@ -15,8 +15,6 @@
 #include <Editor/Serializer/ObjSerializer.h>
 #include <Editor/Serializer/ScrSerializer.h>
 
-#include <Vendor/rapidjson/document.h>
-
 #include <Vendor/GLAD/glad.h>
 
 ///////////////////////////////////////////////////////////
@@ -135,12 +133,15 @@ namespace ark
 
 				std::vector<DefaultVertex> vertices = VertexConverter::ToVertexBuffer(division.Vertices, division.TextureMaps, division.TextureUvs, division.ColorWeights);
 				std::vector<U32> elements = ElementConverter::ToElementBuffer(division.Vertices);
-				Texture2D* texture = (division.Header.TextureIndex < mTextures.size()) ? mTextures[division.Header.TextureIndex] : nullptr;
+
+				U32 textureIndex = division.Header.TextureIndex;
+
+				Texture2D* texture = (textureIndex < mTextures.size()) ? mTextures[textureIndex] : nullptr;
 
 				renderable->SetVertexBuffer(vertices);
 				renderable->SetElementBuffer(elements);
 				renderable->LocalToRemote();
-				renderable->SetTexture(texture);
+				renderable->SetTexture(textureIndex, texture);
 
 				AABB aabb = Math::ComputeBoundingBox(vertices, transform->GetLocalScale());
 
