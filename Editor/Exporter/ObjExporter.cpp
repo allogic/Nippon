@@ -36,7 +36,7 @@ namespace ark
 		std::ostringstream objectStream = {};
 		std::ostringstream materialStream = {};
 
-		objectStream << "mtllib material.mtl" << "\n";
+		objectStream << "mtllib object.mtl" << "\n";
 
 		U32 vertexOffset = 0;
 
@@ -52,7 +52,7 @@ namespace ark
 		}
 
 		FsUtils::WriteText(exportDir / Entry / SubEntry / "object.obj", objectStream.str());
-		FsUtils::WriteText(exportDir / Entry / SubEntry / "material.mtl", materialStream.str());
+		FsUtils::WriteText(exportDir / Entry / SubEntry / "object.mtl", materialStream.str());
 
 		ExportTextures(exportDir, Entry, SubEntry, scene.GetTextures());
 	}
