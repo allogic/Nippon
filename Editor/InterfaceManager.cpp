@@ -2,6 +2,7 @@
 
 #include <Editor/Interface/EntityBrowser.h>
 #include <Editor/Interface/Inspector.h>
+#include <Editor/Interface/LevelBrowser.h>
 #include <Editor/Interface/MainMenu.h>
 #include <Editor/Interface/ModelBrowser.h>
 #include <Editor/Interface/ObjectBrowser.h>
@@ -14,6 +15,7 @@
 
 static ark::EntityBrowser* sEntityBrowser = nullptr;
 static ark::Inspector* sInspector = nullptr;
+static ark::LevelBrowser* sLevelBrowser = nullptr;
 static ark::MainMenu* sMainMenu = nullptr;
 static ark::ModelBrowser* sModelBrowser = nullptr;
 static ark::ObjectBrowser* sObjectBrowser = nullptr;
@@ -28,6 +30,7 @@ namespace ark
 {
 	EntityBrowser* InterfaceManager::GetEntityBrowser() { return sEntityBrowser; }
 	Inspector* InterfaceManager::GetInspector() { return sInspector; }
+	LevelBrowser* InterfaceManager::GetLevelBrowser() { return sLevelBrowser; }
 	MainMenu* InterfaceManager::GetMainMenu() { return sMainMenu; }
 	ModelBrowser* InterfaceManager::GetModelBrowser() { return sModelBrowser; }
 	ObjectBrowser* InterfaceManager::GetObjectBrowser() { return sObjectBrowser; }
@@ -38,6 +41,7 @@ namespace ark
 	{
 		sEntityBrowser = new EntityBrowser;
 		sInspector = new Inspector;
+		sLevelBrowser = new LevelBrowser;
 		sMainMenu = new MainMenu;
 		sModelBrowser = new ModelBrowser;
 		sObjectBrowser = new ObjectBrowser;
@@ -49,6 +53,7 @@ namespace ark
 	{
 		sEntityBrowser->Draw();
 		sInspector->Draw();
+		sLevelBrowser->Draw();
 		sMainMenu->Draw();
 		sModelBrowser->Draw();
 		sObjectBrowser->Draw();
@@ -60,6 +65,7 @@ namespace ark
 	{
 		if (sEntityBrowser) delete sEntityBrowser;
 		if (sInspector) delete sInspector;
+		if (sLevelBrowser) delete sLevelBrowser;
 		if (sMainMenu) delete sMainMenu;
 		if (sModelBrowser) delete sModelBrowser;
 		if (sObjectBrowser) delete sObjectBrowser;
@@ -68,6 +74,7 @@ namespace ark
 
 		sEntityBrowser = nullptr;
 		sInspector = nullptr;
+		sLevelBrowser = nullptr;
 		sMainMenu = nullptr;
 		sModelBrowser = nullptr;
 		sObjectBrowser = nullptr;

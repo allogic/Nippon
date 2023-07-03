@@ -127,7 +127,7 @@ namespace ark
 		glViewport(0, 0, (I32)mWidth, (I32)mHeight);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mFrameBuffer.GetId());
 
-		glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
+		glClearColor(0.125F, 0.125F, 0.125F, 1.0F);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		glEnable(GL_BLEND);

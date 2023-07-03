@@ -4,40 +4,124 @@
 			"name": "Development",
 			"entries": {
 				"06": {
-					"name": "Endless load screen"
+					"name": "Endless load screen",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"07": {
-					"name": "2005 Prototype Intro Cutscene Waka Lake"
+					"name": "2005 Prototype Intro Cutscene Waka Lake",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"10": {
-					"name": "Item Test Map - Items 0x00-0x7F"
+					"name": "Item Test Map - Items 0x00-0x7F",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"11": {
-					"name": "Item Test Map - Items 0x80-0xFF"
+					"name": "Item Test Map - Items 0x80-0xFF",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"20": {
-					"name": "Brush Interaction Test Map 1 - Large Animals"
+					"name": "Brush Interaction Test Map 1 - Large Animals",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"21": {
-					"name": "Brush Interaction Test Map 2 - Small Animals"
+					"name": "Brush Interaction Test Map 2 - Small Animals",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"30": {
-					"name": "Brush Interaction Test Map 3 - Wheel Enemies"
+					"name": "Brush Interaction Test Map 3 - Wheel Enemies",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"31": {
-					"name": "Brush Interaction Test Map 4 - Bull Enemies"
+					"name": "Brush Interaction Test Map 4 - Bull Enemies",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"32": {
-					"name": "Brush Interaction Test Map 5 - Empty"
+					"name": "Brush Interaction Test Map 5 - Empty",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"33": {
-					"name": "Brush Interaction Test Map 6 - Empty"
+					"name": "Brush Interaction Test Map 6 - Empty",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"34": {
-					"name": "Brush Interaction Test Map 7 - Blue Cylinder"
+					"name": "Brush Interaction Test Map 7 - Blue Cylinder",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"ff": {
-					"name": "Collision and Movement Test Map"
+					"name": "Collision and Movement Test Map",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				}
 			}
 		},
@@ -45,100 +129,324 @@
 			"name": "Eastern Nippon",
 			"entries": {
 				"00": {
-					"name": "Kamiki Village - Game Start"
+					"name": "Kamiki Village - Game Start",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"01": {
-					"name": "Cave of Nagi"
+					"name": "Cave of Nagi",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"02": {
-					"name": "Kamiki Village"
+					"name": "Kamiki Village",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"03": {
-					"name": "Hana Valley"
+					"name": "Hana Valley",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"04": {
-					"name": "Tsuta Ruins"
+					"name": "Tsuta Ruins",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"05": {
-					"name": "City Checkpoint"
+					"name": "City Checkpoint",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"06": {
-					"name": "Tsuta Ruins - Spider Queen Arena"
+					"name": "Tsuta Ruins - Spider Queen Arena",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"07": {
-					"name": "Gale Shrine"
+					"name": "Gale Shrine",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"08": {
-					"name": "Kusa Village"
+					"name": "Kusa Village",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"09": {
-					"name": "Sasa Sanctuary"
+					"name": "Sasa Sanctuary",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"0a": {
-					"name": "Agata Forest - Madame Fawn's House"
+					"name": "Agata Forest - Madame Fawn's House",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"0b": {
-					"name": "Digging Minigame"
+					"name": "Digging Minigame",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"0c": {
-					"name": "Onigiri Dojo Lesson Room"
+					"name": "Onigiri Dojo Lesson Room",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"0d": {
-					"name": "Gale Shrine - Crimson Helm Arena"
+					"name": "Gale Shrine - Crimson Helm Arena",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"0e": {
-					"name": "Calcified Cavern"
+					"name": "Calcified Cavern",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"10": {
-					"name": "Moon Cave - Interior"
+					"name": "Moon Cave - Interior",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"11": {
-					"name": "Moon Cave - Staircase and Orochi Arena"
+					"name": "Moon Cave - Staircase and Orochi Arena",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"12": {
-					"name": "Kamiki Village - After fighting Tei"
+					"name": "Kamiki Village - After fighting Tei",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"13": {
-					"name": "Ryoshima Coast - Bandit Spider Arena"
+					"name": "Ryoshima Coast - Bandit Spider Arena",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"14": {
-					"name": "Taka Pass - Stray Bead #26 Cave"
+					"name": "Taka Pass - Stray Bead #26 Cave",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"15": {
-					"name": "Kamui - Cherry Bomb 3 Cave"
+					"name": "Kamui - Cherry Bomb 3 Cave",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"16": {
-					"name": "N. Ryoshima Coast - Power Slash 2 Cave"
+					"name": "N. Ryoshima Coast - Power Slash 2 Cave",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"17": {
-					"name": "N. Ryoshima Coast - Cherry Bomb 2 Cave"
+					"name": "N. Ryoshima Coast - Cherry Bomb 2 Cave",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"18": {
-					"name": "Kamui (Ezofuji) - Power Slash 3 Cave"
+					"name": "Kamui (Ezofuji) - Power Slash 3 Cave",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"19": {
-					"name": "Kamui - Blockhead Grande Cave"
+					"name": "Kamui - Blockhead Grande Cave",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"1a": {
-					"name": "N. Ryoshima Coast - Bandit Spider Arena"
+					"name": "N. Ryoshima Coast - Bandit Spider Arena",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"1b": {
-					"name": "Kamui - Bandit Spider Arena"
+					"name": "Kamui - Bandit Spider Arena",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"1c": {
-					"name": "Dragon Palace - Stray Bead #70 Cave"
+					"name": "Dragon Palace - Stray Bead #70 Cave",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"1d": {
-					"name": "N. Ryoshima Coast - Stray Bead #63 Cave"
+					"name": "N. Ryoshima Coast - Stray Bead #63 Cave",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"20": {
-					"name": "New Game Intro Cutscene Map"
+					"name": "New Game Intro Cutscene Map",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"21": {
-					"name": "Beta Kamiki"
+					"name": "Beta Kamiki",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"22": {
-					"name": "River of the Heavens"
+					"name": "River of the Heavens",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				}
 			}
 		},
@@ -146,52 +454,164 @@
 			"name": "Western Nippon",
 			"entries": {
 				"00": {
-					"name": "Sei-an City (Aristocratic Qtr.)"
+					"name": "Sei-an City (Aristocratic Qtr.)",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"01": {
-					"name": "Sei-an City (Commoners' Qtr.)"
+					"name": "Sei-an City (Commoners' Qtr.)",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"02": {
-					"name": "Sei-an City (Aristocratic Qtr.) - Himiko's Palace"
+					"name": "Sei-an City (Aristocratic Qtr.) - Himiko's Palace",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"03": {
-					"name": "Dragon Palace"
+					"name": "Dragon Palace",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"04": {
-					"name": "Inside the Dragon"
+					"name": "Inside the Dragon",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"05": {
-					"name": "Sunken Ship"
+					"name": "Sunken Ship",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"06": {
-					"name": "Imperial Palace - Ammy Size"
+					"name": "Imperial Palace - Ammy Size",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"07": {
-					"name": "Imperial Palace - Issun Size"
+					"name": "Imperial Palace - Issun Size",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"08": {
-					"name": "Oni Island - Lower Interior"
+					"name": "Oni Island - Lower Interior",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"09": {
-					"name": "Oni Island - Ninetales Arena"
+					"name": "Oni Island - Ninetales Arena",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"0a": {
-					"name": "Catcall Tower"
+					"name": "Catcall Tower",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"0b": {
-					"name": "Imperial Palace - Blight Arena"
+					"name": "Imperial Palace - Blight Arena",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"0c": {
-					"name": "Sei-an City (Commoners' Qtr.) - Kimono Shop"
+					"name": "Sei-an City (Commoners' Qtr.) - Kimono Shop",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"0d": {
-					"name": "Oni Island - Exterior"
+					"name": "Oni Island - Exterior",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"0e": {
-					"name": "Oni Island - Upper Interior"
+					"name": "Oni Island - Upper Interior",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"0f": {
-					"name": "Oni Island - Sidescroller"
+					"name": "Oni Island - Sidescroller",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				}
 			}
 		},
@@ -199,58 +619,184 @@
 			"name": "Kamui",
 			"entries": {
 				"01": {
-					"name": "Wep'keer"
+					"name": "Wep'keer",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"02": {
-					"name": "Kamiki Village - 100 years ago"
+					"name": "Kamiki Village - 100 years ago",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"03": {
-					"name": "Wawku Shrine"
+					"name": "Wawku Shrine",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"04": {
-					"name": "Wawku Shrine - Nechku Arena"
+					"name": "Wawku Shrine - Nechku Arena",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"05": {
-					"name": "Ponc'tan"
+					"name": "Ponc'tan",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"06": {
-					"name": "Moon Cave - 100 years ago"
+					"name": "Moon Cave - 100 years ago",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"07": {
-					"name": "Ark of Yamato"
+					"name": "Ark of Yamato",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"08": {
-					"name": "Ark of Yamato - Spider Queen Arena"
+					"name": "Ark of Yamato - Spider Queen Arena",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"09": {
-					"name": "Ark of Yamato - Orochi Arena"
+					"name": "Ark of Yamato - Orochi Arena",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"0a": {
-					"name": "Ark of Yamato - Blight Arena"
+					"name": "Ark of Yamato - Blight Arena",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"0b": {
-					"name": "Ark of Yamato - Ninetales Arena"
+					"name": "Ark of Yamato - Ninetales Arena",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"0c": {
-					"name": "Ark of Yamato - Crimson Helm Arena"
+					"name": "Ark of Yamato - Crimson Helm Arena",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"0d": {
-					"name": "Ponc'tan - Mrs. Seal's House"
+					"name": "Ponc'tan - Mrs. Seal's House",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"10": {
-					"name": "Yoshpet"
+					"name": "Yoshpet",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"11": {
-					"name": "Inner Yoshpet"
+					"name": "Inner Yoshpet",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"12": {
-					"name": "Ark of Yamato - Yami Arena"
+					"name": "Ark of Yamato - Yami Arena",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"13": {
-					"name": "Wep'keer Square"
+					"name": "Wep'keer Square",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"14": {
-					"name": "Wawku Shrine - Lechku & Nechku Arena"
+					"name": "Wawku Shrine - Lechku & Nechku Arena",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				}
 			}
 		},
@@ -258,10 +804,24 @@
 			"name": "Title Screens",
 			"entries": {
 				"00": {
-					"name": "Return to Title Screen"
+					"name": "Return to Title Screen",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"02": {
-					"name": "Presents from Issun"
+					"name": "Presents from Issun",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				}
 			}
 		},
@@ -269,28 +829,84 @@
 			"name": "Beta",
 			"entries": {
 				"00": {
-					"name": "Beta Shinshu"
+					"name": "Beta Shinshu",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"01": {
-					"name": "Beta Hana"
+					"name": "Beta Hana",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"02": {
-					"name": "Beta Tsuta"
+					"name": "Beta Tsuta",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"03": {
-					"name": "Beta Agata"
+					"name": "Beta Agata",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"04": {
-					"name": "Beta Ryoshima"
+					"name": "Beta Ryoshima",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"05": {
-					"name": "Beta Kamui"
+					"name": "Beta Kamui",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"06": {
-					"name": "Beta Taka"
+					"name": "Beta Taka",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"07": {
-					"name": "Title Screen Demo Cutscene Village"
+					"name": "Title Screen Demo Cutscene Village",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				}
 			}
 		},
@@ -298,19 +914,54 @@
 			"name": "Fishing",
 			"entries": {
 				"00": {
-					"name": "Fishing with Benkei on Sei-an Bridge"
+					"name": "Fishing with Benkei on Sei-an Bridge",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"01": {
-					"name": "Fishing with Benkei next to Himiko's Palace"
+					"name": "Fishing with Benkei next to Himiko's Palace",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"02": {
-					"name": "Fishing with Kokari in Agata"
+					"name": "Fishing with Kokari in Agata",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"03": {
-					"name": "Fishing with Kokari in Kamui"
+					"name": "Fishing with Kokari in Kamui",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"04": {
-					"name": "Fishing with Fisherman in NRyo"
+					"name": "Fishing with Fisherman in NRyo",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				}
 			}
 		},
@@ -318,49 +969,154 @@
 			"name": "Overworld",
 			"entries": {
 				"01": {
-					"name": "Shinshu Field - Cursed"
+					"name": "Shinshu Field - Cursed",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"02": {
-					"name": "Shinshu Field - Healed"
+					"name": "Shinshu Field - Healed",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"03": {
-					"name": "Agata Forest - Cursed"
+					"name": "Agata Forest - Cursed",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"04": {
-					"name": "Agata Forest - Healed"
+					"name": "Agata Forest - Healed",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"06": {
-					"name": "Moon Cave Entrance"
+					"name": "Moon Cave Entrance",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"07": {
-					"name": "Taka Pass - Cursed"
+					"name": "Taka Pass - Cursed",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"08": {
-					"name": "Taka Pass - Healed"
+					"name": "Taka Pass - Healed",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"09": {
-					"name": "Ryoshima Coast - Cursed"
+					"name": "Ryoshima Coast - Cursed",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"0a": {
-					"name": "Ryoshima Coast - Healed"
+					"name": "Ryoshima Coast - Healed",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"0c": {
-					"name": "N. Ryoshima Coast"
+					"name": "N. Ryoshima Coast",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"11": {
-					"name": "Kamui - Cursed"
+					"name": "Kamui - Cursed",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"12": {
-					"name": "Kamui - Healed"
+					"name": "Kamui - Healed",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"13": {
-					"name": "Kamui (Ezofuji)"
+					"name": "Kamui (Ezofuji)",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"20": {
-					"name": "Shinshu Field - 100 years ago"
+					"name": "Shinshu Field - 100 years ago",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				},
 				"21": {
-					"name": "Moon Cave Entrance - 100 years ago"
+					"name": "Moon Cave Entrance - 100 years ago",
+					"info": "",
+					"thumbnail": {
+						"x": 1000.0,
+						"y": 1000.0,
+						"z": 1000.0,
+						"pitch": -45.0
+					}
 				}
 			}
 		}

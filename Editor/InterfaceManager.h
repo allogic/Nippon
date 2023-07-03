@@ -16,6 +16,7 @@ namespace ark
 
 		static EntityBrowser* GetEntityBrowser();
 		static Inspector* GetInspector();
+		static LevelBrowser* GetLevelBrowser();
 		static MainMenu* GetMainMenu();
 		static ModelBrowser* GetModelBrowser();
 		static ObjectBrowser* GetObjectBrowser();

@@ -9,7 +9,7 @@
 
 #include <Editor/Exporter/WavefrontExporter.h>
 
-#include <Editor/Interface/EntityBrowser.h>
+#include <Editor/Interface/LevelBrowser.h>
 
 #include <Vendor/ImGui/imgui.h>
 
@@ -19,12 +19,12 @@
 
 namespace ark
 {
-	EntityBrowser::EntityBrowser()
+	LevelBrowser::LevelBrowser()
 	{
 
 	}
 
-	EntityBrowser::~EntityBrowser()
+	LevelBrowser::~LevelBrowser()
 	{
 		for (auto& [entry, entries] : mThumbnails)
 		{
@@ -36,18 +36,18 @@ namespace ark
 		}
 	}
 
-	void EntityBrowser::Reset()
+	void LevelBrowser::Reset()
 	{
 
 	}
 
-	void EntityBrowser::Draw()
+	void LevelBrowser::Draw()
 	{
-		ImGui::Begin("Entity Browser");
+		ImGui::Begin("Level Browser");
 
-		if (ImGui::BeginTabBar("Entries"))
+		if (ImGui::BeginTabBar("Levels"))
 		{
-			for (auto entryIt = gArchive["entities"].MemberBegin(); entryIt != gArchive["entities"].MemberEnd(); entryIt++)
+			for (auto entryIt = gArchive["regions"].MemberBegin(); entryIt != gArchive["regions"].MemberEnd(); entryIt++)
 			{
 				ImGui::PushID(entryIt->name.GetString());
 
@@ -55,7 +55,7 @@ namespace ark
 
 				if (ImGui::BeginTabItem(entryDir.c_str()))
 				{
-					if (ImGui::BeginTable("#Entities", 2, ImGuiTableFlags_RowBg | ImGuiTableFlags_ScrollY | ImGuiTableFlags_BordersInnerV))
+					if (ImGui::BeginTable("#Levels", 2, ImGuiTableFlags_RowBg | ImGuiTableFlags_ScrollY | ImGuiTableFlags_BordersInnerV))
 					{
 						ImGui::TableSetupColumn("Thumbnail", ImGuiTableColumnFlags_WidthFixed, 195.0F);
 						ImGui::TableSetupColumn("Metadata", ImGuiTableColumnFlags_WidthStretch);
@@ -103,12 +103,12 @@ namespace ark
 
 							if (ImGui::Button("Open"))
 							{
-								SceneManager::CreateEntity(entryDir, subEntryDir, subEntryIt->value);
+								SceneManager::CreateLevel(entryDir, subEntryDir, subEntryIt->value);
 							}
 
 							if (ImGui::Button("Export"))
 							{
-								WavefrontExporter::ExportEntity(entryDir, subEntryDir);
+								WavefrontExporter::ExportLevel(entryDir, subEntryDir);
 							}
 
 							ImGui::PopID();

@@ -163,6 +163,7 @@ namespace ark
 	{
 		if (ImGui::BeginMenu("Tools"))
 		{
+			DrawMenuTree("Generate Level Thumbnails", gArchive["regions"], Tools::GenerateLevelThumbnail);
 			DrawMenuTree("Generate Entity Thumbnails", gArchive["entities"], Tools::GenerateEntityThumbnail);
 
 			ImGui::EndMenu();

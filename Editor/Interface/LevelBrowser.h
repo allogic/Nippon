@@ -2,19 +2,18 @@
 
 #include <string>
 #include <filesystem>
-#include <vector>
+#include <map>
 
 #include <Common/Types.h>
 
-#include <Vendor/rapidjson/rapidjson.h>
-#include <Vendor/rapidjson/document.h>
+#include <Editor/Interface.h>
+#include <Editor/Forward.h>
 
 ///////////////////////////////////////////////////////////
 // Namespaces
 ///////////////////////////////////////////////////////////
 
 namespace fs = std::filesystem;
-namespace rj = rapidjson;
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -22,11 +21,22 @@ namespace rj = rapidjson;
 
 namespace ark
 {
-	class Tools
+	class LevelBrowser : public Interface
 	{
 	public:
 
-		static void GenerateEntityThumbnail(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
-		static void GenerateLevelThumbnail(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
+		LevelBrowser();
+		virtual ~LevelBrowser();
+
+	public:
+
+		virtual void Reset() override;
+		virtual void Draw() override;
+
+	private:
+
+		std::map<std::string, std::map<std::string, Texture2D*>> mThumbnails = {};
+
+		std::string mSelectedEntryDir = "";
 	};
 }
