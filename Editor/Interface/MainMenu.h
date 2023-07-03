@@ -6,10 +6,10 @@
 
 #include <Common/Types.h>
 
+#include <Vendor/ImGui/imgui.h>
+
 #include <Vendor/rapidjson/rapidjson.h>
 #include <Vendor/rapidjson/document.h>
-
-#include <Vendor/ImGui/imgui.h>
 
 ///////////////////////////////////////////////////////////
 // Namespaces

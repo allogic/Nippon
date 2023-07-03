@@ -1,17 +1,12 @@
 #include <Common/Debug.h>
 
+#include <Editor/Editor.h>
 #include <Editor/Packer.h>
 #include <Editor/Integrity.h>
 #include <Editor/SceneManager.h>
 #include <Editor/Tools.h>
 
 #include <Editor/Interface/MainMenu.h>
-
-///////////////////////////////////////////////////////////
-// Globals
-///////////////////////////////////////////////////////////
-
-extern rj::Document gArchive;
 
 ///////////////////////////////////////////////////////////
 // Implementation

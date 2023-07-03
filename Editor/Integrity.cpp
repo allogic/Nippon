@@ -5,17 +5,11 @@
 #include <Common/Utils/IntegrityUtils.h>
 #include <Common/Utils/StringUtils.h>
 
+#include <Editor/Editor.h>
 #include <Editor/Integrity.h>
 
-#include <Vendor/rapidjson/document.h>
 #include "Vendor/rapidjson/prettywriter.h"
 #include "Vendor/rapidjson/stringbuffer.h"
-
-///////////////////////////////////////////////////////////
-// Globals
-///////////////////////////////////////////////////////////
-
-extern rj::Document gConfig;
 
 ///////////////////////////////////////////////////////////
 // Definition

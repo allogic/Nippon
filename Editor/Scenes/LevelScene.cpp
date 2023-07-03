@@ -2,6 +2,8 @@
 #include <Common/Utils/StringUtils.h>
 #include <Common/Utils/TextureUtils.h>
 
+#include <Editor/Editor.h>
+
 #include <Editor/Scenes/LevelScene.h>
 
 #include <Editor/Components/Transform.h>
@@ -16,14 +18,6 @@
 #include <Editor/Serializer/ScrSerializer.h>
 
 #include <Vendor/GLAD/glad.h>
-
-///////////////////////////////////////////////////////////
-// Globals
-///////////////////////////////////////////////////////////
-
-extern rj::Document gConfig;
-
-extern std::map<std::string, ark::LevelScene*> gLevelScenes;
 
 ///////////////////////////////////////////////////////////
 // Implementation

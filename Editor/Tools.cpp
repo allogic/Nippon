@@ -4,17 +4,12 @@
 #include <Common/Utils/StringUtils.h>
 #include <Common/Utils/TextureUtils.h>
 
+#include <Editor/Editor.h>
 #include <Editor/Tools.h>
 
 #include <Editor/Components/Transform.h>
 
 #include <Editor/Scenes/EntityScene.h>
-
-///////////////////////////////////////////////////////////
-// Globals
-///////////////////////////////////////////////////////////
-
-extern rj::Document gConfig;
 
 ///////////////////////////////////////////////////////////
 // Implementation

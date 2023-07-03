@@ -1,0 +1,25 @@
+#pragma once
+
+#include <string>
+#include <vector>
+#include <map>
+
+#include <Common/Types.h>
+
+#include <Vendor/rapidjson/rapidjson.h>
+#include <Vendor/rapidjson/document.h>
+
+///////////////////////////////////////////////////////////
+// Namespaces
+///////////////////////////////////////////////////////////
+
+namespace rj = rapidjson;
+
+///////////////////////////////////////////////////////////
+// Globals
+///////////////////////////////////////////////////////////
+
+extern rj::Document gArchive;
+extern rj::Document gConfig;
+
+extern ark::R32 gTimeDelta;

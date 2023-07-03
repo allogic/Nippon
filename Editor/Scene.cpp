@@ -1,3 +1,4 @@
+#include <Editor/Editor.h>
 #include <Editor/Texture.h>
 #include <Editor/Math.h>
 #include <Editor/Scene.h>
@@ -16,12 +17,6 @@
 #include <Editor/Components/Renderable.h>
 
 #include <Vendor/GLAD/glad.h>
-
-///////////////////////////////////////////////////////////
-// Globals
-///////////////////////////////////////////////////////////
-
-extern ark::R32 gTimeDelta;
 
 ///////////////////////////////////////////////////////////
 // Implementation

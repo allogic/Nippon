@@ -1,22 +1,11 @@
-#include <string>
-#include <vector>
-#include <map>
-#include <filesystem>
-
 #include <Common/Debug.h>
 #include <Common/Types.h>
 
 #include <Common/Utils/FsUtils.h>
 
-#include <Editor/Actor.h>
 #include <Editor/Event.h>
-#include <Editor/Interface.h>
-#include <Editor/Scene.h>
 #include <Editor/InterfaceManager.h>
 #include <Editor/SceneManager.h>
-
-#include <Editor/Components/Camera.h>
-#include <Editor/Components/Transform.h>
 
 #include <Vendor/GLAD/glad.h>
 
@@ -25,9 +14,6 @@
 #include <Vendor/ImGui/imgui.h>
 #include <Vendor/ImGui/imgui_impl_glfw.h>
 #include <Vendor/ImGui/imgui_impl_opengl3.h>
-
-#include <Vendor/rapidjson/rapidjson.h>
-#include <Vendor/rapidjson/document.h>
 
 /*
  * Unextracted File Coverage:
@@ -104,9 +90,6 @@
 // Namespaces
 ///////////////////////////////////////////////////////////
 
-namespace fs = std::filesystem;
-namespace rj = rapidjson;
-
 using namespace ark;
 
 ///////////////////////////////////////////////////////////
@@ -116,13 +99,13 @@ using namespace ark;
 rj::Document gArchive = {};
 rj::Document gConfig = {};
 
-GLFWwindow* gGlfwContext = nullptr;
-
 R32 gTimeDelta = 0.0F;
 
 ///////////////////////////////////////////////////////////
 // Locals
 ///////////////////////////////////////////////////////////
+
+static GLFWwindow* sGlfwContext = nullptr;
 
 static R32 sTime = 0.0F;
 static R32 sTimePrev = 0.0F;
@@ -284,12 +267,12 @@ I32 main()
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, 1);
 
-		gGlfwContext = glfwCreateWindow(width, height, "Nippon", nullptr, nullptr);
+		sGlfwContext = glfwCreateWindow(width, height, "Nippon", nullptr, nullptr);
 
-		if (gGlfwContext)
+		if (sGlfwContext)
 		{
-			glfwSetCursorPosCallback(gGlfwContext, GlfwMouseProc);
-			glfwMakeContextCurrent(gGlfwContext);
+			glfwSetCursorPosCallback(sGlfwContext, GlfwMouseProc);
+			glfwMakeContextCurrent(sGlfwContext);
 			glfwSwapInterval(0);
 
 			if (gladLoadGL())
@@ -303,12 +286,12 @@ I32 main()
 				ImGuiSetupIo();
 				ImGuiSetupStyle();
 
-				ImGui_ImplGlfw_InitForOpenGL(gGlfwContext, 1);
+				ImGui_ImplGlfw_InitForOpenGL(sGlfwContext, 1);
 				ImGui_ImplOpenGL3_Init("#version 450 core");
 
 				InterfaceManager::Create();
 
-				while (!glfwWindowShouldClose(gGlfwContext))
+				while (!glfwWindowShouldClose(sGlfwContext))
 				{
 					sTime = (R32)glfwGetTime();
 					gTimeDelta = sTime - sTimePrev;
@@ -333,10 +316,10 @@ I32 main()
 					ImGui::UpdatePlatformWindows();
 					ImGui::RenderPlatformWindowsDefault();
 
-					glfwMakeContextCurrent(gGlfwContext);
-					glfwSwapBuffers(gGlfwContext);
+					glfwMakeContextCurrent(sGlfwContext);
+					glfwSwapBuffers(sGlfwContext);
 
-					Event::Poll(gGlfwContext);
+					Event::Poll(sGlfwContext);
 				}
 
 				ImGui_ImplOpenGL3_Shutdown();
@@ -349,7 +332,7 @@ I32 main()
 				LOG("Failed initializing GL\n");
 			}
 
-			glfwDestroyWindow(gGlfwContext);
+			glfwDestroyWindow(sGlfwContext);
 			glfwTerminate();
 		}
 		else

@@ -3,20 +3,14 @@
 #include <Common/Utils/FsUtils.h>
 #include <Common/Utils/TextureUtils.h>
 
+#include <Editor/Editor.h>
 #include <Editor/Texture.h>
 
-#include <Editor/Exporter/ObjExporter.h>
+#include <Editor/Exporter/WavefrontExporter.h>
 
 #include <Editor/Interface/EntityBrowser.h>
 
 #include <Vendor/ImGui/imgui.h>
-
-///////////////////////////////////////////////////////////
-// Globals
-///////////////////////////////////////////////////////////
-
-extern rj::Document gArchive;
-extern rj::Document gConfig;
 
 ///////////////////////////////////////////////////////////
 // Implementation
@@ -108,7 +102,7 @@ namespace ark
 
 							if (ImGui::Button("Export"))
 							{
-								ObjExporter::ExportEntity(entryDir, subEntryDir);
+								WavefrontExporter::ExportEntity(entryDir, subEntryDir);
 							}
 
 							ImGui::PopID();

@@ -9,14 +9,11 @@
 
 #include <Editor/Vertex.h>
 
-#include <Vendor/rapidjson/rapidjson.h>
-#include <Vendor/rapidjson/document.h>
-
 ///////////////////////////////////////////////////////////
 // Namespaces
 ///////////////////////////////////////////////////////////
 
-namespace rj = rapidjson;
+namespace fs = std::filesystem;
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -24,7 +21,7 @@ namespace rj = rapidjson;
 
 namespace ark
 {
-	class ObjExporter
+	class WavefrontExporter
 	{
 	public:
 

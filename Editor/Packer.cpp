@@ -8,16 +8,10 @@
 #include <Common/Recursion/ArchiveExtractionNode.h>
 #include <Common/Recursion/ArchiveCompressionNode.h>
 
+#include <Editor/Editor.h>
 #include <Editor/Packer.h>
 
 #include <Vendor/rapidjson/document.h>
-
-///////////////////////////////////////////////////////////
-// Globals
-///////////////////////////////////////////////////////////
-
-extern rj::Document gArchive;
-extern rj::Document gConfig;
 
 ///////////////////////////////////////////////////////////
 // Implementation

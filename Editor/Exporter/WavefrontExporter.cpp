@@ -1,21 +1,17 @@
 #include <Common/Utils/FsUtils.h>
 #include <Common/Utils/TextureUtils.h>
 
+#include <Editor/Editor.h>
+
 #include <Editor/Scenes/EntityScene.h>
 #include <Editor/Scenes/LevelScene.h>
 
 #include <Editor/Converter/ElementConverter.h>
 #include <Editor/Converter/VertexConverter.h>
 
-#include <Editor/Exporter/ObjExporter.h>
+#include <Editor/Exporter/WavefrontExporter.h>
 
 #include <Editor/Components/Renderable.h>
-
-///////////////////////////////////////////////////////////
-// Globals
-///////////////////////////////////////////////////////////
-
-extern rj::Document gConfig;
 
 ///////////////////////////////////////////////////////////
 // Implementation
@@ -23,7 +19,7 @@ extern rj::Document gConfig;
 
 namespace ark
 {
-	void ObjExporter::ExportEntity(const std::string& Entry, const std::string& SubEntry)
+	void WavefrontExporter::ExportEntity(const std::string& Entry, const std::string& SubEntry)
 	{
 		EntityScene scene = { Entry, SubEntry };
 
@@ -57,12 +53,12 @@ namespace ark
 		ExportTextures(exportDir, Entry, SubEntry, scene.GetTextures());
 	}
 
-	void ObjExporter::ExportLevel(const std::string& Entry, const std::string& SubEntry)
+	void WavefrontExporter::ExportLevel(const std::string& Entry, const std::string& SubEntry)
 	{
 		LevelScene scene = { Entry, SubEntry };
 	}
 
-	void ObjExporter::ExportObject(
+	void WavefrontExporter::ExportObject(
 		std::ostringstream& Stream,
 		const std::string& Entry,
 		const std::string& SubEntry,
@@ -106,7 +102,7 @@ namespace ark
 		VertexOffset += (U32)vertexBuffer.size();
 	}
 
-	void ObjExporter::ExportMaterial(
+	void WavefrontExporter::ExportMaterial(
 		std::ostringstream& Stream,
 		const std::string& Entry,
 		const std::string& SubEntry,
@@ -125,7 +121,7 @@ namespace ark
 		Stream << "\n";
 	}
 
-	void ObjExporter::ExportTextures(
+	void WavefrontExporter::ExportTextures(
 		const fs::path& ExportDir,
 		const std::string& Entry,
 		const std::string& SubEntry,
