@@ -29,9 +29,6 @@ namespace ark
 	class MainMenu;
 	class Inspector;
 	class LevelBrowser;
-	class ModelBrowser;
-	class ObjectBrowser;
-	class TextureBrowser;
 	class EntityBrowser;
 	class Outline;
 	class Viewport;

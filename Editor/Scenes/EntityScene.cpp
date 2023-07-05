@@ -30,8 +30,6 @@ namespace ark
 		: Scene{ eSceneTypeEntity, Entry, SubEntry }
 	{
 		Load();
-
-		ModelsToActors();
 	}
 
 	EntityScene::EntityScene(
@@ -42,13 +40,13 @@ namespace ark
 		: Scene{ eSceneTypeEntity, Entry, SubEntry, SceneName, WindowName }
 	{
 		Load();
-
-		ModelsToActors();
 	}
 
 	EntityScene::~EntityScene()
 	{
 		Save();
+
+		// TODO: Delete textures
 	}
 
 	void EntityScene::Load()
@@ -57,19 +55,16 @@ namespace ark
 		fs::path datDir = lvlDir / fs::path{ mEntry + mSubEntry + "@dat" };
 
 		fs::path mdFile = FsUtils::SearchFileByType(datDir, "MD");
-
-		if (fs::exists(mdFile))
-		{
-			auto models = MdSerializer::FromFile(mdFile);
-
-			mModels.insert(mModels.end(), models.begin(), models.end());
-		}
-
 		auto ddsFiles = FsUtils::SearchFilesByTypeRecursive(datDir, "DDS");
 
 		for (const auto& file : ddsFiles)
 		{
-			mTextures.emplace_back(TextureUtils::LoadDirectDrawSurface(file));
+			mMdTextures.emplace_back(TextureUtils::LoadDirectDrawSurface(file));
+		}
+
+		if (fs::exists(mdFile))
+		{
+			AddStaticGeometry(MdSerializer::FromFile(mdFile));
 		}
 	}
 
@@ -78,39 +73,49 @@ namespace ark
 
 	}
 
-	void EntityScene::ModelsToActors()
+	void EntityScene::AddStaticGeometry(const MdGroup& Group)
 	{
-		for (const auto& [model, trans] : mModels)
+		Actor* groupActor = CreateActor<Actor>(Group.Name, mStaticGeometryActor);
+
+		for (const auto& model : Group.Models)
 		{
-			Actor* modelActor = CreateActor<Actor>(model.Name, nullptr);
+			Actor* modelActor = CreateActor<Actor>("Model_" + std::to_string(model.Index), groupActor);
 
-			Transform* transform = modelActor->GetTransform();
+			Transform* modelTransform = modelActor->GetTransform();
 
-			transform->SetLocalPosition(R32V3{ trans.Position.x, trans.Position.y, trans.Position.z });
-			transform->SetLocalRotation(glm::degrees(R32V3{ trans.Rotation.x, trans.Rotation.y, trans.Rotation.z } / 360.0F));
-			transform->SetLocalScale(R32V3{ trans.Scale.x, trans.Scale.y, trans.Scale.z });
+			R32V3 position = R32V3{ model.Transform.Position.x, model.Transform.Position.y, model.Transform.Position.z };
+			R32V3 rotation = R32V3{ model.Transform.Rotation.x, model.Transform.Rotation.y, model.Transform.Rotation.z };
+			R32V3 scale = R32V3{ model.Transform.Scale.x, model.Transform.Scale.y, model.Transform.Scale.z };
 
-			for (const auto& division : model.Divisions)
+			//modelTransform->SetLocalPosition(position);
+			modelTransform->SetLocalRotation(rotation);
+			//modelTransform->SetLocalScale(scale);
+
+			for (const auto& division : model.Entry.Divisions)
 			{
-				Actor* childActor = CreateActor<Actor>("Division", modelActor);
+				Actor* divisonActor = CreateActor<Actor>("Division_" + std::to_string(division.Index), modelActor);
 
-				Renderable* renderable = childActor->AttachComponent<Renderable>();
+				Transform* divisionTransform = divisonActor->AttachComponent<Transform>();
+
+				divisionTransform->SetLocalPosition(position);
+				//divisionTransform->SetLocalRotation(rotation);
+				//divisionTransform->SetLocalScale(scale);
+
+				Renderable* divisionRenderable = divisonActor->AttachComponent<Renderable>();
 
 				std::vector<DefaultVertex> vertices = VertexConverter::ToVertexBuffer(division.Vertices, division.TextureMaps, division.TextureUvs, division.ColorWeights);
 				std::vector<U32> elements = ElementConverter::ToElementBuffer(division.Vertices);
 
 				U32 textureIndex = division.Header.TextureIndex;
 
-				Texture2D* texture = (textureIndex < mTextures.size()) ? mTextures[textureIndex] : nullptr;
+				Texture2D* texture = (textureIndex < mMdTextures.size()) ? mMdTextures[textureIndex] : nullptr;
 
-				renderable->SetVertexBuffer(vertices);
-				renderable->SetElementBuffer(elements);
-				renderable->LocalToRemote();
-				renderable->SetTexture(textureIndex, texture);
+				divisionRenderable->SetVertexBuffer(vertices);
+				divisionRenderable->SetElementBuffer(elements);
+				divisionRenderable->LocalToRemote();
+				divisionRenderable->SetTexture(textureIndex, texture);
 
-				AABB aabb = Math::ComputeBoundingBox(vertices, transform->GetLocalScale());
-
-				childActor->SetAABB(aabb);
+				divisonActor->ComputeAxisAlignedBoundingBoxRecursive();
 			}
 		}
 	}

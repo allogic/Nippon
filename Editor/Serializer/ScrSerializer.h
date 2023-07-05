@@ -2,7 +2,6 @@
 
 #include <string>
 #include <vector>
-#include <utility>
 #include <filesystem>
 
 #include <Common/Types.h>
@@ -26,7 +25,7 @@ namespace ark
 	{
 	public:
 
-		static std::vector<std::pair<ScrModel, ScrTransform>> FromFile(const fs::path& File);
-		static void ToFile(const fs::path& File, const std::vector<std::pair<ScrModel, ScrTransform>>& Objects);
+		static ScrGroup FromFile(const fs::path& File);
+		static void ToFile(const fs::path& File, const ScrGroup& Group);
 	};
 }

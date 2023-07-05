@@ -29,7 +29,7 @@ namespace ark
 		{
 			for (auto& actor : scene->GetActors())
 			{
-				if (!actor->HasParent())
+				if (actor->IsRoot())
 				{
 					DrawActorRecursive(scene, actor);
 				}
@@ -71,7 +71,7 @@ namespace ark
 		ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 35.0F);
 		if (ImGui::Button("-", ImVec2{ 15.0F, 12.0F }))
 		{
-			Actor->SetActive(!Actor->IsActive());
+			Actor->MakeActiveRecursive(!Actor->IsActive());
 
 			Scene->Update();
 			Scene->Render();

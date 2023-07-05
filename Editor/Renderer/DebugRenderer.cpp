@@ -2,7 +2,6 @@
 #include <Editor/Scene.h>
 #include <Editor/Shader.h>
 #include <Editor/Vertex.h>
-#include <Editor/Math.h>
 
 #include <Editor/Components/Camera.h>
 
@@ -130,17 +129,17 @@ namespace ark
 		mElementOffset += 24;
 	}
 
-	void DebugRenderer::DebugAxisAlignedBoundingBox(const AABB& AABB, const R32V4& C)
+	void DebugRenderer::DebugAxisAlignedBoundingBox(const R32V3& P, const AABB& AABB, const R32V4& C)
 	{
-		mVertexBuffer[mVertexOffset + 0].Position = R32V3{ AABB.Min.x, AABB.Min.y, AABB.Min.z };
-		mVertexBuffer[mVertexOffset + 1].Position = R32V3{ AABB.Max.x, AABB.Min.y, AABB.Min.z };
-		mVertexBuffer[mVertexOffset + 2].Position = R32V3{ AABB.Min.x, AABB.Max.y, AABB.Min.z };
-		mVertexBuffer[mVertexOffset + 3].Position = R32V3{ AABB.Max.x, AABB.Max.y, AABB.Min.z };
+		mVertexBuffer[mVertexOffset + 0].Position = P + R32V3{ AABB.Min.x, AABB.Min.y, AABB.Min.z };
+		mVertexBuffer[mVertexOffset + 1].Position = P + R32V3{ AABB.Max.x, AABB.Min.y, AABB.Min.z };
+		mVertexBuffer[mVertexOffset + 2].Position = P + R32V3{ AABB.Min.x, AABB.Max.y, AABB.Min.z };
+		mVertexBuffer[mVertexOffset + 3].Position = P + R32V3{ AABB.Max.x, AABB.Max.y, AABB.Min.z };
 
-		mVertexBuffer[mVertexOffset + 4].Position = R32V3{ AABB.Min.x, AABB.Min.y, AABB.Max.z };
-		mVertexBuffer[mVertexOffset + 5].Position = R32V3{ AABB.Max.x, AABB.Min.y, AABB.Max.z };
-		mVertexBuffer[mVertexOffset + 6].Position = R32V3{ AABB.Min.x, AABB.Max.y, AABB.Max.z };
-		mVertexBuffer[mVertexOffset + 7].Position = R32V3{ AABB.Max.x, AABB.Max.y, AABB.Max.z };
+		mVertexBuffer[mVertexOffset + 4].Position = P + R32V3{ AABB.Min.x, AABB.Min.y, AABB.Max.z };
+		mVertexBuffer[mVertexOffset + 5].Position = P + R32V3{ AABB.Max.x, AABB.Min.y, AABB.Max.z };
+		mVertexBuffer[mVertexOffset + 6].Position = P + R32V3{ AABB.Min.x, AABB.Max.y, AABB.Max.z };
+		mVertexBuffer[mVertexOffset + 7].Position = P + R32V3{ AABB.Max.x, AABB.Max.y, AABB.Max.z };
 
 		mVertexBuffer[mVertexOffset + 0].Color = C;
 		mVertexBuffer[mVertexOffset + 1].Color = C;

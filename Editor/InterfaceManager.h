@@ -18,10 +18,7 @@ namespace ark
 		static Inspector* GetInspector();
 		static LevelBrowser* GetLevelBrowser();
 		static MainMenu* GetMainMenu();
-		static ModelBrowser* GetModelBrowser();
-		static ObjectBrowser* GetObjectBrowser();
 		static Outline* GetOutline();
-		static TextureBrowser* GetTextureBrowser();
 
 	public:
 

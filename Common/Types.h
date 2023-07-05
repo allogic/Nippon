@@ -47,4 +47,12 @@ namespace ark
 	using R32M4 = glm::fmat4;
 
 	using R32Q = glm::fquat;
+
+	struct AABB
+	{
+		R32V3 Min;
+		R32V3 Max;
+		R32V3 Size;
+		R32V3 Center;
+	};
 }

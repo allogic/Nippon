@@ -297,7 +297,7 @@ I32 main()
 					gTimeDelta = sTime - sTimePrev;
 					sTimePrev = sTime;
 
-					glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
+					glClearColor(0.125F, 0.125F, 0.125F, 1.0F);
 					glClear(GL_COLOR_BUFFER_BIT);
 
 					ImGui_ImplGlfw_NewFrame();

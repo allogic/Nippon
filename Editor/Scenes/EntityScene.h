@@ -2,7 +2,6 @@
 
 #include <string>
 #include <vector>
-#include <utility>
 
 #include <Common/Types.h>
 
@@ -33,7 +32,7 @@ namespace ark
 
 	public:
 
-		inline const auto& GetModels() const { return mModels; }
+		inline const auto& GetMdTextures() const { return mMdTextures; }
 
 	protected:
 
@@ -42,10 +41,10 @@ namespace ark
 
 	private:
 
-		void ModelsToActors();
+		void AddStaticGeometry(const MdGroup& Group);
 
 	private:
 
-		std::vector<std::pair<MdModel, MdTransform>> mModels = {};
+		std::vector<Texture2D*> mMdTextures = {};
 	};
 }

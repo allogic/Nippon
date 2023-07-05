@@ -59,9 +59,9 @@ namespace ark
 		inline const auto& GetWidth() const { return mWidth; }
 		inline const auto& GetHeight() const { return mHeight; }
 		inline const auto& GetActors() const { return mActors; }
-		inline const auto& GetTextures() const { return mTextures; }
 		inline const auto& GetFrameBuffer() const { return mFrameBuffer; }
 		inline const auto& GetMainActor() const { return mMainActor; }
+		inline const auto& GetStaticGeometryActor() const { return mStaticGeometryActor; }
 		inline const auto& GetMainCamera() const { return mMainCamera; }
 		inline const auto& GetViewport() const { return mViewport; }
 
@@ -103,10 +103,11 @@ namespace ark
 		Viewport* mViewport = nullptr;
 
 		Actor* mMainActor = nullptr;
+		Actor* mStaticGeometryActor = nullptr;
+
 		Camera* mMainCamera = nullptr;
 
 		std::vector<Actor*> mActors = {};
-		std::vector<Texture2D*> mTextures = {};
 
 		U32 mWidth = 1;
 		U32 mHeight = 1;

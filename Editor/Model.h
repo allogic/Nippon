@@ -15,6 +15,7 @@ namespace ark
 {
 	struct ScrDivision
 	{
+		U32 Index;
 		MdHeader Header;
 		std::vector<ScrVertex> Vertices;
 		std::vector<ScrTextureMap> TextureMaps;
@@ -24,6 +25,7 @@ namespace ark
 
 	struct MdDivision
 	{
+		U32 Index;
 		MdHeader Header;
 		std::vector<MdVertex> Vertices;
 		std::vector<MdTextureMap> TextureMaps;
@@ -31,17 +33,41 @@ namespace ark
 		std::vector<MdColorWeight> ColorWeights;
 	};
 
-	struct ScrModel
+	struct ScrEntry
 	{
 		MdbHeader Header;
-		std::string Name;
 		std::vector<ScrDivision> Divisions;
+	};
+
+	struct MdEntry
+	{
+		MdbHeader Header;
+		std::vector<MdDivision> Divisions;
+	};
+
+	struct ScrModel
+	{
+		U32 Index;
+		ScrEntry Entry;
+		ScrTransform Transform;
 	};
 
 	struct MdModel
 	{
-		MdbHeader Header;
+		U32 Index;
+		MdEntry Entry;
+		MdTransform Transform;
+	};
+
+	struct ScrGroup
+	{
 		std::string Name;
-		std::vector<MdDivision> Divisions;
+		std::vector<ScrModel> Models;
+	};
+
+	struct MdGroup
+	{
+		std::string Name;
+		std::vector<MdModel> Models;
 	};
 }

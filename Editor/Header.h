@@ -171,7 +171,7 @@ namespace ark
 #pragma pack(push, 1)
 	struct ItsEntry
 	{
-		U8 ContentId;
+		U8 Id;
 		U8 Unknown1; // always 0a
 		U8 Unknown2; // always 01
 		U8 ContainerState;

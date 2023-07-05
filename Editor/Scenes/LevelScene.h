@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-#include <utility>
+#include <set> // TODO: Remove me
 
 #include <Common/Types.h>
 
@@ -33,8 +33,7 @@ namespace ark
 
 	public:
 
-		inline const auto& GetModels() const { return mModels; }
-		inline const auto& GetObjects() const { return mObjects; }
+		inline const auto& GetScrTextures() const { return mScrTextures; }
 
 	protected:
 
@@ -43,12 +42,14 @@ namespace ark
 
 	private:
 
-		void ModelsToActors();
-		void ObjectsToActors();
+		void LoadMd(const std::vector<ObjEntry>& Objects);
 
 	private:
 
-		std::vector<std::pair<ScrModel, ScrTransform>> mModels = {};
-		std::vector<ObjEntry> mObjects = {};
+		void AddStaticGeometry(const ScrGroup& Group);
+
+	private:
+
+		std::vector<Texture2D*> mScrTextures = {};
 	};
 }

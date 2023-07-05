@@ -7,7 +7,7 @@
 
 #include <Common/Types.h>
 
-#include <Editor/Vertex.h>
+#include <Editor/Forward.h>
 
 ///////////////////////////////////////////////////////////
 // Namespaces
@@ -30,21 +30,7 @@ namespace ark
 
 	private:
 
-		static void ExportObject(
-			std::ostringstream& Stream,
-			const std::string& Entry,
-			const std::string& SubEntry,
-			Renderable* Renderable,
-			U32& VertexOffset);
-		static void ExportMaterial(
-			std::ostringstream& Stream,
-			const std::string& Entry,
-			const std::string& SubEntry,
-			Renderable* Renderable);
-		static void ExportTextures(
-			const fs::path& ExportDir,
-			const std::string& Entry,
-			const std::string& SubEntry,
-			const std::vector<Texture2D*>& Textures);
+		static void ExportObjectsRecursive(Actor* Node, std::ostringstream& Stream, U32& VertexOffset);
+		static void ExportMaterialsRecursive(Actor* Node, std::ostringstream& Stream);
 	};
 }

@@ -89,4 +89,13 @@ namespace ark
 
 		return stream.str();
 	}
+
+	std::string StringUtils::ByteToString(U8 Byte)
+	{
+		char string[3] = {};
+
+		sprintf(string, "%02x", Byte);
+
+		return string;
+	}
 }

@@ -13,9 +13,9 @@
 
 namespace ark
 {
-	std::vector<std::pair<MdModel, MdTransform>> MdSerializer::FromFile(const fs::path& File)
+	MdGroup MdSerializer::FromFile(const fs::path& File)
 	{
-		std::vector<std::pair<MdModel, MdTransform>> models = {};
+		MdGroup group = {};
 
 		U16 index = 0;
 		std::string name = "";
@@ -27,7 +27,14 @@ namespace ark
 
 		ScrHeader scrHeader = binaryReader.Read<ScrHeader>();
 
-		models.resize(scrHeader.SubMeshCount);
+		std::string logicalIndex = {};
+
+		logicalIndex.resize(5);
+
+		std::snprintf(&logicalIndex[0], 6, "%05u", index);
+
+		group.Name = logicalIndex + "@" + name;
+		group.Models.resize(scrHeader.SubMeshCount);
 
 		std::vector<U32> transformOffsets = binaryReader.Read<U32>(scrHeader.SubMeshCount);
 
@@ -35,51 +42,52 @@ namespace ark
 
 		for (U32 i = 0; i < scrHeader.SubMeshCount; i++)
 		{
-			MdModel& model = models[i].first;
-
 			U64 mdbStart = binaryReader.GetPosition();
 
-			model.Header = binaryReader.Read<MdbHeader>();
-			model.Name = name;
+			MdModel& mdModel = group.Models[i];
 
-			if (model.Header.MdbId == 0x0062646D)
+			mdModel.Index = i;
+			mdModel.Entry.Header = binaryReader.Read<MdbHeader>();
+
+			if (mdModel.Entry.Header.MdbId == 0x0062646D)
 			{
-				model.Divisions.resize(model.Header.MeshDivisions);
+				mdModel.Entry.Divisions.resize(mdModel.Entry.Header.MeshDivisions);
 
-				std::vector<U32> divisionOffsets = binaryReader.Read<U32>(model.Header.MeshDivisions);
+				std::vector<U32> divisionOffsets = binaryReader.Read<U32>(mdModel.Entry.Header.MeshDivisions);
 
-				for (U16 j = 0; j < model.Header.MeshDivisions; j++)
+				for (U16 j = 0; j < mdModel.Entry.Header.MeshDivisions; j++)
 				{
-					MdDivision& division = model.Divisions[j];
-
 					binaryReader.SeekAbsolute(mdbStart + divisionOffsets[j]);
 
 					U64 mdStart = binaryReader.GetPosition();
 
-					division.Header = binaryReader.Read<MdHeader>();
+					MdDivision& mdDivision = mdModel.Entry.Divisions[j];
 
-					if (division.Header.VertexOffset != 0)
+					mdDivision.Index = j;
+					mdDivision.Header = binaryReader.Read<MdHeader>();
+
+					if (mdDivision.Header.VertexOffset != 0)
 					{
-						binaryReader.SeekAbsolute(mdStart + division.Header.VertexOffset);
-						binaryReader.Read<MdVertex>(division.Vertices, division.Header.VertexCount);
+						binaryReader.SeekAbsolute(mdStart + mdDivision.Header.VertexOffset);
+						binaryReader.Read<MdVertex>(mdDivision.Vertices, mdDivision.Header.VertexCount);
 					}
 
-					if (division.Header.TextureMapOffset != 0)
+					if (mdDivision.Header.TextureMapOffset != 0)
 					{
-						binaryReader.SeekAbsolute(mdStart + division.Header.TextureMapOffset);
-						binaryReader.Read<MdTextureMap>(division.TextureMaps, division.Header.VertexCount);
+						binaryReader.SeekAbsolute(mdStart + mdDivision.Header.TextureMapOffset);
+						binaryReader.Read<MdTextureMap>(mdDivision.TextureMaps, mdDivision.Header.VertexCount);
 					}
 
-					if (division.Header.TextureUvOffset != 0)
+					if (mdDivision.Header.TextureUvOffset != 0)
 					{
-						binaryReader.SeekAbsolute(mdStart + division.Header.TextureUvOffset);
-						binaryReader.Read<MdUv>(division.TextureUvs, division.Header.VertexCount);
+						binaryReader.SeekAbsolute(mdStart + mdDivision.Header.TextureUvOffset);
+						binaryReader.Read<MdUv>(mdDivision.TextureUvs, mdDivision.Header.VertexCount);
 					}
 
-					if (division.Header.ColorWeightOffset != 0)
+					if (mdDivision.Header.ColorWeightOffset != 0)
 					{
-						binaryReader.SeekAbsolute(mdStart + division.Header.ColorWeightOffset);
-						binaryReader.Read<MdColorWeight>(division.ColorWeights, division.Header.VertexCount);
+						binaryReader.SeekAbsolute(mdStart + mdDivision.Header.ColorWeightOffset);
+						binaryReader.Read<MdColorWeight>(mdDivision.ColorWeights, mdDivision.Header.VertexCount);
 					}
 				}
 			}
@@ -89,17 +97,17 @@ namespace ark
 
 		for (U32 i = 0; i < scrHeader.SubMeshCount; i++)
 		{
-			MdTransform& transform = models[i].second;
-
 			binaryReader.SeekAbsolute(transformOffsets[i]);
 
-			transform = binaryReader.Read<MdTransform>();
+			MdModel& mdModel = group.Models[i];
+
+			mdModel.Transform = binaryReader.Read<MdTransform>();
 		}
 
-		return models;
+		return group;
 	}
 
-	void MdSerializer::ToFile(const fs::path& File, const std::vector<std::pair<MdModel, MdTransform>>& Objects)
+	void MdSerializer::ToFile(const fs::path& File, const MdGroup& Group)
 	{
 		BinaryWriter binaryWriter = {};
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdio>
+#include <cassert>
 
 #include <Common/Platform.h>
 
@@ -15,3 +16,5 @@
 #else
 	#error "Platform not supported!"
 #endif
+
+#define ASSERT(EXPR) assert(EXPR)

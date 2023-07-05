@@ -1,10 +1,6 @@
 #pragma once
 
-#include <algorithm>
-
 #include <Common/Types.h>
-
-#include <Editor/Interface.h>
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -12,11 +8,10 @@
 
 namespace ark
 {
-	class TextureBrowser : public Interface
+	class Math
 	{
 	public:
 
-		virtual void Reset() override;
-		virtual void Draw() override;
+		static R32 Remap(R32 Value, R32 L0, R32 H0, R32 L1, R32 H1);
 	};
 }

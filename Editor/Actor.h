@@ -9,7 +9,6 @@
 #include <Common/Types.h>
 
 #include <Editor/Forward.h>
-#include <Editor/Math.h>
 
 ///////////////////////////////////////////////////////////
 // Definition
@@ -28,7 +27,7 @@ namespace ark
 
 		inline auto IsActive() const { return mActive; }
 		inline auto IsChild() const { return mChildren.size() == 0; }
-		inline auto HasParent() const { return mParent != nullptr; }
+		inline auto IsRoot() const { return mParent == nullptr; }
 
 		inline const auto& GetName() const { return mName; }
 		inline const auto& GetComponents() const { return mComponents; }
@@ -39,8 +38,6 @@ namespace ark
 		inline auto GetTransform() const { return mTransform; }
 
 	public:
-
-		void SetActive(bool Active);
 
 		inline void SetParent(Actor* Parent) { mParent = Parent; }
 		inline void SetAABB(const AABB& AABB) { mAABB = AABB; }
@@ -53,6 +50,11 @@ namespace ark
 
 		inline void AddChild(Actor* Child) { mChildren.emplace_back(Child); }
 		inline void RemoveChild(Actor* Child) { mChildren.erase(std::find(mChildren.begin(), mChildren.end(), Child)); }
+
+	public:
+
+		void MakeActiveRecursive(bool Active);
+		void ComputeAxisAlignedBoundingBoxRecursive();
 
 	public:
 

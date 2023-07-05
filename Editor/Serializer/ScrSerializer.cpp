@@ -13,9 +13,9 @@
 
 namespace ark
 {
-	std::vector<std::pair<ScrModel, ScrTransform>> ScrSerializer::FromFile(const fs::path& File)
+	ScrGroup ScrSerializer::FromFile(const fs::path& File)
 	{
-		std::vector<std::pair<ScrModel, ScrTransform>> models = {};
+		ScrGroup group = {};
 
 		U16 index = 0;
 		std::string name = "";
@@ -27,7 +27,14 @@ namespace ark
 
 		ScrHeader scrHeader = binaryReader.Read<ScrHeader>();
 
-		models.resize(scrHeader.SubMeshCount);
+		std::string logicalIndex = {};
+
+		logicalIndex.resize(5);
+
+		std::snprintf(&logicalIndex[0], 6, "%05u", index);
+
+		group.Name = logicalIndex + "@" + name;
+		group.Models.resize(scrHeader.SubMeshCount);
 
 		std::vector<U32> transformOffsets = binaryReader.Read<U32>(scrHeader.SubMeshCount);
 
@@ -35,51 +42,52 @@ namespace ark
 
 		for (U32 i = 0; i < scrHeader.SubMeshCount; i++)
 		{
-			ScrModel& model = models[i].first;
-
 			U64 mdbStart = binaryReader.GetPosition();
 
-			model.Header = binaryReader.Read<MdbHeader>();
-			model.Name = name;
+			ScrModel& scrModel = group.Models[i];
 
-			if (model.Header.MdbId == 0x0062646D)
+			scrModel.Index = i;
+			scrModel.Entry.Header = binaryReader.Read<MdbHeader>();
+
+			if (scrModel.Entry.Header.MdbId == 0x0062646D)
 			{
-				model.Divisions.resize(model.Header.MeshDivisions);
+				scrModel.Entry.Divisions.resize(scrModel.Entry.Header.MeshDivisions);
 
-				std::vector<U32> divisionOffsets = binaryReader.Read<U32>(model.Header.MeshDivisions);
+				std::vector<U32> divisionOffsets = binaryReader.Read<U32>(scrModel.Entry.Header.MeshDivisions);
 
-				for (U16 j = 0; j < model.Header.MeshDivisions; j++)
+				for (U16 j = 0; j < scrModel.Entry.Header.MeshDivisions; j++)
 				{
-					ScrDivision& division = model.Divisions[j];
-
 					binaryReader.SeekAbsolute(mdbStart + divisionOffsets[j]);
 
 					U64 mdStart = binaryReader.GetPosition();
 
-					division.Header = binaryReader.Read<MdHeader>();
+					ScrDivision& scrDivision = scrModel.Entry.Divisions[j];
+
+					scrDivision.Index = j;
+					scrDivision.Header = binaryReader.Read<MdHeader>();
 					
-					if (division.Header.VertexOffset != 0)
+					if (scrDivision.Header.VertexOffset != 0)
 					{
-						binaryReader.SeekAbsolute(mdStart + division.Header.VertexOffset);
-						binaryReader.Read<ScrVertex>(division.Vertices, division.Header.VertexCount);
+						binaryReader.SeekAbsolute(mdStart + scrDivision.Header.VertexOffset);
+						binaryReader.Read<ScrVertex>(scrDivision.Vertices, scrDivision.Header.VertexCount);
 					}
 
-					if (division.Header.TextureMapOffset != 0)
+					if (scrDivision.Header.TextureMapOffset != 0)
 					{
-						binaryReader.SeekAbsolute(mdStart + division.Header.TextureMapOffset);
-						binaryReader.Read<ScrTextureMap>(division.TextureMaps, division.Header.VertexCount);
+						binaryReader.SeekAbsolute(mdStart + scrDivision.Header.TextureMapOffset);
+						binaryReader.Read<ScrTextureMap>(scrDivision.TextureMaps, scrDivision.Header.VertexCount);
 					}
 
-					if (division.Header.TextureUvOffset != 0)
+					if (scrDivision.Header.TextureUvOffset != 0)
 					{
-						binaryReader.SeekAbsolute(mdStart + division.Header.TextureUvOffset);
-						binaryReader.Read<ScrUv>(division.TextureUvs, division.Header.VertexCount);
+						binaryReader.SeekAbsolute(mdStart + scrDivision.Header.TextureUvOffset);
+						binaryReader.Read<ScrUv>(scrDivision.TextureUvs, scrDivision.Header.VertexCount);
 					}
 
-					if (division.Header.ColorWeightOffset != 0)
+					if (scrDivision.Header.ColorWeightOffset != 0)
 					{
-						binaryReader.SeekAbsolute(mdStart + division.Header.ColorWeightOffset);
-						binaryReader.Read<ScrColorWeight>(division.ColorWeights, division.Header.VertexCount);
+						binaryReader.SeekAbsolute(mdStart + scrDivision.Header.ColorWeightOffset);
+						binaryReader.Read<ScrColorWeight>(scrDivision.ColorWeights, scrDivision.Header.VertexCount);
 					}
 				}
 			}
@@ -89,17 +97,17 @@ namespace ark
 
 		for (U32 i = 0; i < scrHeader.SubMeshCount; i++)
 		{
-			ScrTransform& transform = models[i].second;
-
 			binaryReader.SeekAbsolute(transformOffsets[i]);
 
-			transform = binaryReader.Read<ScrTransform>();
+			ScrModel& scrModel = group.Models[i];
+
+			scrModel.Transform = binaryReader.Read<ScrTransform>();
 		}
 
-		return models;
+		return group;
 	}
 
-	void ScrSerializer::ToFile(const fs::path& File, const std::vector<std::pair<ScrModel, ScrTransform>>& Objects)
+	void ScrSerializer::ToFile(const fs::path& File, const ScrGroup& Group)
 	{
 		BinaryWriter binaryWriter = {};
 

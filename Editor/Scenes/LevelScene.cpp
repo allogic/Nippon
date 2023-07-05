@@ -16,6 +16,7 @@
 
 #include <Editor/Serializer/ObjSerializer.h>
 #include <Editor/Serializer/ScrSerializer.h>
+#include <Editor/Serializer/MdSerializer.h>
 
 #include <Vendor/GLAD/glad.h>
 
@@ -31,9 +32,6 @@ namespace ark
 		: Scene{ eSceneTypeLevel, Entry, SubEntry }
 	{
 		Load();
-
-		ModelsToActors();
-		ObjectsToActors();
 	}
 
 	LevelScene::LevelScene(
@@ -44,14 +42,13 @@ namespace ark
 		: Scene{ eSceneTypeLevel, Entry, SubEntry, SceneName, WindowName }
 	{
 		Load();
-
-		ModelsToActors();
-		ObjectsToActors();
 	}
 
 	LevelScene::~LevelScene()
 	{
 		Save();
+
+		// TODO: Delete textures
 	}
 
 	void LevelScene::Load()
@@ -65,41 +62,43 @@ namespace ark
 		fs::path treFile = FsUtils::SearchFileByType(datDir, "TRE");
 		fs::path tatFile = FsUtils::SearchFileByType(datDir, "TAT");
 
-		if (fs::exists(tscFile))
-		{
-			auto tsc = ObjSerializer::FromFile(tscFile);
-
-			mObjects.insert(mObjects.end(), tsc.begin(), tsc.end());
-		}
-
-		if (fs::exists(treFile))
-		{
-			auto tre = ObjSerializer::FromFile(treFile);
-
-			mObjects.insert(mObjects.end(), tre.begin(), tre.end());
-		}
-		
-		if (fs::exists(tatFile))
-		{
-			auto tat = ObjSerializer::FromFile(tatFile);
-
-			mObjects.insert(mObjects.end(), tat.begin(), tat.end());
-		}
+		//std::vector<ObjEntry> objects = {};
+		//
+		//if (fs::exists(tscFile))
+		//{
+		//	auto tsc = ObjSerializer::FromFile(tscFile);
+		//
+		//	objects.insert(objects.end(), tsc.begin(), tsc.end());
+		//}
+		//
+		//if (fs::exists(treFile))
+		//{
+		//	auto tre = ObjSerializer::FromFile(treFile);
+		//
+		//	objects.insert(objects.end(), tre.begin(), tre.end());
+		//}
+		//
+		//if (fs::exists(tatFile))
+		//{
+		//	auto tat = ObjSerializer::FromFile(tatFile);
+		//
+		//	objects.insert(objects.end(), tat.begin(), tat.end());
+		//}
 
 		auto scrFiles = FsUtils::SearchFilesByTypeRecursive(datDir, "SCR");
 		auto ddsFiles = FsUtils::SearchFilesByTypeRecursive(datDir, "DDS");
 
-		for (const auto& file : scrFiles)
-		{
-			auto models = ScrSerializer::FromFile(file);
-
-			mModels.insert(mModels.end(), models.begin(), models.end());
-		}
-
 		for (const auto& file : ddsFiles)
 		{
-			mTextures.emplace_back(TextureUtils::LoadDirectDrawSurface(file));
+			mScrTextures.emplace_back(TextureUtils::LoadDirectDrawSurface(file));
 		}
+
+		for (const auto& file : scrFiles)
+		{
+			AddStaticGeometry(ScrSerializer::FromFile(file));
+		}
+
+		//LoadMd(objects);
 	}
 
 	void LevelScene::Save()
@@ -107,54 +106,115 @@ namespace ark
 		
 	}
 
-	void LevelScene::ModelsToActors()
+	void LevelScene::LoadMd(const std::vector<ObjEntry>& Objects)
 	{
-		for (const auto& [model, trans] : mModels)
+		//std::set<std::string> categories = {};
+		//std::set<std::string> ids = {};
+		//
+		//for (const auto& object : Objects)
+		//{
+		//	std::string entry = StringUtils::ByteToString(object.Category);
+		//	std::string subEntry = StringUtils::ByteToString(object.Id);
+		//
+		//	if (object.Category == 0)
+		//	{
+		//		if (object.Id == 0)
+		//		{
+		//			entry = "es";
+		//			subEntry = "00";
+		//
+		//			fs::path lvlDir = fs::path{ gConfig["unpackDir"].GetString() } / entry / subEntry;
+		//			fs::path datDir = lvlDir / fs::path{ entry + subEntry + "@dat" };
+		//
+		//			fs::path mdFile = FsUtils::SearchFileByType(datDir, "MD");
+		//			auto ddsFiles = FsUtils::SearchFilesByTypeRecursive(datDir, "DDS");
+		//
+		//			auto models = MdSerializer::FromFile(mdFile);
+		//
+		//			MdModelGroup mdModelGroup = {};
+		//
+		//			mdModelGroup.Models.insert(mdModelGroup.Models.begin(), models.begin(), models.end());
+		//
+		//			for (const auto& file : ddsFiles)
+		//			{
+		//				mdModelGroup.Textures.emplace_back(TextureUtils::LoadDirectDrawSurface(file));
+		//			}
+		//
+		//			mMdModelGroups.emplace_back(mdModelGroup);
+		//		}
+		//
+		//		LOG("Loading /%s/%s\n", entry.c_str(), subEntry.c_str());
+		//	}
+		//}
+		//
+		//LOG("\n");
+		//
+		//LOG("Categories\n");
+		//for (const auto& category : categories)
+		//{
+		//	LOG("  %s\n", category.c_str());
+		//}
+		//
+		//LOG("\n");
+		//
+		//LOG("Ids\n");
+		//for (const auto& id : ids)
+		//{
+		//	LOG("  %s\n", id.c_str());
+		//}
+	}
+
+	void LevelScene::AddStaticGeometry(const ScrGroup& Group)
+	{
+		Actor* groupActor = CreateActor<Actor>(Group.Name, mStaticGeometryActor);
+
+		for (const auto& model : Group.Models)
 		{
-			Actor* modelActor = CreateActor<Actor>(model.Name, nullptr);
+			Actor* modelActor = CreateActor<Actor>("Model_" + std::to_string(model.Index), groupActor);
 
-			Transform* transform = modelActor->GetTransform();
+			Transform* modelTransform = modelActor->GetTransform();
 
-			transform->SetLocalPosition(R32V3{ trans.Position.x, trans.Position.y, trans.Position.z });
-			transform->SetLocalRotation(glm::degrees(R32V3{ trans.Rotation.x, trans.Rotation.y, trans.Rotation.z } / 360.0F));
-			transform->SetLocalScale(R32V3{ trans.Scale.x, trans.Scale.y, trans.Scale.z } / 100000.0F);
+#define MAGIC_SCALING_CONSTANT 2608.765265F
+#define MAGIC_SCALING_CONSTANT_X2 5217.53053F
+#define E 2.71828182846F
+#define PI 3.14159265359F
 
-			for (const auto& division : model.Divisions)
+			const ScrTransform& transform = model.Transform; // Group.Models[model.Transform.SubmeshIndex].Transform;
+
+			R32V3 scale = R32V3{ transform.Scale.x, transform.Scale.y, transform.Scale.z };
+			R32V3 rotation = R32V3{ transform.Rotation.x, transform.Rotation.y, transform.Rotation.z };
+			R32V3 position = R32V3{ transform.Position.x, transform.Position.y, transform.Position.z };
+
+			//modelTransform->SetLocalPosition(position);
+			modelTransform->SetLocalRotation(rotation);
+			//modelTransform->SetLocalScale(R32V3{ 0.05F });
+
+			for (const auto& division : model.Entry.Divisions)
 			{
-				Actor* childActor = CreateActor<Actor>("Division", modelActor);
+				Actor* divisonActor = CreateActor<Actor>("Division_" + std::to_string(division.Index), modelActor);
 
-				Renderable* renderable = childActor->AttachComponent<Renderable>();
+				Transform* divisionTransform = divisonActor->GetComponent<Transform>();
+
+				divisionTransform->SetLocalPosition(position);
+				//divisionTransform->SetLocalRotation(rotation);
+				//divisionTransform->SetLocalScale(scale);
+
+				Renderable* divisionRenderable = divisonActor->AttachComponent<Renderable>();
 
 				std::vector<DefaultVertex> vertices = VertexConverter::ToVertexBuffer(division.Vertices, division.TextureMaps, division.TextureUvs, division.ColorWeights);
 				std::vector<U32> elements = ElementConverter::ToElementBuffer(division.Vertices);
 
 				U32 textureIndex = division.Header.TextureIndex;
 
-				Texture2D* texture = (textureIndex < mTextures.size()) ? mTextures[textureIndex] : nullptr;
+				Texture2D* texture = (textureIndex < mScrTextures.size()) ? mScrTextures[textureIndex] : nullptr;
 
-				renderable->SetVertexBuffer(vertices);
-				renderable->SetElementBuffer(elements);
-				renderable->LocalToRemote();
-				renderable->SetTexture(textureIndex, texture);
+				divisionRenderable->SetVertexBuffer(vertices);
+				divisionRenderable->SetElementBuffer(elements);
+				divisionRenderable->LocalToRemote();
+				divisionRenderable->SetTexture(textureIndex, texture);
 
-				AABB aabb = Math::ComputeBoundingBox(vertices, transform->GetLocalScale());
-
-				childActor->SetAABB(aabb);
+				divisonActor->ComputeAxisAlignedBoundingBoxRecursive();
 			}
-		}
-	}
-
-	void LevelScene::ObjectsToActors()
-	{
-		for (const auto& object : mObjects)
-		{
-			Actor* objActor = CreateActor<Actor>("Object", nullptr);
-		
-			Transform* objTransform = objActor->GetTransform();
-		
-			objTransform->SetLocalPosition(R32V3{ object.Position.x, object.Position.y, object.Position.z });
-			objTransform->SetLocalRotation(R32V3{ object.Rotation.x, object.Rotation.y, object.Rotation.z } / 255.0F);
-			objTransform->SetLocalScale(R32V3{ object.Scale.x, object.Scale.y, object.Scale.z } / 100000.0F);
 		}
 	}
 }

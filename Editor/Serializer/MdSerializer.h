@@ -2,7 +2,6 @@
 
 #include <string>
 #include <vector>
-#include <utility>
 #include <filesystem>
 
 #include <Common/Types.h>
@@ -26,7 +25,7 @@ namespace ark
 	{
 	public:
 
-		static std::vector<std::pair<MdModel, MdTransform>> FromFile(const fs::path& File);
-		static void ToFile(const fs::path& File, const std::vector<std::pair<MdModel, MdTransform>>& Objects);
+		static MdGroup FromFile(const fs::path& File);
+		static void ToFile(const fs::path& File, const MdGroup& Group);
 	};
 }

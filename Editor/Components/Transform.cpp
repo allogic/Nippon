@@ -38,7 +38,7 @@ namespace ark
 
 		if (parent)
 		{
-			return parent->GetTransform()->GetWorldPosition() + GetWorldRotation() * (mLocalPosition * mLocalScale);
+			return parent->GetTransform()->GetWorldPosition() + mLocalRotation * (mLocalPosition * mLocalScale);
 		}
 		else
 		{

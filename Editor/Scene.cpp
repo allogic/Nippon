@@ -1,6 +1,5 @@
 #include <Editor/Editor.h>
 #include <Editor/Texture.h>
-#include <Editor/Math.h>
 #include <Editor/Scene.h>
 #include <Editor/InterfaceManager.h>
 
@@ -36,6 +35,8 @@ namespace ark
 		, mEnableDebug{ false }
 	{
 		mMainActor = CreateActor<Player>("Player", nullptr);
+		mStaticGeometryActor = CreateActor<Actor>("Static Geometry", nullptr);
+
 		mMainCamera = mMainActor->GetComponent<Camera>();
 	}
 
@@ -55,6 +56,8 @@ namespace ark
 		mViewport = new Viewport{ this };
 
 		mMainActor = CreateActor<Player>("Player", nullptr);
+		mStaticGeometryActor = CreateActor<Actor>("Static Geometry", nullptr);
+
 		mMainCamera = mMainActor->GetComponent<Camera>();
 	}
 
@@ -64,12 +67,6 @@ namespace ark
 		{
 			delete actor;
 			actor = nullptr;
-		}
-
-		for (auto& texture : mTextures)
-		{
-			delete texture;
-			texture = nullptr;
 		}
 
 		if (mViewport)
@@ -171,7 +168,7 @@ namespace ark
 
 	void Scene::DoSelectionRecursive(Actor* Actor)
 	{
-		if (Actor && Actor != mMainActor)
+		if (Actor && Actor->IsActive() && Actor != mMainActor)
 		{
 			Transform* transform = Actor->GetComponent<Transform>();
 
@@ -185,7 +182,7 @@ namespace ark
 				mDebugRenderer.DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetLocalUp(), R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
 				mDebugRenderer.DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetLocalFront(), R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
 
-				mDebugRenderer.DebugAxisAlignedBoundingBox(Actor->GetAABB(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
+				mDebugRenderer.DebugAxisAlignedBoundingBox(transform->GetWorldPosition(), Actor->GetAABB(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
 
 				for (const auto& child : Actor->GetChildren())
 				{

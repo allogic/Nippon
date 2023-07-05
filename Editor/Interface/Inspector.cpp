@@ -3,7 +3,6 @@
 #include <Editor/Scene.h>
 #include <Editor/SceneManager.h>
 #include <Editor/InterfaceManager.h>
-#include <Editor/Math.h>
 
 #include <Editor/Components/Camera.h>
 #include <Editor/Components/Transform.h>
@@ -37,9 +36,6 @@ namespace ark
 		
 			if (actor)
 			{
-				bool sceneDirty = false;
-				bool transformDirty = false;
-
 				if (Transform* transform = actor->GetComponent<Transform>())
 				{
 					ImGui::PushID(transform);
@@ -54,8 +50,10 @@ namespace ark
 						{
 							transform->SetLocalPosition(localPosition);
 
-							sceneDirty = true;
-							transformDirty = true;
+							actor->ComputeAxisAlignedBoundingBoxRecursive();
+
+							scene->Update();
+							scene->Render();
 						}
 
 						R32V3 eulerAngles = transform->GetLocalEulerAngles();
@@ -63,8 +61,10 @@ namespace ark
 						{
 							transform->SetLocalRotation(eulerAngles);
 
-							sceneDirty = true;
-							transformDirty = true;
+							actor->ComputeAxisAlignedBoundingBoxRecursive();
+
+							scene->Update();
+							scene->Render();
 						}
 
 						R32V3 localScale = transform->GetLocalScale();
@@ -72,18 +72,10 @@ namespace ark
 						{
 							transform->SetLocalScale(localScale);
 
-							sceneDirty = true;
-							transformDirty = true;
-						}
+							actor->ComputeAxisAlignedBoundingBoxRecursive();
 
-						if (transformDirty)
-						{
-							Renderable* renderable = actor->GetComponent<Renderable>();
-
-							if (renderable)
-							{
-								actor->SetAABB(Math::ComputeBoundingBox(renderable->GetVertexBuffer(), transform->GetLocalScale()));
-							}
+							scene->Update();
+							scene->Render();
 						}
 
 						ImGui::PopItemWidth();
@@ -122,7 +114,8 @@ namespace ark
 						{
 							camera->SetFar(far);
 
-							
+							scene->Update();
+							scene->Render();
 						}
 		
 						ImGui::PopItemWidth();
@@ -134,18 +127,18 @@ namespace ark
 				if (Renderable* renderable = actor->GetComponent<Renderable>())
 				{
 					ImGui::PushID(renderable);
+					if (ImGui::TreeNodeEx("Renderable", ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen))
+					{
+						ImGui::PushItemWidth(ImGui::GetWindowWidth() - ImGui::GetTreeNodeToLabelSpacing() - 80);
 
-					ImGui::Text("Vertices: %U", (U32)renderable->GetVertexBuffer().size());
-					ImGui::Text("Indices: %U", (U32)renderable->GetElementBuffer().size());
-					ImGui::Text("Texture Index: %U", renderable->GetTextureIndex());
+						ImGui::Text("Vertices: %u", (U32)renderable->GetVertexBuffer().size());
+						ImGui::Text("Indices: %u", (U32)renderable->GetElementBuffer().size());
+						ImGui::Text("Texture Index: %u", renderable->GetTextureIndex());
 
+						ImGui::PopItemWidth();
+						ImGui::TreePop();
+					}
 					ImGui::PopID();
-				}
-
-				if (sceneDirty)
-				{
-					scene->Update();
-					scene->Render();
 				}
 			}
 		}

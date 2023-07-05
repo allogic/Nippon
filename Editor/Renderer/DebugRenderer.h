@@ -5,7 +5,6 @@
 #include <Common/Types.h>
 
 #include <Editor/Forward.h>
-#include <Editor/Math.h>
 
 ///////////////////////////////////////////////////////////
 // Namespaces
@@ -34,7 +33,7 @@ namespace ark
 
 		void DebugLine(const R32V3& P0, const R32V3& P1, const R32V4& C);
 		void DebugBox(const R32V3& P, const R32V3& S, const R32V4& C, const R32Q& R = {});
-		void DebugAxisAlignedBoundingBox(const AABB& AABB, const R32V4& C);
+		void DebugAxisAlignedBoundingBox(const R32V3& P, const AABB& AABB, const R32V4& C);
 
 	private:
 
