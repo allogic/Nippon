@@ -1,8 +1,8 @@
-<img src="Github/README.jpg" width="100%"/>
-
 # Nippon Modding Framework
 
 Nippon is a cross platform game editor, currently designed to interact with the okami PC port. This project is in it's very early days and by all means not production ready.
+
+<img src="Github/Editor.jpg" width="100%"/>
 
 ## Setting Up Nippon
 
@@ -60,7 +60,7 @@ After the game files have been decrypted and unpacked, level and entity scenes c
 
 With the help of the browsers, game assets can be previewed and saved to disk. If only black images appear, then no thumbnails have yet been generated. Navigate to the main menu `Tool` option and generate them. They should be visible after editor relaunch. The `Export` function can be used to generate a wavefront object and material file which should be ready to be imported into blender or other 3D software. Be sure to enable backface culling to view the objects properly, otherwies only the black hull will be visible.
 
-<img src="Github/OKI.jpg" width="33%"/><img src="Github/CROW.jpg" width="33%"/><img src="Github/RAO.jpg" width="33%"/>
+<img src="Github/Oki.jpg" width="33%"/><img src="Github/Crow.jpg" width="33%"/><img src="Github/Rao.jpg" width="33%"/>
 
 ## Editor Scene Controls
 
