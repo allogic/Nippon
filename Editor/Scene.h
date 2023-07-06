@@ -17,6 +17,11 @@
 #include <Editor/Renderer/DebugRenderer.h>
 #include <Editor/Renderer/DefaultRenderer.h>
 
+#define DEBUG_WORLD_SCALE 0.01F
+
+#define MAGIC_ROTATION_COEFFICIENT 0.552368F
+#define MAGIC_SCALE_COEFFICIENT 4096.0F
+
 ///////////////////////////////////////////////////////////
 // Namespaces
 ///////////////////////////////////////////////////////////

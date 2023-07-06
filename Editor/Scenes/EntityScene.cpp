@@ -83,19 +83,21 @@ namespace ark
 
 			Transform* modelTransform = modelActor->GetTransform();
 
-			R32V3 position = R32V3{ model.Transform.Position.x, model.Transform.Position.y, model.Transform.Position.z };
-			R32V3 rotation = R32V3{ model.Transform.Rotation.x, model.Transform.Rotation.y, model.Transform.Rotation.z };
-			R32V3 scale = R32V3{ model.Transform.Scale.x, model.Transform.Scale.y, model.Transform.Scale.z };
+			const MdTransform& transform = model.Transform;
+
+			R32V3 position = R32V3{ transform.Position.x, transform.Position.y, transform.Position.z } * DEBUG_WORLD_SCALE;
+			R32V3 rotation = glm::degrees(R32V3{ transform.Rotation.x, transform.Rotation.y, transform.Rotation.z } / 360.0F * MAGIC_ROTATION_COEFFICIENT);
+			R32V3 scale = R32V3{ transform.Scale.x, transform.Scale.y, transform.Scale.z } / MAGIC_SCALE_COEFFICIENT * DEBUG_WORLD_SCALE;
 
 			//modelTransform->SetLocalPosition(position);
 			modelTransform->SetLocalRotation(rotation);
-			//modelTransform->SetLocalScale(scale);
+			modelTransform->SetLocalScale(scale);
 
 			for (const auto& division : model.Entry.Divisions)
 			{
 				Actor* divisonActor = CreateActor<Actor>("Division_" + std::to_string(division.Index), modelActor);
 
-				Transform* divisionTransform = divisonActor->AttachComponent<Transform>();
+				Transform* divisionTransform = divisonActor->GetComponent<Transform>();
 
 				divisionTransform->SetLocalPosition(position);
 				//divisionTransform->SetLocalRotation(rotation);

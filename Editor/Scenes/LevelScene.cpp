@@ -174,20 +174,15 @@ namespace ark
 
 			Transform* modelTransform = modelActor->GetTransform();
 
-#define MAGIC_SCALING_CONSTANT 2608.765265F
-#define MAGIC_SCALING_CONSTANT_X2 5217.53053F
-#define E 2.71828182846F
-#define PI 3.14159265359F
+			const ScrTransform& transform = model.Transform;
 
-			const ScrTransform& transform = model.Transform; // Group.Models[model.Transform.SubmeshIndex].Transform;
-
-			R32V3 scale = R32V3{ transform.Scale.x, transform.Scale.y, transform.Scale.z };
-			R32V3 rotation = R32V3{ transform.Rotation.x, transform.Rotation.y, transform.Rotation.z };
-			R32V3 position = R32V3{ transform.Position.x, transform.Position.y, transform.Position.z };
+			R32V3 position = R32V3{ transform.Position.x, transform.Position.y, transform.Position.z } * DEBUG_WORLD_SCALE;
+			R32V3 rotation = glm::degrees(R32V3{ transform.Rotation.x, transform.Rotation.y, transform.Rotation.z } / 360.0F * MAGIC_ROTATION_COEFFICIENT);
+			R32V3 scale = R32V3{ transform.Scale.x, transform.Scale.y, transform.Scale.z } / MAGIC_SCALE_COEFFICIENT * DEBUG_WORLD_SCALE;
 
 			//modelTransform->SetLocalPosition(position);
 			modelTransform->SetLocalRotation(rotation);
-			//modelTransform->SetLocalScale(R32V3{ 0.05F });
+			modelTransform->SetLocalScale(scale);
 
 			for (const auto& division : model.Entry.Divisions)
 			{

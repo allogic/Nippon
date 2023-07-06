@@ -25,8 +25,8 @@ namespace ark
 			U /= 65535.0F;
 			V /= 65535.0F;
 
-			U *= 16.0F;
-			V *= 16.0F;
+			U *= MAGIC_UV_COEFFICIENT;
+			V *= MAGIC_UV_COEFFICIENT;
 
 			R32V3 position = (vertexCount == Vertices.size()) ? R32V3{ Vertices[i].X, Vertices[i].Y, Vertices[i].Z } : R32V3{};
 			R32V2 textureMap = (vertexCount == TextureMaps.size()) ? R32V2{ U, V } : R32V2{};
@@ -58,8 +58,8 @@ namespace ark
 			U /= 65535.0F;
 			V /= 65535.0F;
 
-			U *= 16.0F;
-			V *= 16.0F;
+			U *= MAGIC_UV_COEFFICIENT;
+			V *= MAGIC_UV_COEFFICIENT;
 
 			R32V3 position = (vertexCount == Vertices.size()) ? R32V3{ Vertices[i].X, Vertices[i].Y, Vertices[i].Z } : R32V3{};
 			R32V2 textureMap = (vertexCount == TextureMaps.size()) ? R32V2{ U, V } : R32V2{};

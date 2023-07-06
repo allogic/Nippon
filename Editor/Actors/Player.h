@@ -27,8 +27,8 @@ namespace ark
 
 		Camera* mCamera;
 
-		R32 mKeyboardMovementSpeedNormal = 0.1F;
-		R32 mKeyboardMovementSpeedFast = 1.0F;
+		R32 mKeyboardMovementSpeedNormal = 0.01F;
+		R32 mKeyboardMovementSpeedFast = 0.1F;
 
 		R32 mMouseMovementSpeedNormal = 0.005F;
 		R32 mMouseMovementSpeedFast = 0.2F;
