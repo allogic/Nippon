@@ -115,7 +115,7 @@ namespace ark
 
 			for (const auto& vertex : vertexBuffer)
 			{
-				R32V3 position = transform->GetWorldPosition() + vertex.Position;
+				R32V3 position = transform->GetWorldPosition() + transform->GetWorldRotation() * (vertex.Position * transform->GetWorldScale());
 
 				Stream << "v " << position.x << " " << position.y << " " << position.z << "\n";
 			}
