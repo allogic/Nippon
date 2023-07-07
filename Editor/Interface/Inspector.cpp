@@ -41,7 +41,7 @@ namespace ark
 					ImGui::PushID(transform);
 					if (ImGui::TreeNodeEx("Transform", ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen))
 					{
-						ImGui::PushItemWidth(ImGui::GetWindowWidth() - ImGui::GetTreeNodeToLabelSpacing() - 80);
+						ImGui::PushItemWidth(ImGui::GetWindowWidth() - ImGui::GetTreeNodeToLabelSpacing() - 100);
 
 						R32 r32Max = std::numeric_limits<R32>::max();
 
@@ -89,7 +89,7 @@ namespace ark
 					ImGui::PushID(camera);
 					if (ImGui::TreeNodeEx("Camera", ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen))
 					{
-						ImGui::PushItemWidth(ImGui::GetWindowWidth() - ImGui::GetTreeNodeToLabelSpacing() - 80);
+						ImGui::PushItemWidth(ImGui::GetWindowWidth() - ImGui::GetTreeNodeToLabelSpacing() - 100);
 		
 						R32 fov = camera->GetFov();
 						if (ImGui::DragFloat("Fov", &fov, 0.1F, 0.1F, 90.0F, "%.3F"))
@@ -129,7 +129,7 @@ namespace ark
 					ImGui::PushID(renderable);
 					if (ImGui::TreeNodeEx("Renderable", ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen))
 					{
-						ImGui::PushItemWidth(ImGui::GetWindowWidth() - ImGui::GetTreeNodeToLabelSpacing() - 80);
+						ImGui::PushItemWidth(ImGui::GetWindowWidth() - ImGui::GetTreeNodeToLabelSpacing() - 100);
 
 						ImGui::Text("Vertices: %u", (U32)renderable->GetVertexBuffer().size());
 						ImGui::Text("Indices: %u", (U32)renderable->GetElementBuffer().size());

@@ -30,9 +30,11 @@ namespace ark
 		R32 y = thumbnail["y"].GetFloat();
 		R32 z = thumbnail["z"].GetFloat();
 		R32 pitch = thumbnail["pitch"].GetFloat();
+		R32 yaw = thumbnail.HasMember("yaw") ? thumbnail["yaw"].GetFloat() : -45.0F;
+		R32 roll = thumbnail.HasMember("roll") ? thumbnail["roll"].GetFloat() : 0.0F;
 
 		player->GetTransform()->SetLocalPosition(R32V3{ x, y, z });
-		player->GetTransform()->SetLocalRotation(R32V3{ pitch, 45.0F, 0.0F });
+		player->GetTransform()->SetLocalRotation(R32V3{ pitch, yaw, roll });
 
 		scene.Resize(256, 256);
 		scene.Update();
@@ -66,9 +68,11 @@ namespace ark
 		R32 y = thumbnail["y"].GetFloat();
 		R32 z = thumbnail["z"].GetFloat();
 		R32 pitch = thumbnail["pitch"].GetFloat();
+		R32 yaw = thumbnail.HasMember("yaw") ? thumbnail["yaw"].GetFloat() : -45.0F;
+		R32 roll = thumbnail.HasMember("roll") ? thumbnail["roll"].GetFloat() : 0.0F;
 
 		player->GetTransform()->SetLocalPosition(R32V3{ x, y, z });
-		player->GetTransform()->SetLocalRotation(R32V3{ pitch, 45.0F, 0.0F });
+		player->GetTransform()->SetLocalRotation(R32V3{ pitch, yaw, roll });
 
 		scene.Resize(256, 256);
 		scene.Update();

@@ -132,320 +132,384 @@
 					"name": "Kamiki Village - Game Start",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -1.0,
+						"y": -49.3,
+						"z": 59.9,
+						"pitch": 2.5,
+						"yaw": -4.4,
+						"roll": 0.0
 					}
 				},
 				"01": {
 					"name": "Cave of Nagi",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": 14.5,
+						"y": 9.6,
+						"z": -77.3,
+						"pitch": -0.2,
+						"yaw": 87.7,
+						"roll": 0.0
 					}
 				},
 				"02": {
 					"name": "Kamiki Village",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": 30.4,
+						"y": 4.1,
+						"z": 10.8,
+						"pitch": -25.0,
+						"yaw": 125.7,
+						"roll": 0.0
 					}
 				},
 				"03": {
 					"name": "Hana Valley",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": 0.2,
+						"y": 0.2,
+						"z": -0.5,
+						"pitch": 13.1,
+						"yaw": 5.9,
+						"roll": 0.0
 					}
 				},
 				"04": {
 					"name": "Tsuta Ruins",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": 2.0,
+						"y": 3.9,
+						"z": 19.5,
+						"pitch": -12.3,
+						"yaw": 12.6,
+						"roll": 0.0
 					}
 				},
 				"05": {
 					"name": "City Checkpoint",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": 2.6,
+						"y": 4.3,
+						"z": 3.5,
+						"pitch": -4.9,
+						"yaw": -280.2,
+						"roll": 0.0
 					}
 				},
 				"06": {
 					"name": "Tsuta Ruins - Spider Queen Arena",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": 1.1,
+						"y": 29.5,
+						"z": -94.7,
+						"pitch": -10.5,
+						"yaw": 105.7,
+						"roll": 0.0
 					}
 				},
 				"07": {
 					"name": "Gale Shrine",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -7.4,
+						"y": 0.3,
+						"z": -13.0,
+						"pitch": 9.8,
+						"yaw": 90.2,
+						"roll": 0.0
 					}
 				},
 				"08": {
 					"name": "Kusa Village",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": 11.5,
+						"y": 0.2,
+						"z": 11.2,
+						"pitch": 7.3,
+						"yaw": -254.6,
+						"roll": 0.0
 					}
 				},
 				"09": {
 					"name": "Sasa Sanctuary",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": 2.7,
+						"y": 0.9,
+						"z": -5.6,
+						"pitch": 15.6,
+						"yaw": 0.2,
+						"roll": 0.0
 					}
 				},
 				"0a": {
 					"name": "Agata Forest - Madame Fawn's House",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -0.0,
+						"y": 0.4,
+						"z": -0.1,
+						"pitch": -1.1,
+						"yaw": 0.9,
+						"roll": 0.0
 					}
 				},
 				"0b": {
 					"name": "Digging Minigame",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -14.6,
+						"y": 38.4,
+						"z": -0.1,
+						"pitch": -48.6,
+						"yaw": -230.9,
+						"roll": 0.0
 					}
 				},
 				"0c": {
 					"name": "Onigiri Dojo Lesson Room",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": 0.0,
+						"y": 0.0,
+						"z": 5.0,
+						"pitch": 6.6,
+						"yaw": 0.6,
+						"roll": 0.0
 					}
 				},
 				"0d": {
 					"name": "Gale Shrine - Crimson Helm Arena",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -34.0,
+						"y": 5.7,
+						"z": -18.2,
+						"pitch": -11.9,
+						"yaw": -251.6,
+						"roll": 0.0
 					}
 				},
 				"0e": {
 					"name": "Calcified Cavern",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": 7.2,
+						"y": 0.4,
+						"z": 50.1,
+						"pitch": -5.2,
+						"yaw": -19.3,
+						"roll": 0.0
 					}
 				},
 				"10": {
 					"name": "Moon Cave - Interior",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -0.0,
+						"y": 0.7,
+						"z": 5.5,
+						"pitch": 0.9,
+						"yaw": 0.2,
+						"roll": 0.0
 					}
 				},
 				"11": {
 					"name": "Moon Cave - Staircase and Orochi Arena",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -0.4,
+						"y": -6.3,
+						"z": 31.7,
+						"pitch": 23.3,
+						"yaw": -4.8,
+						"roll": 0.0
 					}
 				},
 				"12": {
 					"name": "Kamiki Village - After fighting Tei",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": 30.4,
+						"y": 4.1,
+						"z": 10.8,
+						"pitch": -25.0,
+						"yaw": 125.7,
+						"roll": 0.0
 					}
 				},
 				"13": {
 					"name": "Ryoshima Coast - Bandit Spider Arena",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": 1.1,
+						"y": 29.5,
+						"z": -94.7,
+						"pitch": -10.5,
+						"yaw": 105.7,
+						"roll": 0.0
 					}
 				},
 				"14": {
 					"name": "Taka Pass - Stray Bead #26 Cave",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -0.9,
+						"y": 2.3,
+						"z": 5.4,
+						"pitch": -8.9,
+						"yaw": -9.3,
+						"roll": 0.0
 					}
 				},
 				"15": {
 					"name": "Kamui - Cherry Bomb 3 Cave",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -0.9,
+						"y": 2.3,
+						"z": 5.4,
+						"pitch": -8.9,
+						"yaw": -9.3,
+						"roll": 0.0
 					}
 				},
 				"16": {
 					"name": "N. Ryoshima Coast - Power Slash 2 Cave",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -0.9,
+						"y": 2.3,
+						"z": 5.4,
+						"pitch": -8.9,
+						"yaw": -9.3,
+						"roll": 0.0
 					}
 				},
 				"17": {
 					"name": "N. Ryoshima Coast - Cherry Bomb 2 Cave",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -0.9,
+						"y": 2.3,
+						"z": 5.4,
+						"pitch": -8.9,
+						"yaw": -9.3,
+						"roll": 0.0
 					}
 				},
 				"18": {
 					"name": "Kamui (Ezofuji) - Power Slash 3 Cave",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -0.9,
+						"y": 2.3,
+						"z": 5.4,
+						"pitch": -8.9,
+						"yaw": -9.3,
+						"roll": 0.0
 					}
 				},
 				"19": {
 					"name": "Kamui - Blockhead Grande Cave",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -0.9,
+						"y": 2.3,
+						"z": 5.4,
+						"pitch": -8.9,
+						"yaw": -9.3,
+						"roll": 0.0
 					}
 				},
 				"1a": {
 					"name": "N. Ryoshima Coast - Bandit Spider Arena",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": 1.1,
+						"y": 29.5,
+						"z": -94.7,
+						"pitch": -10.5,
+						"yaw": 105.7,
+						"roll": 0.0
 					}
 				},
 				"1b": {
 					"name": "Kamui - Bandit Spider Arena",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": 1.1,
+						"y": 29.5,
+						"z": -94.7,
+						"pitch": -10.5,
+						"yaw": 105.7,
+						"roll": 0.0
 					}
 				},
 				"1c": {
 					"name": "Dragon Palace - Stray Bead #70 Cave",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -0.9,
+						"y": 2.3,
+						"z": 5.4,
+						"pitch": -8.9,
+						"yaw": -9.3,
+						"roll": 0.0
 					}
 				},
 				"1d": {
 					"name": "N. Ryoshima Coast - Stray Bead #63 Cave",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -0.9,
+						"y": 2.3,
+						"z": 5.4,
+						"pitch": -8.9,
+						"yaw": -9.3,
+						"roll": 0.0
 					}
 				},
 				"20": {
 					"name": "New Game Intro Cutscene Map",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": 14.7,
+						"y": 15.0,
+						"z": 16.8,
+						"pitch": -26.7,
+						"yaw": 41.0,
+						"roll": 0.0
 					}
 				},
 				"21": {
 					"name": "Beta Kamiki",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": 30.4,
+						"y": 4.1,
+						"z": 10.8,
+						"pitch": -25.0,
+						"yaw": 125.7,
+						"roll": 0.0
 					}
 				},
 				"22": {
 					"name": "River of the Heavens",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -0.0,
+						"y": 1.0,
+						"z": 3.5,
+						"pitch": 7.8,
+						"yaw": 6.0,
+						"roll": 0.0
 					}
 				}
 			}
@@ -457,160 +521,192 @@
 					"name": "Sei-an City (Aristocratic Qtr.)",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -29.8,
+						"y": 28.7,
+						"z": 8.8,
+						"pitch": -24.5,
+						"yaw": -41.6,
+						"roll": 0.0
 					}
 				},
 				"01": {
 					"name": "Sei-an City (Commoners' Qtr.)",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -19.7,
+						"y": 28.8,
+						"z": 34.7,
+						"pitch": -37.7,
+						"yaw": -31.6,
+						"roll": 0.0
 					}
 				},
 				"02": {
 					"name": "Sei-an City (Aristocratic Qtr.) - Himiko's Palace",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -0.0,
+						"y": 13.4,
+						"z": 5.1,
+						"pitch": 1.9,
+						"yaw": -179.8,
+						"roll": 0.0
 					}
 				},
 				"03": {
 					"name": "Dragon Palace",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": 2.8,
+						"y": 1.1,
+						"z": -2.9,
+						"pitch": 7.1,
+						"yaw": 1.7,
+						"roll": 0.0
 					}
 				},
 				"04": {
 					"name": "Inside the Dragon",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": 0.0,
+						"y": 0.0,
+						"z": 0.0,
+						"pitch": 0.0,
+						"yaw": 0.0,
+						"roll": 0.0
 					}
 				},
 				"05": {
 					"name": "Sunken Ship",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -2.7,
+						"y": 2.4,
+						"z": 0.5,
+						"pitch": -9.6,
+						"yaw": -394.2,
+						"roll": 0.0
 					}
 				},
 				"06": {
 					"name": "Imperial Palace - Ammy Size",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -1.5,
+						"y": 0.6,
+						"z": 1.9,
+						"pitch": 14.3,
+						"yaw": -12.0,
+						"roll": 0.0
 					}
 				},
 				"07": {
 					"name": "Imperial Palace - Issun Size",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": 3.9,
+						"y": 0.0,
+						"z": -24.4,
+						"pitch": 16.5,
+						"yaw": -24.2,
+						"roll": 0.0
 					}
 				},
 				"08": {
 					"name": "Oni Island - Lower Interior",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": 0.0,
+						"y": 0.7,
+						"z": -3.4,
+						"pitch": 0.0,
+						"yaw": 0.0,
+						"roll": 0.0
 					}
 				},
 				"09": {
 					"name": "Oni Island - Ninetales Arena",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -10.5,
+						"y": 13.1,
+						"z": 22.8,
+						"pitch": -30.3,
+						"yaw": -24.4,
+						"roll": 0.0
 					}
 				},
 				"0a": {
 					"name": "Catcall Tower",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": 9.1,
+						"y": 112.2,
+						"z": 12.1,
+						"pitch": -24.1,
+						"yaw": 37.7,
+						"roll": 0.0
 					}
 				},
 				"0b": {
 					"name": "Imperial Palace - Blight Arena",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -7.9,
+						"y": 4.3,
+						"z": -2.5,
+						"pitch": -23.7,
+						"yaw": -105.5,
+						"roll": 0.0
 					}
 				},
 				"0c": {
 					"name": "Sei-an City (Commoners' Qtr.) - Kimono Shop",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": 0.0,
+						"y": 0.0,
+						"z": 0.0,
+						"pitch": 0.0,
+						"yaw": 0.0,
+						"roll": 0.0
 					}
 				},
 				"0d": {
 					"name": "Oni Island - Exterior",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": 1.6,
+						"y": 2.3,
+						"z": 32.3,
+						"pitch": 7.4,
+						"yaw": 6.2,
+						"roll": 0.0
 					}
 				},
 				"0e": {
 					"name": "Oni Island - Upper Interior",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -0.7,
+						"y": 0.2,
+						"z": 2.2,
+						"pitch": 10.3,
+						"yaw": 9.9,
+						"roll": 0.0
 					}
 				},
 				"0f": {
 					"name": "Oni Island - Sidescroller",
 					"info": "",
 					"thumbnail": {
-						"x": 1000.0,
-						"y": 1000.0,
-						"z": 1000.0,
-						"pitch": -45.0
+						"x": -71.4,
+						"y": -28.2,
+						"z": -23.3,
+						"pitch": -17.2,
+						"yaw": -378.8,
+						"roll": 0.0
 					}
 				}
 			}

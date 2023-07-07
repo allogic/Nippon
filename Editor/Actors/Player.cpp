@@ -1,3 +1,5 @@
+#include <Common/Debug.h>
+
 #include <Editor/Event.h>
 #include <Editor/Scene.h>
 
@@ -31,6 +33,19 @@ namespace ark
 		{
 			if (viewport->IsFocused())
 			{
+				if (Event::KeyDown(Event::eKeyCodeF))
+				{
+					LOG("\"info\": \"\",\n");
+					LOG("\"thumbnail\": {\n");
+					LOG("\t\"x\": %.1F,\n", mTransform->GetWorldPosition().x);
+					LOG("\t\"y\": %.1F,\n", mTransform->GetWorldPosition().y);
+					LOG("\t\"z\": %.1F,\n", mTransform->GetWorldPosition().z);
+					LOG("\t\"pitch\": %.1F\n", mTransform->GetLocalEulerAngles().x);
+					LOG("\t\"yaw\": %.1F\n", mTransform->GetLocalEulerAngles().y);
+					LOG("\t\"roll\": %.1F\n", mTransform->GetLocalEulerAngles().z);
+					LOG("}\n");
+				}
+
 				R32 keyboardMovementSpeed = (Event::KeyHeld(Event::eKeyCodeLeftShift)) ? mKeyboardMovementSpeedFast : mKeyboardMovementSpeedNormal;
 
 				if (Event::KeyHeld(Event::eKeyCodeD)) GetTransform()->AddLocalPosition(GetTransform()->GetLocalRight() * keyboardMovementSpeed);
