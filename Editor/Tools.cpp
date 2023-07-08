@@ -30,7 +30,7 @@ namespace ark
 		R32 y = thumbnail["y"].GetFloat();
 		R32 z = thumbnail["z"].GetFloat();
 		R32 pitch = thumbnail["pitch"].GetFloat();
-		R32 yaw = thumbnail.HasMember("yaw") ? thumbnail["yaw"].GetFloat() : -45.0F;
+		R32 yaw = thumbnail.HasMember("yaw") ? thumbnail["yaw"].GetFloat() : 45.0F;
 		R32 roll = thumbnail.HasMember("roll") ? thumbnail["roll"].GetFloat() : 0.0F;
 
 		player->GetTransform()->SetLocalPosition(R32V3{ x, y, z });
@@ -68,7 +68,7 @@ namespace ark
 		R32 y = thumbnail["y"].GetFloat();
 		R32 z = thumbnail["z"].GetFloat();
 		R32 pitch = thumbnail["pitch"].GetFloat();
-		R32 yaw = thumbnail.HasMember("yaw") ? thumbnail["yaw"].GetFloat() : -45.0F;
+		R32 yaw = thumbnail.HasMember("yaw") ? thumbnail["yaw"].GetFloat() : 45.0F;
 		R32 roll = thumbnail.HasMember("roll") ? thumbnail["roll"].GetFloat() : 0.0F;
 
 		player->GetTransform()->SetLocalPosition(R32V3{ x, y, z });
