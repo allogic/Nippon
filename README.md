@@ -46,7 +46,7 @@ If bugs are being found, please don't hesitate to open an issue or pull request!
 #### Repositories
 - https://github.com/Shintensu/OkamiHD-Reverse-Engineering
 - https://github.com/whataboutclyde/okami-utils
-#### File Extensions
+#### Old File Extension List
 ```
  * AFD - unknown purpose but are small and contain no multimedia.
  * AFS - if an AFS file is a subfile than it only contains audio, usually a few. Game Extractor can extract these but if you have try after you exact the big one (if some one can optimize the script then this should be displayed as a folder)
