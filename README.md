@@ -2,7 +2,7 @@
 
 Nippon is a cross platform game editor, currently designed to interact with the okami PC port. This project is in it's very early days and by all means not production ready.
 
-<img src="Assets/Editor.jpg" width="100%"/>
+<img src="Assets/Editor.png" width="100%"/>
 
 ## Setting Up Nippon
 
