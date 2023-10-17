@@ -6,7 +6,7 @@ Nippon is a collection of tools designed to interact with the okami PC port. Thi
 ## Starting The Editor
 The editor requires 2 command line arguments. The first one is the directory where the okami data files are and the other is the BlowFish-256 key. Both arguments must be supplied as strings!
 ```
-Editor.exe "...\Steam\steamapps\common\Okami\data_pc" "YaKiNiKuM2rrVrPJpGMkfe3EK4RbpbHw"
+Editor.exe <okami-data-pc-dir> <cipher-key>
 ```
 
 ## Compile The Project
@@ -18,8 +18,21 @@ Setup.ps1
 Launch the Visual Studio Solution, set the `Editor` as the startup project and build for `Debug` or `Release` bitness `x64`.
 To run or debug the editor one must additionally adjust a few editor properties. Go into `Editor/Properties/Debugging` and set the following parameters for all configurations and platforms:
 ```
-Command Arguments = "...\Steam\steamapps\common\Okami\data_pc" "YaKiNiKuM2rrVrPJpGMkfe3EK4RbpbHw"
+Command Arguments = <okami-data-pc-dir> <cipher-key>
 Working Directory = $(SolutionDir)$(IntDir)
+```
+
+## Utility Programs
+There are a few utility programs which simplify a couple steps:
+#### Archive Analyzer
+```
+ArchiveAnalyzer.exe Decrypt <cipher-key> <input-file> <output-file>
+ArchiveAnalyzer.exe Unpack <input-file> <output-dir>
+```
+#### Binary Analyzer
+```
+BinaryAnalyzer.exe Compare <input-file-left> <input-file-right>
+BinaryAnalyzer.exe Search <input-file> <byte-pattern>
 ```
 
 ## Troubleshooting
