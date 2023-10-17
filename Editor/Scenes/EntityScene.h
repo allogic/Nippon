@@ -28,6 +28,7 @@ namespace ark
 
 	public:
 
+		inline const auto& GetEntityGeometryActor() const { return mEntityGeometryActor; }
 		inline const auto& GetMdGroups() const { return mMdGroups; }
 		inline const auto& GetMdTextures() const { return mMdTextures; }
 
@@ -47,6 +48,10 @@ namespace ark
 	private:
 
 		void PrintSummary();
+
+	private:
+
+		Actor* mEntityGeometryActor = nullptr;
 
 	private:
 

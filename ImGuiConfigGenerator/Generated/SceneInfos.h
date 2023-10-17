@@ -3,15 +3,16 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <algorithm>
 
 namespace ark
 {
-	enum SceneType
+	typedef enum
 	{
 		eSceneTypeNone = 0,
 		eSceneTypeLevel = 1,
 		eSceneTypeEntity = 2,
-	};
+	} SceneType;
 
 	typedef struct
 	{
@@ -38,12 +39,15 @@ namespace ark
 
 		static const std::vector<GroupInfo>& GetLevelGroups();
 		static const std::vector<SceneInfo>& GetLevelsByGroup(const GroupInfo& Group);
-		static const GroupInfo& GetLevelGroupByKey(const std::string& GroupKey);
-		static const SceneInfo& GetLevelByKey(const std::string& GroupKey, const std::string& SceneKey);
+		static GroupInfo* GetLevelGroupByKey(const std::string& GroupKey);
+		static SceneInfo* GetLevelByKey(const std::string& GroupKey, const std::string& SceneKey);
 
 		static const std::vector<GroupInfo>& GetEntityGroups();
 		static const std::vector<SceneInfo>& GetEntitiesByGroup(const GroupInfo& Group);
-		static const GroupInfo& GetEntityGroupByKey(const std::string& EntityKey);
-		static const SceneInfo& GetEntityByKey(const std::string& GroupKey, const std::string& SceneKey);
+		static GroupInfo* GetEntityGroupByKey(const std::string& EntityKey);
+		static SceneInfo* GetEntityByKey(const std::string& GroupKey, const std::string& SceneKey);
+
+		static bool LevelGroupContainsSceneKey(const std::string& GroupKey, const std::string& SceneKey);
+		static bool EntityGroupContainsSceneKey(const std::string& GroupKey, const std::string& SceneKey);
 	};
 }

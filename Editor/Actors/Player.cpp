@@ -40,16 +40,16 @@ namespace ark
 		{
 			if (viewport->IsFocused())
 			{
-				R32 keyboardMovementSpeed = (Event::KeyHeld(Event::eKeyCodeLeftShift)) ? mCameraController->GetKeyboardMovementSpeedFast() : mCameraController->GetKeyboardMovementSpeedNormal();
+				R32 keyboardMovementSpeed = (Event::KeyHeld(eKeyCodeLeftShift)) ? mCameraController->GetKeyboardMovementSpeedFast() : mCameraController->GetKeyboardMovementSpeedNormal();
 
-				if (Event::KeyHeld(Event::eKeyCodeD)) GetTransform()->AddLocalPosition(GetTransform()->GetLocalRight() * keyboardMovementSpeed * gTimeDelta);
-				if (Event::KeyHeld(Event::eKeyCodeA)) GetTransform()->AddLocalPosition(-GetTransform()->GetLocalRight() * keyboardMovementSpeed * gTimeDelta);
+				if (Event::KeyHeld(eKeyCodeD)) GetTransform()->AddLocalPosition(GetTransform()->GetLocalRight() * keyboardMovementSpeed * gTimeDelta);
+				if (Event::KeyHeld(eKeyCodeA)) GetTransform()->AddLocalPosition(-GetTransform()->GetLocalRight() * keyboardMovementSpeed * gTimeDelta);
 
-				if (Event::KeyHeld(Event::eKeyCodeE)) GetTransform()->AddLocalPosition(GetTransform()->GetWorldUp() * keyboardMovementSpeed * gTimeDelta);
-				if (Event::KeyHeld(Event::eKeyCodeQ)) GetTransform()->AddLocalPosition(-GetTransform()->GetWorldUp() * keyboardMovementSpeed * gTimeDelta);
+				if (Event::KeyHeld(eKeyCodeE)) GetTransform()->AddLocalPosition(GetTransform()->GetWorldUp() * keyboardMovementSpeed * gTimeDelta);
+				if (Event::KeyHeld(eKeyCodeQ)) GetTransform()->AddLocalPosition(-GetTransform()->GetWorldUp() * keyboardMovementSpeed * gTimeDelta);
 
-				if (Event::KeyHeld(Event::eKeyCodeW)) GetTransform()->AddLocalPosition(-GetTransform()->GetLocalFront() * keyboardMovementSpeed * gTimeDelta);
-				if (Event::KeyHeld(Event::eKeyCodeS)) GetTransform()->AddLocalPosition(GetTransform()->GetLocalFront() * keyboardMovementSpeed * gTimeDelta);
+				if (Event::KeyHeld(eKeyCodeW)) GetTransform()->AddLocalPosition(-GetTransform()->GetLocalFront() * keyboardMovementSpeed * gTimeDelta);
+				if (Event::KeyHeld(eKeyCodeS)) GetTransform()->AddLocalPosition(GetTransform()->GetLocalFront() * keyboardMovementSpeed * gTimeDelta);
 			}
 		}
 	}
@@ -63,24 +63,24 @@ namespace ark
 				static R32V2 mousePositionStart;
 				static R32V2 mousePositionDelta;
 
-				if (Event::MouseDown(Event::eMouseCodeRight))
+				if (Event::MouseDown(eMouseCodeRight))
 				{
 					mousePositionStart = Event::GetMousePosition();
 				}
-				if (Event::MouseHeld(Event::eMouseCodeRight) && Event::MouseHeld(Event::eMouseCodeLeft))
+				if (Event::MouseHeld(eMouseCodeRight) && Event::MouseHeld(eMouseCodeLeft))
 				{
 					mousePositionDelta = mousePositionStart - Event::GetMousePosition();
 
 					R32V3 positionOffset = {};
 
-					R32 mouseMovementSpeed = (Event::KeyHeld(Event::eKeyCodeLeftShift)) ? mCameraController->GetMouseMovementSpeedFast() : mCameraController->GetMouseMovementSpeedNormal();
+					R32 mouseMovementSpeed = (Event::KeyHeld(eKeyCodeLeftShift)) ? mCameraController->GetMouseMovementSpeedFast() : mCameraController->GetMouseMovementSpeedNormal();
 
 					positionOffset += GetTransform()->GetLocalRight() * mousePositionDelta.x * mouseMovementSpeed * gTimeDelta;
 					positionOffset -= GetTransform()->GetWorldUp() * mousePositionDelta.y * mouseMovementSpeed * gTimeDelta;
 
 					GetTransform()->AddLocalPosition(positionOffset);
 				}
-				else if (Event::MouseHeld(Event::eMouseCodeRight))
+				else if (Event::MouseHeld(eMouseCodeRight))
 				{
 					mousePositionDelta = mousePositionStart - Event::GetMousePosition();
 
@@ -106,7 +106,7 @@ namespace ark
 		{
 			if (viewport->IsFocused())
 			{
-				if (Event::KeyDown(Event::eKeyCodeF))
+				if (Event::KeyDown(eKeyCodeF))
 				{
 					if (Actor* actor = InterfaceManager::GetOutline()->GetSelectedActor())
 					{

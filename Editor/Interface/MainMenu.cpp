@@ -80,6 +80,7 @@ namespace ark
 								scene->SetEnableConsole(true);
 								scene->SetEnableDebug(true);
 
+								scene->CreateViewport();
 								scene->Load();
 							}
 						}
@@ -118,6 +119,7 @@ namespace ark
 								scene->SetEnableConsole(true);
 								scene->SetEnableDebug(true);
 
+								scene->CreateViewport();
 								scene->Load();
 							}
 						}

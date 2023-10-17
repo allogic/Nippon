@@ -8,7 +8,7 @@
 #include <Editor/Actor.h>
 #include <Editor/Editor.h>
 #include <Editor/TextureLoader.h>
-#include <Editor/Coefficients.h>
+#include <Editor/Magic.h>
 
 #include <Editor/Scenes/LevelScene.h>
 
@@ -44,7 +44,8 @@ namespace ark
 
 	LevelScene::LevelScene(const SceneInfo& Info) : Scene{ Info }
 	{
-		mObjectPlacementsActor = CreateActor<Actor>("Object Placements", nullptr);
+		mLevelGeometryActor = CreateActor<Actor>("Level Geometry", nullptr);
+		mEntityGeometryActor = CreateActor<Actor>("Entity Geometry", nullptr);
 	}
 
 	LevelScene::~LevelScene()
@@ -124,49 +125,58 @@ namespace ark
 		const auto& treObjects = ObjSerializer::FromBytes(mTreNode->GetBytesWithoutHeader());
 		const auto& tatObjects = ObjSerializer::FromBytes(mTatNode->GetBytesWithoutHeader());
 
-		for (const auto& object : tscObjects)
+		for (U32 i = 0; i < (U32)tscObjects.size(); i++)
 		{
-			const auto& sceneInfo = ObjectToSceneInfo(object);
+			SceneInfo* sceneInfo = ObjectToSceneInfo(tscObjects[i]);
 
-			if (!mTscArchiveCache[sceneInfo.ArchiveFileName])
+			if (sceneInfo)
 			{
-				Archive* archive = new Archive{ nullptr };
+				if (!mTscArchiveCache[sceneInfo->ArchiveFileName])
+				{
+					Archive* archive = new Archive{ nullptr };
 
-				mTscArchiveCache[sceneInfo.ArchiveFileName] = archive;
-				mTscEntityDataCache[archive].SceneInfo = sceneInfo;
+					mTscArchiveCache[sceneInfo->ArchiveFileName] = archive;
+					mTscEntityDataCache[archive].SceneInfo = sceneInfo;
+				}
+
+				mTscEntities.emplace_back(i, tscObjects[i], mTscArchiveCache[sceneInfo->ArchiveFileName]);
 			}
-
-			mTscEntities.emplace_back(object, mTscArchiveCache[sceneInfo.ArchiveFileName]);
 		}
 
-		for (const auto& object : treObjects)
+		for (U32 i = 0; i < (U32)treObjects.size(); i++)
 		{
-			const auto& sceneInfo = ObjectToSceneInfo(object);
+			SceneInfo* sceneInfo = ObjectToSceneInfo(treObjects[i]);
 
-			if (!mTreArchiveCache[sceneInfo.ArchiveFileName])
+			if (sceneInfo)
 			{
-				Archive* archive = new Archive{ nullptr };
+				if (!mTreArchiveCache[sceneInfo->ArchiveFileName])
+				{
+					Archive* archive = new Archive{ nullptr };
 
-				mTreArchiveCache[sceneInfo.ArchiveFileName] = archive;
-				mTreEntityDataCache[archive].SceneInfo = sceneInfo;
+					mTreArchiveCache[sceneInfo->ArchiveFileName] = archive;
+					mTreEntityDataCache[archive].SceneInfo = sceneInfo;
+				}
+
+				mTreEntities.emplace_back(i, treObjects[i], mTreArchiveCache[sceneInfo->ArchiveFileName]);
 			}
-
-			mTreEntities.emplace_back(object, mTreArchiveCache[sceneInfo.ArchiveFileName]);
 		}
 
-		for (const auto& object : tatObjects)
+		for (U32 i = 0; i < (U32)tatObjects.size(); i++)
 		{
-			const auto& sceneInfo = ObjectToSceneInfo(object);
+			SceneInfo* sceneInfo = ObjectToSceneInfo(tatObjects[i]);
 
-			if (!mTatArchiveCache[sceneInfo.ArchiveFileName])
+			if (sceneInfo)
 			{
-				Archive* archive = new Archive{ nullptr };
+				if (!mTatArchiveCache[sceneInfo->ArchiveFileName])
+				{
+					Archive* archive = new Archive{ nullptr };
 
-				mTatArchiveCache[sceneInfo.ArchiveFileName] = archive;
-				mTatEntityDataCache[archive].SceneInfo = sceneInfo;
+					mTatArchiveCache[sceneInfo->ArchiveFileName] = archive;
+					mTatEntityDataCache[archive].SceneInfo = sceneInfo;
+				}
+
+				mTatEntities.emplace_back(i, tatObjects[i], mTatArchiveCache[sceneInfo->ArchiveFileName]);
 			}
-
-			mTatEntities.emplace_back(object, mTatArchiveCache[sceneInfo.ArchiveFileName]);
 		}
 
 		for (const auto& node : mScrNodes)
@@ -195,16 +205,16 @@ namespace ark
 				entityData.Loaded = true;
 
 				// TODO: Resolve missing category groups keys!
-				if (entityData.SceneInfo.ArchiveFileName != "")
+				if (entityData.SceneInfo->ArchiveFileName != "")
 				{
-					fs::path relativeFilePath = fs::path{ entityData.SceneInfo.GroupKey } / entityData.SceneInfo.ArchiveFileName;
+					fs::path relativeFilePath = fs::path{ entityData.SceneInfo->GroupKey } / entityData.SceneInfo->ArchiveFileName;
 					fs::path absoluteFilePath = gDataDir / relativeFilePath;
 
 					std::vector<U8> bytes = FsUtils::ReadBinary(absoluteFilePath);
 
 					cipher.Decrypt(bytes);
 
-					entity.Archive->LoadRecursive(bytes, 0, 0, 0, "", entityData.SceneInfo.ArchiveFileName, true);
+					entity.Archive->LoadRecursive(bytes, 0, 0, 0, "", entityData.SceneInfo->ArchiveFileName, true);
 
 					entity.Archive->FindNodesRecursiveByType("MD", entityData.MdNodes);
 					entity.Archive->FindNodesRecursiveByType("DDS", entityData.DdsNodes);
@@ -233,16 +243,16 @@ namespace ark
 				entityData.Loaded = true;
 
 				// TODO: Resolve missing category groups keys!
-				if (entityData.SceneInfo.ArchiveFileName != "")
+				if (entityData.SceneInfo->ArchiveFileName != "")
 				{
-					fs::path relativeFilePath = fs::path{ entityData.SceneInfo.GroupKey } / entityData.SceneInfo.ArchiveFileName;
+					fs::path relativeFilePath = fs::path{ entityData.SceneInfo->GroupKey } / entityData.SceneInfo->ArchiveFileName;
 					fs::path absoluteFilePath = gDataDir / relativeFilePath;
 
 					std::vector<U8> bytes = FsUtils::ReadBinary(absoluteFilePath);
 
 					cipher.Decrypt(bytes);
 
-					entity.Archive->LoadRecursive(bytes, 0, 0, 0, "", entityData.SceneInfo.ArchiveFileName, true);
+					entity.Archive->LoadRecursive(bytes, 0, 0, 0, "", entityData.SceneInfo->ArchiveFileName, true);
 
 					entity.Archive->FindNodesRecursiveByType("MD", entityData.MdNodes);
 					entity.Archive->FindNodesRecursiveByType("DDS", entityData.DdsNodes);
@@ -271,16 +281,16 @@ namespace ark
 				entityData.Loaded = true;
 
 				// TODO: Resolve missing category groups keys!
-				if (entityData.SceneInfo.ArchiveFileName != "")
+				if (entityData.SceneInfo->ArchiveFileName != "")
 				{
-					fs::path relativeFilePath = fs::path{ entityData.SceneInfo.GroupKey } / entityData.SceneInfo.ArchiveFileName;
+					fs::path relativeFilePath = fs::path{ entityData.SceneInfo->GroupKey } / entityData.SceneInfo->ArchiveFileName;
 					fs::path absoluteFilePath = gDataDir / relativeFilePath;
 
 					std::vector<U8> bytes = FsUtils::ReadBinary(absoluteFilePath);
 
 					cipher.Decrypt(bytes);
 
-					entity.Archive->LoadRecursive(bytes, 0, 0, 0, "", entityData.SceneInfo.ArchiveFileName, true);
+					entity.Archive->LoadRecursive(bytes, 0, 0, 0, "", entityData.SceneInfo->ArchiveFileName, true);
 
 					entity.Archive->FindNodesRecursiveByType("MD", entityData.MdNodes);
 					entity.Archive->FindNodesRecursiveByType("DDS", entityData.DdsNodes);
@@ -305,7 +315,7 @@ namespace ark
 	{
 		for (const auto& group : mScrGroups)
 		{
-			Actor* groupActor = CreateActor<Actor>(group.Name, GetStaticGeometryActor());
+			Actor* groupActor = CreateActor<Actor>(group.Name, mLevelGeometryActor);
 
 			for (const auto& model : group.Models)
 			{
@@ -315,13 +325,9 @@ namespace ark
 
 				const ScrTransform& transform = model.Transform;
 
-				R32V3 position = R32V3{ transform.Position.x, transform.Position.y, transform.Position.z } * DEBUG_WORLD_SCALE;
+				R32V3 position = R32V3{ transform.Position.x, transform.Position.y, transform.Position.z } * MAGIC_WORLD_SCALE;
 				R32V3 rotation = glm::degrees(R32V3{ transform.Rotation.x, transform.Rotation.y, transform.Rotation.z } / 360.0F * MAGIC_ROTATION_COEFFICIENT);
-				R32V3 scale = R32V3{ transform.Scale.x, transform.Scale.y, transform.Scale.z } / MAGIC_SCALE_COEFFICIENT * DEBUG_WORLD_SCALE;
-
-				//modelTransform->SetLocalPosition(position);
-				//modelTransform->SetLocalRotation(rotation);
-				//modelTransform->SetLocalScale(scale);
+				R32V3 scale = R32V3{ transform.Scale.x, transform.Scale.y, transform.Scale.z } / MAGIC_SCALE_COEFFICIENT * MAGIC_WORLD_SCALE;
 
 				for (const auto& division : model.Entry.Divisions)
 				{
@@ -358,7 +364,9 @@ namespace ark
 
 			for (const auto& group : entityData.MdGroups)
 			{
-				Actor* groupActor = CreateActor<Actor>(group.Name, GetStaticGeometryActor());
+				std::string groupName = group.Name + "_" + std::to_string(entity.Index);
+
+				Actor* groupActor = CreateActor<Actor>(groupName, mEntityGeometryActor);
 
 				for (const auto& model : group.Models)
 				{
@@ -366,24 +374,9 @@ namespace ark
 
 					Transform* modelTransform = modelActor->GetTransform();
 
-					const MdTransform& transform = model.Transform;
-
-					// Mostly has identity transformation (0,0,0) (0,0,0) (1,1,1)
-					R32V3 entityPosition = R32V3{ transform.Position.x, transform.Position.y, transform.Position.z };
-					R32V3 entityRotation = glm::degrees(R32V3{ transform.Rotation.x, transform.Rotation.y, transform.Rotation.z } / 360.0F * MAGIC_ROTATION_COEFFICIENT);
-					R32V3 entityScale = R32V3{ transform.Scale.x, transform.Scale.y, transform.Scale.z };
-
-					R32V3 levelPosition = R32V3{ entity.Object.Position.x, entity.Object.Position.y, entity.Object.Position.z } * DEBUG_WORLD_SCALE;
-					R32V3 levelRotation = glm::degrees(R32V3{ entity.Object.Rotation.x, entity.Object.Rotation.y, entity.Object.Rotation.z } / 360.0F * MAGIC_ROTATION_COEFFICIENT);
-					R32V3 levelScale = R32V3{ entity.Object.Scale.x, entity.Object.Scale.y, entity.Object.Scale.z } / MAGIC_ENTITY_TO_LEVEL_SCALE_COEFFICIENT;
-
-					R32V3 position = levelPosition;
-					R32V3 rotation = levelRotation;
-					R32V3 scale = levelScale;
-
-					//modelTransform->SetLocalPosition(position);
-					//modelTransform->SetLocalRotation(rotation);
-					//modelTransform->SetLocalScale(scale);
+					R32V3 position = R32V3{ entity.Object.Position.x, entity.Object.Position.y, entity.Object.Position.z } * MAGIC_WORLD_SCALE;
+					R32V3 rotation = R32V3{ entity.Object.Rotation.x, entity.Object.Rotation.y, entity.Object.Rotation.z } + R32V3{ MAGIC_ENTITY_TO_LEVEL_PITCH_OFFSET, MAGIC_ENTITY_TO_LEVEL_YAW_OFFSET, MAGIC_ENTITY_TO_LEVEL_ROLL_OFFSET };
+					R32V3 scale = R32V3{ entity.Object.Scale.x, entity.Object.Scale.y, entity.Object.Scale.z } / MAGIC_ENTITY_TO_LEVEL_SCALE_COEFFICIENT;
 
 					for (const auto& division : model.Entry.Divisions)
 					{
@@ -421,7 +414,9 @@ namespace ark
 
 			for (const auto& group : entityData.MdGroups)
 			{
-				Actor* groupActor = CreateActor<Actor>(group.Name, GetStaticGeometryActor());
+				std::string groupName = group.Name + "_" + std::to_string(entity.Index);
+
+				Actor* groupActor = CreateActor<Actor>(groupName, mEntityGeometryActor);
 
 				for (const auto& model : group.Models)
 				{
@@ -429,24 +424,9 @@ namespace ark
 
 					Transform* modelTransform = modelActor->GetTransform();
 
-					const MdTransform& transform = model.Transform;
-
-					// Mostly has identity transformation (0,0,0) (0,0,0) (1,1,1)
-					R32V3 entityPosition = R32V3{ transform.Position.x, transform.Position.y, transform.Position.z };
-					R32V3 entityRotation = glm::degrees(R32V3{ transform.Rotation.x, transform.Rotation.y, transform.Rotation.z } / 360.0F * MAGIC_ROTATION_COEFFICIENT);
-					R32V3 entityScale = R32V3{ transform.Scale.x, transform.Scale.y, transform.Scale.z };
-
-					R32V3 levelPosition = R32V3{ entity.Object.Position.x, entity.Object.Position.y, entity.Object.Position.z } * DEBUG_WORLD_SCALE;
-					R32V3 levelRotation = glm::degrees(R32V3{ entity.Object.Rotation.x, entity.Object.Rotation.y, entity.Object.Rotation.z } / 360.0F * MAGIC_ROTATION_COEFFICIENT);
-					R32V3 levelScale = R32V3{ entity.Object.Scale.x, entity.Object.Scale.y, entity.Object.Scale.z } / MAGIC_ENTITY_TO_LEVEL_SCALE_COEFFICIENT;
-
-					R32V3 position = levelPosition;
-					R32V3 rotation = levelRotation;
-					R32V3 scale = levelScale;
-
-					//modelTransform->SetLocalPosition(position);
-					//modelTransform->SetLocalRotation(rotation);
-					//modelTransform->SetLocalScale(scale);
+					R32V3 position = R32V3{ entity.Object.Position.x, entity.Object.Position.y, entity.Object.Position.z } * MAGIC_WORLD_SCALE;
+					R32V3 rotation = R32V3{ entity.Object.Rotation.x, entity.Object.Rotation.y, entity.Object.Rotation.z } + R32V3{ MAGIC_ENTITY_TO_LEVEL_PITCH_OFFSET, MAGIC_ENTITY_TO_LEVEL_YAW_OFFSET, MAGIC_ENTITY_TO_LEVEL_ROLL_OFFSET };
+					R32V3 scale = R32V3{ entity.Object.Scale.x, entity.Object.Scale.y, entity.Object.Scale.z } / MAGIC_ENTITY_TO_LEVEL_SCALE_COEFFICIENT;
 
 					for (const auto& division : model.Entry.Divisions)
 					{
@@ -484,7 +464,9 @@ namespace ark
 
 			for (const auto& group : entityData.MdGroups)
 			{
-				Actor* groupActor = CreateActor<Actor>(group.Name, GetStaticGeometryActor());
+				std::string groupName = group.Name + "_" + std::to_string(entity.Index);
+
+				Actor* groupActor = CreateActor<Actor>(groupName, mEntityGeometryActor);
 
 				for (const auto& model : group.Models)
 				{
@@ -492,24 +474,9 @@ namespace ark
 
 					Transform* modelTransform = modelActor->GetTransform();
 
-					const MdTransform& transform = model.Transform;
-
-					// Mostly has identity transformation (0,0,0) (0,0,0) (1,1,1)
-					R32V3 entityPosition = R32V3{ transform.Position.x, transform.Position.y, transform.Position.z };
-					R32V3 entityRotation = glm::degrees(R32V3{ transform.Rotation.x, transform.Rotation.y, transform.Rotation.z } / 360.0F * MAGIC_ROTATION_COEFFICIENT);
-					R32V3 entityScale = R32V3{ transform.Scale.x, transform.Scale.y, transform.Scale.z };
-
-					R32V3 levelPosition = R32V3{ entity.Object.Position.x, entity.Object.Position.y, entity.Object.Position.z } * DEBUG_WORLD_SCALE;
-					R32V3 levelRotation = glm::degrees(R32V3{ entity.Object.Rotation.x, entity.Object.Rotation.y, entity.Object.Rotation.z } / 360.0F * MAGIC_ROTATION_COEFFICIENT);
-					R32V3 levelScale = R32V3{ entity.Object.Scale.x, entity.Object.Scale.y, entity.Object.Scale.z } / MAGIC_ENTITY_TO_LEVEL_SCALE_COEFFICIENT;
-
-					R32V3 position = levelPosition;
-					R32V3 rotation = levelRotation;
-					R32V3 scale = levelScale;
-
-					//modelTransform->SetLocalPosition(position);
-					//modelTransform->SetLocalRotation(rotation);
-					//modelTransform->SetLocalScale(scale);
+					R32V3 position = R32V3{ entity.Object.Position.x, entity.Object.Position.y, entity.Object.Position.z } * MAGIC_WORLD_SCALE;
+					R32V3 rotation = R32V3{ entity.Object.Rotation.x, entity.Object.Rotation.y, entity.Object.Rotation.z } + R32V3{ MAGIC_ENTITY_TO_LEVEL_PITCH_OFFSET, MAGIC_ENTITY_TO_LEVEL_YAW_OFFSET, MAGIC_ENTITY_TO_LEVEL_ROLL_OFFSET };
+					R32V3 scale = R32V3{ entity.Object.Scale.x, entity.Object.Scale.y, entity.Object.Scale.z } / MAGIC_ENTITY_TO_LEVEL_SCALE_COEFFICIENT;
 
 					for (const auto& division : model.Entry.Divisions)
 					{
@@ -542,91 +509,7 @@ namespace ark
 		}
 	}
 
-	/*
-	void LevelScene::AddObjectPlacements()
-	{
-		Actor* tscObjectGroupActor = CreateActor<Actor>("TSC Group", mObjectPlacementsActor);
-		Actor* treObjectGroupActor = CreateActor<Actor>("TRE Group", mObjectPlacementsActor);
-		Actor* tatObjectGroupActor = CreateActor<Actor>("TAT Group", mObjectPlacementsActor);
-
-		for (const auto& object : mTscObjects)
-		{
-			std::string objectName = "Object_" + std::to_string(object.Id) + "_" + std::to_string(object.Category);
-
-			Actor* objectGroupActor = CreateActor<Actor>(objectName, tscObjectGroupActor);
-
-			Transform* objectGroupTransform = objectGroupActor->GetTransform();
-
-			R32V3 position = R32V3{ object.Position.x, object.Position.y, object.Position.z } * DEBUG_WORLD_SCALE;
-			R32V3 rotation = glm::degrees(R32V3{ object.Rotation.x, object.Rotation.y, object.Rotation.z } / 360.0F * MAGIC_ROTATION_COEFFICIENT);
-			R32V3 scale = R32V3{ object.Scale.x, object.Scale.y, object.Scale.z } / MAGIC_SCALE_COEFFICIENT * DEBUG_WORLD_SCALE;
-
-			//objectGroupTransform->SetLocalPosition(position);
-			//objectGroupTransform->SetLocalRotation(rotation);
-			//objectGroupTransform->SetLocalScale(scale);
-
-			Actor* objectActor = CreateActor<Actor>("Object", objectGroupActor);
-
-			Transform* objectTransform = objectActor->GetTransform();
-
-			objectTransform->SetLocalPosition(position);
-			//objectTransform->SetLocalRotation(rotation);
-			//objectTransform->SetLocalScale(scale);
-		}
-
-		for (const auto& object : mTreObjects)
-		{
-			std::string objectName = "Object_" + std::to_string(object.Id) + "_" + std::to_string(object.Category);
-
-			Actor* objectGroupActor = CreateActor<Actor>(objectName, treObjectGroupActor);
-
-			Transform* objectGroupTransform = objectGroupActor->GetTransform();
-
-			R32V3 position = R32V3{ object.Position.x, object.Position.y, object.Position.z } * DEBUG_WORLD_SCALE;
-			R32V3 rotation = glm::degrees(R32V3{ object.Rotation.x, object.Rotation.y, object.Rotation.z } / 360.0F * MAGIC_ROTATION_COEFFICIENT);
-			R32V3 scale = R32V3{ object.Scale.x, object.Scale.y, object.Scale.z } / MAGIC_SCALE_COEFFICIENT * DEBUG_WORLD_SCALE;
-
-			//objectGroupTransform->SetLocalPosition(position);
-			//objectGroupTransform->SetLocalRotation(rotation);
-			//objectGroupTransform->SetLocalScale(scale);
-
-			Actor* objectActor = CreateActor<Actor>("Object", objectGroupActor);
-
-			Transform* objectTransform = objectActor->GetTransform();
-
-			objectTransform->SetLocalPosition(position);
-			//objectTransform->SetLocalRotation(rotation);
-			//objectTransform->SetLocalScale(scale);
-		}
-
-		for (const auto& object : mTatObjects)
-		{
-			std::string objectName = "Object_" + std::to_string(object.Id) + "_" + std::to_string(object.Category);
-
-			Actor* objectGroupActor = CreateActor<Actor>(objectName, tatObjectGroupActor);
-
-			Transform* objectGroupTransform = objectGroupActor->GetTransform();
-
-			R32V3 position = R32V3{ object.Position.x, object.Position.y, object.Position.z } * DEBUG_WORLD_SCALE;
-			R32V3 rotation = glm::degrees(R32V3{ object.Rotation.x, object.Rotation.y, object.Rotation.z } / 360.0F * MAGIC_ROTATION_COEFFICIENT);
-			R32V3 scale = R32V3{ object.Scale.x, object.Scale.y, object.Scale.z } / MAGIC_SCALE_COEFFICIENT * DEBUG_WORLD_SCALE;
-
-			//objectGroupTransform->SetLocalPosition(position);
-			//objectGroupTransform->SetLocalRotation(rotation);
-			//objectGroupTransform->SetLocalScale(scale);
-
-			Actor* objectActor = CreateActor<Actor>("Object", objectGroupActor);
-
-			Transform* objectTransform = objectActor->GetTransform();
-
-			objectTransform->SetLocalPosition(position);
-			//objectTransform->SetLocalRotation(rotation);
-			//objectTransform->SetLocalScale(scale);
-		}
-	}
-	*/
-
-	SceneInfo LevelScene::ObjectToSceneInfo(const ObjEntry& Object)
+	SceneInfo* LevelScene::ObjectToSceneInfo(const ObjEntry& Object)
 	{
 		std::string groupKey = sCategoryToGroupKey[Object.Category];
 		std::string sceneKey = StringUtils::ByteToString(Object.Id);
@@ -788,6 +671,8 @@ namespace ark
 			LOG("    Id=0x%02X Category=0x%02X\n", entity.Object.Id, entity.Object.Category);
 		}
 
+		LOG("\n");
+		LOG("Finished\n");
 		LOG("\n");
 	}
 }

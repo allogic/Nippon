@@ -88,9 +88,9 @@ namespace ark
 
 	void Viewport::HandleActorSelection()
 	{
-		if (!Event::MouseHeld(Event::eMouseCodeRight))
+		if (!Event::MouseHeld(eMouseCodeRight))
 		{
-			if (Event::MouseDown(Event::eMouseCodeLeft))
+			if (Event::MouseDown(eMouseCodeLeft))
 			{
 				ImGuiIO& io = ImGui::GetIO();
 				ImGuiStyle& style = ImGui::GetStyle();

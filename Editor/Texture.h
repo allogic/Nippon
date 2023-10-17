@@ -34,7 +34,7 @@ namespace ark
 
 	public:
 
-		std::vector<U8> Snapshot(U8 Channels) const;
+		std::vector<U8> Snapshot(U8 Channels, U32 Type) const;
 
 	private:
 

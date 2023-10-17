@@ -44,7 +44,6 @@ namespace ark
 		inline const auto& GetFrameBuffer() const { return mFrameBuffer; }
 		inline const auto& GetRootActor() const { return mRootActor; }
 		inline const auto& GetPlayerActor() const { return mPlayerActor; }
-		inline const auto& GetStaticGeometryActor() const { return mStaticGeometryActor; }
 		inline const auto& GetMainCamera() const { return mMainCamera; }
 		inline const auto& GetViewport() const { return mViewport; }
 		inline const auto& GetShouldBeDestroyed() const { return mShouldBeDestroyed; }
@@ -57,6 +56,7 @@ namespace ark
 
 	public:
 
+		void CreateViewport();
 		void MakeShouldBeDestroyed(bool Value);
 
 	public:
@@ -89,7 +89,7 @@ namespace ark
 
 	public:
 
-		std::vector<U8> Snapshot(U8 Channels) const;
+		std::vector<U8> Snapshot(U8 Channels, U32 Type) const;
 
 	public:
 
@@ -111,7 +111,6 @@ namespace ark
 
 		Actor* mRootActor = nullptr;
 		Actor* mPlayerActor = nullptr;
-		Actor* mStaticGeometryActor = nullptr;
 
 		Camera* mMainCamera = nullptr;
 

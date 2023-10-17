@@ -1,5 +1,5 @@
 #include <Editor/Actor.h>
-#include <Editor/Coefficients.h>
+#include <Editor/Magic.h>
 
 #include <Editor/Converter/VertexConverter.h>
 

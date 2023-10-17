@@ -12,6 +12,8 @@
 #include <Editor/Scenes/LevelScene.h>
 #include <Editor/Scenes/EntityScene.h>
 
+#include <Editor/Glad/glad.h>
+
 namespace ark
 {
 	void Thumbnail::Generate(const SceneInfo& Info)
@@ -32,9 +34,9 @@ namespace ark
 			scene->Resize(128, 128);
 			scene->Step();
 
-			std::vector<U8> bytes = scene->Snapshot(3);
+			std::vector<U8> bytes = scene->Snapshot(4, GL_UNSIGNED_BYTE);
 
-			TextureUtils::WriteJPG(128, 128, bytes, exportDir / scene->GetThumbnailFileName());
+			TextureUtils::WritePNG(128, 128, bytes, exportDir / scene->GetThumbnailFileName());
 
 			SceneManager::DestroyScene(scene);
 		}

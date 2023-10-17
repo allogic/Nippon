@@ -212,7 +212,7 @@
     <ClInclude Include="Actor.h" />
     <ClInclude Include="Actors\Player.h" />
     <ClInclude Include="Actors\Test.h" />
-    <ClInclude Include="Coefficients.h" />
+    <ClInclude Include="Magic.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Components\Camera.h" />
     <ClInclude Include="Components\CameraController.h" />

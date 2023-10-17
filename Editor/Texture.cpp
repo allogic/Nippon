@@ -51,14 +51,14 @@ namespace ark
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	std::vector<U8> Texture2D::Snapshot(U8 Channels) const
+	std::vector<U8> Texture2D::Snapshot(U8 Channels, U32 Type) const
 	{
 		std::vector<U8> bytes = {};
 
 		bytes.resize(mWidth * mHeight * Channels);
 
 		glBindTexture(GL_TEXTURE_2D, mTid);
-		glGetTexImage(GL_TEXTURE_2D, 0, mFormat, mType, &bytes[0]);
+		glGetTexImage(GL_TEXTURE_2D, 0, mFormat, Type, &bytes[0]);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		return bytes;

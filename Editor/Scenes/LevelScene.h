@@ -32,7 +32,8 @@ namespace ark
 
 	public:
 
-		inline const auto& GetObjectPlacementsActor() const { return mObjectPlacementsActor; }
+		inline const auto& GetLevelGeometryActor() const { return mLevelGeometryActor; }
+		inline const auto& GetEntityGeometryActor() const { return mEntityGeometryActor; }
 		inline const auto& GetScrGroups() const { return mScrGroups; }
 		inline const auto& GetScrTextures() const { return mScrTextures; }
 		inline const auto& GetTscEntities() const { return mTscEntities; }
@@ -55,12 +56,13 @@ namespace ark
 
 	private:
 
-		SceneInfo ObjectToSceneInfo(const ObjEntry& Object);
+		SceneInfo* ObjectToSceneInfo(const ObjEntry& Object);
 		void PrintSummary();
 
 	private:
 
-		Actor* mObjectPlacementsActor = nullptr;
+		Actor* mLevelGeometryActor = nullptr;
+		Actor* mEntityGeometryActor = nullptr;
 
 	private:
 
@@ -82,7 +84,7 @@ namespace ark
 		{
 			bool Loaded;
 
-			SceneInfo SceneInfo;
+			SceneInfo* SceneInfo;
 
 			std::vector<Archive*> MdNodes = {};
 			std::vector<Archive*> DdsNodes = {};
@@ -101,6 +103,7 @@ namespace ark
 
 		struct Entity
 		{
+			U32 Index;
 			ObjEntry Object;
 			Archive* Archive;
 		};

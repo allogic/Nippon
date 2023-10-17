@@ -6,7 +6,7 @@
 #include <Editor/Editor.h>
 #include <Editor/Scene.h>
 #include <Editor/Actor.h>
-#include <Editor/Coefficients.h>
+#include <Editor/Magic.h>
 
 #include <Editor/Scenes/LevelScene.h>
 #include <Editor/Scenes/EntityScene.h>
@@ -18,6 +18,8 @@
 
 #include <Editor/Components/Transform.h>
 #include <Editor/Components/Renderable.h>
+
+#include <Editor/Glad/glad.h>
 
 namespace ark
 {
@@ -52,8 +54,10 @@ namespace ark
 		LOG("\n");
 		LOG("Creating textures:\n");
 
-		ExportTexturesRecursive(Actor, Scene, exportDir / Scene->GetArchiveFileName() / Actor->GetName());
+		ExportTexturesRecursive(Actor, exportDir / Scene->GetArchiveFileName() / Actor->GetName());
 
+		LOG("\n");
+		LOG("Finished\n");
 		LOG("\n");
 
 		FsUtils::WriteText(exportDir / Scene->GetArchiveFileName() / Actor->GetName() / "object.obj", objectStream.str());
@@ -83,7 +87,7 @@ namespace ark
 
 				for (const auto& vertex : vertexBuffer)
 				{
-					R32V3 position = (transform->GetWorldPosition() / DEBUG_WORLD_SCALE) + transform->GetWorldRotation() * (vertex.Position * (transform->GetWorldScale() / DEBUG_WORLD_SCALE));
+					R32V3 position = (transform->GetWorldPosition() / MAGIC_WORLD_SCALE) + transform->GetWorldRotation() * (vertex.Position * (transform->GetWorldScale() / MAGIC_WORLD_SCALE));
 
 					Stream << "v " << position.x << " " << position.y << " " << position.z << "\n";
 				}
@@ -146,7 +150,7 @@ namespace ark
 		}
 	}
 
-	void WavefrontExporter::ExportTexturesRecursive(Actor* Actor, Scene* Scene, const fs::path& ExportDir)
+	void WavefrontExporter::ExportTexturesRecursive(Actor* Actor, const fs::path& ExportDir)
 	{
 		if (Renderable* renderable = Actor->GetComponent<Renderable>())
 		{
@@ -160,34 +164,11 @@ namespace ark
 				{
 					LOG("    %s\n", textureName.c_str());
 
-					switch (Scene->GetSceneType())
+					if (Texture2D* texture = renderable->GetTexture())
 					{
-						case eSceneTypeLevel:
-						{
-							const auto& textures = ((LevelScene*)Scene)->GetScrTextures();
+						std::vector<U8> bytes = texture->Snapshot(4, GL_UNSIGNED_BYTE);
 
-							if (Texture2D* texture = textures[textureIndex])
-							{
-								std::vector<U8> bytes = texture->Snapshot(4);
-
-								TextureUtils::WritePNG(texture->GetWidth(), texture->GetHeight(), bytes, ExportDir / textureName);
-							}
-
-							break;
-						}
-						case eSceneTypeEntity:
-						{
-							const auto& textures = ((EntityScene*)Scene)->GetMdTextures();
-
-							if (Texture2D* texture = textures[textureIndex])
-							{
-								std::vector<U8> bytes = texture->Snapshot(4);
-
-								TextureUtils::WritePNG(texture->GetWidth(), texture->GetHeight(), bytes, ExportDir / textureName);
-							}
-
-							break;
-						}
+						TextureUtils::WritePNG(texture->GetWidth(), texture->GetHeight(), bytes, ExportDir / textureName);
 					}
 				}
 			}
@@ -195,7 +176,7 @@ namespace ark
 
 		for (const auto& child : Actor->GetChildren())
 		{
-			ExportTexturesRecursive(child, Scene, ExportDir);
+			ExportTexturesRecursive(child, ExportDir);
 		}
 	}
 }

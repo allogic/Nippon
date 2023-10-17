@@ -7,7 +7,7 @@
 #include <Editor/Actor.h>
 #include <Editor/Editor.h>
 #include <Editor/TextureLoader.h>
-#include <Editor/Coefficients.h>
+#include <Editor/Magic.h>
 
 #include <Editor/Scenes/EntityScene.h>
 
@@ -23,7 +23,7 @@ namespace ark
 {
 	EntityScene::EntityScene(const SceneInfo& Info) : Scene{ Info }
 	{
-
+		mEntityGeometryActor = CreateActor<Actor>("Entity Geometry", nullptr);
 	}
 
 	EntityScene::~EntityScene()
@@ -91,7 +91,7 @@ namespace ark
 	{
 		for (const auto& group : mMdGroups)
 		{
-			Actor* groupActor = CreateActor<Actor>(group.Name, GetStaticGeometryActor());
+			Actor* groupActor = CreateActor<Actor>(group.Name, mEntityGeometryActor);
 
 			for (const auto& model : group.Models)
 			{
@@ -104,10 +104,6 @@ namespace ark
 				R32V3 position = R32V3{ transform.Position.x, transform.Position.y, transform.Position.z };
 				R32V3 rotation = glm::degrees(R32V3{ transform.Rotation.x, transform.Rotation.y, transform.Rotation.z } / 360.0F * MAGIC_ROTATION_COEFFICIENT);
 				R32V3 scale = R32V3{ transform.Scale.x, transform.Scale.y, transform.Scale.z };
-
-				//modelTransform->SetLocalPosition(position);
-				//modelTransform->SetLocalRotation(rotation);
-				//modelTransform->SetLocalScale(scale);
 
 				for (const auto& division : model.Entry.Divisions)
 				{
@@ -170,6 +166,8 @@ namespace ark
 			LOG("    %s.%s\n", node->GetName().c_str(), node->GetType().c_str());
 		}
 
+		LOG("\n");
+		LOG("Finished\n");
 		LOG("\n");
 	}
 }

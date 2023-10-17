@@ -24,6 +24,6 @@ namespace ark
 
 		static void ExportObjectsRecursive(Actor* Actor, std::ostringstream& Stream, U32& VertexOffset);
 		static void ExportMaterialsRecursive(Actor* Actor, std::ostringstream& Stream);
-		static void ExportTexturesRecursive(Actor* Actor, Scene* Scene, const fs::path& ExportDir);
+		static void ExportTexturesRecursive(Actor* Actor, const fs::path& ExportDir);
 	};
 }

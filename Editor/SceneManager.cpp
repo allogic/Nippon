@@ -77,9 +77,7 @@ namespace ark
 	{
 		for (const auto& scene : sScenes)
 		{
-			Viewport* viewport = scene->GetViewport();
-
-			if (viewport)
+			if (Viewport* viewport = scene->GetViewport())
 			{
 				viewport->Render();
 			}
@@ -111,9 +109,11 @@ namespace ark
 
 			for (auto it = sScenes.begin(); it != sScenes.end();)
 			{
-				if ((*it)->GetShouldBeDestroyed())
+				Scene* scene = *it;
+
+				if (scene->GetShouldBeDestroyed())
 				{
-					if ((*it) == sActiveScene)
+					if (scene == sActiveScene)
 					{
 						InterfaceManager::GetOutline()->Reset();
 
@@ -121,8 +121,8 @@ namespace ark
 						sActiveScenePrev = nullptr;
 					}
 
-					delete* it;
-					*it = nullptr;
+					delete scene;
+					scene = nullptr;
 
 					it = sScenes.erase(it);
 				}
@@ -152,7 +152,12 @@ namespace ark
 		}
 		else
 		{
-			(*findIt)->GetViewport()->SetFocused();
+			scene = *findIt;
+		}
+
+		if (Viewport* viewport = scene->GetViewport())
+		{
+			viewport->SetFocused();
 		}
 
 		return scene;

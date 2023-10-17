@@ -17,15 +17,16 @@ void WriteHeader(const std::string& FileName) {
 	oss << "#include <string>\n";
 	oss << "#include <vector>\n";
 	oss << "#include <map>\n";
+	oss << "#include <algorithm>\n";
 	oss << "\n";
 	oss << "namespace ark\n";
 	oss << "{\n";
-	oss << "\tenum SceneType\n";
+	oss << "\ttypedef enum\n";
 	oss << "\t{\n";
 	oss << "\t\teSceneTypeNone = 0,\n";
 	oss << "\t\teSceneTypeLevel = 1,\n";
 	oss << "\t\teSceneTypeEntity = 2,\n";
-	oss << "\t};\n";
+	oss << "\t} SceneType;\n";
 	oss << "\n";
 	oss << "\ttypedef struct\n";
 	oss << "\t{\n";
@@ -52,13 +53,16 @@ void WriteHeader(const std::string& FileName) {
 	oss << "\n";
 	oss << "\t\tstatic const std::vector<GroupInfo>& GetLevelGroups();\n";
 	oss << "\t\tstatic const std::vector<SceneInfo>& GetLevelsByGroup(const GroupInfo& Group);\n";
-	oss << "\t\tstatic const GroupInfo& GetLevelGroupByKey(const std::string& GroupKey);\n";
-	oss << "\t\tstatic const SceneInfo& GetLevelByKey(const std::string& GroupKey, const std::string& SceneKey);\n";
+	oss << "\t\tstatic GroupInfo* GetLevelGroupByKey(const std::string& GroupKey);\n";
+	oss << "\t\tstatic SceneInfo* GetLevelByKey(const std::string& GroupKey, const std::string& SceneKey);\n";
 	oss << "\n";
 	oss << "\t\tstatic const std::vector<GroupInfo>& GetEntityGroups();\n";
 	oss << "\t\tstatic const std::vector<SceneInfo>& GetEntitiesByGroup(const GroupInfo& Group);\n";
-	oss << "\t\tstatic const GroupInfo& GetEntityGroupByKey(const std::string& EntityKey);\n";
-	oss << "\t\tstatic const SceneInfo& GetEntityByKey(const std::string& GroupKey, const std::string& SceneKey);\n";
+	oss << "\t\tstatic GroupInfo* GetEntityGroupByKey(const std::string& EntityKey);\n";
+	oss << "\t\tstatic SceneInfo* GetEntityByKey(const std::string& GroupKey, const std::string& SceneKey);\n";
+	oss << "\n";
+	oss << "\t\tstatic bool LevelGroupContainsSceneKey(const std::string& GroupKey, const std::string& SceneKey);\n";
+	oss << "\t\tstatic bool EntityGroupContainsSceneKey(const std::string& GroupKey, const std::string& SceneKey);\n";
 	oss << "\t};\n";
 	oss << "}\n";
 
@@ -72,6 +76,17 @@ void WriteSource(const std::string& FileName) {
 	oss << "\n";
 	oss << "namespace ark\n";
 	oss << "{\n";
+
+	oss << "\tstruct SceneInfoByKey\n";
+	oss << "\t{\n";
+	oss << "\t\tstd::string SceneKey;\n";
+	oss << "\n";
+	oss << "\t\tbool operator () (const SceneInfo& Info) const\n";
+	oss << "\t\t{\n";
+	oss << "\t\t\treturn SceneKey == Info.SceneKey;\n";
+	oss << "\t\t}\n";
+	oss << "\t};\n";
+	oss << "\n";
 
 	oss << "\tstatic std::vector<GroupInfo> sLevelGroups =\n";
 	oss << "\t{\n";
@@ -99,7 +114,7 @@ void WriteSource(const std::string& FileName) {
 			{
 				std::string levelName = (sceneInfo[j].Name == "") ? "Unknown" : sceneInfo[j].Name;
 				std::string archiveFileName = "r" + StringUtils::CutFront(sceneInfo[j].GroupKey, 2) + sceneInfo[j].SceneKey + ".dat";
-				std::string thumbnailFileName = "r" + StringUtils::CutFront(sceneInfo[j].GroupKey, 2) + sceneInfo[j].SceneKey + ".jpg";
+				std::string thumbnailFileName = "r" + StringUtils::CutFront(sceneInfo[j].GroupKey, 2) + sceneInfo[j].SceneKey + ".png";
 				oss << "\t\t\t\tSceneInfo{ eSceneTypeLevel, \"" << sceneInfo[j].GroupKey << "\", \"" << sceneInfo[j].SceneKey << "\", \"" << archiveFileName << "\", \"" << thumbnailFileName << "\", \"" << levelName << "\", \"" << sceneInfo[j].SceneKey << " - " << levelName << "\", \"/" << sceneInfo[j].GroupKey << "/" << sceneInfo[j].SceneKey << " - " << levelName << "\" },\n";
 			}
 			oss << "\t\t\t},\n";
@@ -167,7 +182,7 @@ void WriteSource(const std::string& FileName) {
 			{
 				std::string entityName = (sceneInfo[j].Name == "") ? "Unknown" : sceneInfo[j].Name;
 				std::string archiveFileName = sceneInfo[j].GroupKey + sceneInfo[j].SceneKey + ".dat";
-				std::string thumbnailFileName = sceneInfo[j].GroupKey + sceneInfo[j].SceneKey + ".jpg";
+				std::string thumbnailFileName = sceneInfo[j].GroupKey + sceneInfo[j].SceneKey + ".png";
 				oss << "\t\t\t\tSceneInfo{ eSceneTypeEntity, \"" << sceneInfo[j].GroupKey << "\", \"" << sceneInfo[j].SceneKey << "\", \"" << archiveFileName << "\", \"" << thumbnailFileName << "\", \"" << entityName << "\", \"" << sceneInfo[j].SceneKey << " - " << entityName << "\", \"/" << sceneInfo[j].GroupKey << "/" << sceneInfo[j].SceneKey << " - " << entityName << "\" },\n";
 			}
 			oss << "\t\t\t},\n";
@@ -221,15 +236,15 @@ void WriteSource(const std::string& FileName) {
 	oss << "\t}\n";
 	oss << "\n";
 
-	oss << "\tconst GroupInfo& " << FileName << "::GetLevelGroupByKey(const std::string& GroupKey)\n";
+	oss << "\tGroupInfo* " << FileName << "::GetLevelGroupByKey(const std::string& GroupKey)\n";
 	oss << "\t{\n";
-	oss << "\t\treturn *sLevelGroupsByKey[GroupKey];\n";
+	oss << "\t\treturn sLevelGroupsByKey[GroupKey];\n";
 	oss << "\t}\n";
 	oss << "\n";
 
-	oss << "\tconst SceneInfo& " << FileName << "::GetLevelByKey(const std::string& GroupKey, const std::string& SceneKey)\n";
+	oss << "\tSceneInfo* " << FileName << "::GetLevelByKey(const std::string& GroupKey, const std::string& SceneKey)\n";
 	oss << "\t{\n";
-	oss << "\t\treturn *sLevelsByKey[GroupKey][SceneKey];\n";
+	oss << "\t\treturn sLevelsByKey[GroupKey][SceneKey];\n";
 	oss << "\t}\n";
 	oss << "\n";
 
@@ -245,15 +260,27 @@ void WriteSource(const std::string& FileName) {
 	oss << "\t}\n";
 	oss << "\n";
 
-	oss << "\tconst GroupInfo& " << FileName << "::GetEntityGroupByKey(const std::string& GroupKey)\n";
+	oss << "\tGroupInfo* " << FileName << "::GetEntityGroupByKey(const std::string& GroupKey)\n";
 	oss << "\t{\n";
-	oss << "\t\treturn *sEntityGroupsByKey[GroupKey];\n";
+	oss << "\t\treturn sEntityGroupsByKey[GroupKey];\n";
 	oss << "\t}\n";
 	oss << "\n";
 
-	oss << "\tconst SceneInfo& " << FileName << "::GetEntityByKey(const std::string& GroupKey, const std::string& SceneKey)\n";
+	oss << "\tSceneInfo* " << FileName << "::GetEntityByKey(const std::string& GroupKey, const std::string& SceneKey)\n";
 	oss << "\t{\n";
-	oss << "\t\treturn *sEntitiesByKey[GroupKey][SceneKey];\n";
+	oss << "\t\treturn sEntitiesByKey[GroupKey][SceneKey];\n";
+	oss << "\t}\n";
+	oss << "\n";
+
+	oss << "\tbool " << FileName << "::LevelGroupContainsSceneKey(const std::string& GroupKey, const std::string& SceneKey)\n";
+	oss << "\t{\n";
+	oss << "\t\treturn std::find_if(sLevelsByGroup[GroupKey].begin(), sLevelsByGroup[GroupKey].end(), SceneInfoByKey{ SceneKey }) != sLevelsByGroup[GroupKey].end();\n";
+	oss << "\t}\n";
+	oss << "\n";
+
+	oss << "\tbool " << FileName << "::EntityGroupContainsSceneKey(const std::string& GroupKey, const std::string& SceneKey)\n";
+	oss << "\t{\n";
+	oss << "\t\treturn std::find_if(sEntitiesByGroup[GroupKey].begin(), sEntitiesByGroup[GroupKey].end(), SceneInfoByKey{ SceneKey }) != sEntitiesByGroup[GroupKey].end();\n";
 	oss << "\t}\n";
 
 	oss << "}\n";

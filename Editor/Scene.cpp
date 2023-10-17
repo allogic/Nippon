@@ -23,8 +23,6 @@ namespace ark
 	Scene::Scene(const SceneInfo& Info)
 		: mSceneInfo{ Info }
 	{
-		mViewport = new Viewport{ this };
-
 		mFrameBuffer = new FrameBuffer
 		{
 			{
@@ -36,7 +34,6 @@ namespace ark
 
 		mRootActor = CreateActor<Actor>("Root", nullptr);
 		mPlayerActor = CreateActor<Player>("Player", nullptr);
-		mStaticGeometryActor = CreateActor<Actor>("Static Geometry", nullptr);
 
 		mMainCamera = mPlayerActor->GetComponent<Camera>();
 	}
@@ -56,6 +53,14 @@ namespace ark
 			delete mViewport;
 			mViewport = nullptr;
 		}
+	}
+
+	void Scene::CreateViewport()
+	{
+		 if (!mViewport)
+		 {
+			mViewport = new Viewport{ this };
+		 }
 	}
 
 	void Scene::MakeShouldBeDestroyed(bool Value)
@@ -355,14 +360,14 @@ namespace ark
 		}
 	}
 
-	std::vector<U8> Scene::Snapshot(U8 Channels) const
+	std::vector<U8> Scene::Snapshot(U8 Channels, U32 Type) const
 	{
 		std::vector<U8> bytes = {};
 
 		bytes.resize(mWidth * mHeight * Channels);
 
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, mFrameBuffer->GetId());
-		glReadPixels(0, 0, mWidth, mHeight, mFrameBuffer->GetColorTexture(0)->GetFormat(), mFrameBuffer->GetColorTexture(0)->GetType(), &bytes[0]);
+		glReadPixels(0, 0, mWidth, mHeight, mFrameBuffer->GetColorTexture(0)->GetFormat(), Type, &bytes[0]);
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
 		return bytes;
