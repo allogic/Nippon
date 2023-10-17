@@ -5,14 +5,15 @@ Nippon is a collection of tools designed to interact with the okami PC port. Thi
 
 ## Starting the Editor
 The editor requires 2 command line arguments. The first one is the directory where the okami data files are and the other is the BlowFish-256 key. Both arguments must be supplied as strings!
-```ps1
+```
 Editor.exe "...\Steam\steamapps\common\Okami\data_pc" "YaKiNiKuM2rrVrPJpGMkfe3EK4RbpbHw"
 ```
 
 ## Compile The Project
-First clone the repository via:
+First clone the repository and execute the setup which should create all missing folders and files.
 ```
 git clone --branch main --depth 1 https://github.com/allogic/Nippon
+Setup.ps1
 ```
 Launch the Visual Studio Solution, set the `Editor` as the startup project and build for `Debug` or `Release` bitness `x64`.
 To run or debug the editor one must additionally adjust a few editor properties. Go into `Editor/Properties/Debugging` and set the following parameters for all configurations and platforms:
