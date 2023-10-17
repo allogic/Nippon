@@ -4,37 +4,32 @@
 
 #include <Common/Types.h>
 
-#include <Editor/Forward.h>
 #include <Editor/Actor.h>
-
-///////////////////////////////////////////////////////////
-// Definition
-///////////////////////////////////////////////////////////
 
 namespace ark
 {
+	class Camera;
+	class CameraController;
+
 	class Player : public Actor
 	{
 	public:
 
-		Player(Scene* Scene, std::string const& Name);
+		Player(Scene* Scene, U32 Id, const std::string& Name);
 
 	public:
 
-		void Update(R32 TimeDelta) override;
+		void Update() override;
+
+	private:
+
+		void HandlePosition();
+		void HandleRotation();
+		void HandleActorFocus();
 
 	private:
 
 		Camera* mCamera;
-
-		R32 mKeyboardMovementSpeedNormal = 0.01F;
-		R32 mKeyboardMovementSpeedFast = 0.1F;
-
-		R32 mMouseMovementSpeedNormal = 0.005F;
-		R32 mMouseMovementSpeedFast = 0.2F;
-
-		R32 mMouseRotationSpeed = 0.095F;
-
-		R32 mMouseDragDamping = 0.5F;
+		CameraController* mCameraController;
 	};
 }

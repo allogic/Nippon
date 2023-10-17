@@ -1,170 +1,181 @@
-#include <Common/Debug.h>
+#include <Common/Macros.h>
 
 #include <Editor/Editor.h>
-#include <Editor/Packer.h>
-#include <Editor/Integrity.h>
+#include <Editor/Scene.h>
 #include <Editor/SceneManager.h>
-#include <Editor/Tools.h>
+#include <Editor/Thumbnail.h>
+#include <Editor/Texture.h>
+#include <Editor/TextureLoader.h>
 
 #include <Editor/Interface/MainMenu.h>
 
-///////////////////////////////////////////////////////////
-// Implementation
-///////////////////////////////////////////////////////////
+#include <Editor/Generated/SceneInfos.h>
+
+#include <Editor/ImGui/imgui.h>
 
 namespace ark
 {
-	void MainMenu::Draw()
+	MainMenu::MainMenu()
+	{
+
+	}
+
+	MainMenu::~MainMenu()
+	{
+
+	}
+
+	void MainMenu::Reset()
+	{
+
+	}
+
+	void MainMenu::Render()
 	{
 		ImGui::BeginMainMenuBar();
 
-		DrawSceneMenu();
-		DrawPackerMenu();
-		DrawIntegrityMenu();
-		DrawToolsMenu();
+		RenderFileMenu();
+		RenderEditMenu();
+		RenderLevelMenu();
+		RenderEntityMenu();
+		RenderToolsMenu();
 
 		ImGui::EndMainMenuBar();
 	}
 
-	void MainMenu::DrawSceneMenu()
+	void MainMenu::RenderFileMenu()
 	{
-		if (ImGui::BeginMenu("Scene"))
+		if (ImGui::BeginMenu("File"))
 		{
-			DrawMenuTree("Levels", gArchive["regions"], SceneManager::CreateLevel);
-			DrawMenuTree("Entities", gArchive["entities"], SceneManager::CreateEntity);
-
 			ImGui::EndMenu();
 		}
 	}
 
-	void MainMenu::DrawPackerMenu()
+	void MainMenu::RenderEditMenu()
 	{
-		if (ImGui::BeginMenu("Packer"))
+		if (ImGui::BeginMenu("Edit"))
 		{
-			if (ImGui::BeginMenu("Decrypt"))
+			ImGui::EndMenu();
+		}
+	}
+
+	void MainMenu::RenderLevelMenu()
+	{
+		if (ImGui::BeginMenu("Levels"))
+		{
+			for (const auto& groupInfo : SceneInfos::GetLevelGroups())
 			{
-				if (ImGui::Selectable("All"))
+				ImGui::PushID(&groupInfo);
+
+				if (ImGui::BeginMenu(groupInfo.MenuName.c_str()))
 				{
-					DoProcFor(gArchive["regions"], Packer::DecryptArchive);
-					DoProcFor(gArchive["entities"], Packer::DecryptArchive);
+					for (const auto& sceneInfo : SceneInfos::GetLevelsByGroup(groupInfo))
+					{
+						ImGui::PushID(&sceneInfo);
+
+						if (ImGui::Selectable(sceneInfo.MenuName.c_str()))
+						{
+							if (Scene* scene = SceneManager::CreateScene(sceneInfo))
+							{
+								scene->SetEnableConsole(true);
+								scene->SetEnableDebug(true);
+
+								scene->Load();
+							}
+						}
+
+						ImGui::PopID();
+					}
+
+					ImGui::EndMenu();
 				}
 
-				ImGui::Separator();
-
-				DrawMenuTree("Regions", gArchive["regions"], Packer::DecryptArchive);
-				DrawMenuTree("Entities", gArchive["entities"], Packer::DecryptArchive);
-
-				ImGui::EndMenu();
-			}
-
-			if (ImGui::BeginMenu("Unpack"))
-			{
-				if (ImGui::Selectable("All"))
-				{
-					DoProcFor(gArchive["regions"], Packer::UnpackArchive);
-					DoProcFor(gArchive["entities"], Packer::UnpackArchive);
-				}
-
-				ImGui::Separator();
-
-				DrawMenuTree("Regions", gArchive["regions"], Packer::UnpackArchive);
-				DrawMenuTree("Entities", gArchive["entities"], Packer::UnpackArchive);
-
-				ImGui::EndMenu();
-			}
-
-			if (ImGui::BeginMenu("Repack"))
-			{
-				if (ImGui::Selectable("All"))
-				{
-					DoProcFor(gArchive["regions"], Packer::RepackArchive);
-					DoProcFor(gArchive["entities"], Packer::RepackArchive);
-				}
-
-				ImGui::Separator();
-
-				DrawMenuTree("Regions", gArchive["regions"], Packer::RepackArchive);
-				DrawMenuTree("Entities", gArchive["entities"], Packer::RepackArchive);
-
-				ImGui::EndMenu();
-			}
-
-			if (ImGui::BeginMenu("Encrypt"))
-			{
-				if (ImGui::Selectable("All"))
-				{
-					DoProcFor(gArchive["regions"], Packer::EncryptArchive);
-					DoProcFor(gArchive["entities"], Packer::EncryptArchive);
-				}
-
-				ImGui::Separator();
-
-				DrawMenuTree("Regions", gArchive["regions"], Packer::EncryptArchive);
-				DrawMenuTree("Entities", gArchive["entities"], Packer::EncryptArchive);
-
-				ImGui::EndMenu();
+				ImGui::PopID();
 			}
 
 			ImGui::EndMenu();
 		}
 	}
 
-	void MainMenu::DrawIntegrityMenu()
+	void MainMenu::RenderEntityMenu()
 	{
-		if (ImGui::BeginMenu("Integrity"))
+		if (ImGui::BeginMenu("Entities"))
 		{
-			if (ImGui::Selectable("Check Encrypted")) Integrity::CheckEncrypted();
-			if (ImGui::Selectable("Check Decrypted")) Integrity::CheckDecrypted();
-
-			ImGui::Separator();
-
-			if (ImGui::BeginMenu("Compare Repacked With Decrypted"))
+			for (const auto& groupInfo : SceneInfos::GetEntityGroups())
 			{
-				if (ImGui::Selectable("All"))
+				ImGui::PushID(&groupInfo);
+
+				if (ImGui::BeginMenu(groupInfo.MenuName.c_str()))
 				{
-					DoProcFor(gArchive["regions"], Integrity::CompareRepackedWithDecrypted);
-					DoProcFor(gArchive["entities"], Integrity::CompareRepackedWithDecrypted);
+					for (const auto& sceneInfo : SceneInfos::GetEntitiesByGroup(groupInfo))
+					{
+						ImGui::PushID(&sceneInfo);
+
+						if (ImGui::Selectable(sceneInfo.MenuName.c_str()))
+						{
+							if (Scene* scene = SceneManager::CreateScene(sceneInfo))
+							{
+								scene->SetEnableConsole(true);
+								scene->SetEnableDebug(true);
+
+								scene->Load();
+							}
+						}
+
+						ImGui::PopID();
+					}
+
+					ImGui::EndMenu();
 				}
 
-				ImGui::Separator();
-
-				DrawMenuTree("Regions", gArchive["regions"], Integrity::CompareRepackedWithDecrypted);
-				DrawMenuTree("Entities", gArchive["entities"], Integrity::CompareRepackedWithDecrypted);
-
-				ImGui::EndMenu();
+				ImGui::PopID();
 			}
-
-			if (ImGui::BeginMenu("Compare Encrypted With Original"))
-			{
-				if (ImGui::Selectable("All"))
-				{
-					DoProcFor(gArchive["regions"], Integrity::CompareEncryptedWithOriginal);
-					DoProcFor(gArchive["entities"], Integrity::CompareEncryptedWithOriginal);
-				}
-
-				ImGui::Separator();
-
-				DrawMenuTree("Regions", gArchive["regions"], Integrity::CompareEncryptedWithOriginal);
-				DrawMenuTree("Entities", gArchive["entities"], Integrity::CompareEncryptedWithOriginal);
-
-				ImGui::EndMenu();
-			}
-
-			ImGui::Separator();
-
-			if (ImGui::Selectable("Generate Encrypted Map")) Integrity::GenerateEncryptedMap();
-			if (ImGui::Selectable("Generate Decrypted Map")) Integrity::GenerateDecryptedMap();
 
 			ImGui::EndMenu();
 		}
 	}
 
-	void MainMenu::DrawToolsMenu()
+	void MainMenu::RenderToolsMenu()
 	{
 		if (ImGui::BeginMenu("Tools"))
 		{
-			DrawMenuTree("Generate Level Thumbnails", gArchive["regions"], Tools::GenerateLevelThumbnail);
-			DrawMenuTree("Generate Entity Thumbnails", gArchive["entities"], Tools::GenerateEntityThumbnail);
+			if (ImGui::Selectable("Generate Thumbnails"))
+			{
+				for (const auto& groupInfo : SceneInfos::GetLevelGroups())
+				{
+					LOG("\n");
+					LOG(" Generating Thumbnails For Level Group \\%s\\*\n", groupInfo.GroupKey.c_str());
+					LOG("=============================================================\n");
+
+					for (const auto& sceneInfo : SceneInfos::GetLevelsByGroup(groupInfo))
+					{
+						LOG("    Generated %s\n", sceneInfo.ThumbnailFileName.c_str());
+
+						Thumbnail::Generate(sceneInfo);
+					}
+
+					LOG("\n");
+				}
+
+				for (const auto& groupInfo : SceneInfos::GetEntityGroups())
+				{
+					LOG("\n");
+					LOG(" Generating Thumbnails For Entity Group \\%s\\*\n", groupInfo.GroupKey.c_str());
+					LOG("=============================================================\n");
+
+					for (const auto& sceneInfo : SceneInfos::GetEntitiesByGroup(groupInfo))
+					{
+						LOG("    Generated %s\n", sceneInfo.ThumbnailFileName.c_str());
+
+						Thumbnail::Generate(sceneInfo);
+					}
+
+					LOG("\n");
+				}
+
+				LOG("Finished\n");
+				LOG("\n");
+			}
 
 			ImGui::EndMenu();
 		}

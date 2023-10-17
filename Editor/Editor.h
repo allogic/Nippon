@@ -1,25 +1,25 @@
 #pragma once
 
 #include <string>
+#include <filesystem>
 #include <vector>
 #include <map>
 
 #include <Common/Types.h>
 
-#include <Vendor/rapidjson/rapidjson.h>
-#include <Vendor/rapidjson/document.h>
+namespace ark
+{
+	namespace fs = std::filesystem;
 
-///////////////////////////////////////////////////////////
-// Namespaces
-///////////////////////////////////////////////////////////
+	class DebugRenderer;
+	class DefaultRenderer;
 
-namespace rj = rapidjson;
+	extern fs::path gDataDir;
+	
+	extern std::string gBlowFishKey;
 
-///////////////////////////////////////////////////////////
-// Globals
-///////////////////////////////////////////////////////////
+	extern R32 gTimeDelta;
 
-extern rj::Document gArchive;
-extern rj::Document gConfig;
-
-extern ark::R32 gTimeDelta;
+	extern DebugRenderer* gDebugRenderer;
+	extern DefaultRenderer* gDefaultRenderer;
+}

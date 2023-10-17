@@ -3,56 +3,68 @@
 #include <Vendor/GLM/fwd.hpp>
 #include <Vendor/GLM/gtc/quaternion.hpp>
 
-///////////////////////////////////////////////////////////
-// Definition
-///////////////////////////////////////////////////////////
-
 namespace ark
 {
-	using I8  = signed char;
-	using I16 = signed short;
-	using I32 = signed int;
-	using I64 = signed long long;
+	typedef signed char I8;
+	typedef signed short I16;
+	typedef signed int I32;
+	typedef signed long long I64;
 
-	using I8V2 = glm::i8vec2;
-	using I8V3 = glm::i8vec3;
-	using I8V4 = glm::i8vec4;
+	typedef glm::i8vec2 I8V2;
+	typedef glm::i8vec3 I8V3;
+	typedef glm::i8vec4 I8V4;
 
-	using I16V2 = glm::i16vec2;
-	using I16V3 = glm::i16vec3;
-	using I16V4 = glm::i16vec4;
+	typedef glm::i16vec2 I16V2;
+	typedef glm::i16vec3 I16V3;
+	typedef glm::i16vec4 I16V4;
 
-	using U8 = unsigned char;
-	using U16 = unsigned short;
-	using U32 = unsigned int;
-	using U64 = unsigned long long;
+	typedef glm::i32vec2 I32V2;
+	typedef glm::i32vec3 I32V3;
+	typedef glm::i32vec4 I32V4;
 
-	using U8V2 = glm::u8vec2;
-	using U8V3 = glm::u8vec3;
-	using U8V4 = glm::u8vec4;
+	typedef glm::i64vec2 I64V2;
+	typedef glm::i64vec3 I64V3;
+	typedef glm::i64vec4 I64V4;
 
-	using U16V2 = glm::u16vec2;
-	using U16V3 = glm::u16vec3;
-	using U16V4 = glm::u16vec4;
+	typedef unsigned char U8;
+	typedef unsigned short U16;
+	typedef unsigned int U32;
+	typedef unsigned long long U64;
 
-	using R32 = float;
-	using R64 = double;
+	typedef glm::u8vec2 U8V2;
+	typedef glm::u8vec3 U8V3;
+	typedef glm::u8vec4 U8V4;
 
-	using R32V2 = glm::fvec2;
-	using R32V3 = glm::fvec3;
-	using R32V4 = glm::fvec4;
+	typedef glm::u16vec2 U16V2;
+	typedef glm::u16vec3 U16V3;
+	typedef glm::u16vec4 U16V4;
 
-	using R32M2 = glm::fmat2;
-	using R32M3 = glm::fmat3;
-	using R32M4 = glm::fmat4;
+	typedef glm::u32vec2 U32V2;
+	typedef glm::u32vec3 U32V3;
+	typedef glm::u32vec4 U32V4;
 
-	using R32Q = glm::fquat;
+	typedef glm::u64vec2 U64V2;
+	typedef glm::u64vec3 U64V3;
+	typedef glm::u64vec4 U64V4;
 
-	struct AABB
+	typedef float R32;
+	typedef double R64;
+
+	typedef glm::fvec2 R32V2;
+	typedef glm::fvec3 R32V3;
+	typedef glm::fvec4 R32V4;
+
+	typedef glm::fmat2 R32M2;
+	typedef glm::fmat3 R32M3;
+	typedef glm::fmat4 R32M4;
+
+	typedef glm::fquat R32Q;
+
+	typedef struct
 	{
 		R32V3 Min;
 		R32V3 Max;
 		R32V3 Size;
 		R32V3 Center;
-	};
+	} AABB;
 }

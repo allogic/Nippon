@@ -1,9 +1,5 @@
 #include <Editor/Converter/ElementConverter.h>
 
-///////////////////////////////////////////////////////////
-// Implementation
-///////////////////////////////////////////////////////////
-
 namespace ark
 {
 	std::vector<U32> ElementConverter::ToElementBuffer(const std::vector<ScrVertex>& Vertices)

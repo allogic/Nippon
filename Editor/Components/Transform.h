@@ -2,15 +2,13 @@
 
 #include <Common/Types.h>
 
-#include <Editor/Forward.h>
 #include <Editor/Component.h>
-
-///////////////////////////////////////////////////////////
-// Definition
-///////////////////////////////////////////////////////////
 
 namespace ark
 {
+	class Scene;
+	class Actor;
+
 	class Transform : public Component
 	{
 	public:

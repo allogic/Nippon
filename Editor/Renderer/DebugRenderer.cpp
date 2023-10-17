@@ -1,21 +1,17 @@
 #include <Editor/Mesh.h>
-#include <Editor/Scene.h>
 #include <Editor/Shader.h>
+#include <Editor/Scene.h>
+#include <Editor/SceneManager.h>
 #include <Editor/Vertex.h>
 
 #include <Editor/Components/Camera.h>
 
 #include <Editor/Renderer/DebugRenderer.h>
 
-///////////////////////////////////////////////////////////
-// Implementation
-///////////////////////////////////////////////////////////
-
 namespace ark
 {
-	DebugRenderer::DebugRenderer(Scene* Scene, U32 VertexBufferSize, U32 ElementBufferSize)
-		: mScene{ Scene }
-		, mVertexBuffer{ new DebugVertex[VertexBufferSize] }
+	DebugRenderer::DebugRenderer(U32 VertexBufferSize, U32 ElementBufferSize)
+		: mVertexBuffer{ new DebugVertex[VertexBufferSize] }
 		, mElementBuffer{ new U32[ElementBufferSize] }
 		, mMesh{ new Mesh<DebugVertex, U32> }
 		, mShader{ new Shader{ "Debug.vert", "Debug.frag" } }
@@ -34,7 +30,7 @@ namespace ark
 
 	void DebugRenderer::Render()
 	{
-		Camera* camera = mScene->GetMainCamera();
+		Camera* camera = SceneManager::GetActiveScene()->GetMainCamera();
 
 		if (camera)
 		{
@@ -42,8 +38,6 @@ namespace ark
 
 			mShader->SetUniformR32M4("UniformProjectionMatrix", camera->GetProjectionMatrix());
 			mShader->SetUniformR32M4("UniformViewMatrix", camera->GetViewMatrix());
-
-			// TODO: Clear previous entries..
 
 			mMesh->Bind();
 			mMesh->SetVertices(mVertexBuffer, mVertexOffset);
@@ -129,7 +123,40 @@ namespace ark
 		mElementOffset += 24;
 	}
 
-	void DebugRenderer::DebugAxisAlignedBoundingBox(const R32V3& P, const AABB& AABB, const R32V4& C)
+	void DebugRenderer::DebugGrid(const R32V3& P, U32 N, R32 S, const R32V4& C, const R32Q& R)
+	{
+		U32 indexOffset = 0;
+
+		R32 sizeStep = S / N;
+		R32 halfSize = S / 2;
+
+		for (U32 i = 0; i <= N; i++)
+		{
+			R32 gridOffset = (R32)i * sizeStep - halfSize;
+
+			mVertexBuffer[mVertexOffset + indexOffset + 0].Position = P + R * R32V3{ gridOffset, 0.0F, -halfSize };
+			mVertexBuffer[mVertexOffset + indexOffset + 1].Position = P + R * R32V3{ gridOffset, 0.0F, halfSize };
+			mVertexBuffer[mVertexOffset + indexOffset + 2].Position = P + R * R32V3{ -halfSize, 0.0F, gridOffset };
+			mVertexBuffer[mVertexOffset + indexOffset + 3].Position = P + R * R32V3{ halfSize, 0.0F, gridOffset };
+
+			mVertexBuffer[mVertexOffset + indexOffset + 0].Color = C;
+			mVertexBuffer[mVertexOffset + indexOffset + 1].Color = C;
+			mVertexBuffer[mVertexOffset + indexOffset + 2].Color = C;
+			mVertexBuffer[mVertexOffset + indexOffset + 3].Color = C;
+
+			mElementBuffer[mElementOffset + indexOffset + 0] = mVertexOffset + indexOffset + 0;
+			mElementBuffer[mElementOffset + indexOffset + 1] = mVertexOffset + indexOffset + 1;
+			mElementBuffer[mElementOffset + indexOffset + 2] = mVertexOffset + indexOffset + 2;
+			mElementBuffer[mElementOffset + indexOffset + 3] = mVertexOffset + indexOffset + 3;
+
+			indexOffset += 4;
+		}
+
+		mVertexOffset += indexOffset;
+		mElementOffset += indexOffset;
+	}
+
+	void DebugRenderer::DebugAABB(const R32V3& P, const AABB& AABB, const R32V4& C)
 	{
 		mVertexBuffer[mVertexOffset + 0].Position = P + R32V3{ AABB.Min.x, AABB.Min.y, AABB.Min.z };
 		mVertexBuffer[mVertexOffset + 1].Position = P + R32V3{ AABB.Max.x, AABB.Min.y, AABB.Min.z };

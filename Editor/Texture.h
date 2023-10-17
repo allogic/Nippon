@@ -5,37 +5,25 @@
 
 #include <Common/Types.h>
 
-///////////////////////////////////////////////////////////
-// Definition
-///////////////////////////////////////////////////////////
-
 namespace ark
 {
-	enum TextureWrap
-	{
-		Repeat = 0x2901,
-		ClampToEdge = 0x812F,
-	};
-
-	enum TextureFilter
-	{
-		Nearest = 0x2600,
-		Linear = 0x2601,
-	};
-
 	class Texture2D
 	{
 	public:
 
-		Texture2D(U32 Width, U32 Height, U32 Mips, TextureWrap Wrap, TextureFilter Filter);
+		Texture2D(U32 Width, U32 Height, U32 Wrap, U32 Filter, U32 Format, U32 FormatInternal, U32 Type);
 		virtual ~Texture2D();
 
 	public:
 
-		inline auto GetId() const { return mTid; }
-		inline auto GetWidth() const { return mWidth; }
-		inline auto GetHeight() const { return mHeight; }
-		inline auto GetMips() const { return mMips; }
+		inline const auto& GetId() const { return mTid; }
+		inline const auto& GetWidth() const { return mWidth; }
+		inline const auto& GetHeight() const { return mHeight; }
+		inline const auto& GetWrap() const { return mWrap; };
+		inline const auto& GetFilter() const { return mFilter; };
+		inline const auto& GetFormat() const { return mFormat; };
+		inline const auto& GetFormatInternal() const { return mFormatInternal; };
+		inline const auto& GetType() const { return mType; };
 
 	public:
 
@@ -46,15 +34,17 @@ namespace ark
 
 	public:
 
-		std::vector<U8> Snapshot() const;
+		std::vector<U8> Snapshot(U8 Channels) const;
 
 	private:
 
 		U32 mWidth;
 		U32 mHeight;
-		U32 mMips;
-		TextureWrap mWrap;
-		TextureFilter mFilter;
+		U32 mWrap;
+		U32 mFilter;
+		U32 mFormat;
+		U32 mFormatInternal;
+		U32 mType;
 
 		U32 mTid = 0;
 	};
@@ -63,12 +53,19 @@ namespace ark
 	{
 	public:
 
-		RenderTexture(TextureWrap Wrap, TextureFilter Filter);
+		RenderTexture(U32 Wrap, U32 Filter, U32 Format, U32 FormatInternal, U32 Type);
 		virtual ~RenderTexture();
 
 	public:
 
-		inline auto GetId() const { return mTid; }
+		inline const auto& GetId() const { return mTid; }
+		inline const auto& GetWidth() const { return mWidth; }
+		inline const auto& GetHeight() const { return mHeight; }
+		inline const auto& GetWrap() const { return mWrap; };
+		inline const auto& GetFilter() const { return mFilter; };
+		inline const auto& GetFormat() const { return mFormat; };
+		inline const auto& GetFormatInternal() const { return mFormatInternal; };
+		inline const auto& GetType() const { return mType; };
 
 	public:
 
@@ -79,8 +76,13 @@ namespace ark
 
 	private:
 
-		TextureWrap mWrap;
-		TextureFilter mFilter;
+		U32 mWidth;
+		U32 mHeight;
+		U32 mWrap;
+		U32 mFilter;
+		U32 mFormat;
+		U32 mFormatInternal;
+		U32 mType;
 
 		U32 mTid = 0;
 	};
@@ -89,12 +91,19 @@ namespace ark
 	{
 	public:
 
-		DepthStencilTexture(TextureWrap Wrap, TextureFilter Filter);
+		DepthStencilTexture(U32 Wrap, U32 Filter, U32 Format, U32 FormatInternal, U32 Type);
 		virtual ~DepthStencilTexture();
 
 	public:
 
-		inline auto GetId() const { return mTid; }
+		inline const auto& GetId() const { return mTid; }
+		inline const auto& GetWidth() const { return mWidth; }
+		inline const auto& GetHeight() const { return mHeight; }
+		inline const auto& GetWrap() const { return mWrap; };
+		inline const auto& GetFilter() const { return mFilter; };
+		inline const auto& GetFormat() const { return mFormat; };
+		inline const auto& GetFormatInternal() const { return mFormatInternal; };
+		inline const auto& GetType() const { return mType; };
 
 	public:
 
@@ -105,8 +114,13 @@ namespace ark
 
 	private:
 
-		TextureWrap mWrap;
-		TextureFilter mFilter;
+		U32 mWidth;
+		U32 mHeight;
+		U32 mWrap;
+		U32 mFilter;
+		U32 mFormat;
+		U32 mFormatInternal;
+		U32 mType;
 
 		U32 mTid = 0;
 	};

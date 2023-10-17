@@ -8,34 +8,33 @@
 
 #include <Common/Types.h>
 
-#include <Editor/Forward.h>
-
-///////////////////////////////////////////////////////////
-// Definition
-///////////////////////////////////////////////////////////
-
 namespace ark
 {
+	class Scene;
+	class Component;
+	class Transform;
+
 	class Actor
 	{
 	public:
 
-		Actor(Scene* Scene, const std::string& Name);
+		Actor(Scene* Scene, U32 Id, const std::string& Name);
 		virtual ~Actor();
 
 	public:
 
-		inline auto IsActive() const { return mActive; }
-		inline auto IsChild() const { return mChildren.size() == 0; }
-		inline auto IsRoot() const { return mParent == nullptr; }
+		inline const auto& IsActive() const { return mActive; }
+		inline const auto& IsOpened() const { return mOpened; }
+		inline const auto IsChild() const { return mChildren.size() == 0; }
 
+		inline const auto& GetId() const { return mId; }
 		inline const auto& GetName() const { return mName; }
 		inline const auto& GetComponents() const { return mComponents; }
-		inline const auto& GetChildren() const { return mChildren; }
+		inline auto& GetChildren() { return mChildren; }
 		inline const auto& GetAABB() const { return mAABB; }
-
-		inline auto GetParent() const { return mParent; }
-		inline auto GetTransform() const { return mTransform; }
+		inline const auto& GetParent() const { return mParent; }
+		inline const auto& GetTransform() const { return mTransform; }
+		inline const auto& GetShouldBeDestroyed() const { return mShouldBeDestroyed; }
 
 	public:
 
@@ -44,7 +43,7 @@ namespace ark
 
 	public:
 
-		virtual void Update(R32 TimeDelta) {}
+		virtual void Update() {}
 
 	public:
 
@@ -53,8 +52,18 @@ namespace ark
 
 	public:
 
-		void MakeActiveRecursive(bool Active);
-		void ComputeAxisAlignedBoundingBoxRecursive();
+		void MakeActiveRecursiveUp(bool Value);
+		void MakeActiveRecursiveDown(bool Value);
+
+		void MakeOpenedRecursiveUp(bool Value);
+		void MakeOpenedRecursiveDown(bool Value);
+
+		void MakeShouldBeDestroyedRecursiveUp(bool Value);
+		void MakeShouldBeDestroyedRecursiveDown(bool Value);
+
+	public:
+
+		void ComputeAABB();
 
 	public:
 
@@ -67,22 +76,22 @@ namespace ark
 	protected:
 		
 		Scene* mScene;
+		U32 mId;
 		std::string mName;
-		std::vector<Actor*> mChildren;
-		std::map<U64, Component*> mComponents;
+
+		std::vector<Actor*> mChildren = {};
+		std::map<U64, Component*> mComponents = {};
 
 		Actor* mParent = nullptr;
 		Transform* mTransform = nullptr;
 
 		bool mActive = true;
+		bool mOpened = false;
+		bool mShouldBeDestroyed = false;
 
 		AABB mAABB = {};
 	};
 }
-
-///////////////////////////////////////////////////////////
-// Implementation
-///////////////////////////////////////////////////////////
 
 namespace ark
 {
@@ -90,12 +99,16 @@ namespace ark
 	C* Actor::AttachComponent(Args&& ... Arguments)
 	{
 		U64 hash = typeid(C).hash_code();
-		auto const findIt = mComponents.find(hash);
+
+		const auto findIt = mComponents.find(hash);
+
 		if (findIt == mComponents.end())
 		{
-			auto const [emplaceIt, inserted] = mComponents.emplace(hash, new C{ mScene, this, std::forward<Args>(Arguments) ... });
+			const auto [emplaceIt, inserted] = mComponents.emplace(hash, new C{ mScene, this, std::forward<Args>(Arguments) ... });
+
 			return (C*)emplaceIt->second;
 		}
+
 		return (C*)findIt->second;
 	}
 

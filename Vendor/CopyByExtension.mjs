@@ -8,29 +8,29 @@ const extensions = [".h", ".c", ".hpp", ".cpp", ".inl"];
 
 const getFilesRecursive = (dir, array) =>
 {
-  array = array || [];
-  readdirSync(dir).forEach((file) =>
-  {
-    if (statSync(dir + "/" + file).isDirectory())
-    {
-      array = getFilesRecursive(dir + "/" + file, array);
-    }
-    else
-    {
-      array.push(join(dir, "/", file));
-    }
-  });
-  return array;
+	array = array || [];
+	readdirSync(dir).forEach((file) =>
+	{
+		if (statSync(dir + "/" + file).isDirectory())
+		{
+			array = getFilesRecursive(dir + "/" + file, array);
+		}
+		else
+		{
+			array.push(join(dir, "/", file));
+		}
+	});
+	return array;
 }
 
 getFilesRecursive(origDir).forEach((file) =>
 {
-  const dir = dirname(file);
-  const name = basename(file);
-  const ext = extname(file);
-  if (extensions.includes(ext))
-  {
-    mkdirSync(newDir + dir.replace(origDir, "") + "\\", { recursive: true }, (err) => {});
-    copyFileSync(file, newDir + dir.replace(origDir, "") + "\\" + name);
-  }
+	const dir = dirname(file);
+	const name = basename(file);
+	const ext = extname(file);
+	if (extensions.includes(ext))
+	{
+		mkdirSync(newDir + dir.replace(origDir, "") + "\\", { recursive: true }, (err) => {});
+		copyFileSync(file, newDir + dir.replace(origDir, "") + "\\" + name);
+	}
 });

@@ -1,14 +1,14 @@
+#include <Editor/Event.h>
 #include <Editor/Scene.h>
 #include <Editor/Texture.h>
 #include <Editor/SceneManager.h>
+#include <Editor/InterfaceManager.h>
+#include <Editor/FrameBuffer.h>
 
 #include <Editor/Interface/Viewport.h>
+#include <Editor/Interface/Outline.h>
 
-#include <Vendor/ImGui/imgui.h>
-
-///////////////////////////////////////////////////////////
-// Implementation
-///////////////////////////////////////////////////////////
+#include <Editor/ImGui/imgui.h>
 
 namespace ark
 {
@@ -20,12 +20,10 @@ namespace ark
 
 	void Viewport::Reset()
 	{
-		mIsFocusedPrev = false;
-		mIsFocused = false;
 		mIsOpen = true;
 	}
 
-	void Viewport::Draw()
+	void Viewport::Render()
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0F, 0.0F });
 		ImGui::Begin(mScene->GetWindowName().c_str(), &mIsOpen);
@@ -35,37 +33,32 @@ namespace ark
 			if (HasResized())
 			{
 				mScene->Resize(mWidth, mHeight);
-				mScene->Update();
-				mScene->Render();
+				mScene->Step();
 			}
 
-			mIsFocused = ImGui::IsWindowFocused();
-
-			if (mIsFocused != mIsFocusedPrev)
+			if (HasFocus())
 			{
-				if (mIsFocused)
-				{
-					SceneManager::SetActiveScene(mScene);
-				}
+				SceneManager::SetActiveScene(mScene);
 
-				mIsFocusedPrev = mIsFocused;
+				HandleActorSelection();
+
+				mScene->Step();
 			}
 
-			if (mIsFocused)
-			{
-				mScene->Update();
-				mScene->Render();
-			}
-
-			ImGui::Image((void*)(U64)mScene->GetFrameBuffer().GetColorTexture()->GetId(), ImVec2{ (R32)mWidth, (R32)mHeight }, ImVec2{ 0.0F, 1.0F }, ImVec2{ 1.0F, 0.0F });
+			ImGui::Image((void*)(U64)mScene->GetFrameBuffer()->GetColorTexture(0)->GetId(), ImVec2{ (R32)mWidth, (R32)mHeight }, ImVec2{ 0.0F, 1.0F }, ImVec2{ 1.0F, 0.0F });
 		}
 		else
 		{
-			SceneManager::Destroy(mScene);
+			mScene->MakeShouldBeDestroyed(true);
 		}
 
 		ImGui::End();
 		ImGui::PopStyleVar();
+	}
+
+	void Viewport::SetFocused()
+	{
+		ImGui::SetWindowFocus(mScene->GetWindowName().c_str());
 	}
 
 	bool Viewport::HasResized()
@@ -86,5 +79,52 @@ namespace ark
 		}
 
 		return false;
+	}
+
+	bool Viewport::HasFocus()
+	{
+		return mIsFocused = ImGui::IsWindowFocused();
+	}
+
+	void Viewport::HandleActorSelection()
+	{
+		if (!Event::MouseHeld(Event::eMouseCodeRight))
+		{
+			if (Event::MouseDown(Event::eMouseCodeLeft))
+			{
+				ImGuiIO& io = ImGui::GetIO();
+				ImGuiStyle& style = ImGui::GetStyle();
+
+				ImVec2 mousePosition = io.MousePos;
+				ImVec2 windowPosition = ImGui::GetWindowPos();
+
+				FrameBuffer* frameBuffer = mScene->GetFrameBuffer();
+				RenderTexture* colorTexture = frameBuffer->GetColorTexture(1);
+
+				I32 windowWidth = colorTexture->GetWidth();
+				I32 windowHeight = colorTexture->GetHeight();
+
+				windowPosition.y += ImGui::GetFontSize() + style.FramePadding.y * 2;
+				windowPosition.y += windowHeight;
+
+				I32 mousePositionX = glm::abs((I32)(mousePosition.x - windowPosition.x));
+				I32 mousePositionY = glm::abs((I32)(mousePosition.y - windowPosition.y));
+
+				if (mousePositionX < 0) mousePositionX = 0;
+				if (mousePositionY < 0) mousePositionY = 0;
+
+				if (mousePositionX > windowWidth) mousePositionX = windowWidth;
+				if (mousePositionY > windowHeight) mousePositionY = windowHeight;
+
+				U32 actorId = frameBuffer->ReadPixel<U32>(mousePositionX, mousePositionY, 1);
+
+				if (actorId > 0)
+				{
+					Actor* actor = mScene->FindActorByIdRecursive(actorId);
+
+					InterfaceManager::GetOutline()->SetSelectedActor(actor);
+				}
+			}
+		}
 	}
 }

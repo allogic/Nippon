@@ -1,19 +1,17 @@
 #include <Editor/Texture.h>
 
-#include <Vendor/GLAD/glad.h>
-
-///////////////////////////////////////////////////////////
-// Implementation
-///////////////////////////////////////////////////////////
+#include <Editor/Glad/glad.h>
 
 namespace ark
 {
-	Texture2D::Texture2D(U32 Width, U32 Height, U32 Mips, TextureWrap Wrap, TextureFilter Filter)
+	Texture2D::Texture2D(U32 Width, U32 Height, U32 Wrap, U32 Filter, U32 Format, U32 FormatInternal, U32 Type)
 		: mWidth{ Width }
 		, mHeight{ Height }
-		, mMips{ Mips }
 		, mWrap{ Wrap }
 		, mFilter{ Filter }
+		, mFormat{ Format }
+		, mFormatInternal{ FormatInternal }
+		, mType{ Type }
 	{
 		glGenTextures(1, &mTid);
 
@@ -24,9 +22,6 @@ namespace ark
 
 		glTextureParameteri(mTid, GL_TEXTURE_MIN_FILTER, (I32)mFilter);
 		glTextureParameteri(mTid, GL_TEXTURE_MAG_FILTER, (I32)mFilter);
-
-		glTextureParameteri(mTid, GL_TEXTURE_BASE_LEVEL, 0);
-		glTextureParameteri(mTid, GL_TEXTURE_MAX_LEVEL, (I32)(mMips - 1));
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
@@ -56,22 +51,27 @@ namespace ark
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	std::vector<U8> Texture2D::Snapshot() const
+	std::vector<U8> Texture2D::Snapshot(U8 Channels) const
 	{
 		std::vector<U8> bytes = {};
 
-		bytes.resize(mWidth * mHeight * 4);
+		bytes.resize(mWidth * mHeight * Channels);
 
 		glBindTexture(GL_TEXTURE_2D, mTid);
-		glGetnTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, (U32)bytes.size(), &bytes[0]);
+		glGetTexImage(GL_TEXTURE_2D, 0, mFormat, mType, &bytes[0]);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		return bytes;
 	}
 
-	RenderTexture::RenderTexture(TextureWrap Wrap, TextureFilter Filter)
-		: mWrap{ Wrap }
+	RenderTexture::RenderTexture(U32 Wrap, U32 Filter, U32 Format, U32 FormatInternal, U32 Type)
+		: mWidth{ 1 }
+		, mHeight{ 1 }
+		, mWrap{ Wrap }
 		, mFilter{ Filter }
+		, mFormat{ Format }
+		, mFormatInternal{ FormatInternal }
+		, mType{ Type }
 	{
 		glGenTextures(1, &mTid);
 
@@ -83,7 +83,7 @@ namespace ark
 		glTextureParameteri(mTid, GL_TEXTURE_MIN_FILTER, (I32)mFilter);
 		glTextureParameteri(mTid, GL_TEXTURE_MAG_FILTER, (I32)mFilter);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 1, 1, 0, GL_RGBA, GL_FLOAT, nullptr);
+		glTexImage2D(GL_TEXTURE_2D, 0, mFormatInternal, 1, 1, 0, mFormat, mType, nullptr);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
@@ -100,7 +100,10 @@ namespace ark
 
 	void RenderTexture::Resize(U32 Width, U32 Height)
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, (I32)Width, (I32)Height, 0, GL_RGBA, GL_FLOAT, nullptr);
+		mWidth = Width;
+		mHeight = Height;
+
+		glTexImage2D(GL_TEXTURE_2D, 0, mFormatInternal, (I32)mWidth, (I32)mHeight, 0, mFormat, mType, nullptr);
 	}
 
 	void RenderTexture::Mount(U32 Index) const
@@ -113,9 +116,14 @@ namespace ark
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	DepthStencilTexture::DepthStencilTexture(TextureWrap Wrap, TextureFilter Filter)
-		: mWrap{ Wrap }
+	DepthStencilTexture::DepthStencilTexture(U32 Wrap, U32 Filter, U32 Format, U32 FormatInternal, U32 Type)
+		: mWidth{ 1 }
+		, mHeight{ 1 }
+		, mWrap{ Wrap }
 		, mFilter{ Filter }
+		, mFormat{ Format }
+		, mFormatInternal{ FormatInternal }
+		, mType{ Type }
 	{
 		glGenTextures(1, &mTid);
 
@@ -127,7 +135,7 @@ namespace ark
 		glTextureParameteri(mTid, GL_TEXTURE_MIN_FILTER, (I32)mFilter);
 		glTextureParameteri(mTid, GL_TEXTURE_MAG_FILTER, (I32)mFilter);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, 1, 1, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
+		glTexImage2D(GL_TEXTURE_2D, 0, mFormatInternal, 1, 1, 0, mFormat, mType, nullptr);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
@@ -144,7 +152,10 @@ namespace ark
 
 	void DepthStencilTexture::Resize(U32 Width, U32 Height)
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, (I32)Width, (I32)Height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
+		mWidth = Width;
+		mHeight = Height;
+
+		glTexImage2D(GL_TEXTURE_2D, 0, mFormatInternal, (I32)mWidth, (I32)mHeight, 0, mFormat, mType, nullptr);
 	}
 
 	void DepthStencilTexture::Mount(U32 Index) const

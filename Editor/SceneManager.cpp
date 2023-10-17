@@ -1,7 +1,9 @@
-#include <Editor/SceneManager.h>
-#include <Editor/InterfaceManager.h>
+#include <Common/Macros.h>
 
 #include <Editor/Scene.h>
+
+#include <Editor/SceneManager.h>
+#include <Editor/InterfaceManager.h>
 
 #include <Editor/Interface/Viewport.h>
 #include <Editor/Interface/Outline.h>
@@ -9,25 +11,49 @@
 #include <Editor/Scenes/LevelScene.h>
 #include <Editor/Scenes/EntityScene.h>
 
-///////////////////////////////////////////////////////////
-// Locals
-///////////////////////////////////////////////////////////
-
-static ark::Scene* sActiveScenePrev = nullptr;
-static ark::Scene* sActiveScene = nullptr;
-
-static std::map<std::string, ark::LevelScene*> sLevelScenes = {};
-static std::map<std::string, ark::EntityScene*> sEntityScenes = {};
-
-///////////////////////////////////////////////////////////
-// Implementation
-///////////////////////////////////////////////////////////
-
 namespace ark
 {
+	struct SceneByInfo
+	{
+		SceneType Type;
+		std::string GroupKey;
+		std::string SceneKey;
+
+		bool operator () (Scene* Scene) const
+		{
+			return Type == Scene->GetSceneType() && GroupKey == Scene->GetGroupKey() && SceneKey == Scene->GetSceneKey();
+		};
+	};
+
+	static Scene* sActiveScenePrev = nullptr;
+	static Scene* sActiveScene = nullptr;
+
+	static std::vector<Scene*> sScenes = {};
+
+	static bool sIsDirty = false;
+
+	void SceneManager::Create()
+	{
+		
+	}
+
+	void SceneManager::Destroy()
+	{
+		for (auto& scene : sScenes)
+		{
+			delete scene;
+			scene = nullptr;
+		}
+	}
+
 	Scene* SceneManager::GetActiveScene()
 	{
 		return sActiveScene;
+	}
+
+	void SceneManager::SetDirty(bool Value)
+	{
+		sIsDirty = Value;
 	}
 
 	void SceneManager::SetActiveScene(Scene* Scene)
@@ -42,97 +68,117 @@ namespace ark
 		}
 	}
 
-	void SceneManager::CreateLevel(const std::string& Entry, const std::string& SubEntry, rj::Value& Value)
+	void SceneManager::PreRender()
 	{
-		std::string sceneName = "/" + Entry + "/" + SubEntry;
-		std::string windowName = "/" + Entry + "/" + SubEntry + " - " + Value["name"].GetString();
-
-		if (sLevelScenes[sceneName])
-		{
-			delete sLevelScenes[sceneName];
-			sLevelScenes[sceneName] = nullptr;
-		}
-
-		sLevelScenes[sceneName] = new LevelScene{ Entry, SubEntry, sceneName, windowName };
+		// TODO
 	}
 
-	void SceneManager::CreateEntity(const std::string& Entry, const std::string& SubEntry, rj::Value& Value)
+	void SceneManager::Render()
 	{
-		std::string sceneName = "/" + Entry + "/" + SubEntry;
-		std::string windowName = "/" + Entry + "/" + SubEntry + " - " + Value["name"].GetString();
-
-		if (sEntityScenes[sceneName])
+		for (const auto& scene : sScenes)
 		{
-			delete sEntityScenes[sceneName];
-			sEntityScenes[sceneName] = nullptr;
-		}
+			Viewport* viewport = scene->GetViewport();
 
-		sEntityScenes[sceneName] = new EntityScene{ Entry, SubEntry, sceneName, windowName };
-	}
-
-	void SceneManager::Draw()
-	{
-		for (const auto& [name, scene] : sLevelScenes)
-		{
-			if (scene)
+			if (viewport)
 			{
-				Viewport* viewport = scene->GetViewport();
-
-				if (viewport)
-				{
-					viewport->Draw();
-				}
-			}
-		}
-
-		for (const auto& [name, scene] : sEntityScenes)
-		{
-			if (scene)
-			{
-				Viewport* viewport = scene->GetViewport();
-
-				if (viewport)
-				{
-					viewport->Draw();
-				}
+				viewport->Render();
 			}
 		}
 	}
 
-	void SceneManager::Destroy(Scene* Scene)
+	void SceneManager::PostRender()
+	{
+		// TODO
+	}
+
+	void SceneManager::PreUpdate()
+	{
+		// TODO
+	}
+
+	void SceneManager::Update()
+	{
+		// TODO
+	}
+
+	void SceneManager::PostUpdate()
+	{
+		// TODO
+
+		if (sIsDirty)
+		{
+			sIsDirty = false;
+
+			for (auto it = sScenes.begin(); it != sScenes.end();)
+			{
+				if ((*it)->GetShouldBeDestroyed())
+				{
+					if ((*it) == sActiveScene)
+					{
+						InterfaceManager::GetOutline()->Reset();
+
+						sActiveScene = nullptr;
+						sActiveScenePrev = nullptr;
+					}
+
+					delete* it;
+					*it = nullptr;
+
+					it = sScenes.erase(it);
+				}
+				else
+				{
+					it++;
+				}
+			}
+		}
+	}
+
+	Scene* SceneManager::CreateScene(const SceneInfo& Info)
+	{
+		Scene* scene = nullptr;
+
+		const auto findIt = std::find_if(sScenes.begin(), sScenes.end(), SceneByInfo{ Info.Type, Info.GroupKey, Info.SceneKey });
+
+		if (findIt == sScenes.end())
+		{
+			switch (Info.Type)
+			{
+				case eSceneTypeLevel: scene = sScenes.emplace_back(new LevelScene{ Info }); break;
+				case eSceneTypeEntity: scene = sScenes.emplace_back(new EntityScene{ Info }); break;
+			}
+
+			SetActiveScene(scene);
+		}
+		else
+		{
+			(*findIt)->GetViewport()->SetFocused();
+		}
+
+		return scene;
+	}
+
+	void SceneManager::DestroyScene(Scene* Scene)
 	{
 		if (Scene == sActiveScene)
 		{
 			InterfaceManager::GetOutline()->Reset();
 
-			sActiveScenePrev = nullptr;
 			sActiveScene = nullptr;
+			sActiveScenePrev = nullptr;
 		}
 
-		std::string sceneName = Scene->GetSceneName();
+		delete Scene;
 
-		switch (Scene->GetSceneType())
+		const auto findIt = std::find(sScenes.begin(), sScenes.end(), Scene);
+
+		if (findIt == sScenes.end())
 		{
-			case eSceneTypeLevel:
-			{
-				if (sLevelScenes[sceneName])
-				{
-					delete sLevelScenes[sceneName];
-					sLevelScenes[sceneName] = nullptr;
-				}
 
-				break;
-			}
-			case eSceneTypeEntity:
-			{
-				if (sEntityScenes[sceneName])
-				{
-					delete sEntityScenes[sceneName];
-					sEntityScenes[sceneName] = nullptr;
-				}
-
-				break;
-			}
+		}
+		else
+		{
+			sScenes.erase(findIt);
 		}
 	}
 }

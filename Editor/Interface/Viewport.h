@@ -4,12 +4,10 @@
 
 #include <Editor/Interface.h>
 
-///////////////////////////////////////////////////////////
-// Definition
-///////////////////////////////////////////////////////////
-
 namespace ark
 {
+	class Scene;
+
 	class Viewport : public Interface
 	{
 	public:
@@ -18,16 +16,25 @@ namespace ark
 
 	public:
 
-		inline auto IsFocused() const { return mIsFocused; }
+		inline const auto& IsFocused() const { return mIsFocused; }
 
 	public:
 
 		virtual void Reset() override;
-		virtual void Draw() override;
+		virtual void Render() override;
+
+	public:
+
+		void SetFocused();
 
 	private:
 
 		bool HasResized();
+		bool HasFocus();
+
+	private:
+
+		void HandleActorSelection();
 
 	private:
 
@@ -36,7 +43,6 @@ namespace ark
 		U32 mWidth = 0;
 		U32 mHeight = 0;
 
-		bool mIsFocusedPrev = false;
 		bool mIsFocused = false;
 		bool mIsOpen = true;
 	};

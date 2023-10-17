@@ -1,23 +1,20 @@
 #include <Editor/Mesh.h>
-#include <Editor/Scene.h>
 #include <Editor/Shader.h>
+#include <Editor/Scene.h>
+#include <Editor/SceneManager.h>
 #include <Editor/Texture.h>
 #include <Editor/Vertex.h>
 
 #include <Editor/Components/Camera.h>
 #include <Editor/Components/Transform.h>
+#include <Editor/Components/Renderable.h>
 
 #include <Editor/Renderer/DefaultRenderer.h>
 
-///////////////////////////////////////////////////////////
-// Implementation
-///////////////////////////////////////////////////////////
-
 namespace ark
 {
-	DefaultRenderer::DefaultRenderer(Scene* Scene)
-		: mScene{ Scene }
-		, mShader{ new Shader{ "Default.vert", "Default.frag" } }
+	DefaultRenderer::DefaultRenderer()
+		: mShader{ new Shader{ "Default.vert", "Default.frag" } }
 	{
 
 	}
@@ -29,48 +26,52 @@ namespace ark
 
 	void DefaultRenderer::Render()
 	{
-		while (!mRenderQueue.empty())
+		Camera* camera = SceneManager::GetActiveScene()->GetMainCamera();
+
+		if (camera)
 		{
-			RenderTask& renderTask = mRenderQueue.front();
+			mShader->Bind();
 
-			if (renderTask.TransformPtr && renderTask.MeshPtr)
+			mShader->SetUniformR32M4("UniformProjectionMatrix", camera->GetProjectionMatrix());
+			mShader->SetUniformR32M4("UniformViewMatrix", camera->GetViewMatrix());
+
+			while (!mRenderQueue.empty())
 			{
-				Camera* camera = mScene->GetMainCamera();
+				Actor* actor = mRenderQueue.front();
 
-				if (camera)
+				Transform* transform = actor->GetTransform();
+				Renderable* renderable = actor->GetComponent<Renderable>();
+
+				mShader->SetUniformR32M4("UniformModelMatrix", transform->GetModelMatrix());
+
+				if (Texture2D* texture = renderable->GetTexture())
 				{
-					mShader->Bind();
-
-					mShader->SetUniformR32M4("UniformProjectionMatrix", camera->GetProjectionMatrix());
-					mShader->SetUniformR32M4("UniformViewMatrix", camera->GetViewMatrix());
-					mShader->SetUniformR32M4("UniformModelMatrix", renderTask.TransformPtr->GetModelMatrix());
-
-					if (renderTask.TexturePtr)
-					{
-						renderTask.TexturePtr->Bind();
-						renderTask.TexturePtr->Mount(0);
-					}
-
-					renderTask.MeshPtr->Bind();
-					renderTask.MeshPtr->Render(eRenderModeTriangles);
-					renderTask.MeshPtr->Unbind();
-
-					if (renderTask.TexturePtr)
-					{
-						renderTask.TexturePtr->UnMount();
-						renderTask.TexturePtr->UnBind();
-					}
-
-					mShader->UnBind();
+					texture->Bind();
+					texture->Mount(0);
 				}
+
+				if (Mesh<DefaultVertex, U32>* mesh = renderable->GetMesh())
+				{
+					mesh->Bind();
+					mesh->Render(eRenderModeTriangles);
+					mesh->Unbind();
+				}
+
+				if (Texture2D* texture = renderable->GetTexture())
+				{
+					texture->UnMount();
+					texture->UnBind();
+				}
+
+				mRenderQueue.pop();
 			}
 
-			mRenderQueue.pop();
+			mShader->UnBind();
 		}
 	}
 
-	void DefaultRenderer::AddRenderTask(const RenderTask& RenderTask)
+	void DefaultRenderer::AddToRenderQueue(Actor* Actor)
 	{
-		mRenderQueue.emplace(RenderTask);
+		mRenderQueue.emplace(Actor);
 	}
 }

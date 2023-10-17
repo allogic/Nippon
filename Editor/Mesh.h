@@ -6,11 +6,7 @@
 
 #include <Editor/Vertex.h>
 
-#include <Vendor/GLAD/glad.h>
-
-///////////////////////////////////////////////////////////
-// Definition
-///////////////////////////////////////////////////////////
+#include <Editor/Glad/glad.h>
 
 namespace ark
 {
@@ -54,10 +50,6 @@ namespace ark
 	};
 }
 
-///////////////////////////////////////////////////////////
-// Implementation
-///////////////////////////////////////////////////////////
-
 namespace ark
 {
 	template<typename V, typename E>
@@ -81,10 +73,12 @@ namespace ark
 				glEnableVertexAttribArray(1);
 				glEnableVertexAttribArray(2);
 				glEnableVertexAttribArray(3);
+				glEnableVertexAttribArray(4);
 				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(DefaultVertex), (void*)(0));
 				glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(DefaultVertex), (void*)(sizeof(R32V3)));
 				glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(DefaultVertex), (void*)(sizeof(R32V3) + sizeof(R32V2)));
 				glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(DefaultVertex), (void*)(sizeof(R32V3) + sizeof(R32V2) + sizeof(R32V2)));
+				glVertexAttribIPointer(4, 1, GL_UNSIGNED_INT, sizeof(DefaultVertex), (void*)(sizeof(R32V3) + sizeof(R32V2) + sizeof(R32V2) + sizeof(R32V4)));
 				break;
 			}
 			case VertexType::eVertexTypeDebug:
@@ -121,7 +115,6 @@ namespace ark
 	template<typename V, typename E>
 	void Mesh<V, E>::Render(RenderMode renderMode) const
 	{
-		glPointSize(5);
 		glDrawElements(renderMode, mElementSize, GL_UNSIGNED_INT, NULL);
 	}
 

@@ -5,10 +5,6 @@
 #include <Vendor/GLM/gtc/matrix_transform.hpp>
 #include <Vendor/GLM/gtx/euler_angles.hpp>
 
-///////////////////////////////////////////////////////////
-// Implementation
-///////////////////////////////////////////////////////////
-
 namespace ark
 {
 	Transform::Transform(Scene* Scene, Actor* Actor)
@@ -34,25 +30,35 @@ namespace ark
 
 	R32V3 Transform::GetWorldPosition() const
 	{
-		Actor* parent = mActor->GetParent();
-
-		if (parent)
+		if (Actor* parent = mActor->GetParent())
 		{
-			return parent->GetTransform()->GetWorldPosition() + mLocalRotation * (mLocalPosition * mLocalScale);
+			if (Transform* transform = parent->GetTransform())
+			{
+				return transform->GetWorldPosition() + transform->GetWorldRotation() * mLocalPosition;
+			}
+			else
+			{
+				return mLocalRotation * mLocalPosition;
+			}
 		}
 		else
 		{
-			return mLocalPosition * mLocalScale;
+			return mLocalRotation * mLocalPosition;
 		}
 	}
 
 	R32Q Transform::GetWorldRotation() const
 	{
-		Actor* parent = mActor->GetParent();
-
-		if (parent)
+		if (Actor* parent = mActor->GetParent())
 		{
-			return parent->GetTransform()->GetWorldRotation() * mLocalRotation;
+			if (Transform* transform = parent->GetTransform())
+			{
+				return mLocalRotation * transform->GetWorldRotation();
+			}
+			else
+			{
+				return mLocalRotation;
+			}
 		}
 		else
 		{
@@ -62,11 +68,16 @@ namespace ark
 
 	R32V3 Transform::GetWorldScale() const
 	{
-		Actor* parent = mActor->GetParent();
-
-		if (parent)
+		if (Actor* parent = mActor->GetParent())
 		{
-			return parent->GetTransform()->GetWorldScale() * mLocalScale;
+			if (Transform* transform = parent->GetTransform())
+			{
+				return mLocalScale * transform->GetWorldScale();
+			}
+			else
+			{
+				return mLocalScale;
+			}
 		}
 		else
 		{
@@ -83,15 +94,45 @@ namespace ark
 	{
 		mLocalEulerAngles = glm::radians(Rotation);
 
-		mLocalRotationX = glm::angleAxis(mLocalEulerAngles.x, mWorldRight);
-		mLocalRotationY = glm::angleAxis(mLocalEulerAngles.y, mWorldUp);
-		mLocalRotationZ = glm::angleAxis(mLocalEulerAngles.z, mWorldFront);
+		if (Actor* parent = mActor->GetParent())
+		{
+			if (Transform* transform = parent->GetTransform())
+			{
+				mLocalRotationX = glm::angleAxis(mLocalEulerAngles.x, transform->GetLocalRight());
+				mLocalRotationY = glm::angleAxis(mLocalEulerAngles.y, transform->GetLocalUp());
+				mLocalRotationZ = glm::angleAxis(mLocalEulerAngles.z, transform->GetLocalFront());
 
-		mLocalRotation = glm::normalize(mLocalRotationZ * mLocalRotationY * mLocalRotationX);
+				mLocalRotation = glm::normalize(mLocalRotationY * mLocalRotationX * mLocalRotationZ);
 
-		mLocalRight = glm::normalize(mLocalRotation * mWorldRight);
-		mLocalUp = glm::normalize(mLocalRotation * mWorldUp);
-		mLocalFront = glm::normalize(mLocalRotation * mWorldFront);
+				mLocalRight = glm::normalize(mLocalRotation * transform->GetLocalRight());
+				mLocalUp = glm::normalize(mLocalRotation * transform->GetLocalUp());
+				mLocalFront = glm::normalize(mLocalRotation * transform->GetLocalFront());
+			}
+			else
+			{
+				mLocalRotationX = glm::angleAxis(mLocalEulerAngles.x, mWorldRight);
+				mLocalRotationY = glm::angleAxis(mLocalEulerAngles.y, mWorldUp);
+				mLocalRotationZ = glm::angleAxis(mLocalEulerAngles.z, mWorldFront);
+
+				mLocalRotation = glm::normalize(mLocalRotationY * mLocalRotationX * mLocalRotationZ);
+
+				mLocalRight = glm::normalize(mLocalRotation * mWorldRight);
+				mLocalUp = glm::normalize(mLocalRotation * mWorldUp);
+				mLocalFront = glm::normalize(mLocalRotation * mWorldFront);
+			}
+		}
+		else
+		{
+			mLocalRotationX = glm::angleAxis(mLocalEulerAngles.x, mWorldRight);
+			mLocalRotationY = glm::angleAxis(mLocalEulerAngles.y, mWorldUp);
+			mLocalRotationZ = glm::angleAxis(mLocalEulerAngles.z, mWorldFront);
+
+			mLocalRotation = glm::normalize(mLocalRotationY * mLocalRotationX * mLocalRotationZ);
+
+			mLocalRight = glm::normalize(mLocalRotation * mWorldRight);
+			mLocalUp = glm::normalize(mLocalRotation * mWorldUp);
+			mLocalFront = glm::normalize(mLocalRotation * mWorldFront);
+		}
 	}
 
 	void Transform::SetLocalScale(R32V3 Scale)
@@ -108,15 +149,45 @@ namespace ark
 	{
 		mLocalEulerAngles += glm::radians(Rotation);
 
-		mLocalRotationX = glm::angleAxis(mLocalEulerAngles.x, mWorldRight);
-		mLocalRotationY = glm::angleAxis(mLocalEulerAngles.y, mWorldUp);
-		mLocalRotationZ = glm::angleAxis(mLocalEulerAngles.z, mWorldFront);
+		if (Actor* parent = mActor->GetParent())
+		{
+			if (Transform* transform = parent->GetTransform())
+			{
+				mLocalRotationX = glm::angleAxis(mLocalEulerAngles.x, transform->GetLocalRight());
+				mLocalRotationY = glm::angleAxis(mLocalEulerAngles.y, transform->GetLocalUp());
+				mLocalRotationZ = glm::angleAxis(mLocalEulerAngles.z, transform->GetLocalFront());
 
-		mLocalRotation = glm::normalize(mLocalRotationZ * mLocalRotationY * mLocalRotationX);
+				mLocalRotation = glm::normalize(mLocalRotationY * mLocalRotationX * mLocalRotationZ);
 
-		mLocalRight = glm::normalize(mLocalRotation * mWorldRight);
-		mLocalUp = glm::normalize(mLocalRotation * mWorldUp);
-		mLocalFront = glm::normalize(mLocalRotation * mWorldFront);
+				mLocalRight = glm::normalize(mLocalRotation * transform->GetLocalRight());
+				mLocalUp = glm::normalize(mLocalRotation * transform->GetLocalUp());
+				mLocalFront = glm::normalize(mLocalRotation * transform->GetLocalFront());
+			}
+			else
+			{
+				mLocalRotationX = glm::angleAxis(mLocalEulerAngles.x, mWorldRight);
+				mLocalRotationY = glm::angleAxis(mLocalEulerAngles.y, mWorldUp);
+				mLocalRotationZ = glm::angleAxis(mLocalEulerAngles.z, mWorldFront);
+
+				mLocalRotation = glm::normalize(mLocalRotationY * mLocalRotationX * mLocalRotationZ);
+
+				mLocalRight = glm::normalize(mLocalRotation * mWorldRight);
+				mLocalUp = glm::normalize(mLocalRotation * mWorldUp);
+				mLocalFront = glm::normalize(mLocalRotation * mWorldFront);
+			}
+		}
+		else
+		{
+			mLocalRotationX = glm::angleAxis(mLocalEulerAngles.x, mWorldRight);
+			mLocalRotationY = glm::angleAxis(mLocalEulerAngles.y, mWorldUp);
+			mLocalRotationZ = glm::angleAxis(mLocalEulerAngles.z, mWorldFront);
+
+			mLocalRotation = glm::normalize(mLocalRotationY * mLocalRotationX * mLocalRotationZ);
+
+			mLocalRight = glm::normalize(mLocalRotation * mWorldRight);
+			mLocalUp = glm::normalize(mLocalRotation * mWorldUp);
+			mLocalFront = glm::normalize(mLocalRotation * mWorldFront);
+		}
 	}
 
 	void Transform::AddLocalScale(R32V3 Scale)

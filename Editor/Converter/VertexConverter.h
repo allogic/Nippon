@@ -5,21 +5,19 @@
 #include <Common/Types.h>
 
 #include <Editor/Vertex.h>
-#include <Editor/Header.h>
 
-#define MAGIC_UV_COEFFICIENT 16.0F
-
-///////////////////////////////////////////////////////////
-// Definition
-///////////////////////////////////////////////////////////
+#include <Editor/Structs/ScrStructs.h>
+#include <Editor/Structs/MdStructs.h>
 
 namespace ark
 {
+	class Actor;
+
 	class VertexConverter
 	{
 	public:
 
-		static std::vector<DefaultVertex> ToVertexBuffer(const std::vector<ScrVertex>& Vertices, const std::vector<ScrTextureMap>& TextureMaps, const std::vector<ScrUv>& TextureUvs, const std::vector<ScrColorWeight>& ColorWeights);
-		static std::vector<DefaultVertex> ToVertexBuffer(const std::vector<MdVertex>& Vertices, const std::vector<MdTextureMap>& TextureMaps, const std::vector<MdUv>& TextureUvs, const std::vector<MdColorWeight>& ColorWeights);
+		static std::vector<DefaultVertex> ToVertexBuffer(Actor* Actor, const std::vector<ScrVertex>& Vertices, const std::vector<ScrTextureMap>& TextureMaps, const std::vector<ScrUv>& TextureUvs, const std::vector<ScrColorWeight>& ColorWeights);
+		static std::vector<DefaultVertex> ToVertexBuffer(Actor* Actor, const std::vector<MdVertex>& Vertices, const std::vector<MdTextureMap>& TextureMaps, const std::vector<MdUv>& TextureUvs, const std::vector<MdColorWeight>& ColorWeights);
 	};
 }

@@ -8,137 +8,138 @@
 
 #include <Common/Types.h>
 
-#include <Editor/Forward.h>
 #include <Editor/Actor.h>
-#include <Editor/Header.h>
-#include <Editor/Model.h>
 #include <Editor/FrameBuffer.h>
 
-#include <Editor/Renderer/DebugRenderer.h>
-#include <Editor/Renderer/DefaultRenderer.h>
+#include <Editor/Generated/SceneInfos.h>
 
-#define DEBUG_WORLD_SCALE 0.01F
-
-#define MAGIC_ROTATION_COEFFICIENT 0.552368F
-#define MAGIC_SCALE_COEFFICIENT 4096.0F
-
-///////////////////////////////////////////////////////////
-// Namespaces
-///////////////////////////////////////////////////////////
-
-namespace fs = std::filesystem;
-
-///////////////////////////////////////////////////////////
-// Definition
-///////////////////////////////////////////////////////////
+#include <Editor/Glad/glad.h>
 
 namespace ark
 {
-	enum SceneType
-	{
-		eSceneTypeLevel,
-		eSceneTypeEntity,
-	};
+	namespace fs = std::filesystem;
+
+	class Viewport;
+	class Camera;
+	class FrameBuffer;
 
 	class Scene
 	{
 	public:
 
-		Scene(
-			SceneType SceneType,
-			const std::string& Entry,
-			const std::string& SubEntry);
-		Scene(
-			SceneType SceneType,
-			const std::string& Entry,
-			const std::string& SubEntry,
-			const std::string& SceneName,
-			const std::string& WindowName);
+		Scene(const SceneInfo& Info);
 		virtual ~Scene();
 
 	public:
 
-		inline const auto& GetSceneType() const { return mSceneType; }
-		inline const auto& GetSceneName() const { return mSceneName; }
-		inline const auto& GetWindowName() const { return mWindowName; }
+		inline const auto& GetSceneType() const { return mSceneInfo.Type; }
+		inline const auto& GetGroupKey() const { return mSceneInfo.GroupKey; }
+		inline const auto& GetSceneKey() const { return mSceneInfo.SceneKey; }
+		inline const auto& GetArchiveFileName() const { return mSceneInfo.ArchiveFileName; }
+		inline const auto& GetThumbnailFileName() const { return mSceneInfo.ThumbnailFileName; }
+		inline const auto& GetName() const { return mSceneInfo.Name; }
+		inline const auto& GetWindowName() const { return mSceneInfo.WindowName; }
 		inline const auto& GetWidth() const { return mWidth; }
 		inline const auto& GetHeight() const { return mHeight; }
-		inline const auto& GetActors() const { return mActors; }
 		inline const auto& GetFrameBuffer() const { return mFrameBuffer; }
-		inline const auto& GetMainActor() const { return mMainActor; }
+		inline const auto& GetRootActor() const { return mRootActor; }
+		inline const auto& GetPlayerActor() const { return mPlayerActor; }
 		inline const auto& GetStaticGeometryActor() const { return mStaticGeometryActor; }
 		inline const auto& GetMainCamera() const { return mMainCamera; }
 		inline const auto& GetViewport() const { return mViewport; }
+		inline const auto& GetShouldBeDestroyed() const { return mShouldBeDestroyed; }
 
-		inline auto& GetDebugRenderer() { return mDebugRenderer; }
-		inline auto& GetDefaultRenderer() { return mDefaultRenderer; }
+	public:
+
+		inline void SetDirty(bool Value) { mIsDirty = Value; }
+		inline void SetEnableConsole(bool Value) { mEnableConsole = Value; }
+		inline void SetEnableDebug(bool Value) { mEnableDebug = Value; }
+
+	public:
+
+		void MakeShouldBeDestroyed(bool Value);
 
 	public:
 
 		template<typename A, typename ... Args>
 		A* CreateActor(const std::string& Name, Actor* Parent, Args&& ... Arguments);
 
-		void DestroyActor(Actor* Actor);
-
 	public:
 
 		void Resize(U32 Width, U32 Height);
-		void Update();
+
+		void PreRender();
 		void Render();
+		void PostRender();
 
-		void SubmitRenderTasks();
-		void DoSelectionRecursive(Actor* Actor);
+		void PreUpdate();
+		void Update();
+		void PostUpdate();
 
-		std::vector<U8> Snapshot() const;
+		void Step();
 
-	protected:
+	public:
+
+		void UpdateActorRecursive(Actor* Actor = nullptr);
+		bool DestroyActorRecursive(Actor* Actor = nullptr);
+		bool DestroyActorIfMarkedRecursive(Actor* Actor = nullptr);
+		Actor* FindActorByIdRecursive(U32 Id, Actor* Actor = nullptr);
+		void SubmitActorToRendererRecursive(Actor* Actor = nullptr);
+		void HandleActorSelectionRecursive(Actor* Actor = nullptr);
+
+	public:
+
+		std::vector<U8> Snapshot(U8 Channels) const;
+
+	public:
 
 		virtual void Load() = 0;
 		virtual void Save() = 0;
 
 	protected:
 
-		SceneType mSceneType;
-		std::string mEntry;
-		std::string mSubEntry;
-		std::string mSceneName;
-		std::string mWindowName;
-		bool mEnableDebug;
+		bool mEnableConsole = false;
+		bool mEnableDebug = false;
+
+	private:
+
+		SceneInfo mSceneInfo;
 
 		Viewport* mViewport = nullptr;
 
-		Actor* mMainActor = nullptr;
+		U32 mUniqueActorId = 0;
+
+		Actor* mRootActor = nullptr;
+		Actor* mPlayerActor = nullptr;
 		Actor* mStaticGeometryActor = nullptr;
 
 		Camera* mMainCamera = nullptr;
 
-		std::vector<Actor*> mActors = {};
-
 		U32 mWidth = 1;
 		U32 mHeight = 1;
 
-		DebugRenderer mDebugRenderer = { this, 65535, 65535 * 2 };
-		DefaultRenderer mDefaultRenderer = { this };
+		FrameBuffer* mFrameBuffer = nullptr;
 
-		FrameBuffer mFrameBuffer = {};
+		bool mIsDirty = false;
+		bool mShouldBeDestroyed = false;
 	};
 }
-
-///////////////////////////////////////////////////////////
-// Implementation
-///////////////////////////////////////////////////////////
 
 namespace ark
 {
 	template<typename A, typename ... Args>
 	A* Scene::CreateActor(const std::string& Name, Actor* Parent, Args&& ... Arguments)
 	{
-		auto actor = mActors.emplace_back(new A{ this, Name, std::forward<Args>(Arguments) ... });
-		if (Parent)
+		Actor* parent = Parent ? Parent : mRootActor;
+		Actor* actor = new A{ this, mUniqueActorId++, Name, std::forward<Args>(Arguments) ... };
+
+		actor->SetParent(parent);
+
+		if (parent)
 		{
-			actor->SetParent(Parent);
-			Parent->AddChild(actor);
+			parent->AddChild(actor);
 		}
+
 		return (A*)actor;
 	}
 }

@@ -1,44 +1,27 @@
-#include <Common/Alignment.h>
-
 #include <Common/BinaryReader.h>
 #include <Common/BinaryWriter.h>
-
-#include <Common/Utils/FsUtils.h>
+#include <Common/Macros.h>
 
 #include <Editor/Serializer/ScrSerializer.h>
 
-///////////////////////////////////////////////////////////
-// Implementation
-///////////////////////////////////////////////////////////
+#include <Editor/Structs/MdbStructs.h>
+#include <Editor/Structs/MdStructs.h>
 
 namespace ark
 {
-	ScrGroup ScrSerializer::FromFile(const fs::path& File)
+	ScrGroup ScrSerializer::FromBytes(const std::vector<U8>& Bytes)
 	{
 		ScrGroup group = {};
 
-		U16 index = 0;
-		std::string name = "";
-		std::string type = "";
-
-		FsUtils::FromArchiveName(File.stem().string(), index, name, type);
-
-		BinaryReader binaryReader = { FsUtils::ReadBinary(File) };
+		BinaryReader binaryReader = Bytes;
 
 		ScrHeader scrHeader = binaryReader.Read<ScrHeader>();
 
-		std::string logicalIndex = {};
-
-		logicalIndex.resize(5);
-
-		std::snprintf(&logicalIndex[0], 6, "%05u", index);
-
-		group.Name = logicalIndex + "@" + name;
 		group.Models.resize(scrHeader.SubMeshCount);
 
 		std::vector<U32> transformOffsets = binaryReader.Read<U32>(scrHeader.SubMeshCount);
 
-		binaryReader.SeekAbsolute(Align<16>::Up(binaryReader.GetPosition()));
+		binaryReader.SeekAbsolute(ALIGN_UP(binaryReader.GetPosition(), 16));
 
 		for (U32 i = 0; i < scrHeader.SubMeshCount; i++)
 		{
@@ -92,7 +75,7 @@ namespace ark
 				}
 			}
 
-			binaryReader.SeekAbsolute(Align<16>::Up(binaryReader.GetPosition()));
+			binaryReader.SeekAbsolute(ALIGN_UP(binaryReader.GetPosition(), 16));
 		}
 
 		for (U32 i = 0; i < scrHeader.SubMeshCount; i++)
@@ -105,14 +88,5 @@ namespace ark
 		}
 
 		return group;
-	}
-
-	void ScrSerializer::ToFile(const fs::path& File, const ScrGroup& Group)
-	{
-		BinaryWriter binaryWriter = {};
-
-		
-
-		FsUtils::WriteBinary(File, binaryWriter.GetBytes());
 	}
 }

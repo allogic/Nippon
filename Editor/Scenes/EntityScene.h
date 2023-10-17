@@ -1,50 +1,63 @@
 #pragma once
 
 #include <string>
+#include <filesystem>
 #include <vector>
 
 #include <Common/Types.h>
 
-#include <Editor/Forward.h>
-#include <Editor/Header.h>
-#include <Editor/Model.h>
 #include <Editor/Scene.h>
 
-///////////////////////////////////////////////////////////
-// Definition
-///////////////////////////////////////////////////////////
+#include <Editor/Generated/SceneInfos.h>
+
+#include <Editor/Structs/MdStructs.h>
 
 namespace ark
 {
+	namespace fs = std::filesystem;
+
+	class Archive;
+	class Texture2D;
+
 	class EntityScene : public Scene
 	{
 	public:
 
-		EntityScene(
-			const std::string& Entry,
-			const std::string& SubEntry);
-		EntityScene(
-			const std::string& Entry,
-			const std::string& SubEntry,
-			const std::string& SceneName,
-			const std::string& WindowName);
+		EntityScene(const SceneInfo& Info);
 		virtual ~EntityScene();
 
 	public:
 
+		inline const auto& GetMdGroups() const { return mMdGroups; }
 		inline const auto& GetMdTextures() const { return mMdTextures; }
 
-	protected:
+	public:
 
 		virtual void Load() override;
 		virtual void Save() override;
 
 	private:
 
-		void AddStaticGeometry(const MdGroup& Group);
+		void LoadEntity();
 
 	private:
 
+		void AddStaticGeometry();
+
+	private:
+
+		void PrintSummary();
+
+	private:
+
+		Archive* mArchive = nullptr;
+
+		std::vector<Archive*> mMdNodes;
+		std::vector<Archive*> mDdsNodes;
+
+	private:
+
+		std::vector<MdGroup> mMdGroups = {};
 		std::vector<Texture2D*> mMdTextures = {};
 	};
 }

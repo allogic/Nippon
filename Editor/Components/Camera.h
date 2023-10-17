@@ -2,15 +2,13 @@
 
 #include <Common/Types.h>
 
-#include <Editor/Forward.h>
 #include <Editor/Component.h>
-
-///////////////////////////////////////////////////////////
-// Definition
-///////////////////////////////////////////////////////////
 
 namespace ark
 {
+	class Scene;
+	class Actor;
+
 	class Camera : public Component
 	{
 	public:
@@ -19,9 +17,9 @@ namespace ark
 
 	public:
 
-		inline auto GetFov() const { return mFov; }
-		inline auto GetNear() const { return mNear; }
-		inline auto GetFar() const { return mFar; }
+		inline const auto& GetFov() const { return mFov; }
+		inline const auto& GetNear() const { return mNear; }
+		inline const auto& GetFar() const { return mFar; }
 
 	public:
 

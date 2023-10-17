@@ -1,23 +1,10 @@
 #pragma once
 
-#include <string>
 #include <vector>
-#include <filesystem>
 
 #include <Common/Types.h>
 
-#include <Editor/Header.h>
-#include <Editor/Model.h>
-
-///////////////////////////////////////////////////////////
-// Namespaces
-///////////////////////////////////////////////////////////
-
-namespace fs = std::filesystem;
-
-///////////////////////////////////////////////////////////
-// Definition
-///////////////////////////////////////////////////////////
+#include <Editor/Structs/MdStructs.h>
 
 namespace ark
 {
@@ -25,7 +12,6 @@ namespace ark
 	{
 	public:
 
-		static MdGroup FromFile(const fs::path& File);
-		static void ToFile(const fs::path& File, const MdGroup& Group);
+		static MdGroup FromBytes(const std::vector<U8>& Bytes);
 	};
 }

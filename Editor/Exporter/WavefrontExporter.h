@@ -7,30 +7,23 @@
 
 #include <Common/Types.h>
 
-#include <Editor/Forward.h>
-
-///////////////////////////////////////////////////////////
-// Namespaces
-///////////////////////////////////////////////////////////
-
-namespace fs = std::filesystem;
-
-///////////////////////////////////////////////////////////
-// Definition
-///////////////////////////////////////////////////////////
-
 namespace ark
 {
+	namespace fs = std::filesystem;
+
+	class Scene;
+	class Actor;
+
 	class WavefrontExporter
 	{
 	public:
 
-		static void ExportEntity(const std::string& Entry, const std::string& SubEntry);
-		static void ExportLevel(const std::string& Entry, const std::string& SubEntry);
+		static void Export(Actor* Actor, Scene* Scene);
 
 	private:
 
-		static void ExportObjectsRecursive(Actor* Node, std::ostringstream& Stream, U32& VertexOffset);
-		static void ExportMaterialsRecursive(Actor* Node, std::ostringstream& Stream);
+		static void ExportObjectsRecursive(Actor* Actor, std::ostringstream& Stream, U32& VertexOffset);
+		static void ExportMaterialsRecursive(Actor* Actor, std::ostringstream& Stream);
+		static void ExportTexturesRecursive(Actor* Actor, Scene* Scene, const fs::path& ExportDir);
 	};
 }

@@ -1,14 +1,10 @@
-#include <Common/Debug.h>
+#include <Common/Macros.h>
 
-#include <Common/Utils/FsUtils.h>
+#include <Common/Utilities/FsUtils.h>
 
 #include <Editor/Shader.h>
 
-#include <Vendor/GLAD/glad.h>
-
-///////////////////////////////////////////////////////////
-// Implementation
-///////////////////////////////////////////////////////////
+#include <Editor/Glad/glad.h>
 
 namespace ark
 {

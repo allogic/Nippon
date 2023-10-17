@@ -4,14 +4,11 @@
 #include <Editor/Components/Transform.h>
 #include <Editor/Components/Renderable.h>
 
-///////////////////////////////////////////////////////////
-// Implementation
-///////////////////////////////////////////////////////////
-
 namespace ark
 {
-	Actor::Actor(Scene* Scene, const std::string& Name)
+	Actor::Actor(Scene* Scene, U32 Id, const std::string& Name)
 		: mScene{ Scene }
+		, mId{ Id }
 		, mName{ Name }
 		, mTransform{ AttachComponent<Transform>() }
 	{
@@ -27,17 +24,71 @@ namespace ark
 		}
 	}
 
-	void Actor::MakeActiveRecursive(bool Active)
+	void Actor::MakeActiveRecursiveUp(bool Value)
 	{
-		mActive = Active;
+		mActive = Value;
 
-		for (Actor* child : mChildren)
+		if (mParent)
 		{
-			child->MakeActiveRecursive(Active);
+			mParent->MakeActiveRecursiveUp(Value);
 		}
 	}
 
-	void Actor::ComputeAxisAlignedBoundingBoxRecursive()
+	void Actor::MakeActiveRecursiveDown(bool Value)
+	{
+		mActive = Value;
+
+		for (Actor* child : mChildren)
+		{
+			child->MakeActiveRecursiveDown(Value);
+		}
+	}
+
+	void Actor::MakeOpenedRecursiveUp(bool Value)
+	{
+		mOpened = Value;
+
+		if (mParent)
+		{
+			mParent->MakeOpenedRecursiveUp(Value);
+		}
+	}
+
+	void Actor::MakeOpenedRecursiveDown(bool Value)
+	{
+		mOpened = Value;
+
+		for (Actor* child : mChildren)
+		{
+			child->MakeOpenedRecursiveDown(Value);
+		}
+	}
+
+	void Actor::MakeShouldBeDestroyedRecursiveUp(bool Value)
+	{
+		mShouldBeDestroyed = Value;
+
+		mScene->SetDirty(true);
+
+		if (mParent)
+		{
+			mParent->MakeShouldBeDestroyedRecursiveUp(Value);
+		}
+	}
+
+	void Actor::MakeShouldBeDestroyedRecursiveDown(bool Value)
+	{
+		mShouldBeDestroyed = Value;
+
+		mScene->SetDirty(true);
+
+		for (Actor* child : mChildren)
+		{
+			child->MakeShouldBeDestroyedRecursiveDown(Value);
+		}
+	}
+
+	void Actor::ComputeAABB()
 	{
 		Renderable* renderable = GetComponent<Renderable>();
 
@@ -69,7 +120,7 @@ namespace ark
 
 		for (Actor* child : mChildren)
 		{
-			child->ComputeAxisAlignedBoundingBoxRecursive();
+			child->ComputeAABB();
 		}
 	}
 }

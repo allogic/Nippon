@@ -1,39 +1,46 @@
 #pragma once
 
 #include <string>
-#include <map>
+#include <vector>
+#include <algorithm>
 
 #include <Common/Types.h>
 
-#include <Editor/Forward.h>
-
-#include <Vendor/rapidjson/rapidjson.h>
-#include <Vendor/rapidjson/document.h>
-
-///////////////////////////////////////////////////////////
-// Namespaces
-///////////////////////////////////////////////////////////
-
-namespace rj = rapidjson;
-
-///////////////////////////////////////////////////////////
-// Definition
-///////////////////////////////////////////////////////////
+#include <Editor/Generated/SceneInfos.h>
 
 namespace ark
 {
+	class Scene;
+
 	class SceneManager
 	{
 	public:
 
+		static void Create();
+		static void Destroy();
+
+	public:
+
 		static Scene* GetActiveScene();
+
+	public:
+
+		static void SetDirty(bool Value);
 		static void SetActiveScene(Scene* Scene);
 
-		static void CreateLevel(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
-		static void CreateEntity(const std::string& Entry, const std::string& SubEntry, rj::Value& Value);
+	public:
 
-		static void Draw();
+		static void PreRender();
+		static void Render();
+		static void PostRender();
 
-		static void Destroy(Scene* Scene);
+		static void PreUpdate();
+		static void Update();
+		static void PostUpdate();
+
+	public:
+
+		static Scene* CreateScene(const SceneInfo& Info);
+		static void DestroyScene(Scene* Scene);
 	};
 }

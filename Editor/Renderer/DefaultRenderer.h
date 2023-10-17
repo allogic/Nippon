@@ -5,32 +5,18 @@
 
 #include <Common/Types.h>
 
-#include <Editor/Forward.h>
-
-///////////////////////////////////////////////////////////
-// Namespaces
-///////////////////////////////////////////////////////////
-
-namespace fs = std::filesystem;
-
-///////////////////////////////////////////////////////////
-// Definition
-///////////////////////////////////////////////////////////
-
 namespace ark
 {
-	struct RenderTask
-	{
-		const Transform* TransformPtr;
-		const Mesh<DefaultVertex, U32>* MeshPtr;
-		const Texture2D* TexturePtr;
-	};
+	namespace fs = std::filesystem;
+
+	class Actor;
+	class Shader;
 
 	class DefaultRenderer
 	{
 	public:
 
-		DefaultRenderer(Scene* Scene);
+		DefaultRenderer();
 		virtual ~DefaultRenderer();
 
 	public:
@@ -39,13 +25,12 @@ namespace ark
 
 	public:
 
-		void AddRenderTask(const RenderTask& RenderTask);
+		void AddToRenderQueue(Actor* Actor);
 
 	private:
 
-		Scene* mScene;
 		Shader* mShader;
 
-		std::queue<RenderTask> mRenderQueue = {};
+		std::queue<Actor*> mRenderQueue = {};
 	};
 }

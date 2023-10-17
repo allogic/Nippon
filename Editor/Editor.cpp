@@ -1,133 +1,52 @@
-#include <Common/Debug.h>
+#include <Common/Macros.h>
 #include <Common/Types.h>
 
-#include <Common/Utils/FsUtils.h>
+#include <Common/Utilities/FsUtils.h>
 
 #include <Editor/Event.h>
 #include <Editor/InterfaceManager.h>
 #include <Editor/SceneManager.h>
 
-#include <Vendor/GLAD/glad.h>
+#include <Editor/Renderer/DebugRenderer.h>
+#include <Editor/Renderer/DefaultRenderer.h>
+
+#include <Editor/ImGui/imgui.h>
+#include <Editor/ImGui/imgui_internal.h>
+#include <Editor/ImGui/imgui_impl_glfw.h>
+#include <Editor/ImGui/imgui_impl_opengl3.h>
+
+#include <Editor/Glad/glad.h>
 
 #include <Vendor/GLFW/glfw3.h>
 
-#include <Vendor/ImGui/imgui.h>
-#include <Vendor/ImGui/imgui_impl_glfw.h>
-#include <Vendor/ImGui/imgui_impl_opengl3.h>
-
-/*
- * Unextracted File Coverage:
- * ==========================
- * 
- * Ext  Count       Bytes
- * ----------------------
- * acf      1        4704
- * adx      3     4726664
- * afd    150       42272
- * afs2   240  1020865788
- * bin   1461  2532045488
- * chp      1        6480
- * cip      1          32
- * csv      1      418688
- * dat   2648  4547452104
- * dds    327  1164346120
- * idd    140   860071200
- * pac     16    72560640
- * ses    259    62250096
- * usm     75 18330692672
- * vsq     12        2192
- */
-
-/*
- * Extension Infos:
- * ================
- * 
- * AFD - unknown purpose but are small and contain no multimedia.
- * AFS - if an AFS file is a subfile than it only contains audio, usually a few. Game Extractor can extract these but if you have try after you exact the big one (if some one can optimize the script then this should be displayed as a folder)
- * BIN - These are sub archives that Game Extractor can't really extract properly. The format is easy the first 4bytes are the number of files. then the next 4 bytes are all of the file offsets, then there are text extensions (4bytea for all of the files possible extensions include:
- * ANS - These are blank 16bytes strange
- * AKT - Contain Collision Maps and Terrain type Maps (ie is is dirt, water mud ect)
- * BMH - Contain mostly floats possibly level terrain related contain the header BMH
- * CAM - Unknown purpose contain the header mtb3 (in lowercase)
- * CCH - Contain mostly floats probably map related no real header
- * DRH - Related or identical to the SCH files, no real header mostly floats
- * EFF - are similar or identical to the BIN archives
- * FI2 - These contain object placement data
- * ITS - Contain no floats possibly map related no real header
- * LI3 - Contain some floats unknown purpose
- * MEH - Are small contain mostly floats have the header MEH
- * MOT - Unknown Contain the header mtb3 (in lowercase)
- * MSD - which is itself a sub-sub file archive. It contains no header and begins with the relative positions of the files it contains. Maybe it is collision map data, but it does not use floats
- * MSA - Contains no header other than the size of the whole file, no floats maybe texture meta data
- * MST - really small no header no file size no floats ect
- * RNI - These are small, Unknown purpose no real header
- * SCH - These contain mostly Floats probably related to map boundary lines-contain no real header
- * SCR - These contain the Header scr (in lowercase) these are model archives for level terrain that use 16bytesigned vertexes similar to MD archives that contain character meshes
- * SEQ - Probably animation data
- * T32 - These are some sort of Tim2 textures but DO NOT contain the text header TIM2
- * T3L - same as BIN archive
- * TM2 - These are regular Tim2 textures that DO contain the standard TIM2 text header
- * TRE - Unknown related to TSC contain no real header
- * TS  - Possibly related to camera movement these contain the header TS
- * TSC - Unknown releated to TSC contain no real header
- * TST - Same as the BIN archive
- * BMT - These are small files unknown purpose
- * D   - The ones on the demo are archives that only contain 1 of each of the following
- * MPD - contain Meta data for the textures no real header
- * T32 - see above
- * DAT - similar to BIN archives contain many files and models:
- * MD  - Contain the Header scr (in lowercase) + five 00 bytes+ the number of models (4bytes)+ four 00 bytes + The offsets to the models
- * MDB - These are the models packages and contain the submeshes+yet another type of Tim2 textures
- * DIR - a small text file with the name of the path to the video files
- * S   - some type of audio or video adx format??? this file might be the promational video for the full version of okami
- * SES - Audio
- * SFD - Audio
- * TBL - (map.tbl) This looks like a source code map, or at least ALL of the functions in the ELF file (PS2 Excutable file) this could easily be into hacks, but the file might not be included in the full version of the game
- * TM2 - (moji8.tm2) a Tim2 texture of the letters used in for menus and character speech.
- */
-
-///////////////////////////////////////////////////////////
-// Namespaces
-///////////////////////////////////////////////////////////
-
 using namespace ark;
 
-///////////////////////////////////////////////////////////
-// Globals
-///////////////////////////////////////////////////////////
+namespace ark
+{
+	fs::path gDataDir;
 
-rj::Document gArchive = {};
-rj::Document gConfig = {};
+	std::string gBlowFishKey;
 
-R32 gTimeDelta = 0.0F;
+	R32 gTimeDelta = 0.0F;
 
-///////////////////////////////////////////////////////////
-// Locals
-///////////////////////////////////////////////////////////
+	DebugRenderer* gDebugRenderer = nullptr;
+	DefaultRenderer* gDefaultRenderer = nullptr;
+}
 
 static GLFWwindow* sGlfwContext = nullptr;
 
 static R32 sTime = 0.0F;
 static R32 sTimePrev = 0.0F;
 
-///////////////////////////////////////////////////////////
-// Glfw Callbacks
-///////////////////////////////////////////////////////////
-
 static void GlfwDebugProc(I32 Error, char const* Msg)
 {
 	LOG("Error:%d Message:%s\n", Error, Msg);
 }
-
 static void GlfwMouseProc(GLFWwindow* Context, R64 X, R64 Y)
 {
 	Event::SetMouseX((R32)X);
 	Event::SetMouseY((R32)Y);
 }
-
-///////////////////////////////////////////////////////////
-// Gl Callbacks
-///////////////////////////////////////////////////////////
 
 static void GlDebugCallback(U32 Source, U32 Type, U32 Id, U32 Severity, I32 Length, char const* Msg, void const* UserParam)
 {
@@ -140,21 +59,17 @@ static void GlDebugCallback(U32 Source, U32 Type, U32 Id, U32 Severity, I32 Leng
 	}
 }
 
-///////////////////////////////////////////////////////////
-// ImGui Setup
-///////////////////////////////////////////////////////////
-
 static void ImGuiSetupIo()
 {
 	ImGuiIO& io = ImGui::GetIO();
 
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableSetMousePos;
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
 	io.ConfigWindowsMoveFromTitleBarOnly = true;
 }
-
 static void ImGuiSetupStyle()
 {	
 	ImGuiStyle& style = ImGui::GetStyle();
@@ -171,7 +86,7 @@ static void ImGuiSetupStyle()
 	style.ChildBorderSize = 1.0f;
 	style.PopupRounding = 2.0f;
 	style.PopupBorderSize = 1.0f;
-	style.FramePadding = ImVec2(4.0f, 3.0f);
+	style.FramePadding = ImVec2(7.5f, 7.5f);
 	style.FrameRounding = 2.0f;
 	style.FrameBorderSize = 0.0f;
 	style.ItemSpacing = ImVec2(8.0f, 4.0f);
@@ -245,17 +160,10 @@ static void ImGuiSetupStyle()
 	style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.5860000252723694f);
 }
 
-///////////////////////////////////////////////////////////
-// Entry Point
-///////////////////////////////////////////////////////////
-
-I32 main()
+I32 main(I32 Argc, char** Argv)
 {
-	gArchive.Parse(FsUtils::ReadText("Archive.json").c_str());
-	gConfig.Parse(FsUtils::ReadText("Config.json").c_str());
-
-	U32 width = gConfig["editorWidth"].GetInt();
-	U32 height = gConfig["editorHeight"].GetInt();
+	gDataDir = Argv[1];
+	gBlowFishKey = Argv[2];
 
 	glfwSetErrorCallback(GlfwDebugProc);
 
@@ -267,7 +175,7 @@ I32 main()
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, 1);
 
-		sGlfwContext = glfwCreateWindow(width, height, "Nippon", nullptr, nullptr);
+		sGlfwContext = glfwCreateWindow(1920, 1080, "Editor", nullptr, nullptr);
 
 		if (sGlfwContext)
 		{
@@ -281,7 +189,8 @@ I32 main()
 				glDebugMessageCallback(GlDebugCallback, 0);
 
 				IMGUI_CHECKVERSION();
-				ImGuiContext* imGuiContext{ ImGui::CreateContext() };
+				
+				ImGuiContext* imGuiContext = ImGui::CreateContext();
 
 				ImGuiSetupIo();
 				ImGuiSetupStyle();
@@ -290,6 +199,10 @@ I32 main()
 				ImGui_ImplOpenGL3_Init("#version 450 core");
 
 				InterfaceManager::Create();
+				SceneManager::Create();
+
+				gDebugRenderer = new DebugRenderer{ 65535, 65535 * 2 };
+				gDefaultRenderer = new DefaultRenderer{};
 
 				while (!glfwWindowShouldClose(sGlfwContext))
 				{
@@ -304,10 +217,46 @@ I32 main()
 					ImGui_ImplOpenGL3_NewFrame();
 					
 					ImGui::NewFrame();
-					ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
-					
-					InterfaceManager::Draw();
-					SceneManager::Draw();
+
+					ImGuiViewport* viewport = ImGui::GetMainViewport();
+					ImGuiID dockspaceId = ImGui::DockSpaceOverViewport(viewport, ImGuiDockNodeFlags_PassthruCentralNode);
+				
+					// TODO: This feature is still experimental or maybe I just don't know how to use it..
+
+					/*
+					if (dockspaceId) {
+						ImGuiID dockMainId = dockspaceId;
+
+						ImGui::DockBuilderRemoveNode(dockMainId);
+						ImGui::DockBuilderAddNode(dockMainId, ImGuiDockNodeFlags_DockSpace);
+						ImGui::DockBuilderSetNodeSize(dockMainId, viewport->Size);
+
+						ImGuiID dockLeftId;
+						ImGuiID dockRightId;
+						ImGui::DockBuilderSplitNode(dockMainId, ImGuiDir_Left, 0.2f, &dockLeftId, &dockRightId);
+						ImGui::DockBuilderDockWindow("Left Pane", dockLeftId);
+						ImGui::DockBuilderDockWindow("Right Pane", dockRightId);
+
+						ImGui::DockBuilderFinish(dockMainId);
+					}
+
+					ImGui::Begin("Left Pane");
+					ImGui::End();
+
+					ImGui::Begin("Right Pane");
+					ImGui::End();
+					*/
+
+					InterfaceManager::Render();
+
+					SceneManager::PreUpdate();
+					SceneManager::PreRender();
+
+					SceneManager::Update();
+					SceneManager::Render();
+
+					SceneManager::PostUpdate();
+					SceneManager::PostRender();
 
 					ImGui::Render();
 					
@@ -321,6 +270,12 @@ I32 main()
 
 					Event::Poll(sGlfwContext);
 				}
+
+				delete gDebugRenderer;
+				delete gDefaultRenderer;
+
+				SceneManager::Destroy();
+				InterfaceManager::Destroy();
 
 				ImGui_ImplOpenGL3_Shutdown();
 				ImGui_ImplGlfw_Shutdown();
@@ -344,8 +299,6 @@ I32 main()
 	{
 		LOG("Failed initializing GLFW\n");
 	}
-
-	InterfaceManager::Destroy();
 
 	return 0;
 }

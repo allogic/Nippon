@@ -1,12 +1,11 @@
-#include <Editor/Converter/VertexConverter.h>
+#include <Editor/Actor.h>
+#include <Editor/Coefficients.h>
 
-///////////////////////////////////////////////////////////
-// Implementation
-///////////////////////////////////////////////////////////
+#include <Editor/Converter/VertexConverter.h>
 
 namespace ark
 {
-	std::vector<DefaultVertex> VertexConverter::ToVertexBuffer(const std::vector<ScrVertex>& Vertices, const std::vector<ScrTextureMap>& TextureMaps, const std::vector<ScrUv>& TextureUvs, const std::vector<ScrColorWeight>& ColorWeights)
+	std::vector<DefaultVertex> VertexConverter::ToVertexBuffer(Actor* Actor, const std::vector<ScrVertex>& Vertices, const std::vector<ScrTextureMap>& TextureMaps, const std::vector<ScrUv>& TextureUvs, const std::vector<ScrColorWeight>& ColorWeights)
 	{
 		std::vector<DefaultVertex> vertices = {};
 
@@ -33,13 +32,13 @@ namespace ark
 			R32V2 textureUv = (vertexCount == TextureUvs.size()) ? R32V2{ TextureUvs[i].U, TextureUvs[i].V } : R32V2{};
 			R32V4 colorWeight = (vertexCount == ColorWeights.size()) ? R32V4{ ColorWeights[i].R, ColorWeights[i].G, ColorWeights[i].B, ColorWeights[i].A } / 255.0F : R32V4{};
 
-			vertices[i] = DefaultVertex{ position, textureMap, textureUv, colorWeight };
+			vertices[i] = DefaultVertex{ position, textureMap, textureUv, colorWeight, Actor->GetId() };
 		}
 
 		return vertices;
 	}
 
-	std::vector<DefaultVertex> VertexConverter::ToVertexBuffer(const std::vector<MdVertex>& Vertices, const std::vector<MdTextureMap>& TextureMaps, const std::vector<MdUv>& TextureUvs, const std::vector<MdColorWeight>& ColorWeights)
+	std::vector<DefaultVertex> VertexConverter::ToVertexBuffer(Actor* Actor, const std::vector<MdVertex>& Vertices, const std::vector<MdTextureMap>& TextureMaps, const std::vector<MdUv>& TextureUvs, const std::vector<MdColorWeight>& ColorWeights)
 	{
 		std::vector<DefaultVertex> vertices = {};
 
@@ -66,7 +65,7 @@ namespace ark
 			R32V2 textureUv = (vertexCount == TextureUvs.size()) ? R32V2{ TextureUvs[i].U, TextureUvs[i].V } : R32V2{};
 			R32V4 colorWeight = (vertexCount == ColorWeights.size()) ? R32V4{ ColorWeights[i].R, ColorWeights[i].G, ColorWeights[i].B, ColorWeights[i].A } / 255.0F : R32V4{};
 
-			vertices[i] = DefaultVertex{ position, textureMap, textureUv, colorWeight };
+			vertices[i] = DefaultVertex{ position, textureMap, textureUv, colorWeight, Actor->GetId() };
 		}
 
 		return vertices;

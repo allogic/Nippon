@@ -1,9 +1,5 @@
 #pragma once
 
-///////////////////////////////////////////////////////////
-// Definition
-///////////////////////////////////////////////////////////
-
 namespace ark
 {
 	class Interface
@@ -15,6 +11,6 @@ namespace ark
 	public:
 
 		virtual void Reset() = 0;
-		virtual void Draw() = 0;
+		virtual void Render() = 0;
 	};
 }

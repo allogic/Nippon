@@ -4,11 +4,8 @@
 
 #include <Common/Types.h>
 
-#include <Editor/Header.h>
-
-///////////////////////////////////////////////////////////
-// Definition
-///////////////////////////////////////////////////////////
+#include <Editor/Structs/ScrStructs.h>
+#include <Editor/Structs/MdStructs.h>
 
 namespace ark
 {

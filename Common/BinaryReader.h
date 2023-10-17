@@ -6,16 +6,13 @@
 
 #include <Common/Types.h>
 
-///////////////////////////////////////////////////////////
-// Definition
-///////////////////////////////////////////////////////////
-
 namespace ark
 {
 	class BinaryReader
 	{
 	public:
 
+		BinaryReader() {}
 		BinaryReader(const std::vector<U8>& Bytes) : mBytes{ Bytes } {}
 
 	public:
@@ -48,15 +45,10 @@ namespace ark
 
 	private:
 
-		std::vector<U8> mBytes;
-
+		std::vector<U8> mBytes = {};
 		U64 mPosition = 0;
 	};
 }
-
-///////////////////////////////////////////////////////////
-// Implementation
-///////////////////////////////////////////////////////////
 
 namespace ark
 {

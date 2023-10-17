@@ -2,25 +2,27 @@
 
 #include <Common/Types.h>
 
-#include <Editor/Forward.h>
 #include <Editor/Interface.h>
-
-///////////////////////////////////////////////////////////
-// Definition
-///////////////////////////////////////////////////////////
 
 namespace ark
 {
+	class Scene;
+	class Actor;
+
 	class Outline : public Interface
 	{
 	public:
 
 		virtual void Reset() override;
-		virtual void Draw() override;
+		virtual void Render() override;
 
 	public:
 
 		const auto GetSelectedActor() const { return mSelectedActor; }
+
+	public:
+
+		void SetSelectedActor(Actor* Actor);
 
 	private:
 

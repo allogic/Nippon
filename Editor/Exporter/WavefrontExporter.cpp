@@ -1,11 +1,15 @@
-#include <Common/Utils/FsUtils.h>
-#include <Common/Utils/TextureUtils.h>
+#include <Common/Macros.h>
+
+#include <Common/Utilities/FsUtils.h>
+#include <Common/Utilities/TextureUtils.h>
 
 #include <Editor/Editor.h>
 #include <Editor/Scene.h>
+#include <Editor/Actor.h>
+#include <Editor/Coefficients.h>
 
-#include <Editor/Scenes/EntityScene.h>
 #include <Editor/Scenes/LevelScene.h>
+#include <Editor/Scenes/EntityScene.h>
 
 #include <Editor/Converter/ElementConverter.h>
 #include <Editor/Converter/VertexConverter.h>
@@ -15,23 +19,15 @@
 #include <Editor/Components/Transform.h>
 #include <Editor/Components/Renderable.h>
 
-///////////////////////////////////////////////////////////
-// Implementation
-///////////////////////////////////////////////////////////
-
 namespace ark
 {
-	void WavefrontExporter::ExportEntity(const std::string& Entry, const std::string& SubEntry)
+	void WavefrontExporter::Export(Actor* Actor, Scene* Scene)
 	{
-		EntityScene scene = { Entry, SubEntry };
-
-		fs::path exportDir = gConfig["exportDir"].GetString();
+		fs::path exportDir = "Exports";
 
 		FsUtils::CreateIfNotExists(exportDir);
-		FsUtils::CreateIfNotExists(exportDir / Entry);
-		FsUtils::CreateIfNotExists(exportDir / Entry / SubEntry);
-
-		Actor* staticGeometry = scene.GetStaticGeometryActor();
+		FsUtils::CreateIfNotExists(exportDir / Scene->GetArchiveFileName());
+		FsUtils::CreateIfNotExists(exportDir / Scene->GetArchiveFileName() / Actor->GetName());
 
 		std::ostringstream objectStream = {};
 		std::ostringstream materialStream = {};
@@ -40,76 +36,45 @@ namespace ark
 
 		objectStream << "mtllib object.mtl" << "\n";
 
-		ExportObjectsRecursive(staticGeometry, objectStream, vertexOffset);
-		ExportMaterialsRecursive(staticGeometry, materialStream);
+		LOG("\n");
+		LOG(" Exporting Actor %s\n", Actor->GetName().c_str());
+		LOG("=============================================================\n");
+		LOG("\n");
+		LOG("Creating objects:\n");
 
-		FsUtils::WriteText(exportDir / Entry / SubEntry / "object.obj", objectStream.str());
-		FsUtils::WriteText(exportDir / Entry / SubEntry / "object.mtl", materialStream.str());
+		ExportObjectsRecursive(Actor, objectStream, vertexOffset);
 
-		const auto& textures = scene.GetMdTextures();
+		LOG("\n");
+		LOG("Creating materials:\n");
 
-		for (U32 i = 0; i < textures.size(); i++)
-		{
-			std::string textureName = "texture_" + std::to_string(i) + ".png";
+		ExportMaterialsRecursive(Actor, materialStream);
 
-			std::vector<U8> bytes = textures[i]->Snapshot();
+		LOG("\n");
+		LOG("Creating textures:\n");
 
-			TextureUtils::WritePNG(textures[i]->GetWidth(), textures[i]->GetHeight(), bytes, exportDir / Entry / SubEntry / textureName);
-		}
+		ExportTexturesRecursive(Actor, Scene, exportDir / Scene->GetArchiveFileName() / Actor->GetName());
+
+		LOG("\n");
+
+		FsUtils::WriteText(exportDir / Scene->GetArchiveFileName() / Actor->GetName() / "object.obj", objectStream.str());
+		FsUtils::WriteText(exportDir / Scene->GetArchiveFileName() / Actor->GetName() / "object.mtl", materialStream.str());
 	}
 
-	void WavefrontExporter::ExportLevel(const std::string& Entry, const std::string& SubEntry)
+	void WavefrontExporter::ExportObjectsRecursive(Actor* Actor, std::ostringstream& Stream, U32& VertexOffset)
 	{
-		LevelScene scene = { Entry, SubEntry };
-
-		fs::path exportDir = gConfig["exportDir"].GetString();
-
-		FsUtils::CreateIfNotExists(exportDir);
-		FsUtils::CreateIfNotExists(exportDir / Entry);
-		FsUtils::CreateIfNotExists(exportDir / Entry / SubEntry);
-
-		Actor* staticGeometry = scene.GetStaticGeometryActor();
-
-		std::ostringstream objectStream = {};
-		std::ostringstream materialStream = {};
-
-		U32 vertexOffset = 0;
-
-		objectStream << "mtllib object.mtl" << "\n";
-
-		ExportObjectsRecursive(staticGeometry, objectStream, vertexOffset);
-		ExportMaterialsRecursive(staticGeometry, materialStream);
-
-		FsUtils::WriteText(exportDir / Entry / SubEntry / "object.obj", objectStream.str());
-		FsUtils::WriteText(exportDir / Entry / SubEntry / "object.mtl", materialStream.str());
-
-		const auto& textures = scene.GetScrTextures();
-
-		for (U32 i = 0; i < textures.size(); i++)
-		{
-			std::string textureName = "texture_" + std::to_string(i) + ".png";
-
-			std::vector<U8> bytes = textures[i]->Snapshot();
-
-			TextureUtils::WritePNG(textures[i]->GetWidth(), textures[i]->GetHeight(), bytes, exportDir / Entry / SubEntry / textureName);
-		}
-	}
-
-	void WavefrontExporter::ExportObjectsRecursive(Actor* Node, std::ostringstream& Stream, U32& VertexOffset)
-	{
-		Renderable* renderable = Node->GetComponent<Renderable>();
-
-		if (renderable)
+		if (Renderable* renderable = Actor->GetComponent<Renderable>())
 		{
 			U32 textureIndex = renderable->GetTextureIndex();
 
 			if (textureIndex < 0xFF)
 			{
-				std::string objectName = Node->GetName() + "_" + std::to_string(textureIndex);
-				std::string materialName = Node->GetName() + "_" + std::to_string(textureIndex);
+				std::string objectName = Actor->GetName() + "_" + std::to_string(textureIndex);
+				std::string materialName = Actor->GetName() + "_" + std::to_string(textureIndex);
 
-				Transform* transform = Node->GetTransform();
-				Renderable* renderable = Node->GetComponent<Renderable>();
+				LOG("    %s\n", objectName.c_str());
+
+				Transform* transform = Actor->GetTransform();
+				Renderable* renderable = Actor->GetComponent<Renderable>();
 
 				const auto& vertexBuffer = renderable->GetVertexBuffer();
 				const auto& elementBuffer = renderable->GetElementBuffer();
@@ -148,23 +113,23 @@ namespace ark
 			}
 		}
 
-		for (Actor* child : Node->GetChildren())
+		for (const auto& child : Actor->GetChildren())
 		{
 			ExportObjectsRecursive(child, Stream, VertexOffset);
 		}
 	}
 
-	void WavefrontExporter::ExportMaterialsRecursive(Actor* Node, std::ostringstream& Stream)
+	void WavefrontExporter::ExportMaterialsRecursive(Actor* Actor, std::ostringstream& Stream)
 	{
-		Renderable* renderable = Node->GetComponent<Renderable>();
-
-		if (renderable)
+		if (Renderable* renderable = Actor->GetComponent<Renderable>())
 		{
 			U32 textureIndex = renderable->GetTextureIndex();
 
 			if (textureIndex < 0xFF)
 			{
-				std::string materialName = Node->GetName() + "_" + std::to_string(textureIndex);
+				std::string materialName = Actor->GetName() + "_" + std::to_string(textureIndex);
+
+				LOG("    %s\n", materialName.c_str());
 
 				Stream << "newmtl " << materialName << "\n";
 				Stream << "d 1.0\n";
@@ -175,9 +140,62 @@ namespace ark
 			}
 		}
 
-		for (Actor* child : Node->GetChildren())
+		for (const auto& child : Actor->GetChildren())
 		{
 			ExportMaterialsRecursive(child, Stream);
+		}
+	}
+
+	void WavefrontExporter::ExportTexturesRecursive(Actor* Actor, Scene* Scene, const fs::path& ExportDir)
+	{
+		if (Renderable* renderable = Actor->GetComponent<Renderable>())
+		{
+			U32 textureIndex = renderable->GetTextureIndex();
+
+			if (textureIndex < 0xFF)
+			{
+				std::string textureName = "texture_" + std::to_string(textureIndex) + ".png";
+
+				if (!fs::exists(ExportDir / textureName))
+				{
+					LOG("    %s\n", textureName.c_str());
+
+					switch (Scene->GetSceneType())
+					{
+						case eSceneTypeLevel:
+						{
+							const auto& textures = ((LevelScene*)Scene)->GetScrTextures();
+
+							if (Texture2D* texture = textures[textureIndex])
+							{
+								std::vector<U8> bytes = texture->Snapshot(4);
+
+								TextureUtils::WritePNG(texture->GetWidth(), texture->GetHeight(), bytes, ExportDir / textureName);
+							}
+
+							break;
+						}
+						case eSceneTypeEntity:
+						{
+							const auto& textures = ((EntityScene*)Scene)->GetMdTextures();
+
+							if (Texture2D* texture = textures[textureIndex])
+							{
+								std::vector<U8> bytes = texture->Snapshot(4);
+
+								TextureUtils::WritePNG(texture->GetWidth(), texture->GetHeight(), bytes, ExportDir / textureName);
+							}
+
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		for (const auto& child : Actor->GetChildren())
+		{
+			ExportTexturesRecursive(child, Scene, ExportDir);
 		}
 	}
 }

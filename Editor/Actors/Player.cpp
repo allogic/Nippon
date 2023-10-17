@@ -1,62 +1,65 @@
-#include <Common/Debug.h>
+#include <Common/Macros.h>
 
+#include <Editor/Actor.h>
 #include <Editor/Event.h>
 #include <Editor/Scene.h>
+#include <Editor/Editor.h>
+#include <Editor/InterfaceManager.h>
 
 #include <Editor/Actors/Player.h>
 
 #include <Editor/Components/Camera.h>
+#include <Editor/Components/CameraController.h>
 #include <Editor/Components/Transform.h>
 
+#include <Editor/Interface/Outline.h>
 #include <Editor/Interface/Viewport.h>
 
 #include <Vendor/GLM/gtx/euler_angles.hpp>
 
-///////////////////////////////////////////////////////////
-// Implementation
-///////////////////////////////////////////////////////////
-
 namespace ark
 {
-	Player::Player(Scene* Scene, std::string const& Name)
-		: Actor{ Scene, Name }
+	Player::Player(Scene* Scene, U32 Id, const std::string& Name)
+		: Actor{ Scene, Id, Name }
 		, mCamera{ AttachComponent<Camera>() }
+		, mCameraController{ AttachComponent<CameraController>() }
 	{
 
 	}
 
-	void Player::Update(R32 TimeDelta)
+	void Player::Update()
 	{
-		Viewport* viewport = mScene->GetViewport();
+		HandlePosition();
+		HandleRotation();
+		HandleActorFocus();
+	}
 
-		if (viewport)
+	void Player::HandlePosition()
+	{
+		if (Viewport* viewport = mScene->GetViewport())
 		{
 			if (viewport->IsFocused())
 			{
-				if (Event::KeyDown(Event::eKeyCodeF))
-				{
-					LOG("\"info\": \"\",\n");
-					LOG("\"thumbnail\": {\n");
-					LOG("\t\"x\": %.1F,\n", mTransform->GetWorldPosition().x);
-					LOG("\t\"y\": %.1F,\n", mTransform->GetWorldPosition().y);
-					LOG("\t\"z\": %.1F,\n", mTransform->GetWorldPosition().z);
-					LOG("\t\"pitch\": %.1F\n", mTransform->GetLocalEulerAngles().x);
-					LOG("\t\"yaw\": %.1F\n", mTransform->GetLocalEulerAngles().y);
-					LOG("\t\"roll\": %.1F\n", mTransform->GetLocalEulerAngles().z);
-					LOG("}\n");
-				}
+				R32 keyboardMovementSpeed = (Event::KeyHeld(Event::eKeyCodeLeftShift)) ? mCameraController->GetKeyboardMovementSpeedFast() : mCameraController->GetKeyboardMovementSpeedNormal();
 
-				R32 keyboardMovementSpeed = (Event::KeyHeld(Event::eKeyCodeLeftShift)) ? mKeyboardMovementSpeedFast : mKeyboardMovementSpeedNormal;
+				if (Event::KeyHeld(Event::eKeyCodeD)) GetTransform()->AddLocalPosition(GetTransform()->GetLocalRight() * keyboardMovementSpeed * gTimeDelta);
+				if (Event::KeyHeld(Event::eKeyCodeA)) GetTransform()->AddLocalPosition(-GetTransform()->GetLocalRight() * keyboardMovementSpeed * gTimeDelta);
 
-				if (Event::KeyHeld(Event::eKeyCodeD)) GetTransform()->AddLocalPosition(GetTransform()->GetLocalRight() * keyboardMovementSpeed);
-				if (Event::KeyHeld(Event::eKeyCodeA)) GetTransform()->AddLocalPosition(-GetTransform()->GetLocalRight() * keyboardMovementSpeed);
+				if (Event::KeyHeld(Event::eKeyCodeE)) GetTransform()->AddLocalPosition(GetTransform()->GetWorldUp() * keyboardMovementSpeed * gTimeDelta);
+				if (Event::KeyHeld(Event::eKeyCodeQ)) GetTransform()->AddLocalPosition(-GetTransform()->GetWorldUp() * keyboardMovementSpeed * gTimeDelta);
 
-				if (Event::KeyHeld(Event::eKeyCodeE)) GetTransform()->AddLocalPosition(GetTransform()->GetWorldUp() * keyboardMovementSpeed);
-				if (Event::KeyHeld(Event::eKeyCodeQ)) GetTransform()->AddLocalPosition(-GetTransform()->GetWorldUp() * keyboardMovementSpeed);
+				if (Event::KeyHeld(Event::eKeyCodeW)) GetTransform()->AddLocalPosition(-GetTransform()->GetLocalFront() * keyboardMovementSpeed * gTimeDelta);
+				if (Event::KeyHeld(Event::eKeyCodeS)) GetTransform()->AddLocalPosition(GetTransform()->GetLocalFront() * keyboardMovementSpeed * gTimeDelta);
+			}
+		}
+	}
 
-				if (Event::KeyHeld(Event::eKeyCodeW)) GetTransform()->AddLocalPosition(-GetTransform()->GetLocalFront() * keyboardMovementSpeed);
-				if (Event::KeyHeld(Event::eKeyCodeS)) GetTransform()->AddLocalPosition(GetTransform()->GetLocalFront() * keyboardMovementSpeed);
-
+	void Player::HandleRotation()
+	{
+		if (Viewport* viewport = mScene->GetViewport())
+		{
+			if (viewport->IsFocused())
+			{
 				static R32V2 mousePositionStart;
 				static R32V2 mousePositionDelta;
 
@@ -70,10 +73,10 @@ namespace ark
 
 					R32V3 positionOffset = {};
 
-					R32 mouseMovementSpeed = (Event::KeyHeld(Event::eKeyCodeLeftShift)) ? mMouseMovementSpeedFast : mMouseMovementSpeedNormal;
+					R32 mouseMovementSpeed = (Event::KeyHeld(Event::eKeyCodeLeftShift)) ? mCameraController->GetMouseMovementSpeedFast() : mCameraController->GetMouseMovementSpeedNormal();
 
-					positionOffset += GetTransform()->GetLocalRight() * mousePositionDelta.x * mouseMovementSpeed;
-					positionOffset -= GetTransform()->GetWorldUp() * mousePositionDelta.y * mouseMovementSpeed;
+					positionOffset += GetTransform()->GetLocalRight() * mousePositionDelta.x * mouseMovementSpeed * gTimeDelta;
+					positionOffset -= GetTransform()->GetWorldUp() * mousePositionDelta.y * mouseMovementSpeed * gTimeDelta;
 
 					GetTransform()->AddLocalPosition(positionOffset);
 				}
@@ -83,8 +86,8 @@ namespace ark
 
 					R32V3 eulerAngles = GetTransform()->GetLocalEulerAngles();
 
-					eulerAngles.x += mousePositionDelta.y * mMouseRotationSpeed;
-					eulerAngles.y += mousePositionDelta.x * mMouseRotationSpeed;
+					eulerAngles.x += mousePositionDelta.y * mCameraController->GetMouseRotationSpeed() * gTimeDelta;
+					eulerAngles.y += mousePositionDelta.x * mCameraController->GetMouseRotationSpeed() * gTimeDelta;
 
 					if (eulerAngles.x <= -90.0F) eulerAngles.x = -90.0F;
 					if (eulerAngles.x >= 90.0F) eulerAngles.x = 90.0F;
@@ -92,7 +95,24 @@ namespace ark
 					GetTransform()->SetLocalRotation(eulerAngles);
 				}
 
-				mousePositionStart -= mousePositionDelta * mMouseDragDamping;
+				mousePositionStart -= mousePositionDelta * mCameraController->GetMouseDragDamping() * gTimeDelta;
+			}
+		}
+	}
+
+	void Player::HandleActorFocus()
+	{
+		if (Viewport* viewport = mScene->GetViewport())
+		{
+			if (viewport->IsFocused())
+			{
+				if (Event::KeyDown(Event::eKeyCodeF))
+				{
+					if (Actor* actor = InterfaceManager::GetOutline()->GetSelectedActor())
+					{
+						GetTransform()->SetLocalPosition(R32V3{ 0.0F, 0.0F, 0.0F }); // TODO
+					}
+				}
 			}
 		}
 	}

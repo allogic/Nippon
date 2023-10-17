@@ -4,25 +4,22 @@
 
 #include <Common/Types.h>
 
-#include <Editor/Forward.h>
-
-///////////////////////////////////////////////////////////
-// Namespaces
-///////////////////////////////////////////////////////////
-
-namespace fs = std::filesystem;
-
-///////////////////////////////////////////////////////////
-// Definition
-///////////////////////////////////////////////////////////
+#include <Editor/Vertex.h>
 
 namespace ark
 {
+	namespace fs = std::filesystem;
+
+	class Shader;
+
+	template<typename V, typename E>
+	class Mesh;
+
 	class DebugRenderer
 	{
 	public:
 
-		DebugRenderer(Scene* Scene, U32 VertexBufferSize, U32 ElementBufferSize);
+		DebugRenderer(U32 VertexBufferSize, U32 ElementBufferSize);
 		virtual ~DebugRenderer();
 
 	public:
@@ -33,11 +30,11 @@ namespace ark
 
 		void DebugLine(const R32V3& P0, const R32V3& P1, const R32V4& C);
 		void DebugBox(const R32V3& P, const R32V3& S, const R32V4& C, const R32Q& R = {});
-		void DebugAxisAlignedBoundingBox(const R32V3& P, const AABB& AABB, const R32V4& C);
+		void DebugGrid(const R32V3& P, U32 N, R32 S, const R32V4& C, const R32Q& R = {});
+		void DebugAABB(const R32V3& P, const AABB& AABB, const R32V4& C);
 
 	private:
 
-		Scene* mScene;
 		DebugVertex* mVertexBuffer;
 		U32* mElementBuffer;
 		Mesh<DebugVertex, U32>* mMesh;

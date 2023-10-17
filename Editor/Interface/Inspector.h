@@ -6,10 +6,6 @@
 
 #include <Editor/Interface.h>
 
-///////////////////////////////////////////////////////////
-// Definition
-///////////////////////////////////////////////////////////
-
 namespace ark
 {
 	class Inspector : public Interface
@@ -17,6 +13,6 @@ namespace ark
 	public:
 
 		virtual void Reset() override;
-		virtual void Draw() override;
+		virtual void Render() override;
 	};
 }

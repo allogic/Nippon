@@ -1,4 +1,8 @@
+#include <Common/Macros.h>
+
 #include <Editor/InterfaceManager.h>
+#include <Editor/Texture.h>
+#include <Editor/TextureLoader.h>
 
 #include <Editor/Interface/EntityBrowser.h>
 #include <Editor/Interface/Inspector.h>
@@ -6,22 +10,19 @@
 #include <Editor/Interface/MainMenu.h>
 #include <Editor/Interface/Outline.h>
 
-///////////////////////////////////////////////////////////
-// Locals
-///////////////////////////////////////////////////////////
-
-static ark::EntityBrowser* sEntityBrowser = nullptr;
-static ark::Inspector* sInspector = nullptr;
-static ark::LevelBrowser* sLevelBrowser = nullptr;
-static ark::MainMenu* sMainMenu = nullptr;
-static ark::Outline* sOutline = nullptr;
-
-///////////////////////////////////////////////////////////
-// Implementation
-///////////////////////////////////////////////////////////
+#include <Editor/Generated/SceneInfos.h>
 
 namespace ark
 {
+	static std::map<std::string, Texture2D*> sLevelThumbnails = {};
+	static std::map<std::string, Texture2D*> sEntityThumbnails = {};
+
+	static EntityBrowser* sEntityBrowser = nullptr;
+	static Inspector* sInspector = nullptr;
+	static LevelBrowser* sLevelBrowser = nullptr;
+	static MainMenu* sMainMenu = nullptr;
+	static Outline* sOutline = nullptr;
+
 	EntityBrowser* InterfaceManager::GetEntityBrowser() { return sEntityBrowser; }
 	Inspector* InterfaceManager::GetInspector() { return sInspector; }
 	LevelBrowser* InterfaceManager::GetLevelBrowser() { return sLevelBrowser; }
@@ -30,6 +31,8 @@ namespace ark
 
 	void InterfaceManager::Create()
 	{
+		CreateThumbnails();
+
 		sEntityBrowser = new EntityBrowser;
 		sInspector = new Inspector;
 		sLevelBrowser = new LevelBrowser;
@@ -37,13 +40,13 @@ namespace ark
 		sOutline = new Outline;
 	}
 
-	void InterfaceManager::Draw()
+	void InterfaceManager::Render()
 	{
-		sEntityBrowser->Draw();
-		sInspector->Draw();
-		sLevelBrowser->Draw();
-		sMainMenu->Draw();
-		sOutline->Draw();
+		sEntityBrowser->Render();
+		sInspector->Render();
+		sLevelBrowser->Render();
+		sMainMenu->Render();
+		sOutline->Render();
 	}
 
 	void InterfaceManager::Destroy()
@@ -59,5 +62,73 @@ namespace ark
 		sLevelBrowser = nullptr;
 		sMainMenu = nullptr;
 		sOutline = nullptr;
+
+		DestroyThumbnails();
+	}
+
+	Texture2D* InterfaceManager::GetLevelThumbnail(const std::string& ThumbnailFileName)
+	{
+		return sLevelThumbnails[ThumbnailFileName];
+	}
+
+	Texture2D* InterfaceManager::GetEntityThumbnail(const std::string& ThumbnailFileName)
+	{
+		return sEntityThumbnails[ThumbnailFileName];
+	}
+
+	void InterfaceManager::CreateThumbnails()
+	{
+		fs::path file = "Thumbnails";
+
+		for (const auto& groupInfo : SceneInfos::GetLevelGroups())
+		{
+			for (const auto& sceneInfo : SceneInfos::GetLevelsByGroup(groupInfo))
+			{
+				if (fs::exists(file / sceneInfo.ThumbnailFileName))
+				{
+					sLevelThumbnails[sceneInfo.ThumbnailFileName] = TextureLoader::LoadGeneric(file / sceneInfo.ThumbnailFileName);
+				}
+				else
+				{
+					LOG("Missing thumbnail %s\n", sceneInfo.ThumbnailFileName.c_str());
+				}
+			}
+		}
+
+		for (const auto& groupInfo : SceneInfos::GetEntityGroups())
+		{
+			for (const auto& sceneInfo : SceneInfos::GetEntitiesByGroup(groupInfo))
+			{
+				if (fs::exists(file / sceneInfo.ThumbnailFileName))
+				{
+					sEntityThumbnails[sceneInfo.ThumbnailFileName] = TextureLoader::LoadGeneric(file / sceneInfo.ThumbnailFileName);
+				}
+				else
+				{
+					LOG("Missing thumbnail %s\n", sceneInfo.ThumbnailFileName.c_str());
+				}
+			}
+		}
+	}
+
+	void InterfaceManager::DestroyThumbnails()
+	{
+		for (const auto& groupInfo : SceneInfos::GetEntityGroups())
+		{
+			for (const auto& sceneInfo : SceneInfos::GetEntitiesByGroup(groupInfo))
+			{
+				delete sEntityThumbnails[sceneInfo.ThumbnailFileName];
+				sEntityThumbnails[sceneInfo.ThumbnailFileName] = nullptr;
+			}
+		}
+
+		for (const auto& groupInfo : SceneInfos::GetLevelGroups())
+		{
+			for (const auto& sceneInfo : SceneInfos::GetLevelsByGroup(groupInfo))
+			{
+				delete sLevelThumbnails[sceneInfo.ThumbnailFileName];
+				sLevelThumbnails[sceneInfo.ThumbnailFileName] = nullptr;
+			}
+		}
 	}
 }

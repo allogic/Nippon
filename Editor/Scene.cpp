@@ -1,7 +1,8 @@
 #include <Editor/Editor.h>
 #include <Editor/Texture.h>
-#include <Editor/Scene.h>
 #include <Editor/InterfaceManager.h>
+#include <Editor/SceneManager.h>
+#include <Editor/Scene.h>
 
 #include <Editor/Actors/Player.h>
 
@@ -15,58 +16,39 @@
 #include <Editor/Components/Transform.h>
 #include <Editor/Components/Renderable.h>
 
-#include <Vendor/GLAD/glad.h>
-
-///////////////////////////////////////////////////////////
-// Implementation
-///////////////////////////////////////////////////////////
+#include <Editor/Glad/glad.h>
 
 namespace ark
 {
-	Scene::Scene(
-		SceneType SceneType,
-		const std::string& Entry,
-		const std::string& SubEntry)
-		: mSceneType{ SceneType }
-		, mEntry{ Entry }
-		, mSubEntry{ SubEntry }
-		, mSceneName{ "" }
-		, mWindowName{ "" }
-		, mEnableDebug{ false }
-	{
-		mMainActor = CreateActor<Player>("Player", nullptr);
-		mStaticGeometryActor = CreateActor<Actor>("Static Geometry", nullptr);
-
-		mMainCamera = mMainActor->GetComponent<Camera>();
-	}
-
-	Scene::Scene(
-		SceneType SceneType,
-		const std::string& Entry,
-		const std::string& SubEntry,
-		const std::string& SceneName,
-		const std::string& WindowName)
-		: mSceneType{ SceneType }
-		, mEntry{ Entry }
-		, mSubEntry{ SubEntry }
-		, mSceneName{ SceneName }
-		, mWindowName{ WindowName }
-		, mEnableDebug{ true }
+	Scene::Scene(const SceneInfo& Info)
+		: mSceneInfo{ Info }
 	{
 		mViewport = new Viewport{ this };
 
-		mMainActor = CreateActor<Player>("Player", nullptr);
+		mFrameBuffer = new FrameBuffer
+		{
+			{
+				AttachmentDescription{ GL_CLAMP_TO_EDGE, GL_LINEAR, GL_RGBA, GL_RGBA32F, GL_FLOAT },
+				AttachmentDescription{ GL_CLAMP_TO_EDGE, GL_LINEAR, GL_RED_INTEGER, GL_R32UI, GL_UNSIGNED_INT },
+			},
+			AttachmentDescription{ GL_CLAMP_TO_EDGE, GL_LINEAR, GL_DEPTH_STENCIL, GL_DEPTH24_STENCIL8, GL_UNSIGNED_INT_24_8 }
+		};
+
+		mRootActor = CreateActor<Actor>("Root", nullptr);
+		mPlayerActor = CreateActor<Player>("Player", nullptr);
 		mStaticGeometryActor = CreateActor<Actor>("Static Geometry", nullptr);
 
-		mMainCamera = mMainActor->GetComponent<Camera>();
+		mMainCamera = mPlayerActor->GetComponent<Camera>();
 	}
 
 	Scene::~Scene()
 	{
-		for (auto& actor : mActors)
+		DestroyActorRecursive();
+
+		if (mFrameBuffer)
 		{
-			delete actor;
-			actor = nullptr;
+			delete mFrameBuffer;
+			mFrameBuffer = nullptr;
 		}
 
 		if (mViewport)
@@ -76,17 +58,11 @@ namespace ark
 		}
 	}
 
-	void Scene::DestroyActor(Actor* Actor)
+	void Scene::MakeShouldBeDestroyed(bool Value)
 	{
-		auto actorIt = std::find(mActors.begin(), mActors.end(), Actor);
+		mShouldBeDestroyed = Value;
 
-		if (actorIt != mActors.end())
-		{
-			delete* actorIt;
-			*actorIt = nullptr;
-
-			mActors.erase(actorIt);
-		}
+		SceneManager::SetDirty(true);
 	}
 
 	void Scene::Resize(U32 Width, U32 Height)
@@ -94,41 +70,38 @@ namespace ark
 		mWidth = Width;
 		mHeight = Height;
 
-		mFrameBuffer.Resize(mWidth, mHeight);
+		mFrameBuffer->Resize(mWidth, mHeight);
 	}
 
-	void Scene::Update()
+	void Scene::PreRender()
 	{
-		if (mEnableDebug)
-		{
-			mDebugRenderer.DebugLine(R32V3{ 0.0F, 0.0F, 0.0F }, R32V3{ 1000.0F, 0.0F, 0.0F }, R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
-			mDebugRenderer.DebugLine(R32V3{ 0.0F, 0.0F, 0.0F }, R32V3{ 0.0F, 1000.0F, 0.0F }, R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
-			mDebugRenderer.DebugLine(R32V3{ 0.0F, 0.0F, 0.0F }, R32V3{ 0.0F, 0.0F, 1000.0F }, R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
-		}
-
-		for (const auto& actor : mActors)
-		{
-			actor->Update(gTimeDelta);
-		}
-
-		SubmitRenderTasks();
+		SubmitActorToRendererRecursive();
 
 		if (mEnableDebug)
 		{
-			DoSelectionRecursive(InterfaceManager::GetOutline()->GetSelectedActor());
+			gDebugRenderer->DebugLine(R32V3{ 0.0F, 0.0F, 0.0F }, R32V3{ 1.0F, 0.0F, 0.0F }, R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
+			gDebugRenderer->DebugLine(R32V3{ 0.0F, 0.0F, 0.0F }, R32V3{ 0.0F, 1.0F, 0.0F }, R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
+			gDebugRenderer->DebugLine(R32V3{ 0.0F, 0.0F, 0.0F }, R32V3{ 0.0F, 0.0F, 1.0F }, R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
+
+			if (Actor* actor = InterfaceManager::GetOutline()->GetSelectedActor())
+			{
+				HandleActorSelectionRecursive(actor);
+			}
 		}
 	}
 
 	void Scene::Render()
 	{
 		glViewport(0, 0, (I32)mWidth, (I32)mHeight);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mFrameBuffer.GetId());
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mFrameBuffer->GetId());
 
 		glClearColor(0.125F, 0.125F, 0.125F, 1.0F);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// TODO: https://learnopengl.com/Guest-Articles/2020/OIT/Weighted-Blended
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
@@ -137,11 +110,11 @@ namespace ark
 		glCullFace(GL_BACK);
 		glFrontFace(GL_CW);
 
-		mDefaultRenderer.Render();
+		gDefaultRenderer->Render();
 
 		glDisable(GL_CULL_FACE);
 
-		mDebugRenderer.Render();
+		gDebugRenderer->Render();
 
 		glDisable(GL_DEPTH_TEST);
 		glDisable(GL_BLEND);
@@ -149,57 +122,247 @@ namespace ark
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	}
 
-	void Scene::SubmitRenderTasks()
+	void Scene::PostRender()
 	{
-		for (const auto& actor : mActors)
-		{
-			if (actor->IsActive())
-			{
-				Transform* transform = actor->GetTransform();
-				Renderable* renderable = actor->GetComponent<Renderable>();
+		// TODO
+	}
 
-				if (transform && renderable)
+	void Scene::PreUpdate()
+	{
+		// TODO
+	}
+
+	void Scene::Update()
+	{
+		UpdateActorRecursive();
+	}
+
+	void Scene::PostUpdate()
+	{
+		if (mIsDirty)
+		{
+			mIsDirty = false;
+
+			DestroyActorIfMarkedRecursive();
+			Step();
+		}
+	}
+
+	void Scene::Step()
+	{
+		PreRender();
+		Render();
+		PostRender();
+
+		PreUpdate();
+		Update();
+		PostUpdate();
+	}
+
+	void Scene::UpdateActorRecursive(Actor* Actor)
+	{
+		if (!Actor)
+		{
+			Actor = mRootActor;
+		}
+
+		if (Actor)
+		{
+			for (const auto& child : Actor->GetChildren())
+			{
+				UpdateActorRecursive(child);
+			}
+
+			Actor->Update();
+		}
+	}
+
+	bool Scene::DestroyActorRecursive(Actor* Actor)
+	{
+		if (!Actor)
+		{
+			Actor = mRootActor;
+		}
+
+		if (Actor)
+		{
+			auto& children = Actor->GetChildren();
+			for (auto it = children.begin(); it != children.end();)
+			{
+				if (DestroyActorRecursive(*it))
 				{
-					mDefaultRenderer.AddRenderTask(RenderTask{ transform, &renderable->GetMesh(), renderable->GetTexture() });
+					it = children.erase(it);
 				}
+				else
+				{
+					it++;
+				}
+			}
+
+			bool removeFromParent = Actor->GetParent();
+
+			if (Actor == mRootActor)
+			{
+				mRootActor = nullptr;
+			}
+
+			if (Actor == mPlayerActor)
+			{
+				mMainCamera = nullptr;
+			}
+
+			if (Actor == InterfaceManager::GetOutline()->GetSelectedActor())
+			{
+				InterfaceManager::GetOutline()->SetSelectedActor(nullptr);
+			}
+
+			delete Actor;
+
+			return removeFromParent;
+		}
+
+		return false;
+	}
+
+	bool Scene::DestroyActorIfMarkedRecursive(Actor* Actor)
+	{
+		if (!Actor)
+		{
+			Actor = mRootActor;
+		}
+
+		if (Actor)
+		{
+			auto& children = Actor->GetChildren();
+			for (auto it = children.begin(); it != children.end();)
+			{
+				if (DestroyActorIfMarkedRecursive(*it))
+				{
+					it = children.erase(it);
+				}
+				else
+				{
+					it++;
+				}
+			}
+
+			if (Actor->GetShouldBeDestroyed())
+			{
+				bool removeFromParent = Actor->GetParent();
+
+				if (Actor == mRootActor)
+				{
+					mRootActor = nullptr;
+				}
+
+				if (Actor == mPlayerActor)
+				{
+					mMainCamera = nullptr;
+				}
+
+				if (Actor == InterfaceManager::GetOutline()->GetSelectedActor())
+				{
+					InterfaceManager::GetOutline()->SetSelectedActor(nullptr);
+				}
+
+				delete Actor;
+
+				return removeFromParent;
+			}
+		}
+
+		return false;
+	}
+
+	Actor* Scene::FindActorByIdRecursive(U32 Id, Actor* Actor)
+	{
+		if (!Actor)
+		{
+			Actor = mRootActor;
+		}
+
+		if (Actor)
+		{
+			for (const auto& child : Actor->GetChildren())
+			{
+				if (const auto actor = FindActorByIdRecursive(Id, child))
+				{
+					return actor;
+				}
+			}
+
+			if (Id == Actor->GetId())
+			{
+				return Actor;
+			}
+		}
+
+		return nullptr;
+	}
+
+	void Scene::SubmitActorToRendererRecursive(Actor* Actor)
+	{
+		if (!Actor)
+		{
+			Actor = mRootActor;
+		}
+
+		if (Actor && Actor->IsActive())
+		{
+			for (const auto& child : Actor->GetChildren())
+			{
+				SubmitActorToRendererRecursive(child);
+			}
+
+			Transform* transform = Actor->GetTransform();
+			Renderable* renderable = Actor->GetComponent<Renderable>();
+
+			if (transform && renderable)
+			{
+				gDefaultRenderer->AddToRenderQueue(Actor);
 			}
 		}
 	}
 
-	void Scene::DoSelectionRecursive(Actor* Actor)
+	void Scene::HandleActorSelectionRecursive(Actor* Actor)
 	{
-		if (Actor && Actor->IsActive() && Actor != mMainActor)
+		if (!Actor)
 		{
+			Actor = mRootActor;
+		}
+
+		if (Actor && Actor->IsActive())
+		{
+			for (const auto& child : Actor->GetChildren())
+			{
+				HandleActorSelectionRecursive(child);
+			}
+
 			Transform* transform = Actor->GetComponent<Transform>();
 
 			if (transform)
 			{
-				mDebugRenderer.DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetWorldRight(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
-				mDebugRenderer.DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetWorldUp(), R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
-				mDebugRenderer.DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetWorldFront(), R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
+				gDebugRenderer->DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetWorldRight(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
+				gDebugRenderer->DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetWorldUp(), R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
+				gDebugRenderer->DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetWorldFront(), R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
 
-				mDebugRenderer.DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetLocalRight(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
-				mDebugRenderer.DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetLocalUp(), R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
-				mDebugRenderer.DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetLocalFront(), R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
+				gDebugRenderer->DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetLocalRight(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
+				gDebugRenderer->DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetLocalUp(), R32V4{ 0.0F, 1.0F, 0.0F, 1.0F });
+				gDebugRenderer->DebugLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetLocalFront(), R32V4{ 0.0F, 0.0F, 1.0F, 1.0F });
 
-				mDebugRenderer.DebugAxisAlignedBoundingBox(transform->GetWorldPosition(), Actor->GetAABB(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
-
-				for (const auto& child : Actor->GetChildren())
-				{
-					DoSelectionRecursive(child);
-				}
+				gDebugRenderer->DebugAABB(transform->GetWorldPosition(), Actor->GetAABB(), R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
 			}
 		}
 	}
 
-	std::vector<U8> Scene::Snapshot() const
+	std::vector<U8> Scene::Snapshot(U8 Channels) const
 	{
 		std::vector<U8> bytes = {};
 
-		bytes.resize(mWidth * mHeight * 4);
+		bytes.resize(mWidth * mHeight * Channels);
 
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, mFrameBuffer.GetId());
-		glReadPixels(0, 0, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, &bytes[0]);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, mFrameBuffer->GetId());
+		glReadPixels(0, 0, mWidth, mHeight, mFrameBuffer->GetColorTexture(0)->GetFormat(), mFrameBuffer->GetColorTexture(0)->GetType(), &bytes[0]);
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
 		return bytes;
