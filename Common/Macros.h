@@ -3,7 +3,7 @@
 #include <cstdio>
 
 #ifdef NDEBUG
-#define LOG(FMT, ...)
+#define LOG(FMT, ...) std::printf(FMT, __VA_ARGS__)
 #else
 #define LOG(FMT, ...) std::printf(FMT, __VA_ARGS__)
 #endif
