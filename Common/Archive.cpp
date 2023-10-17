@@ -79,7 +79,7 @@ namespace ark
 		
 	}
 
-	void Archive::DumpToFileSystemRecursive(fs::path File, Archive* Node)
+	void Archive::DumpToDiskRecursive(fs::path File, Archive* Node)
 	{
 		if (!Node)
 		{
@@ -94,7 +94,7 @@ namespace ark
 
 			for (const auto& node : Node->mNodes)
 			{
-				DumpToFileSystemRecursive(File, node);
+				DumpToDiskRecursive(File, node);
 			}
 		}
 		else
@@ -112,7 +112,7 @@ namespace ark
 		}
 	}
 
-	void Archive::DumpToConsoleRecursive(U32 Offset, U32 Indent, U32 Increment, Archive* Node)
+	void Archive::DumpTableOfContent(U32 Offset, U32 Indent, U32 Increment, Archive* Node)
 	{
 		if (!Node)
 		{
@@ -126,14 +126,14 @@ namespace ark
 				LOG("%c", ((i % Increment == 0) && (i >= (Offset + Increment))) ? '|' : ' ');
 			}
 
-			LOG("%05u # %-20s # %-4s\n", Node->mIndex, Node->mName.c_str(), Node->mType.c_str());
+			LOG("%05u # %-20s # %-4s # %u.%u KB\n", Node->mIndex, Node->mName.c_str(), Node->mType.c_str(), Node->GetSize() / 1000, Node->GetSize() % 1000);
 		}
 
 		if (Node->mIsDirectory)
 		{
 			for (const auto& node : Node->mNodes)
 			{
-				DumpToConsoleRecursive(Offset, Indent + Increment, Increment, node);
+				DumpTableOfContent(Offset, Indent + Increment, Increment, node);
 			}
 		}
 	}

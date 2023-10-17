@@ -40,7 +40,8 @@ void WriteHeader(const std::string& FileName) {
 	oss << "\t\tSceneType Type;\n";
 	oss << "\t\tstd::string GroupKey;\n";
 	oss << "\t\tstd::string SceneKey;\n";
-	oss << "\t\tstd::string ArchiveFileName;\n";
+	oss << "\t\tstd::string DatArchiveFileName;\n";
+	oss << "\t\tstd::string BinArchiveFileName;\n";
 	oss << "\t\tstd::string ThumbnailFileName;\n";
 	oss << "\t\tstd::string Name;\n";
 	oss << "\t\tstd::string MenuName;\n";
@@ -113,9 +114,10 @@ void WriteSource(const std::string& FileName) {
 			for (U32 j = 0; j < sceneInfo.size(); ++j)
 			{
 				std::string levelName = (sceneInfo[j].Name == "") ? "Unknown" : sceneInfo[j].Name;
-				std::string archiveFileName = "r" + StringUtils::CutFront(sceneInfo[j].GroupKey, 2) + sceneInfo[j].SceneKey + ".dat";
+				std::string datArchiveFileName = "r" + StringUtils::CutFront(sceneInfo[j].GroupKey, 2) + sceneInfo[j].SceneKey + ".dat";
+				std::string binArchiveFileName = "r" + StringUtils::CutFront(sceneInfo[j].GroupKey, 2) + sceneInfo[j].SceneKey + ".bin";
 				std::string thumbnailFileName = "r" + StringUtils::CutFront(sceneInfo[j].GroupKey, 2) + sceneInfo[j].SceneKey + ".png";
-				oss << "\t\t\t\tSceneInfo{ eSceneTypeLevel, \"" << sceneInfo[j].GroupKey << "\", \"" << sceneInfo[j].SceneKey << "\", \"" << archiveFileName << "\", \"" << thumbnailFileName << "\", \"" << levelName << "\", \"" << sceneInfo[j].SceneKey << " - " << levelName << "\", \"/" << sceneInfo[j].GroupKey << "/" << sceneInfo[j].SceneKey << " - " << levelName << "\" },\n";
+				oss << "\t\t\t\tSceneInfo{ eSceneTypeLevel, \"" << sceneInfo[j].GroupKey << "\", \"" << sceneInfo[j].SceneKey << "\", \"" << datArchiveFileName << "\", \"" << binArchiveFileName << "\", \"" << thumbnailFileName << "\", \"" << levelName << "\", \"" << sceneInfo[j].SceneKey << " - " << levelName << "\", \"/" << sceneInfo[j].GroupKey << "/" << sceneInfo[j].SceneKey << " - " << levelName << "\" },\n";
 			}
 			oss << "\t\t\t},\n";
 			oss << "\t\t},\n";
@@ -181,9 +183,10 @@ void WriteSource(const std::string& FileName) {
 			for (U32 j = 0; j < sceneInfo.size(); j++)
 			{
 				std::string entityName = (sceneInfo[j].Name == "") ? "Unknown" : sceneInfo[j].Name;
-				std::string archiveFileName = sceneInfo[j].GroupKey + sceneInfo[j].SceneKey + ".dat";
+				std::string datArchiveFileName = sceneInfo[j].GroupKey + sceneInfo[j].SceneKey + ".dat";
+				std::string binArchiveFileName = "";
 				std::string thumbnailFileName = sceneInfo[j].GroupKey + sceneInfo[j].SceneKey + ".png";
-				oss << "\t\t\t\tSceneInfo{ eSceneTypeEntity, \"" << sceneInfo[j].GroupKey << "\", \"" << sceneInfo[j].SceneKey << "\", \"" << archiveFileName << "\", \"" << thumbnailFileName << "\", \"" << entityName << "\", \"" << sceneInfo[j].SceneKey << " - " << entityName << "\", \"/" << sceneInfo[j].GroupKey << "/" << sceneInfo[j].SceneKey << " - " << entityName << "\" },\n";
+				oss << "\t\t\t\tSceneInfo{ eSceneTypeEntity, \"" << sceneInfo[j].GroupKey << "\", \"" << sceneInfo[j].SceneKey << "\", \"" << datArchiveFileName << "\", \"" << binArchiveFileName << "\", \"" << thumbnailFileName << "\", \"" << entityName << "\", \"" << sceneInfo[j].SceneKey << " - " << entityName << "\", \"/" << sceneInfo[j].GroupKey << "/" << sceneInfo[j].SceneKey << " - " << entityName << "\" },\n";
 			}
 			oss << "\t\t\t},\n";
 			oss << "\t\t},\n";

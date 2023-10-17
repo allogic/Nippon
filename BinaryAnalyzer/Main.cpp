@@ -1,4 +1,4 @@
-#include <cstring>
+#include <string>
 #include <vector>
 
 #include <Common/Macros.h>
@@ -11,6 +11,14 @@ using namespace ark;
 
 I32 main(I32 Argc, char** Argv)
 {
+	if (std::strcmp(Argv[1], "Help") == 0)
+	{
+		LOG("\n");
+		LOG("BinaryAnalyzer.exe Compare <input-file-left> <input-file-right>\n");
+		LOG("BinaryAnalyzer.exe Search <input-file> <byte-pattern>\n");
+		LOG("\n");
+	}
+
 	if (std::strcmp(Argv[1], "Compare") == 0)
 	{
 		std::vector<U8> bytesLeft = FsUtils::ReadBinary(Argv[2]);

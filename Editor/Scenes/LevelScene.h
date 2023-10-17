@@ -19,6 +19,7 @@ namespace ark
 {
 	namespace fs = std::filesystem;
 
+	class BlowFish;
 	class Archive;
 	class Actor;
 	class Texture2D;
@@ -47,6 +48,7 @@ namespace ark
 
 	private:
 
+		void LoadArchives();
 		void LoadLevel();
 		void LoadEntities();
 
@@ -66,7 +68,12 @@ namespace ark
 
 	private:
 
-		Archive* mArchive = nullptr;
+		BlowFish* mCipher = nullptr;
+
+		Archive* mDatArchive = nullptr;
+		Archive* mBinArchive = nullptr;
+
+	private:
 
 		Archive* mTscNode = nullptr;
 		Archive* mTreNode = nullptr;

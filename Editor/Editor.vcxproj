@@ -256,6 +256,8 @@
     <ClInclude Include="Serializer\ObjSerializer.h" />
     <ClInclude Include="Serializer\ScrSerializer.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Structs\Fi2Structs.h" />
+    <ClInclude Include="Structs\Fi3Structs.h" />
     <ClInclude Include="Structs\ItsStructs.h" />
     <ClInclude Include="Structs\MdbStructs.h" />
     <ClInclude Include="Structs\MdStructs.h" />

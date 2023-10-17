@@ -23,6 +23,8 @@ namespace ark
 {
 	EntityScene::EntityScene(const SceneInfo& Info) : Scene{ Info }
 	{
+		mCipher = new BlowFish{ gBlowFishKey };
+
 		mEntityGeometryActor = CreateActor<Actor>("Entity Geometry", nullptr);
 	}
 
@@ -34,15 +36,22 @@ namespace ark
 			texture = nullptr;
 		}
 
-		if (mArchive)
+		if (mDatArchive)
 		{
-			delete mArchive;
-			mArchive = nullptr;
+			delete mDatArchive;
+			mDatArchive = nullptr;
+		}
+
+		if (mCipher)
+		{
+			delete mCipher;
+			mCipher = nullptr;
 		}
 	}
 
 	void EntityScene::Load()
 	{
+		LoadArchive();
 		LoadEntity();
 
 		AddStaticGeometry();
@@ -58,21 +67,25 @@ namespace ark
 
 	}
 
+	void EntityScene::LoadArchive()
+	{
+		fs::path relativeDatFileDir = fs::path{ GetGroupKey() } / GetDatArchiveFileName();
+
+		fs::path absoluteDatFileDir = gDataDir / relativeDatFileDir;
+
+		std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
+
+		mCipher->Decrypt(datBytes);
+
+		mDatArchive = new Archive{ nullptr };
+
+		mDatArchive->LoadRecursive(datBytes, 0, 0, 0, "", GetDatArchiveFileName(), true);
+	}
+
 	void EntityScene::LoadEntity()
 	{
-		fs::path relativeFilePath = fs::path{ GetGroupKey() } / GetArchiveFileName();
-		fs::path absoluteFilePath = gDataDir / relativeFilePath;
-
-		std::vector<U8> bytes = FsUtils::ReadBinary(absoluteFilePath);
-
-		BlowFish{ gBlowFishKey }.Decrypt(bytes);
-
-		mArchive = new Archive{ nullptr };
-
-		mArchive->LoadRecursive(bytes, 0, 0, 0, "", GetArchiveFileName(), true);
-
-		mArchive->FindNodesRecursiveByType("MD", mMdNodes);
-		mArchive->FindNodesRecursiveByType("DDS", mDdsNodes);
+		mDatArchive->FindNodesRecursiveByType("MD", mMdNodes);
+		mDatArchive->FindNodesRecursiveByType("DDS", mDdsNodes);
 
 		for (const auto& node : mMdNodes)
 		{
@@ -138,15 +151,15 @@ namespace ark
 	void EntityScene::PrintSummary()
 	{
 		LOG("\n");
-		LOG(" Opening Entity Scene %s\n", GetArchiveFileName().c_str());
+		LOG(" Opening Entity Scene \\%s\\%s\n", GetGroupKey().c_str(), GetSceneKey().c_str());
 		LOG("=============================================================\n");
 		LOG("\n");
 		LOG("Loading archives:\n");
-		LOG("    %s\n", GetArchiveFileName().c_str());
+		LOG("    %s\n", GetDatArchiveFileName().c_str());
 
 		LOG("\n");
 		LOG("Searching files:\n");
-		LOG("    %s\n", GetArchiveFileName().c_str());
+		LOG("    %s\n", GetDatArchiveFileName().c_str());
 		LOG("        Found %u MD files\n", (U32)mMdNodes.size());
 		LOG("        Found %u DDS files\n", (U32)mDdsNodes.size());
 
@@ -166,8 +179,6 @@ namespace ark
 			LOG("    %s.%s\n", node->GetName().c_str(), node->GetType().c_str());
 		}
 
-		LOG("\n");
-		LOG("Finished\n");
 		LOG("\n");
 	}
 }

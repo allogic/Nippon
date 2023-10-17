@@ -26,7 +26,8 @@ namespace ark
 		SceneType Type;
 		std::string GroupKey;
 		std::string SceneKey;
-		std::string ArchiveFileName;
+		std::string DatArchiveFileName;
+		std::string BinArchiveFileName;
 		std::string ThumbnailFileName;
 		std::string Name;
 		std::string MenuName;

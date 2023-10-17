@@ -1,11 +1,16 @@
 #pragma once
 
+#include <vector>
+#include <filesystem>
+
 #include <Common/Types.h>
 
 #include <Editor/Interface.h>
 
 namespace ark
 {
+	namespace fs = std::filesystem;
+
 	class MainMenu : public Interface
 	{
 	public:
@@ -24,6 +29,7 @@ namespace ark
 		void RenderEditMenu();
 		void RenderLevelMenu();
 		void RenderEntityMenu();
+		void RenderArchiveMenu();
 		void RenderToolsMenu();
 	};
 }

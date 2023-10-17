@@ -1,4 +1,8 @@
 #include <Common/Macros.h>
+#include <Common/Archive.h>
+#include <Common/BlowFish.h>
+
+#include <Common/Utilities/FsUtils.h>
 
 #include <Editor/Editor.h>
 #include <Editor/Scene.h>
@@ -38,6 +42,7 @@ namespace ark
 		RenderEditMenu();
 		RenderLevelMenu();
 		RenderEntityMenu();
+		RenderArchiveMenu();
 		RenderToolsMenu();
 
 		ImGui::EndMainMenuBar();
@@ -137,6 +142,243 @@ namespace ark
 		}
 	}
 
+	void MainMenu::RenderArchiveMenu()
+	{
+		if (ImGui::BeginMenu("Archive"))
+		{
+			if (ImGui::BeginMenu("Table Of Content"))
+			{
+				if (ImGui::BeginMenu("Levels"))
+				{
+					for (const auto& groupInfo : SceneInfos::GetLevelGroups())
+					{
+						ImGui::PushID(&groupInfo);
+
+						if (ImGui::BeginMenu(groupInfo.MenuName.c_str()))
+						{
+							for (const auto& sceneInfo : SceneInfos::GetLevelsByGroup(groupInfo))
+							{
+								ImGui::PushID(&sceneInfo);
+
+								if (ImGui::Selectable(sceneInfo.MenuName.c_str()))
+								{
+									fs::path relativeDatFileDir = fs::path{ sceneInfo.GroupKey } / sceneInfo.DatArchiveFileName;
+									fs::path relativeBinFileDir = fs::path{ sceneInfo.GroupKey } / sceneInfo.BinArchiveFileName;
+
+									fs::path absoluteDatFileDir = gDataDir / relativeDatFileDir;
+									fs::path absoluteBinFileDir = gDataDir / relativeBinFileDir;
+
+									std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
+									std::vector<U8> binBytes = FsUtils::ReadBinary(absoluteBinFileDir);
+
+									BlowFish cipher = gBlowFishKey;
+
+									cipher.Decrypt(datBytes);
+									cipher.Decrypt(binBytes);
+
+									Archive datArchive = nullptr;
+									Archive binArchive = nullptr;
+									
+									datArchive.LoadRecursive(datBytes, 0, 0, 0, "", sceneInfo.DatArchiveFileName, true);
+									binArchive.LoadRecursive(binBytes, 0, 0, 0, "", sceneInfo.BinArchiveFileName, true);
+
+									LOG("\n");
+									LOG(" Table Of Content For Level \\%s\\%s .DAT\n", sceneInfo.GroupKey.c_str(), sceneInfo.SceneKey.c_str());
+									LOG("=============================================================\n");
+
+									datArchive.DumpTableOfContent(0, 4, 4);
+
+									LOG("\n");
+
+									LOG("\n");
+									LOG(" Table Of Content For Level \\%s\\%s .BIN\n", sceneInfo.GroupKey.c_str(), sceneInfo.SceneKey.c_str());
+									LOG("=============================================================\n");
+
+									binArchive.DumpTableOfContent(0, 4, 4);
+
+									LOG("\n");
+								}
+
+								ImGui::PopID();
+							}
+
+							ImGui::EndMenu();
+						}
+
+						ImGui::PopID();
+					}
+
+					ImGui::EndMenu();
+				}
+
+				if (ImGui::BeginMenu("Entities"))
+				{
+					for (const auto& groupInfo : SceneInfos::GetEntityGroups())
+					{
+						ImGui::PushID(&groupInfo);
+
+						if (ImGui::BeginMenu(groupInfo.MenuName.c_str()))
+						{
+							for (const auto& sceneInfo : SceneInfos::GetEntitiesByGroup(groupInfo))
+							{
+								ImGui::PushID(&sceneInfo);
+
+								if (ImGui::Selectable(sceneInfo.MenuName.c_str()))
+								{
+									fs::path relativeDatFileDir = fs::path{ sceneInfo.GroupKey } / sceneInfo.DatArchiveFileName;
+
+									fs::path absoluteDatFileDir = gDataDir / relativeDatFileDir;
+
+									std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
+
+									BlowFish cipher = gBlowFishKey;
+
+									cipher.Decrypt(datBytes);
+
+									Archive datArchive = nullptr;
+
+									datArchive.LoadRecursive(datBytes, 0, 0, 0, "", sceneInfo.DatArchiveFileName, true);
+
+									LOG("\n");
+									LOG(" Table Of Content For Entity \\%s\\%s .DAT\n", sceneInfo.GroupKey.c_str(), sceneInfo.SceneKey.c_str());
+									LOG("=============================================================\n");
+
+									datArchive.DumpTableOfContent(0, 4, 4);
+
+									LOG("\n");
+								}
+
+								ImGui::PopID();
+							}
+
+							ImGui::EndMenu();
+						}
+
+						ImGui::PopID();
+					}
+
+					ImGui::EndMenu();
+				}
+
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("Dump To Disk"))
+			{
+				if (ImGui::BeginMenu("Levels"))
+				{
+					for (const auto& groupInfo : SceneInfos::GetLevelGroups())
+					{
+						ImGui::PushID(&groupInfo);
+
+						if (ImGui::BeginMenu(groupInfo.MenuName.c_str()))
+						{
+							for (const auto& sceneInfo : SceneInfos::GetLevelsByGroup(groupInfo))
+							{
+								ImGui::PushID(&sceneInfo);
+
+								if (ImGui::Selectable(sceneInfo.MenuName.c_str()))
+								{
+									fs::path exportDatDir = fs::path{ "Dumps" } / "Levels" / sceneInfo.DatArchiveFileName;
+									fs::path exportBinDir = fs::path{ "Dumps" } / "Levels" / sceneInfo.BinArchiveFileName;
+
+									fs::path relativeDatFileDir = fs::path{ sceneInfo.GroupKey } / sceneInfo.DatArchiveFileName;
+									fs::path relativeBinFileDir = fs::path{ sceneInfo.GroupKey } / sceneInfo.BinArchiveFileName;
+
+									fs::path absoluteDatFileDir = gDataDir / relativeDatFileDir;
+									fs::path absoluteBinFileDir = gDataDir / relativeBinFileDir;
+
+									FsUtils::CreateIfNotExists(fs::path{ "Dumps" });
+									FsUtils::CreateIfNotExists(fs::path{ "Dumps" } / "Levels");
+									FsUtils::CreateIfNotExists(fs::path{ "Dumps" } / "Levels" / sceneInfo.DatArchiveFileName);
+									FsUtils::CreateIfNotExists(fs::path{ "Dumps" } / "Levels" / sceneInfo.BinArchiveFileName);
+
+									std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
+									std::vector<U8> binBytes = FsUtils::ReadBinary(absoluteBinFileDir);
+
+									BlowFish cipher = gBlowFishKey;
+
+									cipher.Decrypt(datBytes);
+									cipher.Decrypt(binBytes);
+
+									Archive datArchive = nullptr;
+									Archive binArchive = nullptr;
+
+									datArchive.LoadRecursive(datBytes, 0, 0, 0, "", sceneInfo.DatArchiveFileName, true);
+									binArchive.LoadRecursive(binBytes, 0, 0, 0, "", sceneInfo.BinArchiveFileName, true);
+
+									datArchive.DumpToDiskRecursive(exportDatDir);
+									binArchive.DumpToDiskRecursive(exportBinDir);
+								}
+
+								ImGui::PopID();
+							}
+
+							ImGui::EndMenu();
+						}
+
+						ImGui::PopID();
+					}
+
+					ImGui::EndMenu();
+				}
+
+				if (ImGui::BeginMenu("Entities"))
+				{
+					for (const auto& groupInfo : SceneInfos::GetEntityGroups())
+					{
+						ImGui::PushID(&groupInfo);
+
+						if (ImGui::BeginMenu(groupInfo.MenuName.c_str()))
+						{
+							for (const auto& sceneInfo : SceneInfos::GetEntitiesByGroup(groupInfo))
+							{
+								ImGui::PushID(&sceneInfo);
+
+								if (ImGui::Selectable(sceneInfo.MenuName.c_str()))
+								{
+									fs::path exportDatDir = fs::path{ "Dumps" } / "Entities" / sceneInfo.DatArchiveFileName;
+
+									fs::path relativeDatFileDir = fs::path{ sceneInfo.GroupKey } / sceneInfo.DatArchiveFileName;
+
+									fs::path absoluteDatFileDir = gDataDir / relativeDatFileDir;
+
+									FsUtils::CreateIfNotExists(fs::path{ "Dumps" });
+									FsUtils::CreateIfNotExists(fs::path{ "Dumps" } / "Entities");
+									FsUtils::CreateIfNotExists(fs::path{ "Dumps" } / "Entities" / sceneInfo.DatArchiveFileName);
+
+									std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
+
+									BlowFish cipher = gBlowFishKey;
+
+									cipher.Decrypt(datBytes);
+
+									Archive datArchive = nullptr;
+
+									datArchive.LoadRecursive(datBytes, 0, 0, 0, "", sceneInfo.DatArchiveFileName, true);
+
+									datArchive.DumpToDiskRecursive(exportDatDir);
+								}
+
+								ImGui::PopID();
+							}
+
+							ImGui::EndMenu();
+						}
+
+						ImGui::PopID();
+					}
+
+					ImGui::EndMenu();
+				}
+
+				ImGui::EndMenu();
+			}
+
+			ImGui::EndMenu();
+		}
+	}
+
 	void MainMenu::RenderToolsMenu()
 	{
 		if (ImGui::BeginMenu("Tools"))
@@ -151,9 +393,9 @@ namespace ark
 
 					for (const auto& sceneInfo : SceneInfos::GetLevelsByGroup(groupInfo))
 					{
-						LOG("    Generated %s\n", sceneInfo.ThumbnailFileName.c_str());
-
 						Thumbnail::Generate(sceneInfo);
+
+						LOG("    Generated %s\n", sceneInfo.ThumbnailFileName.c_str());
 					}
 
 					LOG("\n");
@@ -167,16 +409,13 @@ namespace ark
 
 					for (const auto& sceneInfo : SceneInfos::GetEntitiesByGroup(groupInfo))
 					{
-						LOG("    Generated %s\n", sceneInfo.ThumbnailFileName.c_str());
-
 						Thumbnail::Generate(sceneInfo);
+
+						LOG("    Generated %s\n", sceneInfo.ThumbnailFileName.c_str());
 					}
 
 					LOG("\n");
 				}
-
-				LOG("Finished\n");
-				LOG("\n");
 			}
 
 			ImGui::EndMenu();

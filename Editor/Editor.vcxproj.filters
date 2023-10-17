@@ -317,5 +317,11 @@
     <ClInclude Include="Actors\Test.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Structs\Fi2Structs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Structs\Fi3Structs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

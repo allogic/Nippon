@@ -28,8 +28,8 @@ namespace ark
 		fs::path exportDir = "Exports";
 
 		FsUtils::CreateIfNotExists(exportDir);
-		FsUtils::CreateIfNotExists(exportDir / Scene->GetArchiveFileName());
-		FsUtils::CreateIfNotExists(exportDir / Scene->GetArchiveFileName() / Actor->GetName());
+		FsUtils::CreateIfNotExists(exportDir / Scene->GetDatArchiveFileName());
+		FsUtils::CreateIfNotExists(exportDir / Scene->GetDatArchiveFileName() / Actor->GetName());
 
 		std::ostringstream objectStream = {};
 		std::ostringstream materialStream = {};
@@ -54,14 +54,12 @@ namespace ark
 		LOG("\n");
 		LOG("Creating textures:\n");
 
-		ExportTexturesRecursive(Actor, exportDir / Scene->GetArchiveFileName() / Actor->GetName());
+		ExportTexturesRecursive(Actor, exportDir / Scene->GetDatArchiveFileName() / Actor->GetName());
 
 		LOG("\n");
-		LOG("Finished\n");
-		LOG("\n");
 
-		FsUtils::WriteText(exportDir / Scene->GetArchiveFileName() / Actor->GetName() / "object.obj", objectStream.str());
-		FsUtils::WriteText(exportDir / Scene->GetArchiveFileName() / Actor->GetName() / "object.mtl", materialStream.str());
+		FsUtils::WriteText(exportDir / Scene->GetDatArchiveFileName() / Actor->GetName() / "object.obj", objectStream.str());
+		FsUtils::WriteText(exportDir / Scene->GetDatArchiveFileName() / Actor->GetName() / "object.mtl", materialStream.str());
 	}
 
 	void WavefrontExporter::ExportObjectsRecursive(Actor* Actor, std::ostringstream& Stream, U32& VertexOffset)

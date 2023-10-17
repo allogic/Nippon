@@ -35,7 +35,8 @@ namespace ark
 		inline const auto& GetSceneType() const { return mSceneInfo.Type; }
 		inline const auto& GetGroupKey() const { return mSceneInfo.GroupKey; }
 		inline const auto& GetSceneKey() const { return mSceneInfo.SceneKey; }
-		inline const auto& GetArchiveFileName() const { return mSceneInfo.ArchiveFileName; }
+		inline const auto& GetDatArchiveFileName() const { return mSceneInfo.DatArchiveFileName; }
+		inline const auto& GetBinArchiveFileName() const { return mSceneInfo.BinArchiveFileName; }
 		inline const auto& GetThumbnailFileName() const { return mSceneInfo.ThumbnailFileName; }
 		inline const auto& GetName() const { return mSceneInfo.Name; }
 		inline const auto& GetWindowName() const { return mSceneInfo.WindowName; }

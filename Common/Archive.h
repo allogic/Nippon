@@ -45,8 +45,8 @@ namespace ark
 
 	public:
 
-		void DumpToFileSystemRecursive(fs::path File, Archive* Node = nullptr);
-		void DumpToConsoleRecursive(U32 Offset, U32 Indent, U32 Increment, Archive* Node = nullptr);
+		void DumpToDiskRecursive(fs::path File, Archive* Node = nullptr);
+		void DumpTableOfContent(U32 Offset, U32 Indent, U32 Increment, Archive* Node = nullptr);
 		void FindNodeRecursiveByType(std::string Type, Archive** Result, Archive* Node = nullptr);
 		void FindNodesRecursiveByType(std::string Type, std::vector<Archive*>& Result, Archive* Node = nullptr);
 
