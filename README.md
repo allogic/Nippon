@@ -3,7 +3,7 @@ Nippon is a collection of tools designed to interact with the okami PC port. Thi
 
 <img src="Assets/Editor.png" width="100%"/>
 
-## Starting the Editor
+## Starting The Editor
 The editor requires 2 command line arguments. The first one is the directory where the okami data files are and the other is the BlowFish-256 key. Both arguments must be supplied as strings!
 ```
 Editor.exe "...\Steam\steamapps\common\Okami\data_pc" "YaKiNiKuM2rrVrPJpGMkfe3EK4RbpbHw"
