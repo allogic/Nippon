@@ -7,7 +7,7 @@ Nippon is a collection of tools designed to interact with the okami PC port. Thi
 The editor requires 2 command line arguments. The first one is the directory where the okami data files are and the other is the BlowFish-256 key which has already been leaked. Both arguments must be supplied as strings!
 ```
 Editor.exe <okami-data-pc-dir> <cipher-key>
-Editor.exe "...\Steam\steamapps\common\Okami\data_pc\etc\core.dat" "YaKiNiKuM2rrVrPJpGMkfe3EK4RbpbHw"
+Editor.exe "...\Steam\steamapps\common\Okami\data_pc" "YaKiNiKuM2rrVrPJpGMkfe3EK4RbpbHw"
 ```
 
 ## Compile The Project
