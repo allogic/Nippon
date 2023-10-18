@@ -77,9 +77,9 @@ namespace ark
 
 		mCipher->Decrypt(datBytes);
 
-		mDatArchive = new Archive{ nullptr };
+		mDatArchive = new Archive{ datBytes };
 
-		mDatArchive->LoadRecursive(datBytes, 0, 0, 0, "", GetDatArchiveFileName(), true, true);
+		mDatArchive->Load(GetDatArchiveFileName());
 	}
 
 	void EntityScene::LoadEntity()

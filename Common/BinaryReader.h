@@ -12,14 +12,13 @@ namespace ark
 	{
 	public:
 
-		BinaryReader() {}
-		BinaryReader(const std::vector<U8>& Bytes) : mBytes{ Bytes } {}
+		BinaryReader();
+		BinaryReader(const U8* Start, const U8* End);
 
 	public:
 
 		inline auto GetPosition() const { return mPosition; }
-		inline auto GetSize() const { return mBytes.size(); }
-		inline const auto& GetBytes() const { return mBytes; }
+		inline auto GetSize() const { return (U64)(mEnd - mStart); }
 
 	public:
 
@@ -38,15 +37,17 @@ namespace ark
 		void Read(std::vector<T>& Values, U64 Count);
 
 		std::vector<U8> Bytes(U64 Count);
-		std::vector<U8> Bytes(U64 Count, U64 Offset) const;
+		std::vector<U8> BytesFrom(U64 Count, U64 Offset) const;
 
 		std::string String(U64 Count);
-		std::string String(U64 Count, U64 Offset) const;
+		std::string StringFrom(U64 Count, U64 Offset) const;
 
 	private:
 
-		std::vector<U8> mBytes = {};
-		U64 mPosition = 0;
+		const U8* mStart;
+		const U8* mEnd;
+
+		U64 mPosition;
 	};
 }
 
@@ -57,7 +58,7 @@ namespace ark
 	{
 		T value = {};
 
-		std::memcpy((U8*)&value, &mBytes[mPosition], sizeof(T));
+		std::memcpy((U8*)&value, mStart + mPosition, sizeof(T));
 
 		mPosition += sizeof(T);
 
@@ -73,7 +74,7 @@ namespace ark
 
 		if (Count > 0)
 		{
-			std::memcpy((U8*)&values[0], &mBytes[mPosition], Count * sizeof(T));
+			std::memcpy((U8*)&values[0], mStart + mPosition, Count * sizeof(T));
 		}
 
 		mPosition += Count * sizeof(T);
@@ -88,7 +89,7 @@ namespace ark
 
 		if (Count > 0)
 		{
-			std::memcpy((U8*)&Values[0], &mBytes[mPosition], Count * sizeof(T));
+			std::memcpy((U8*)&Values[0], mStart + mPosition, Count * sizeof(T));
 		}
 
 		mPosition += Count * sizeof(T);

@@ -38,6 +38,17 @@ namespace ark
 		"V00", "V01", "V02", "V03", "VET",
 	};
 
+	Archive::Archive()
+	{
+
+	}
+
+	Archive::Archive(const std::vector<U8>& Bytes)
+		: mBytes{ Bytes }
+	{
+
+	}
+
 	Archive::Archive(Archive* Parent)
 		: mParent{ Parent }
 	{
@@ -53,9 +64,16 @@ namespace ark
 		}
 	}
 
-	void Archive::LoadRecursive(const std::vector<U8>& Bytes, U16 Index, U32 Offset, U32 Size, const std::string& Type, const std::string& Name, bool InBounds, bool IsDirectory)
+	void Archive::Load(const std::string& Name)
 	{
-		mBinaryReader = Bytes;
+		LoadRecursive(mBytes.data(), mBytes.data() + mBytes.size(), 0, 0, 0, "", Name, true, true);
+	}
+
+	void Archive::LoadRecursive(const U8* Start, const U8* End, U16 Index, U32 Offset, U32 Size, const std::string& Type, const std::string& Name, bool InBounds, bool IsDirectory)
+	{
+		mStart = Start;
+		mEnd = End;
+		mReader = { Start, End };
 		mIndex = Index;
 		mOffset = Offset;
 		mSize = Size;
@@ -76,7 +94,8 @@ namespace ark
 				Archive* archive = mNodes.emplace_back(new Archive{ this });
 				
 				archive->LoadRecursive(
-					mBinaryReader.Bytes(mEntries[i].Size, mEntries[i].Offset),
+					mStart + mEntries[i].Offset,
+					mStart + mEntries[i].Offset + mEntries[i].Size,
 					i,
 					mEntries[i].Offset,
 					mEntries[i].Size,
@@ -89,9 +108,16 @@ namespace ark
 		}
 	}
 
-	void Archive::LoadAndCollectExtTypesRecursive(std::set<std::string>& DirExtTypes, std::set<std::string>& FileExtTypes, const std::vector<U8>& Bytes, U16 Index, U32 Offset, U32 Size, const std::string& Type, const std::string& Name, bool InBounds, bool IsDirectory)
+	void Archive::LoadAndCollectExtTypes(std::set<std::string>& DirExtTypes, std::set<std::string>& FileExtTypes, const std::string& Name)
 	{
-		mBinaryReader = Bytes;
+		LoadAndCollectExtTypesRecursive(DirExtTypes, FileExtTypes, mBytes.data(), mBytes.data() + mBytes.size(), 0, 0, 0, "", Name, true, true);
+	}
+
+	void Archive::LoadAndCollectExtTypesRecursive(std::set<std::string>& DirExtTypes, std::set<std::string>& FileExtTypes, const U8* Start, const U8* End, U16 Index, U32 Offset, U32 Size, const std::string& Type, const std::string& Name, bool InBounds, bool IsDirectory)
+	{
+		mStart = Start;
+		mEnd = End;
+		mReader = { Start, End };
 		mIndex = Index;
 		mOffset = Offset;
 		mSize = Size;
@@ -123,7 +149,8 @@ namespace ark
 				archive->LoadAndCollectExtTypesRecursive(
 					DirExtTypes,
 					FileExtTypes,
-					mBinaryReader.Bytes(mEntries[i].Size, mEntries[i].Offset),
+					mStart + mEntries[i].Offset,
+					mStart + mEntries[i].Offset + mEntries[i].Size,
 					i,
 					mEntries[i].Offset,
 					mEntries[i].Size,
@@ -252,23 +279,23 @@ namespace ark
 	{
 		if (mParent)
 		{
-			mBinaryReader.SeekAbsolute(32);
+			mReader.SeekAbsolute(32);
 		}
 		else
 		{
-			mBinaryReader.SeekAbsolute(0);
+			mReader.SeekAbsolute(0);
 		}
 
-		mEntries.resize(mBinaryReader.Read<U32>());
+		mEntries.resize(mReader.Read<U32>());
 
 		for (U32 i = 0; i < mEntries.size(); i++)
 		{
-			mEntries[i].Offset = mBinaryReader.Read<U32>();
+			mEntries[i].Offset = mReader.Read<U32>();
 		}
 
 		for (U32 i = 0; i < mEntries.size(); i++)
 		{
-			mEntries[i].Type = StringUtils::RemoveNulls(mBinaryReader.String(4));
+			mEntries[i].Type = StringUtils::RemoveNulls(mReader.String(4));
 		}
 
 		for (U32 i = 0; i < mEntries.size(); i++)
@@ -288,10 +315,10 @@ namespace ark
 
 		for (U32 i = 0; i < mEntries.size(); i++)
 		{
-			mBinaryReader.SeekAbsolute(mEntries[i].Offset);
-			mBinaryReader.SeekRelative(12);
+			mReader.SeekAbsolute(mEntries[i].Offset);
+			mReader.SeekRelative(12);
 
-			mEntries[i].Name = StringUtils::RemoveNulls(mBinaryReader.String(20));
+			mEntries[i].Name = StringUtils::RemoveNulls(mReader.String(20));
 		}
 
 		for (U32 i = 1; i < mEntries.size(); i++)
@@ -299,12 +326,12 @@ namespace ark
 			mEntries[i - 1].Size = mEntries[i].Offset - mEntries[i - 1].Offset;
 		}
 
-		mEntries[mEntries.size() - 1].Size = (U32)mBinaryReader.GetSize() - mEntries[mEntries.size() - 1].Offset;
+		mEntries[mEntries.size() - 1].Size = (U32)mReader.GetSize() - mEntries[mEntries.size() - 1].Offset;
 	}
 
 	bool Archive::CheckInBounds(const ArchiveEntry& Entry)
 	{
-		if ((Entry.Offset + Entry.Size) >= mBinaryReader.GetSize())
+		if ((Entry.Offset + Entry.Size) >= mReader.GetSize())
 		{
 			return false;
 		}
@@ -314,22 +341,22 @@ namespace ark
 
 	bool Archive::CheckIfDirectory(const ArchiveEntry& Entry)
 	{
-		mBinaryReader.SeekAbsolute(Entry.Offset + 32);
+		mReader.SeekAbsolute(Entry.Offset + 32);
 
-		U32 entryCount = mBinaryReader.Read<U32>();
+		U32 entryCount = mReader.Read<U32>();
 
 		if (entryCount > 0 && entryCount < 65535)
 		{
 			for (U32 i = 0; i < entryCount; i++)
 			{
-				if ((i * 4) >= ((U32)mBinaryReader.GetSize() - 4))
+				if ((i * 4) >= ((U32)mReader.GetSize() - 4))
 				{
 					return false;
 				}
 
-				U32 offset = mBinaryReader.Read<U32>();
+				U32 offset = mReader.Read<U32>();
 
-				if (offset >= mBinaryReader.GetSize())
+				if (offset >= mReader.GetSize())
 				{
 					return false;
 				}
@@ -337,12 +364,12 @@ namespace ark
 
 			for (U32 i = 0; i < entryCount; i++)
 			{
-				if ((i * 4) >= ((U32)mBinaryReader.GetSize() - 4))
+				if ((i * 4) >= ((U32)mReader.GetSize() - 4))
 				{
 					return false;
 				}
 
-				std::string type = StringUtils::RemoveNulls(mBinaryReader.String(4));
+				std::string type = StringUtils::RemoveNulls(mReader.String(4));
 
 				if (!sKnownDirectoryTypes.contains(type) && !sKnownFileTypes.contains(type))
 				{

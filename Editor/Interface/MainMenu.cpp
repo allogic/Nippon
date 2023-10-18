@@ -169,19 +169,15 @@ namespace ark
 									fs::path absoluteDatFileDir = gDataDir / relativeDatFileDir;
 									fs::path absoluteBinFileDir = gDataDir / relativeBinFileDir;
 
-									std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
-									std::vector<U8> binBytes = FsUtils::ReadBinary(absoluteBinFileDir);
-
 									BlowFish cipher = gBlowFishKey;
 
-									cipher.Decrypt(datBytes);
-									cipher.Decrypt(binBytes);
+									std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
 
-									Archive datArchive = nullptr;
-									Archive binArchive = nullptr;
-									
-									datArchive.LoadRecursive(datBytes, 0, 0, 0, "", sceneInfo.DatArchiveFileName, true, true);
-									binArchive.LoadRecursive(binBytes, 0, 0, 0, "", sceneInfo.BinArchiveFileName, true, true);
+									cipher.Decrypt(datBytes);
+
+									Archive datArchive = datBytes;
+
+									datArchive.Load(sceneInfo.DatArchiveFileName);
 
 									LOG("\n");
 									LOG(" Table Of Content For Level \\%s\\%s .DAT\n", sceneInfo.GroupKey.c_str(), sceneInfo.SceneKey.c_str());
@@ -191,13 +187,24 @@ namespace ark
 
 									LOG("\n");
 
-									LOG("\n");
-									LOG(" Table Of Content For Level \\%s\\%s .BIN\n", sceneInfo.GroupKey.c_str(), sceneInfo.SceneKey.c_str());
-									LOG("=============================================================\n");
+									if (fs::exists(absoluteBinFileDir))
+									{
+										std::vector<U8> binBytes = FsUtils::ReadBinary(absoluteBinFileDir);
 
-									binArchive.DumpTableOfContent(0, 4, 4);
+										cipher.Decrypt(binBytes);
 
-									LOG("\n");
+										Archive binArchive = binBytes;
+
+										binArchive.Load(sceneInfo.BinArchiveFileName);
+
+										LOG("\n");
+										LOG(" Table Of Content For Level \\%s\\%s .BIN\n", sceneInfo.GroupKey.c_str(), sceneInfo.SceneKey.c_str());
+										LOG("=============================================================\n");
+
+										binArchive.DumpTableOfContent(0, 4, 4);
+
+										LOG("\n");
+									}
 								}
 
 								ImGui::PopID();
@@ -230,15 +237,15 @@ namespace ark
 
 									fs::path absoluteDatFileDir = gDataDir / relativeDatFileDir;
 
-									std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
-
 									BlowFish cipher = gBlowFishKey;
+
+									std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
 
 									cipher.Decrypt(datBytes);
 
-									Archive datArchive = nullptr;
+									Archive datArchive = datBytes;
 
-									datArchive.LoadRecursive(datBytes, 0, 0, 0, "", sceneInfo.DatArchiveFileName, true, true);
+									datArchive.Load(sceneInfo.DatArchiveFileName);
 
 									LOG("\n");
 									LOG(" Table Of Content For Entity \\%s\\%s .DAT\n", sceneInfo.GroupKey.c_str(), sceneInfo.SceneKey.c_str());
@@ -289,27 +296,36 @@ namespace ark
 									fs::path absoluteDatFileDir = gDataDir / relativeDatFileDir;
 									fs::path absoluteBinFileDir = gDataDir / relativeBinFileDir;
 
+									BlowFish cipher = gBlowFishKey;
+
 									FsUtils::CreateIfNotExists(fs::path{ "Dumps" });
 									FsUtils::CreateIfNotExists(fs::path{ "Dumps" } / "Levels");
 									FsUtils::CreateIfNotExists(fs::path{ "Dumps" } / "Levels" / sceneInfo.DatArchiveFileName);
-									FsUtils::CreateIfNotExists(fs::path{ "Dumps" } / "Levels" / sceneInfo.BinArchiveFileName);
 
 									std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
-									std::vector<U8> binBytes = FsUtils::ReadBinary(absoluteBinFileDir);
-
-									BlowFish cipher = gBlowFishKey;
 
 									cipher.Decrypt(datBytes);
-									cipher.Decrypt(binBytes);
 
-									Archive datArchive = nullptr;
-									Archive binArchive = nullptr;
+									Archive datArchive = datBytes;
 
-									datArchive.LoadRecursive(datBytes, 0, 0, 0, "", sceneInfo.DatArchiveFileName, true, true);
-									binArchive.LoadRecursive(binBytes, 0, 0, 0, "", sceneInfo.BinArchiveFileName, true, true);
-
+									datArchive.Load(sceneInfo.DatArchiveFileName);
 									datArchive.DumpToDiskRecursive(exportDatDir);
-									binArchive.DumpToDiskRecursive(exportBinDir);
+
+									if (fs::exists(absoluteBinFileDir))
+									{
+										FsUtils::CreateIfNotExists(fs::path{ "Dumps" });
+										FsUtils::CreateIfNotExists(fs::path{ "Dumps" } / "Levels");
+										FsUtils::CreateIfNotExists(fs::path{ "Dumps" } / "Levels" / sceneInfo.BinArchiveFileName);
+
+										std::vector<U8> binBytes = FsUtils::ReadBinary(absoluteBinFileDir);
+
+										cipher.Decrypt(binBytes);
+
+										Archive binArchive = binBytes;
+
+										binArchive.Load(sceneInfo.BinArchiveFileName);
+										binArchive.DumpToDiskRecursive(exportBinDir);
+									}
 								}
 
 								ImGui::PopID();
@@ -344,20 +360,19 @@ namespace ark
 
 									fs::path absoluteDatFileDir = gDataDir / relativeDatFileDir;
 
+									BlowFish cipher = gBlowFishKey;
+
 									FsUtils::CreateIfNotExists(fs::path{ "Dumps" });
 									FsUtils::CreateIfNotExists(fs::path{ "Dumps" } / "Entities");
 									FsUtils::CreateIfNotExists(fs::path{ "Dumps" } / "Entities" / sceneInfo.DatArchiveFileName);
 
 									std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
 
-									BlowFish cipher = gBlowFishKey;
-
 									cipher.Decrypt(datBytes);
 
-									Archive datArchive = nullptr;
+									Archive datArchive = datBytes;
 
-									datArchive.LoadRecursive(datBytes, 0, 0, 0, "", sceneInfo.DatArchiveFileName, true, true);
-
+									datArchive.Load(sceneInfo.DatArchiveFileName);
 									datArchive.DumpToDiskRecursive(exportDatDir);
 								}
 

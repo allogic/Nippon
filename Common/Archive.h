@@ -25,13 +25,19 @@ namespace ark
 	{
 	public:
 
+		Archive();
+		Archive(const std::vector<U8>& Bytes);
 		Archive(Archive* Parent);
 		virtual ~Archive();
 
 	public:
 
-		void LoadRecursive(const std::vector<U8>& Bytes, U16 Index, U32 Offset, U32 Size, const std::string& Type, const std::string& Name, bool InBounds, bool IsDirectory);
-		void LoadAndCollectExtTypesRecursive(std::set<std::string>& DirExtTypes, std::set<std::string>& FileExtTypes, const std::vector<U8>& Bytes, U16 Index, U32 Offset, U32 Size, const std::string& Type, const std::string& Name, bool InBounds, bool IsDirectory);
+		void Load(const std::string& Name);
+		void LoadRecursive(const U8* Start, const U8* End, U16 Index, U32 Offset, U32 Size, const std::string& Type, const std::string& Name, bool InBounds, bool IsDirectory);
+
+		void LoadAndCollectExtTypes(std::set<std::string>& DirExtTypes, std::set<std::string>& FileExtTypes, const std::string& Name);
+		void LoadAndCollectExtTypesRecursive(std::set<std::string>& DirExtTypes, std::set<std::string>& FileExtTypes, const U8* Start, const U8* End, U16 Index, U32 Offset, U32 Size, const std::string& Type, const std::string& Name, bool InBounds, bool IsDirectory);
+
 		void SaveRecursive();
 
 	public:
@@ -41,8 +47,12 @@ namespace ark
 		inline const auto& GetOffset() const { return mOffset; }
 		inline const auto& GetSize() const { return mSize; }
 
-		inline const auto GetBytesWithHeader() const { return mBinaryReader.Bytes(mSize, 0); }
-		inline const auto GetBytesWithoutHeader() const { return mBinaryReader.Bytes(mSize - 32, 32); }
+		inline const auto GetBytesWithHeader() const { return mReader.BytesFrom(mSize, 0); }
+		inline const auto GetBytesWithoutHeader() const { return mReader.BytesFrom(mSize - 32, 32); }
+
+	public:
+
+		inline void SetBytes(const std::vector<U8>& Bytes) { mBytes = Bytes; }
 
 	public:
 
@@ -60,16 +70,24 @@ namespace ark
 
 	private:
 
-		Archive* mParent;
+		std::vector<U8> mBytes = {};
 
-		BinaryReader mBinaryReader = {};
+		Archive* mParent = nullptr;
+
+		const U8* mStart = nullptr;
+		const U8* mEnd = nullptr;
+
+		BinaryReader mReader = {};
+
 		U16 mIndex = 0;
 		U32 mOffset = 0;
 		U32 mSize = 0;
 		std::string mType = "";
 		std::string mName = "";
+
 		bool mInBounds = false;
 		bool mIsDirectory = false;
+
 		std::vector<ArchiveEntry> mEntries = {};
 		std::vector<Archive*> mNodes = {};
 	};

@@ -10,10 +10,11 @@ namespace ark
 	{
 		std::vector<ObjEntry> entries = {};
 
-		BinaryReader binaryReader = Bytes;
+		BinaryReader reader = { Bytes.data(), Bytes.data() + Bytes.size() };
 
-		U32 size = binaryReader.Read<U32>();
-		binaryReader.Read<ObjEntry>(entries, size);
+		U32 entryCount = reader.Read<U32>();
+
+		reader.Read<ObjEntry>(entries, entryCount);
 
 		return entries;
 	}

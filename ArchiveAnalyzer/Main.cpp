@@ -39,9 +39,9 @@ I32 main(I32 Argc, char** Argv)
 
 		std::vector<U8> bytes = FsUtils::ReadBinary(Argv[2]);
 
-		Archive archive = nullptr;
+		Archive archive = bytes;
 
-		archive.LoadRecursive(bytes, 0, 0, 0, "", Argv[3], true, true);
+		archive.Load(Argv[3]);
 		archive.DumpToDiskRecursive(Argv[3]);
 	}
 
@@ -51,9 +51,9 @@ I32 main(I32 Argc, char** Argv)
 		std::set<std::string> fileExtTypes = {};
 		std::vector<U8> bytes = FsUtils::ReadBinary(Argv[2]);
 
-		Archive archive = nullptr;
+		Archive archive = bytes;
 
-		archive.LoadAndCollectExtTypesRecursive(dirExtTypes, fileExtTypes, bytes, 0, 0, 0, "", "", true, true);
+		archive.LoadAndCollectExtTypes(dirExtTypes, fileExtTypes, "");
 
 		LOG("\n");
 		LOG(" Found Directory Extensions\n");

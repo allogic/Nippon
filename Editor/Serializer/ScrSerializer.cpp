@@ -13,78 +13,78 @@ namespace ark
 	{
 		ScrGroup group = {};
 
-		BinaryReader binaryReader = Bytes;
+		BinaryReader reader = { Bytes.data(), Bytes.data() + Bytes.size() };
 
-		ScrHeader scrHeader = binaryReader.Read<ScrHeader>();
+		ScrHeader scrHeader = reader.Read<ScrHeader>();
 
 		group.Models.resize(scrHeader.SubMeshCount);
 
-		std::vector<U32> transformOffsets = binaryReader.Read<U32>(scrHeader.SubMeshCount);
+		std::vector<U32> transformOffsets = reader.Read<U32>(scrHeader.SubMeshCount);
 
-		binaryReader.SeekAbsolute(ALIGN_UP(binaryReader.GetPosition(), 16));
+		reader.SeekAbsolute(ALIGN_UP(reader.GetPosition(), 16));
 
 		for (U32 i = 0; i < scrHeader.SubMeshCount; i++)
 		{
-			U64 mdbStart = binaryReader.GetPosition();
+			U64 mdbStart = reader.GetPosition();
 
 			ScrModel& scrModel = group.Models[i];
 
 			scrModel.Index = i;
-			scrModel.Entry.Header = binaryReader.Read<MdbHeader>();
+			scrModel.Entry.Header = reader.Read<MdbHeader>();
 
 			if (scrModel.Entry.Header.MdbId == 0x0062646D)
 			{
 				scrModel.Entry.Divisions.resize(scrModel.Entry.Header.MeshDivisions);
 
-				std::vector<U32> divisionOffsets = binaryReader.Read<U32>(scrModel.Entry.Header.MeshDivisions);
+				std::vector<U32> divisionOffsets = reader.Read<U32>(scrModel.Entry.Header.MeshDivisions);
 
 				for (U16 j = 0; j < scrModel.Entry.Header.MeshDivisions; j++)
 				{
-					binaryReader.SeekAbsolute(mdbStart + divisionOffsets[j]);
+					reader.SeekAbsolute(mdbStart + divisionOffsets[j]);
 
-					U64 mdStart = binaryReader.GetPosition();
+					U64 mdStart = reader.GetPosition();
 
 					ScrDivision& scrDivision = scrModel.Entry.Divisions[j];
 
 					scrDivision.Index = j;
-					scrDivision.Header = binaryReader.Read<MdHeader>();
+					scrDivision.Header = reader.Read<MdHeader>();
 					
 					if (scrDivision.Header.VertexOffset != 0)
 					{
-						binaryReader.SeekAbsolute(mdStart + scrDivision.Header.VertexOffset);
-						binaryReader.Read<ScrVertex>(scrDivision.Vertices, scrDivision.Header.VertexCount);
+						reader.SeekAbsolute(mdStart + scrDivision.Header.VertexOffset);
+						reader.Read<ScrVertex>(scrDivision.Vertices, scrDivision.Header.VertexCount);
 					}
 
 					if (scrDivision.Header.TextureMapOffset != 0)
 					{
-						binaryReader.SeekAbsolute(mdStart + scrDivision.Header.TextureMapOffset);
-						binaryReader.Read<ScrTextureMap>(scrDivision.TextureMaps, scrDivision.Header.VertexCount);
+						reader.SeekAbsolute(mdStart + scrDivision.Header.TextureMapOffset);
+						reader.Read<ScrTextureMap>(scrDivision.TextureMaps, scrDivision.Header.VertexCount);
 					}
 
 					if (scrDivision.Header.TextureUvOffset != 0)
 					{
-						binaryReader.SeekAbsolute(mdStart + scrDivision.Header.TextureUvOffset);
-						binaryReader.Read<ScrUv>(scrDivision.TextureUvs, scrDivision.Header.VertexCount);
+						reader.SeekAbsolute(mdStart + scrDivision.Header.TextureUvOffset);
+						reader.Read<ScrUv>(scrDivision.TextureUvs, scrDivision.Header.VertexCount);
 					}
 
 					if (scrDivision.Header.ColorWeightOffset != 0)
 					{
-						binaryReader.SeekAbsolute(mdStart + scrDivision.Header.ColorWeightOffset);
-						binaryReader.Read<ScrColorWeight>(scrDivision.ColorWeights, scrDivision.Header.VertexCount);
+						reader.SeekAbsolute(mdStart + scrDivision.Header.ColorWeightOffset);
+						reader.Read<ScrColorWeight>(scrDivision.ColorWeights, scrDivision.Header.VertexCount);
 					}
 				}
 			}
 
-			binaryReader.SeekAbsolute(ALIGN_UP(binaryReader.GetPosition(), 16));
+			reader.SeekAbsolute(ALIGN_UP(reader.GetPosition(), 16));
 		}
 
 		for (U32 i = 0; i < scrHeader.SubMeshCount; i++)
 		{
-			binaryReader.SeekAbsolute(transformOffsets[i]);
+			reader.SeekAbsolute(transformOffsets[i]);
 
 			ScrModel& scrModel = group.Models[i];
 
-			scrModel.Transform = binaryReader.Read<ScrTransform>();
+			scrModel.Transform = reader.Read<ScrTransform>();
 		}
 
 		return group;
