@@ -24,7 +24,7 @@ namespace ark
 		static void WriteBinary(const fs::path& File, const std::vector<U8>& Bytes, U64 Size = 0);
 		static void WriteText(const fs::path& File, const std::string& Text, U64 Size = 0);
 
-		static void CreateIfNotExists(const fs::path& File);
+		static void CreateIfNotExist(const fs::path& File, bool DotIsDirectory = false);
 
 		static std::vector<U64> SearchBytesInFile(const std::vector<U8>& Bytes, const std::vector<U8>& Pattern);
 	};

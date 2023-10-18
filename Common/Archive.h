@@ -32,10 +32,10 @@ namespace ark
 
 	public:
 
-		void Load(const std::string& Name);
+		void Load();
 		void LoadRecursive(const U8* Start, const U8* End, U16 Index, U32 Offset, U32 Size, const std::string& Type, const std::string& Name, bool InBounds, bool IsDirectory);
 
-		void LoadAndCollectExtTypes(std::set<std::string>& DirExtTypes, std::set<std::string>& FileExtTypes, const std::string& Name);
+		void LoadAndCollectExtTypes(std::set<std::string>& DirExtTypes, std::set<std::string>& FileExtTypes);
 		void LoadAndCollectExtTypesRecursive(std::set<std::string>& DirExtTypes, std::set<std::string>& FileExtTypes, const U8* Start, const U8* End, U16 Index, U32 Offset, U32 Size, const std::string& Type, const std::string& Name, bool InBounds, bool IsDirectory);
 
 		void SaveRecursive();

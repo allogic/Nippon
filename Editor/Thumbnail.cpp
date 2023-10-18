@@ -20,7 +20,7 @@ namespace ark
 	{
 		fs::path exportDir = "Thumbnails";
 
-		FsUtils::CreateIfNotExists(exportDir);
+		FsUtils::CreateIfNotExist(exportDir);
 
 		if (Scene* scene = SceneManager::CreateScene(Info))
 		{

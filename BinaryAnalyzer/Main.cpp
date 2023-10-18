@@ -1,4 +1,5 @@
 #include <string>
+#include <filesystem>
 #include <vector>
 
 #include <Common/Macros.h>
@@ -8,6 +9,8 @@
 #include <Common/Utilities/FsUtils.h>
 
 using namespace ark;
+
+namespace fs = std::filesystem;
 
 I32 main(I32 Argc, char** Argv)
 {
@@ -21,27 +24,67 @@ I32 main(I32 Argc, char** Argv)
 
 	if (std::strcmp(Argv[1], "Compare") == 0)
 	{
-		std::vector<U8> bytesLeft = FsUtils::ReadBinary(Argv[2]);
-		std::vector<U8> bytesRight = FsUtils::ReadBinary(Argv[3]);
+		fs::path inputFileLeft = Argv[2];
+		fs::path inputFileRight = Argv[3];
 
-		std::vector<std::pair<U64, U64>> indices = {};
-
-		if (DiffUtils::Compare(bytesLeft, bytesRight, indices))
+		if (fs::exists(inputFileLeft) && fs::exists(inputFileRight))
 		{
-			DiffUtils::HexDump(bytesLeft, bytesRight, indices);
+			std::vector<U8> bytesLeft = FsUtils::ReadBinary(inputFileLeft);
+			std::vector<U8> bytesRight = FsUtils::ReadBinary(inputFileRight);
+
+			std::vector<std::pair<U64, U64>> indices = {};
+
+			if (DiffUtils::Compare(bytesLeft, bytesRight, indices))
+			{
+				DiffUtils::HexDump(bytesLeft, bytesRight, indices);
+			}
+		}
+		else
+		{
+			LOG("\n");
+			if (!fs::exists(inputFileLeft))
+			{
+				LOG("Input file %s does not exist\n", inputFileLeft.string().c_str());
+			}
+			if (!fs::exists(inputFileRight))
+			{
+				LOG("Input file %s does not exist\n", inputFileRight.string().c_str());
+			}
+			LOG("\n");
 		}
 	}
 
 	if (std::strcmp(Argv[1], "Search") == 0)
 	{
-		std::vector<U8> bytes = FsUtils::ReadBinary(Argv[2]);
-		std::string pattern = Argv[3];
+		fs::path inputFile = Argv[2];
 
-		std::vector<U64> indices = FsUtils::SearchBytesInFile(bytes, { pattern.begin(), pattern.end() });
+		std::string bytePattern = Argv[3];
 
-		for (const auto index : indices)
+		if (fs::exists(inputFile))
 		{
-			LOG("Found at 0x%llX\n", index);
+			if (bytePattern.empty())
+			{
+				LOG("\n");
+				LOG("Byte pattern is empty\n", inputFile.string().c_str());
+				LOG("\n");
+			}
+			else
+			{
+				std::vector<U8> bytes = FsUtils::ReadBinary(inputFile);
+
+				std::vector<U64> indices = FsUtils::SearchBytesInFile(bytes, { bytePattern.begin(), bytePattern.end() });
+
+				for (const auto index : indices)
+				{
+					LOG("Found at 0x%llX\n", index);
+				}
+			}
+		}
+		else
+		{
+			LOG("\n");
+			LOG("Input file %s does not exist\n", inputFile.string().c_str());
+			LOG("\n");
 		}
 	}
 

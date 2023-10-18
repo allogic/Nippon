@@ -177,7 +177,7 @@ namespace ark
 
 									Archive datArchive = datBytes;
 
-									datArchive.Load(sceneInfo.DatArchiveFileName);
+									datArchive.Load();
 
 									LOG("\n");
 									LOG(" Table Of Content For Level \\%s\\%s .DAT\n", sceneInfo.GroupKey.c_str(), sceneInfo.SceneKey.c_str());
@@ -195,7 +195,7 @@ namespace ark
 
 										Archive binArchive = binBytes;
 
-										binArchive.Load(sceneInfo.BinArchiveFileName);
+										binArchive.Load();
 
 										LOG("\n");
 										LOG(" Table Of Content For Level \\%s\\%s .BIN\n", sceneInfo.GroupKey.c_str(), sceneInfo.SceneKey.c_str());
@@ -245,7 +245,7 @@ namespace ark
 
 									Archive datArchive = datBytes;
 
-									datArchive.Load(sceneInfo.DatArchiveFileName);
+									datArchive.Load();
 
 									LOG("\n");
 									LOG(" Table Of Content For Entity \\%s\\%s .DAT\n", sceneInfo.GroupKey.c_str(), sceneInfo.SceneKey.c_str());
@@ -298,9 +298,7 @@ namespace ark
 
 									BlowFish cipher = gBlowFishKey;
 
-									FsUtils::CreateIfNotExists(fs::path{ "Dumps" });
-									FsUtils::CreateIfNotExists(fs::path{ "Dumps" } / "Levels");
-									FsUtils::CreateIfNotExists(fs::path{ "Dumps" } / "Levels" / sceneInfo.DatArchiveFileName);
+									FsUtils::CreateIfNotExist(exportDatDir, true);
 
 									std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
 
@@ -308,14 +306,12 @@ namespace ark
 
 									Archive datArchive = datBytes;
 
-									datArchive.Load(sceneInfo.DatArchiveFileName);
+									datArchive.Load();
 									datArchive.DumpToDiskRecursive(exportDatDir);
 
 									if (fs::exists(absoluteBinFileDir))
 									{
-										FsUtils::CreateIfNotExists(fs::path{ "Dumps" });
-										FsUtils::CreateIfNotExists(fs::path{ "Dumps" } / "Levels");
-										FsUtils::CreateIfNotExists(fs::path{ "Dumps" } / "Levels" / sceneInfo.BinArchiveFileName);
+										FsUtils::CreateIfNotExist(exportBinDir, true);
 
 										std::vector<U8> binBytes = FsUtils::ReadBinary(absoluteBinFileDir);
 
@@ -323,7 +319,7 @@ namespace ark
 
 										Archive binArchive = binBytes;
 
-										binArchive.Load(sceneInfo.BinArchiveFileName);
+										binArchive.Load();
 										binArchive.DumpToDiskRecursive(exportBinDir);
 									}
 								}
@@ -362,9 +358,7 @@ namespace ark
 
 									BlowFish cipher = gBlowFishKey;
 
-									FsUtils::CreateIfNotExists(fs::path{ "Dumps" });
-									FsUtils::CreateIfNotExists(fs::path{ "Dumps" } / "Entities");
-									FsUtils::CreateIfNotExists(fs::path{ "Dumps" } / "Entities" / sceneInfo.DatArchiveFileName);
+									FsUtils::CreateIfNotExist(exportDatDir, true);
 
 									std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
 
@@ -372,7 +366,7 @@ namespace ark
 
 									Archive datArchive = datBytes;
 
-									datArchive.Load(sceneInfo.DatArchiveFileName);
+									datArchive.Load();
 									datArchive.DumpToDiskRecursive(exportDatDir);
 								}
 

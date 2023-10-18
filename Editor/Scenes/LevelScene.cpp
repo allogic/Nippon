@@ -130,7 +130,7 @@ namespace ark
 
 		mDatArchive = new Archive{ datBytes };
 
-		mDatArchive->Load(GetDatArchiveFileName());
+		mDatArchive->Load();
 
 		if (fs::exists(absoluteBinFileDir))
 		{
@@ -140,7 +140,7 @@ namespace ark
 
 			mBinArchive = new Archive{ binBytes };
 		
-			mBinArchive->Load(GetBinArchiveFileName());
+			mBinArchive->Load();
 		}
 	}
 
@@ -246,7 +246,7 @@ namespace ark
 					mCipher->Decrypt(datBytes);
 
 					entity.Archive->SetBytes(datBytes);
-					entity.Archive->Load(entityData.SceneInfo->DatArchiveFileName);
+					entity.Archive->Load();
 
 					entity.Archive->FindNodesRecursiveByType("MD", entityData.MdNodes);
 					entity.Archive->FindNodesRecursiveByType("DDS", entityData.DdsNodes);
@@ -286,7 +286,7 @@ namespace ark
 					mCipher->Decrypt(datBytes);
 
 					entity.Archive->SetBytes(datBytes);
-					entity.Archive->Load(entityData.SceneInfo->DatArchiveFileName);
+					entity.Archive->Load();
 
 					entity.Archive->FindNodesRecursiveByType("MD", entityData.MdNodes);
 					entity.Archive->FindNodesRecursiveByType("DDS", entityData.DdsNodes);
@@ -326,7 +326,7 @@ namespace ark
 					mCipher->Decrypt(datBytes);
 
 					entity.Archive->SetBytes(datBytes);
-					entity.Archive->Load(entityData.SceneInfo->DatArchiveFileName);
+					entity.Archive->Load();
 
 					entity.Archive->FindNodesRecursiveByType("MD", entityData.MdNodes);
 					entity.Archive->FindNodesRecursiveByType("DDS", entityData.DdsNodes);

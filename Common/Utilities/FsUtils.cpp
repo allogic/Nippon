@@ -112,11 +112,30 @@ namespace ark
 		}
 	}
 
-	void FsUtils::CreateIfNotExists(const fs::path& File)
+	void FsUtils::CreateIfNotExist(const fs::path& File, bool DotIsDirectory)
 	{
-		if (!fs::exists(File))
+		fs::path partial = "";
+
+		for (const auto& file : File)
 		{
-			fs::create_directory(File);
+			partial /= file;
+
+			if (DotIsDirectory)
+			{
+
+			}
+			else
+			{
+				if (file.string().contains('.'))
+				{
+					break;
+				}
+			}
+
+			if (!fs::exists(partial))
+			{
+				fs::create_directory(partial);
+			}
 		}
 	}
 

@@ -79,7 +79,7 @@ namespace ark
 
 		mDatArchive = new Archive{ datBytes };
 
-		mDatArchive->Load(GetDatArchiveFileName());
+		mDatArchive->Load();
 	}
 
 	void EntityScene::LoadEntity()

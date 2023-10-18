@@ -64,9 +64,9 @@ namespace ark
 		}
 	}
 
-	void Archive::Load(const std::string& Name)
+	void Archive::Load()
 	{
-		LoadRecursive(mBytes.data(), mBytes.data() + mBytes.size(), 0, 0, 0, "", Name, true, true);
+		LoadRecursive(mBytes.data(), mBytes.data() + mBytes.size(), 0, 0, 0, "", "", true, true);
 	}
 
 	void Archive::LoadRecursive(const U8* Start, const U8* End, U16 Index, U32 Offset, U32 Size, const std::string& Type, const std::string& Name, bool InBounds, bool IsDirectory)
@@ -108,9 +108,9 @@ namespace ark
 		}
 	}
 
-	void Archive::LoadAndCollectExtTypes(std::set<std::string>& DirExtTypes, std::set<std::string>& FileExtTypes, const std::string& Name)
+	void Archive::LoadAndCollectExtTypes(std::set<std::string>& DirExtTypes, std::set<std::string>& FileExtTypes)
 	{
-		LoadAndCollectExtTypesRecursive(DirExtTypes, FileExtTypes, mBytes.data(), mBytes.data() + mBytes.size(), 0, 0, 0, "", Name, true, true);
+		LoadAndCollectExtTypesRecursive(DirExtTypes, FileExtTypes, mBytes.data(), mBytes.data() + mBytes.size(), 0, 0, 0, "", "", true, true);
 	}
 
 	void Archive::LoadAndCollectExtTypesRecursive(std::set<std::string>& DirExtTypes, std::set<std::string>& FileExtTypes, const U8* Start, const U8* End, U16 Index, U32 Offset, U32 Size, const std::string& Type, const std::string& Name, bool InBounds, bool IsDirectory)
@@ -179,7 +179,7 @@ namespace ark
 		{
 			File /= Node->mType;
 
-			FsUtils::CreateIfNotExists(File);
+			FsUtils::CreateIfNotExist(File, true);
 
 			for (const auto& node : Node->mNodes)
 			{
