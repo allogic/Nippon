@@ -41,7 +41,7 @@ BinaryAnalyzer.exe Search <input-file> <byte-pattern>
  - If only black thumbnails appear, then one must first generate them via `MainMenu/Tools/Generate Thumbnails`. They should be visible after editor relaunch.
 
 ## Exporting Assets
-Right click on a random actor that you with to export and choose `Export as Wavefront` to generate a wavefront object and material file. It should be ready to be imported into blender or other 3D software. Be sure to enable backface culling in your external rendering software to view the objects properly, otherwise only the black hull will be visible for most objects.
+Right click on a random actor that you wish to export and choose `Export as Wavefront` to generate a wavefront object and material file. It should be ready to be imported into blender or other 3D software. Be sure to enable backface culling in your external rendering software to view the objects properly, otherwise only the black hull will be visible for most objects.
 
 <img src="Assets/Oki.jpg" width="33%"/><img src="Assets/Crow.jpg" width="33%"/><img src="Assets/Rao.jpg" width="33%"/>
 
