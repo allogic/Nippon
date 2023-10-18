@@ -24,7 +24,6 @@ Working Directory = $(SolutionDir)$(IntDir)
 ```
 
 ## Utility Programs
-There are a few utility programs which simplify a couple steps:
 #### Archive Analyzer
 There are mayn different files inside the okami data directory but most of em share a common file structure. To list a few of them `DAT`, `BIN`, `IDD`, `AKT`, `CMP`, `DDP`, `EFF`, `PAC`, `SCP`, `TBL`. This programs job is to simplify your everyday work with those files.
 ```
@@ -85,6 +84,9 @@ If bugs are being found, please don't hesitate to open an issue or pull request!
 #### Repositories
 - https://github.com/Shintensu/OkamiHD-Reverse-Engineering
 - https://github.com/whataboutclyde/okami-utils
+#### Tools
+- https://github.com/WerWolv/ImHex
+- https://github.com/rizinorg/cutter
 #### Old File Extension List
 ```
 AFD - unknown purpose but are small and contain no multimedia.
