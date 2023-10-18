@@ -27,7 +27,10 @@ There are a few utility programs which simplify a couple steps:
 #### Archive Analyzer
 ```
 ArchiveAnalyzer.exe Decrypt <cipher-key> <input-file> <output-file>
-ArchiveAnalyzer.exe Unpack <input-file> <output-dir>
+ArchiveAnalyzer.exe Encrypt <cipher-key> <input-file> <output-file>
+ArchiveAnalyzer.exe Unpack <input-file> <output-file>
+ArchiveAnalyzer.exe ToC <input-file>
+ArchiveAnalyzer.exe CollectTypes <input-file>
 ```
 #### Binary Analyzer
 ```
