@@ -1,6 +1,8 @@
 #include <Common/Utilities/FsUtils.h>
 #include <Common/Utilities/TextureUtils.h>
 
+#include <Common/Generated/SceneInfos.h>
+
 #include <Editor/Editor.h>
 #include <Editor/Scene.h>
 #include <Editor/SceneManager.h>
@@ -10,8 +12,6 @@
 #include <Editor/Exporter/WavefrontExporter.h>
 
 #include <Editor/Interface/LevelBrowser.h>
-
-#include <Editor/Generated/SceneInfos.h>
 
 #include <Editor/ImGui/imgui.h>
 

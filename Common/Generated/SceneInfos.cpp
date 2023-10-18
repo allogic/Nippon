@@ -1,4 +1,4 @@
-#include <Editor/Generated/SceneInfos.h>
+#include <Common/Generated/SceneInfos.h>
 
 namespace ark
 {

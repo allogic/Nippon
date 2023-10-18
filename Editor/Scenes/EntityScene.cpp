@@ -79,7 +79,7 @@ namespace ark
 
 		mDatArchive = new Archive{ nullptr };
 
-		mDatArchive->LoadRecursive(datBytes, 0, 0, 0, "", GetDatArchiveFileName(), true);
+		mDatArchive->LoadRecursive(datBytes, 0, 0, 0, "", GetDatArchiveFileName(), true, true);
 	}
 
 	void EntityScene::LoadEntity()
@@ -118,13 +118,14 @@ namespace ark
 				R32V3 rotation = glm::degrees(R32V3{ transform.Rotation.x, transform.Rotation.y, transform.Rotation.z } / 360.0F * MAGIC_ROTATION_COEFFICIENT);
 				R32V3 scale = R32V3{ transform.Scale.x, transform.Scale.y, transform.Scale.z };
 
+				modelTransform->SetLocalPosition(position);
+
 				for (const auto& division : model.Entry.Divisions)
 				{
 					Actor* divisonActor = CreateActor<Actor>("Division_" + std::to_string(division.Index), modelActor);
 
 					Transform* divisionTransform = divisonActor->GetComponent<Transform>();
 
-					divisionTransform->SetLocalPosition(position);
 					divisionTransform->SetLocalRotation(rotation);
 					divisionTransform->SetLocalScale(scale);
 

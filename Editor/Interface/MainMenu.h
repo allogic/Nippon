@@ -27,8 +27,7 @@ namespace ark
 
 		void RenderFileMenu();
 		void RenderEditMenu();
-		void RenderLevelMenu();
-		void RenderEntityMenu();
+		void RenderSceneMenu();
 		void RenderArchiveMenu();
 		void RenderToolsMenu();
 	};

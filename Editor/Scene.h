@@ -8,10 +8,10 @@
 
 #include <Common/Types.h>
 
+#include <Common/Generated/SceneInfos.h>
+
 #include <Editor/Actor.h>
 #include <Editor/FrameBuffer.h>
-
-#include <Editor/Generated/SceneInfos.h>
 
 #include <Editor/Glad/glad.h>
 

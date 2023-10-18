@@ -125,16 +125,23 @@ namespace ark
 		fs::path absoluteBinFileDir = gDataDir / relativeBinFileDir;
 
 		std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
-		std::vector<U8> binBytes = FsUtils::ReadBinary(absoluteBinFileDir);
 
 		mCipher->Decrypt(datBytes);
-		mCipher->Decrypt(binBytes);
 
 		mDatArchive = new Archive{ nullptr };
-		mBinArchive = new Archive{ nullptr };
 
-		mDatArchive->LoadRecursive(datBytes, 0, 0, 0, "", GetDatArchiveFileName(), true);
-		mDatArchive->LoadRecursive(binBytes, 0, 0, 0, "", GetDatArchiveFileName(), true);
+		mDatArchive->LoadRecursive(datBytes, 0, 0, 0, "", GetDatArchiveFileName(), true, true);
+
+		if (fs::exists(absoluteBinFileDir))
+		{
+			std::vector<U8> binBytes = FsUtils::ReadBinary(absoluteBinFileDir);
+
+			mCipher->Decrypt(binBytes);
+
+			mBinArchive = new Archive{ nullptr };
+		
+			mBinArchive->LoadRecursive(binBytes, 0, 0, 0, "", GetBinArchiveFileName(), true, true);
+		}
 	}
 
 	void LevelScene::LoadLevel()
@@ -230,14 +237,15 @@ namespace ark
 				// TODO: Resolve missing category groups keys!
 				if (entityData.SceneInfo->DatArchiveFileName != "")
 				{
-					fs::path relativeFileDir = fs::path{ entityData.SceneInfo->GroupKey } / entityData.SceneInfo->DatArchiveFileName;
-					fs::path absoluteFileDir = gDataDir / relativeFileDir;
+					fs::path relativeDatFileDir = fs::path{ entityData.SceneInfo->GroupKey } / entityData.SceneInfo->DatArchiveFileName;
 
-					std::vector<U8> bytes = FsUtils::ReadBinary(absoluteFileDir);
+					fs::path absoluteDatFileDir = gDataDir / relativeDatFileDir;
 
-					mCipher->Decrypt(bytes);
+					std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
 
-					entity.Archive->LoadRecursive(bytes, 0, 0, 0, "", entityData.SceneInfo->DatArchiveFileName, true);
+					mCipher->Decrypt(datBytes);
+
+					entity.Archive->LoadRecursive(datBytes, 0, 0, 0, "", entityData.SceneInfo->DatArchiveFileName, true, true);
 
 					entity.Archive->FindNodesRecursiveByType("MD", entityData.MdNodes);
 					entity.Archive->FindNodesRecursiveByType("DDS", entityData.DdsNodes);
@@ -268,14 +276,15 @@ namespace ark
 				// TODO: Resolve missing category groups keys!
 				if (entityData.SceneInfo->DatArchiveFileName != "")
 				{
-					fs::path relativeFilePath = fs::path{ entityData.SceneInfo->GroupKey } / entityData.SceneInfo->DatArchiveFileName;
-					fs::path absoluteFilePath = gDataDir / relativeFilePath;
+					fs::path relativeDatFileDir = fs::path{ entityData.SceneInfo->GroupKey } / entityData.SceneInfo->DatArchiveFileName;
 
-					std::vector<U8> bytes = FsUtils::ReadBinary(absoluteFilePath);
+					fs::path absoluteDatFileDir = gDataDir / relativeDatFileDir;
 
-					mCipher->Decrypt(bytes);
+					std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
 
-					entity.Archive->LoadRecursive(bytes, 0, 0, 0, "", entityData.SceneInfo->DatArchiveFileName, true);
+					mCipher->Decrypt(datBytes);
+
+					entity.Archive->LoadRecursive(datBytes, 0, 0, 0, "", entityData.SceneInfo->DatArchiveFileName, true, true);
 
 					entity.Archive->FindNodesRecursiveByType("MD", entityData.MdNodes);
 					entity.Archive->FindNodesRecursiveByType("DDS", entityData.DdsNodes);
@@ -306,14 +315,15 @@ namespace ark
 				// TODO: Resolve missing category groups keys!
 				if (entityData.SceneInfo->DatArchiveFileName != "")
 				{
-					fs::path relativeFilePath = fs::path{ entityData.SceneInfo->GroupKey } / entityData.SceneInfo->DatArchiveFileName;
-					fs::path absoluteFilePath = gDataDir / relativeFilePath;
+					fs::path relativeDatFileDir = fs::path{ entityData.SceneInfo->GroupKey } / entityData.SceneInfo->DatArchiveFileName;
 
-					std::vector<U8> bytes = FsUtils::ReadBinary(absoluteFilePath);
+					fs::path absoluteDatFileDir = gDataDir / relativeDatFileDir;
 
-					mCipher->Decrypt(bytes);
+					std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
 
-					entity.Archive->LoadRecursive(bytes, 0, 0, 0, "", entityData.SceneInfo->DatArchiveFileName, true);
+					mCipher->Decrypt(datBytes);
+
+					entity.Archive->LoadRecursive(datBytes, 0, 0, 0, "", entityData.SceneInfo->DatArchiveFileName, true, true);
 
 					entity.Archive->FindNodesRecursiveByType("MD", entityData.MdNodes);
 					entity.Archive->FindNodesRecursiveByType("DDS", entityData.DdsNodes);
@@ -352,13 +362,14 @@ namespace ark
 				R32V3 rotation = glm::degrees(R32V3{ transform.Rotation.x, transform.Rotation.y, transform.Rotation.z } / 360.0F * MAGIC_ROTATION_COEFFICIENT);
 				R32V3 scale = R32V3{ transform.Scale.x, transform.Scale.y, transform.Scale.z } / MAGIC_SCALE_COEFFICIENT * MAGIC_WORLD_SCALE;
 
+				modelTransform->SetLocalPosition(position);
+
 				for (const auto& division : model.Entry.Divisions)
 				{
 					Actor* divisonActor = CreateActor<Actor>("Division_" + std::to_string(division.Index), modelActor);
 
 					Transform* divisionTransform = divisonActor->GetComponent<Transform>();
 
-					divisionTransform->SetLocalPosition(position);
 					divisionTransform->SetLocalRotation(rotation);
 					divisionTransform->SetLocalScale(scale);
 
@@ -401,13 +412,14 @@ namespace ark
 					R32V3 rotation = R32V3{ entity.Object.Rotation.x, entity.Object.Rotation.y, entity.Object.Rotation.z } + R32V3{ MAGIC_ENTITY_TO_LEVEL_PITCH_OFFSET, MAGIC_ENTITY_TO_LEVEL_YAW_OFFSET, MAGIC_ENTITY_TO_LEVEL_ROLL_OFFSET };
 					R32V3 scale = R32V3{ entity.Object.Scale.x, entity.Object.Scale.y, entity.Object.Scale.z } / MAGIC_ENTITY_TO_LEVEL_SCALE_COEFFICIENT;
 
+					modelTransform->SetLocalPosition(position);
+
 					for (const auto& division : model.Entry.Divisions)
 					{
 						Actor* divisonActor = CreateActor<Actor>("Division_" + std::to_string(division.Index), modelActor);
 
 						Transform* divisionTransform = divisonActor->GetComponent<Transform>();
 
-						divisionTransform->SetLocalPosition(position);
 						divisionTransform->SetLocalRotation(rotation);
 						divisionTransform->SetLocalScale(scale);
 
@@ -451,13 +463,14 @@ namespace ark
 					R32V3 rotation = R32V3{ entity.Object.Rotation.x, entity.Object.Rotation.y, entity.Object.Rotation.z } + R32V3{ MAGIC_ENTITY_TO_LEVEL_PITCH_OFFSET, MAGIC_ENTITY_TO_LEVEL_YAW_OFFSET, MAGIC_ENTITY_TO_LEVEL_ROLL_OFFSET };
 					R32V3 scale = R32V3{ entity.Object.Scale.x, entity.Object.Scale.y, entity.Object.Scale.z } / MAGIC_ENTITY_TO_LEVEL_SCALE_COEFFICIENT;
 
+					modelTransform->SetLocalPosition(position);
+
 					for (const auto& division : model.Entry.Divisions)
 					{
 						Actor* divisonActor = CreateActor<Actor>("Division_" + std::to_string(division.Index), modelActor);
 
 						Transform* divisionTransform = divisonActor->GetComponent<Transform>();
 
-						divisionTransform->SetLocalPosition(position);
 						divisionTransform->SetLocalRotation(rotation);
 						divisionTransform->SetLocalScale(scale);
 
@@ -501,13 +514,14 @@ namespace ark
 					R32V3 rotation = R32V3{ entity.Object.Rotation.x, entity.Object.Rotation.y, entity.Object.Rotation.z } + R32V3{ MAGIC_ENTITY_TO_LEVEL_PITCH_OFFSET, MAGIC_ENTITY_TO_LEVEL_YAW_OFFSET, MAGIC_ENTITY_TO_LEVEL_ROLL_OFFSET };
 					R32V3 scale = R32V3{ entity.Object.Scale.x, entity.Object.Scale.y, entity.Object.Scale.z } / MAGIC_ENTITY_TO_LEVEL_SCALE_COEFFICIENT;
 
+					modelTransform->SetLocalPosition(position);
+
 					for (const auto& division : model.Entry.Divisions)
 					{
 						Actor* divisonActor = CreateActor<Actor>("Division_" + std::to_string(division.Index), modelActor);
 
 						Transform* divisionTransform = divisonActor->GetComponent<Transform>();
 
-						divisionTransform->SetLocalPosition(position);
 						divisionTransform->SetLocalRotation(rotation);
 						divisionTransform->SetLocalScale(scale);
 

@@ -4,6 +4,8 @@
 
 #include <Common/Utilities/FsUtils.h>
 
+#include <Common/Generated/SceneInfos.h>
+
 #include <Editor/Editor.h>
 #include <Editor/Scene.h>
 #include <Editor/SceneManager.h>
@@ -12,8 +14,6 @@
 #include <Editor/TextureLoader.h>
 
 #include <Editor/Interface/MainMenu.h>
-
-#include <Editor/Generated/SceneInfos.h>
 
 #include <Editor/ImGui/imgui.h>
 
@@ -40,8 +40,7 @@ namespace ark
 
 		RenderFileMenu();
 		RenderEditMenu();
-		RenderLevelMenu();
-		RenderEntityMenu();
+		RenderSceneMenu();
 		RenderArchiveMenu();
 		RenderToolsMenu();
 
@@ -64,78 +63,80 @@ namespace ark
 		}
 	}
 
-	void MainMenu::RenderLevelMenu()
+	void MainMenu::RenderSceneMenu()
 	{
-		if (ImGui::BeginMenu("Levels"))
+		if (ImGui::BeginMenu("Scene"))
 		{
-			for (const auto& groupInfo : SceneInfos::GetLevelGroups())
+			if (ImGui::BeginMenu("Levels"))
 			{
-				ImGui::PushID(&groupInfo);
-
-				if (ImGui::BeginMenu(groupInfo.MenuName.c_str()))
+				for (const auto& groupInfo : SceneInfos::GetLevelGroups())
 				{
-					for (const auto& sceneInfo : SceneInfos::GetLevelsByGroup(groupInfo))
+					ImGui::PushID(&groupInfo);
+
+					if (ImGui::BeginMenu(groupInfo.MenuName.c_str()))
 					{
-						ImGui::PushID(&sceneInfo);
-
-						if (ImGui::Selectable(sceneInfo.MenuName.c_str()))
+						for (const auto& sceneInfo : SceneInfos::GetLevelsByGroup(groupInfo))
 						{
-							if (Scene* scene = SceneManager::CreateScene(sceneInfo))
-							{
-								scene->SetEnableConsole(true);
-								scene->SetEnableDebug(true);
+							ImGui::PushID(&sceneInfo);
 
-								scene->CreateViewport();
-								scene->Load();
+							if (ImGui::Selectable(sceneInfo.MenuName.c_str()))
+							{
+								if (Scene* scene = SceneManager::CreateScene(sceneInfo))
+								{
+									scene->SetEnableConsole(true);
+									scene->SetEnableDebug(true);
+
+									scene->CreateViewport();
+									scene->Load();
+								}
 							}
+
+							ImGui::PopID();
 						}
 
-						ImGui::PopID();
+						ImGui::EndMenu();
 					}
 
-					ImGui::EndMenu();
+					ImGui::PopID();
 				}
 
-				ImGui::PopID();
+				ImGui::EndMenu();
 			}
 
-			ImGui::EndMenu();
-		}
-	}
-
-	void MainMenu::RenderEntityMenu()
-	{
-		if (ImGui::BeginMenu("Entities"))
-		{
-			for (const auto& groupInfo : SceneInfos::GetEntityGroups())
+			if (ImGui::BeginMenu("Entities"))
 			{
-				ImGui::PushID(&groupInfo);
-
-				if (ImGui::BeginMenu(groupInfo.MenuName.c_str()))
+				for (const auto& groupInfo : SceneInfos::GetEntityGroups())
 				{
-					for (const auto& sceneInfo : SceneInfos::GetEntitiesByGroup(groupInfo))
+					ImGui::PushID(&groupInfo);
+
+					if (ImGui::BeginMenu(groupInfo.MenuName.c_str()))
 					{
-						ImGui::PushID(&sceneInfo);
-
-						if (ImGui::Selectable(sceneInfo.MenuName.c_str()))
+						for (const auto& sceneInfo : SceneInfos::GetEntitiesByGroup(groupInfo))
 						{
-							if (Scene* scene = SceneManager::CreateScene(sceneInfo))
-							{
-								scene->SetEnableConsole(true);
-								scene->SetEnableDebug(true);
+							ImGui::PushID(&sceneInfo);
 
-								scene->CreateViewport();
-								scene->Load();
+							if (ImGui::Selectable(sceneInfo.MenuName.c_str()))
+							{
+								if (Scene* scene = SceneManager::CreateScene(sceneInfo))
+								{
+									scene->SetEnableConsole(true);
+									scene->SetEnableDebug(true);
+
+									scene->CreateViewport();
+									scene->Load();
+								}
 							}
+
+							ImGui::PopID();
 						}
 
-						ImGui::PopID();
+						ImGui::EndMenu();
 					}
 
-					ImGui::EndMenu();
+					ImGui::PopID();
 				}
 
-				ImGui::PopID();
+				ImGui::EndMenu();
 			}
 
 			ImGui::EndMenu();
@@ -179,8 +180,8 @@ namespace ark
 									Archive datArchive = nullptr;
 									Archive binArchive = nullptr;
 									
-									datArchive.LoadRecursive(datBytes, 0, 0, 0, "", sceneInfo.DatArchiveFileName, true);
-									binArchive.LoadRecursive(binBytes, 0, 0, 0, "", sceneInfo.BinArchiveFileName, true);
+									datArchive.LoadRecursive(datBytes, 0, 0, 0, "", sceneInfo.DatArchiveFileName, true, true);
+									binArchive.LoadRecursive(binBytes, 0, 0, 0, "", sceneInfo.BinArchiveFileName, true, true);
 
 									LOG("\n");
 									LOG(" Table Of Content For Level \\%s\\%s .DAT\n", sceneInfo.GroupKey.c_str(), sceneInfo.SceneKey.c_str());
@@ -237,7 +238,7 @@ namespace ark
 
 									Archive datArchive = nullptr;
 
-									datArchive.LoadRecursive(datBytes, 0, 0, 0, "", sceneInfo.DatArchiveFileName, true);
+									datArchive.LoadRecursive(datBytes, 0, 0, 0, "", sceneInfo.DatArchiveFileName, true, true);
 
 									LOG("\n");
 									LOG(" Table Of Content For Entity \\%s\\%s .DAT\n", sceneInfo.GroupKey.c_str(), sceneInfo.SceneKey.c_str());
@@ -304,8 +305,8 @@ namespace ark
 									Archive datArchive = nullptr;
 									Archive binArchive = nullptr;
 
-									datArchive.LoadRecursive(datBytes, 0, 0, 0, "", sceneInfo.DatArchiveFileName, true);
-									binArchive.LoadRecursive(binBytes, 0, 0, 0, "", sceneInfo.BinArchiveFileName, true);
+									datArchive.LoadRecursive(datBytes, 0, 0, 0, "", sceneInfo.DatArchiveFileName, true, true);
+									binArchive.LoadRecursive(binBytes, 0, 0, 0, "", sceneInfo.BinArchiveFileName, true, true);
 
 									datArchive.DumpToDiskRecursive(exportDatDir);
 									binArchive.DumpToDiskRecursive(exportBinDir);
@@ -355,7 +356,7 @@ namespace ark
 
 									Archive datArchive = nullptr;
 
-									datArchive.LoadRecursive(datBytes, 0, 0, 0, "", sceneInfo.DatArchiveFileName, true);
+									datArchive.LoadRecursive(datBytes, 0, 0, 0, "", sceneInfo.DatArchiveFileName, true, true);
 
 									datArchive.DumpToDiskRecursive(exportDatDir);
 								}

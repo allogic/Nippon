@@ -8,12 +8,20 @@ namespace ark
 {
 	static std::set<std::string> sKnownDirectoryTypes
 	{
-		"AKT", "BIN", "CMP", "DAT", "DDP", "EFF", "IDD", "SCP", "TBL",
+		"AKT",
+		"BIN",
+		"CMP",
+		"DAT", "DDP",
+		"EFF",
+		"IDD",
+		"SCP",
+		"TBL",
 	};
 
 	static std::set<std::string> sKnownFileTypes
 	{
-		"A00", "A01", "ACT", "AK", "ANS",
+		//"", // I've seen empty extensions as well
+		"A00", "A01", "ACT", "AK", "ANS", "ANC",
 		"B00", "B01", "BMH",
 		"C00", "CAM", "CCH",
 		"D00", "DDS",
@@ -27,7 +35,7 @@ namespace ark
 		"RHT", "RNI", "ROF",
 		"S00", "S01", "S02", "S03", "S04", "S05", "SCA", "SCI", "SCL", "SCM", "SCR", "SEH", "SEQ", "SES", "SSD", "SSL",
 		"TAT", "TRE", "TS", "TSC",
-		"V00", "V01", "V02", "V03",
+		"V00", "V01", "V02", "V03", "VET",
 	};
 
 	Archive::Archive(Archive* Parent)
@@ -45,7 +53,7 @@ namespace ark
 		}
 	}
 
-	void Archive::LoadRecursive(const std::vector<U8>& Bytes, U16 Index, U32 Offset, U32 Size, const std::string& Type, const std::string& Name, bool IsDirectory)
+	void Archive::LoadRecursive(const std::vector<U8>& Bytes, U16 Index, U32 Offset, U32 Size, const std::string& Type, const std::string& Name, bool InBounds, bool IsDirectory)
 	{
 		mBinaryReader = Bytes;
 		mIndex = Index;
@@ -53,6 +61,7 @@ namespace ark
 		mSize = Size;
 		mType = Type;
 		mName = Name;
+		mInBounds = InBounds;
 		mIsDirectory = IsDirectory;
 
 		if (mIsDirectory)
@@ -61,14 +70,67 @@ namespace ark
 
 			for (U16 i = 0; i < (U16)mEntries.size(); i++)
 			{
-				mNodes.emplace_back(new Archive{ this })->LoadRecursive(
+				bool entryInBounds = CheckInBounds(mEntries[i]);
+				bool entryIsDirectory = CheckIfDirectory(mEntries[i]);
+
+				Archive* archive = mNodes.emplace_back(new Archive{ this });
+				
+				archive->LoadRecursive(
 					mBinaryReader.Bytes(mEntries[i].Size, mEntries[i].Offset),
 					i,
 					mEntries[i].Offset,
 					mEntries[i].Size,
 					mEntries[i].Type,
 					mEntries[i].Name,
-					CheckIfDirectory(mEntries[i])
+					entryInBounds,
+					entryIsDirectory
+				);
+			}
+		}
+	}
+
+	void Archive::LoadAndCollectExtTypesRecursive(std::set<std::string>& DirExtTypes, std::set<std::string>& FileExtTypes, const std::vector<U8>& Bytes, U16 Index, U32 Offset, U32 Size, const std::string& Type, const std::string& Name, bool InBounds, bool IsDirectory)
+	{
+		mBinaryReader = Bytes;
+		mIndex = Index;
+		mOffset = Offset;
+		mSize = Size;
+		mType = Type;
+		mName = Name;
+		mInBounds = InBounds;
+		mIsDirectory = IsDirectory;
+
+		if (mIsDirectory)
+		{
+			ParseHeader();
+
+			for (U16 i = 0; i < (U16)mEntries.size(); i++)
+			{
+				bool entryInBounds = CheckInBounds(mEntries[i]);
+				bool entryIsDirectory = CheckIfDirectory(mEntries[i]);
+
+				if (entryIsDirectory)
+				{
+					DirExtTypes.emplace(mEntries[i].Type);
+				}
+				else
+				{
+					FileExtTypes.emplace(mEntries[i].Type);
+				}
+
+				Archive* archive = mNodes.emplace_back(new Archive{ this });
+				
+				archive->LoadAndCollectExtTypesRecursive(
+					DirExtTypes,
+					FileExtTypes,
+					mBinaryReader.Bytes(mEntries[i].Size, mEntries[i].Offset),
+					i,
+					mEntries[i].Offset,
+					mEntries[i].Size,
+					mEntries[i].Type,
+					mEntries[i].Name,
+					entryInBounds,
+					entryIsDirectory
 				);
 			}
 		}
@@ -240,15 +302,25 @@ namespace ark
 		mEntries[mEntries.size() - 1].Size = (U32)mBinaryReader.GetSize() - mEntries[mEntries.size() - 1].Offset;
 	}
 
+	bool Archive::CheckInBounds(const ArchiveEntry& Entry)
+	{
+		if ((Entry.Offset + Entry.Size) >= mBinaryReader.GetSize())
+		{
+			return false;
+		}
+
+		return true;
+	}
+
 	bool Archive::CheckIfDirectory(const ArchiveEntry& Entry)
 	{
 		mBinaryReader.SeekAbsolute(Entry.Offset + 32);
 
-		U32 size = mBinaryReader.Read<U32>();
+		U32 entryCount = mBinaryReader.Read<U32>();
 
-		if (size > 0 && size < 65535)
+		if (entryCount > 0 && entryCount < 65535)
 		{
-			for (U32 i = 0; i < size; i++)
+			for (U32 i = 0; i < entryCount; i++)
 			{
 				if ((i * 4) >= ((U32)mBinaryReader.GetSize() - 4))
 				{
@@ -263,7 +335,7 @@ namespace ark
 				}
 			}
 
-			for (U32 i = 0; i < size; i++)
+			for (U32 i = 0; i < entryCount; i++)
 			{
 				if ((i * 4) >= ((U32)mBinaryReader.GetSize() - 4))
 				{

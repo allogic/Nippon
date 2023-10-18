@@ -30,7 +30,8 @@ namespace ark
 
 	public:
 
-		void LoadRecursive(const std::vector<U8>& Bytes, U16 Index, U32 Offset, U32 Size, const std::string& Type, const std::string& Name, bool IsDirectory);
+		void LoadRecursive(const std::vector<U8>& Bytes, U16 Index, U32 Offset, U32 Size, const std::string& Type, const std::string& Name, bool InBounds, bool IsDirectory);
+		void LoadAndCollectExtTypesRecursive(std::set<std::string>& DirExtTypes, std::set<std::string>& FileExtTypes, const std::vector<U8>& Bytes, U16 Index, U32 Offset, U32 Size, const std::string& Type, const std::string& Name, bool InBounds, bool IsDirectory);
 		void SaveRecursive();
 
 	public:
@@ -53,6 +54,8 @@ namespace ark
 	private:
 
 		void ParseHeader();
+
+		bool CheckInBounds(const ArchiveEntry& Entry);
 		bool CheckIfDirectory(const ArchiveEntry& Entry);
 
 	private:
@@ -65,6 +68,7 @@ namespace ark
 		U32 mSize = 0;
 		std::string mType = "";
 		std::string mName = "";
+		bool mInBounds = false;
 		bool mIsDirectory = false;
 		std::vector<ArchiveEntry> mEntries = {};
 		std::vector<Archive*> mNodes = {};

@@ -39,9 +39,6 @@
     <ClCompile Include="Exporter\WavefrontExporter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Generated\SceneInfos.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Interface\EntityBrowser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -171,9 +168,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Exporter\WavefrontExporter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Generated\SceneInfos.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Interface\EntityBrowser.h">

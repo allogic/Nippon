@@ -1,5 +1,7 @@
 #include <Common/Macros.h>
 
+#include <Common/Generated/SceneInfos.h>
+
 #include <Editor/InterfaceManager.h>
 #include <Editor/Texture.h>
 #include <Editor/TextureLoader.h>
@@ -9,8 +11,6 @@
 #include <Editor/Interface/LevelBrowser.h>
 #include <Editor/Interface/MainMenu.h>
 #include <Editor/Interface/Outline.h>
-
-#include <Editor/Generated/SceneInfos.h>
 
 namespace ark
 {

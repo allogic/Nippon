@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <set>
 
 #include <Common/Macros.h>
 #include <Common/Types.h>
@@ -40,8 +41,39 @@ I32 main(I32 Argc, char** Argv)
 
 		Archive archive = nullptr;
 
-		archive.LoadRecursive(bytes, 0, 0, 0, "", "", true);
+		archive.LoadRecursive(bytes, 0, 0, 0, "", Argv[3], true, true);
 		archive.DumpToDiskRecursive(Argv[3]);
+	}
+
+	if (std::strcmp(Argv[1], "CollectTypes") == 0)
+	{
+		std::set<std::string> dirExtTypes = {};
+		std::set<std::string> fileExtTypes = {};
+		std::vector<U8> bytes = FsUtils::ReadBinary(Argv[2]);
+
+		Archive archive = nullptr;
+
+		archive.LoadAndCollectExtTypesRecursive(dirExtTypes, fileExtTypes, bytes, 0, 0, 0, "", "", true, true);
+
+		LOG("\n");
+		LOG(" Found Directory Extensions\n");
+		LOG("=============================================================\n");
+
+		for (const auto& type : dirExtTypes)
+		{
+			LOG("    %s\n", type.c_str());
+		}
+
+		LOG("\n");
+		LOG(" Found File Extensions\n");
+		LOG("=============================================================\n");
+
+		for (const auto& type : fileExtTypes)
+		{
+			LOG("    %s\n", type.c_str());
+		}
+
+		LOG("\n");
 	}
 
 	return 0;

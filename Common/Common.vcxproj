@@ -159,6 +159,7 @@
     <ClCompile Include="BinaryReader.cpp" />
     <ClCompile Include="BinaryWriter.cpp" />
     <ClCompile Include="BlowFish.cpp" />
+    <ClCompile Include="Generated\SceneInfos.cpp" />
     <ClCompile Include="Utilities\DiffUtils.cpp" />
     <ClCompile Include="Utilities\FsUtils.cpp" />
     <ClCompile Include="Utilities\StringUtils.cpp" />
@@ -169,6 +170,7 @@
     <ClInclude Include="BinaryReader.h" />
     <ClInclude Include="BinaryWriter.h" />
     <ClInclude Include="BlowFish.h" />
+    <ClInclude Include="Generated\SceneInfos.h" />
     <ClInclude Include="Macros.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Utilities\DiffUtils.h" />

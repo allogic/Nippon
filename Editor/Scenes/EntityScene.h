@@ -6,9 +6,9 @@
 
 #include <Common/Types.h>
 
-#include <Editor/Scene.h>
+#include <Common/Generated/SceneInfos.h>
 
-#include <Editor/Generated/SceneInfos.h>
+#include <Editor/Scene.h>
 
 #include <Editor/Structs/MdStructs.h>
 

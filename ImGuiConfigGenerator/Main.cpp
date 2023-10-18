@@ -5,7 +5,7 @@
 #include <Common/Utilities/FsUtils.h>
 #include <Common/Utilities/StringUtils.h>
 
-#include <ImGuiConfigGenerator/Generated/SceneInfos.h>
+#include <Common/Generated/SceneInfos.h>
 
 using namespace ark;
 
