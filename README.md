@@ -26,15 +26,13 @@ Working Directory = $(SolutionDir)$(IntDir)
 ## Utility Programs
 There are a few utility programs which simplify a couple steps:
 #### Archive Analyzer
+There are mayn different files inside the okami data directory but most of em share a common file structure. To list a few of them `DAT`, `BIN`, `IDD`, `AKT`, `CMP`, `DDP`, `EFF`, `PAC`, `SCP`, `TBL`. This programs job is to simplify your everyday work with those files.
 ```
 ArchiveAnalyzer.exe Decrypt <cipher-key> <input-file> <output-file>
 ArchiveAnalyzer.exe Encrypt <cipher-key> <input-file> <output-file>
 ArchiveAnalyzer.exe Unpack <input-file> <output-file>
 ArchiveAnalyzer.exe ToC <input-file>
-ArchiveAnalyzer.exe CollectTypes <input-file>
-```
-Here is a short how to:
-```
+
 ArchiveAnalyzer.exe Decrypt "YaKiNiKuM2rrVrPJpGMkfe3EK4RbpbHw" "...\Steam\steamapps\common\Okami\data_pc\etc\core.dat" "core.dat"
 ArchiveAnalyzer.exe Unpack "core.dat" "core"
 ArchiveAnalyzer.exe ToC "core.dat"
@@ -44,28 +42,23 @@ ArchiveAnalyzer.exe ToC "core.dat"
     |   00003 # coreVtEstTbl         # VET  # 2.976 KB
     |   00004 # coreEff              # EFF  # 25387.488 KB
     |   |   00000 # coretex              # TBL  # 24738.208 KB
-    |   |   00001 # coreest              # TBL  # 397.152 KB
-    |   |   00002 # core                 # EMD  # 251.936 KB
-    |   |   00003 # runofs               # ROF  # 0.96 KB
-    |   00005 # Fu00Eff              # EFF  # 433.632 KB
-    |   |   00000 # fu00tex              # TBL  # 0.128 KB
-    |   |   |   00000 # runofs               # ROF  # 0.64 KB
-    |   |   00001 # fu00est              # TBL  # 433.248 KB
-    |   |   00002 # fu00                 # EMD  # 0.64 KB
-    |   |   00003 # runofs               # ROF  # 0.96 KB
-    |   00006 # PL00Eff              # EFF  # 314.176 KB
-    |   |   00000 # pl00tex              # TBL  # 0.128 KB
-    |   |   |   00000 # runofs               # ROF  # 0.64 KB
-    |   |   00001 # pl00est              # TBL  # 313.792 KB
+    |   |   |   00000 # kemuri4              # DDS  # 87.616 KB
+    |   |   |   00001 # happa_anim           # DDS  # 87.616 KB
+    |   |   |   00002 # hex_withline         # DDS  # 87.616 KB
+... ... ...
+    |   |   |   00145 # runofs               # ROF  # 1.232 KB
     |   |   00002 # pl00                 # EMD  # 0.64 KB
     |   |   00003 # runofs               # ROF  # 0.96 KB
     |   00007 # animalSet            # ANC  # 1.120 KB
-    |   00008 # runofs               # ROF  # 0.128 KB
+    |   00008 # runofs               # ROF  # 0.96 KB
 ```
 #### Binary Analyzer
+All people have different tools for different tasks, but if there are tons of files that need to be processed in the same way over and over again, then I'm sure you will find a use case for this analyzer.
 ```
 BinaryAnalyzer.exe Compare <input-file-left> <input-file-right>
 BinaryAnalyzer.exe Search <input-file> <byte-pattern>
+
+BinaryAnalyzer.exe Search "core.EMD" "bres"
 ```
 
 ## Troubleshooting
