@@ -4,9 +4,10 @@ Nippon is a collection of tools designed to interact with the okami PC port. Thi
 <img src="Assets/Editor.png" width="100%"/>
 
 ## Starting The Editor
-The editor requires 2 command line arguments. The first one is the directory where the okami data files are and the other is the BlowFish-256 key. Both arguments must be supplied as strings!
+The editor requires 2 command line arguments. The first one is the directory where the okami data files are and the other is the BlowFish-256 key which has already been leaked. Both arguments must be supplied as strings!
 ```
 Editor.exe <okami-data-pc-dir> <cipher-key>
+Editor.exe "...\Steam\steamapps\common\Okami\data_pc" "YaKiNiKuM2rrVrPJpGMkfe3EK4RbpbHw"
 ```
 
 ## Compile The Project
@@ -27,7 +28,39 @@ There are a few utility programs which simplify a couple steps:
 #### Archive Analyzer
 ```
 ArchiveAnalyzer.exe Decrypt <cipher-key> <input-file> <output-file>
-ArchiveAnalyzer.exe Unpack <input-file> <output-dir>
+ArchiveAnalyzer.exe Encrypt <cipher-key> <input-file> <output-file>
+ArchiveAnalyzer.exe Unpack <input-file> <output-file>
+ArchiveAnalyzer.exe ToC <input-file>
+ArchiveAnalyzer.exe CollectTypes <input-file>
+```
+Here is a short how to:
+```
+ArchiveAnalyzer.exe Decrypt "YaKiNiKuM2rrVrPJpGMkfe3EK4RbpbHw" "...\Steam\steamapps\common\Okami\data_pc\etc\core.dat" "core.dat"
+ArchiveAnalyzer.exe Unpack "core.dat" "core"
+ArchiveAnalyzer.exe ToC "core.dat"
+    |   00000 # kage                 # DDS  # 22.80 KB
+    |   00001 # fude1                # DDS  # 22.80 KB
+    |   00002 # fude2                # DDS  # 349.760 KB
+    |   00003 # coreVtEstTbl         # VET  # 2.976 KB
+    |   00004 # coreEff              # EFF  # 25387.488 KB
+    |   |   00000 # coretex              # TBL  # 24738.208 KB
+    |   |   00001 # coreest              # TBL  # 397.152 KB
+    |   |   00002 # core                 # EMD  # 251.936 KB
+    |   |   00003 # runofs               # ROF  # 0.96 KB
+    |   00005 # Fu00Eff              # EFF  # 433.632 KB
+    |   |   00000 # fu00tex              # TBL  # 0.128 KB
+    |   |   |   00000 # runofs               # ROF  # 0.64 KB
+    |   |   00001 # fu00est              # TBL  # 433.248 KB
+    |   |   00002 # fu00                 # EMD  # 0.64 KB
+    |   |   00003 # runofs               # ROF  # 0.96 KB
+    |   00006 # PL00Eff              # EFF  # 314.176 KB
+    |   |   00000 # pl00tex              # TBL  # 0.128 KB
+    |   |   |   00000 # runofs               # ROF  # 0.64 KB
+    |   |   00001 # pl00est              # TBL  # 313.792 KB
+    |   |   00002 # pl00                 # EMD  # 0.64 KB
+    |   |   00003 # runofs               # ROF  # 0.96 KB
+    |   00007 # animalSet            # ANC  # 1.120 KB
+    |   00008 # runofs               # ROF  # 0.128 KB
 ```
 #### Binary Analyzer
 ```
@@ -41,7 +74,7 @@ BinaryAnalyzer.exe Search <input-file> <byte-pattern>
  - If only black thumbnails appear, then one must first generate them via `MainMenu/Tools/Generate Thumbnails`. They should be visible after editor relaunch.
 
 ## Exporting Assets
-Right click on a random actor that you with to export and choose `Export as Wavefront` to generate a wavefront object and material file. It should be ready to be imported into blender or other 3D software. Be sure to enable backface culling in your external rendering software to view the objects properly, otherwise only the black hull will be visible for most objects.
+Right click on a random actor that you wish to export and choose `Export as Wavefront` to generate a wavefront object and material file. It should be ready to be imported into blender or other 3D software. Be sure to enable backface culling in your external rendering software to view the objects properly, otherwise only the black hull will be visible for most objects.
 
 <img src="Assets/Oki.jpg" width="33%"/><img src="Assets/Crow.jpg" width="33%"/><img src="Assets/Rao.jpg" width="33%"/>
 
