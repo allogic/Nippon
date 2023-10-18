@@ -33,10 +33,7 @@ namespace ark
 	public:
 
 		void Load();
-		void LoadRecursive(const U8* Start, const U8* End, U16 Index, U32 Offset, U32 Size, const std::string& Type, const std::string& Name, bool InBounds, bool IsDirectory);
-
-		void LoadAndCollectExtTypes(std::set<std::string>& DirExtTypes, std::set<std::string>& FileExtTypes);
-		void LoadAndCollectExtTypesRecursive(std::set<std::string>& DirExtTypes, std::set<std::string>& FileExtTypes, const U8* Start, const U8* End, U16 Index, U32 Offset, U32 Size, const std::string& Type, const std::string& Name, bool InBounds, bool IsDirectory);
+		void LoadRecursive(const U8* Start, const U8* End, U16 Index, U32 Offset, U32 Size, const std::string& Type, const std::string& Name);
 
 		void SaveRecursive();
 
@@ -47,8 +44,7 @@ namespace ark
 		inline const auto& GetOffset() const { return mOffset; }
 		inline const auto& GetSize() const { return mSize; }
 
-		inline const auto GetBytesWithHeader() const { return mReader.BytesFrom(mSize, 0); }
-		inline const auto GetBytesWithoutHeader() const { return mReader.BytesFrom(mSize - 32, 32); }
+		inline const auto GetBytes() const { return mReader.BytesFrom(mSize, 0); }
 
 	public:
 
@@ -65,8 +61,8 @@ namespace ark
 
 		void ParseHeader();
 
-		bool CheckInBounds(const ArchiveEntry& Entry);
-		bool CheckIfDirectory(const ArchiveEntry& Entry);
+		bool CheckIfOutOfBounds();
+		bool CheckIfDirectory();
 
 	private:
 
@@ -85,7 +81,7 @@ namespace ark
 		std::string mType = "";
 		std::string mName = "";
 
-		bool mInBounds = false;
+		bool mIsOutOfBounds = false;
 		bool mIsDirectory = false;
 
 		std::vector<ArchiveEntry> mEntries = {};

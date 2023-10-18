@@ -17,7 +17,7 @@ namespace fs = std::filesystem;
 
 I32 main(I32 Argc, char** Argv)
 {
-	if (std::strcmp(Argv[1], "Help") == 0)
+	if ((Argc >= 2) && (std::strcmp(Argv[1], "Help") == 0))
 	{
 		LOG("\n");
 		LOG("ArchiveAnalyzer.exe Decrypt <cipher-key> <input-file> <output-file>\n");
@@ -28,14 +28,14 @@ I32 main(I32 Argc, char** Argv)
 		LOG("\n");
 	}
 
-	if (std::strcmp(Argv[1], "Decrypt") == 0)
+	if ((Argc >= 5) && (std::strcmp(Argv[1], "Decrypt") == 0))
 	{
 		std::string cipherKey = Argv[2];
 
 		fs::path inputFile = Argv[3];
 		fs::path outputFile = Argv[4];
 
-		if (cipherKey.empty())
+		if (cipherKey == "")
 		{
 			LOG("\n");
 			LOG("Cipher key is missing\n");
@@ -72,14 +72,14 @@ I32 main(I32 Argc, char** Argv)
 		}
 	}
 
-	if (std::strcmp(Argv[1], "Encrypt") == 0)
+	if ((Argc >= 5) && (std::strcmp(Argv[1], "Encrypt") == 0))
 	{
 		std::string cipherKey = Argv[2];
 
 		fs::path inputFile = Argv[3];
 		fs::path outputFile = Argv[4];
 
-		if (cipherKey.empty())
+		if (cipherKey == "")
 		{
 			LOG("\n");
 			LOG("Cipher key is missing\n");
@@ -116,7 +116,7 @@ I32 main(I32 Argc, char** Argv)
 		}
 	}
 
-	if (std::strcmp(Argv[1], "Unpack") == 0)
+	if ((Argc >= 4) && (std::strcmp(Argv[1], "Unpack") == 0))
 	{
 		fs::path inputFile = Argv[2];
 		fs::path outputFile = Argv[3];
@@ -149,7 +149,7 @@ I32 main(I32 Argc, char** Argv)
 		}
 	}
 
-	if (std::strcmp(Argv[1], "ToC") == 0)
+	if ((Argc >= 3) && (std::strcmp(Argv[1], "ToC") == 0))
 	{
 		fs::path inputFile = Argv[2];
 
@@ -166,49 +166,6 @@ I32 main(I32 Argc, char** Argv)
 			LOG("=============================================================\n");
 
 			archive.DumpTableOfContent(0, 4, 4);
-
-			LOG("\n");
-		}
-		else
-		{
-			LOG("\n");
-			LOG("Input file %s does not exist\n", inputFile.string().c_str());
-			LOG("\n");
-		}
-	}
-
-	if (std::strcmp(Argv[1], "CollectTypes") == 0)
-	{
-		fs::path inputFile = Argv[2];
-
-		if (fs::exists(inputFile))
-		{
-			std::set<std::string> dirExtTypes = {};
-			std::set<std::string> fileExtTypes = {};
-
-			std::vector<U8> bytes = FsUtils::ReadBinary(inputFile);
-
-			Archive archive = bytes;
-
-			archive.LoadAndCollectExtTypes(dirExtTypes, fileExtTypes);
-
-			LOG("\n");
-			LOG(" Found Directory Extensions\n");
-			LOG("=============================================================\n");
-
-			for (const auto& type : dirExtTypes)
-			{
-				LOG("    %s\n", type.c_str());
-			}
-
-			LOG("\n");
-			LOG(" Found File Extensions\n");
-			LOG("=============================================================\n");
-
-			for (const auto& type : fileExtTypes)
-			{
-				LOG("    %s\n", type.c_str());
-			}
 
 			LOG("\n");
 		}

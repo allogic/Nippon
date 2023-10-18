@@ -21,7 +21,7 @@ namespace ark
 
 		std::vector<U32> transformOffsets = reader.Read<U32>(scrHeader.SubMeshCount);
 
-		reader.SeekAbsolute(ALIGN_UP(reader.GetPosition(), 16));
+		reader.SeekAbs(ALIGN_UP(reader.GetPosition(), 16));
 
 		for (U32 i = 0; i < scrHeader.SubMeshCount; i++)
 		{
@@ -40,7 +40,7 @@ namespace ark
 
 				for (U16 j = 0; j < scrModel.Entry.Header.MeshDivisions; j++)
 				{
-					reader.SeekAbsolute(mdbStart + divisionOffsets[j]);
+					reader.SeekAbs(mdbStart + divisionOffsets[j]);
 
 					U64 mdStart = reader.GetPosition();
 
@@ -51,36 +51,36 @@ namespace ark
 					
 					if (scrDivision.Header.VertexOffset != 0)
 					{
-						reader.SeekAbsolute(mdStart + scrDivision.Header.VertexOffset);
+						reader.SeekAbs(mdStart + scrDivision.Header.VertexOffset);
 						reader.Read<ScrVertex>(scrDivision.Vertices, scrDivision.Header.VertexCount);
 					}
 
 					if (scrDivision.Header.TextureMapOffset != 0)
 					{
-						reader.SeekAbsolute(mdStart + scrDivision.Header.TextureMapOffset);
+						reader.SeekAbs(mdStart + scrDivision.Header.TextureMapOffset);
 						reader.Read<ScrTextureMap>(scrDivision.TextureMaps, scrDivision.Header.VertexCount);
 					}
 
 					if (scrDivision.Header.TextureUvOffset != 0)
 					{
-						reader.SeekAbsolute(mdStart + scrDivision.Header.TextureUvOffset);
+						reader.SeekAbs(mdStart + scrDivision.Header.TextureUvOffset);
 						reader.Read<ScrUv>(scrDivision.TextureUvs, scrDivision.Header.VertexCount);
 					}
 
 					if (scrDivision.Header.ColorWeightOffset != 0)
 					{
-						reader.SeekAbsolute(mdStart + scrDivision.Header.ColorWeightOffset);
+						reader.SeekAbs(mdStart + scrDivision.Header.ColorWeightOffset);
 						reader.Read<ScrColorWeight>(scrDivision.ColorWeights, scrDivision.Header.VertexCount);
 					}
 				}
 			}
 
-			reader.SeekAbsolute(ALIGN_UP(reader.GetPosition(), 16));
+			reader.SeekAbs(ALIGN_UP(reader.GetPosition(), 16));
 		}
 
 		for (U32 i = 0; i < scrHeader.SubMeshCount; i++)
 		{
-			reader.SeekAbsolute(transformOffsets[i]);
+			reader.SeekAbs(transformOffsets[i]);
 
 			ScrModel& scrModel = group.Models[i];
 

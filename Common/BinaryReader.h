@@ -17,13 +17,12 @@ namespace ark
 
 	public:
 
-		inline auto GetPosition() const { return mPosition; }
-		inline auto GetSize() const { return (U64)(mEnd - mStart); }
+		inline const auto& GetPosition() const { return mPosition; }
 
 	public:
 
-		inline void SeekRelative(I64 Value) { mPosition += Value; }
-		inline void SeekAbsolute(I64 Value) { mPosition = Value; }
+		inline void SeekRel(I64 Value) { mPosition += Value; }
+		inline void SeekAbs(I64 Value) { mPosition = Value; }
 
 	public:
 

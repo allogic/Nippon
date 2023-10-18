@@ -35,6 +35,7 @@ namespace ark
 		{ 0x08, "ut" },
 		{ 0, "es" },
 		{ 0, "gt" },
+		{ 0, "hm" },
 		{ 0x0A, "it" },
 		{ 0x0B, "vt" },
 		{ 0x0C, "dr" },
@@ -153,9 +154,9 @@ namespace ark
 		mDatArchive->FindNodesRecursiveByType("SCR", mScrNodes);
 		mDatArchive->FindNodesRecursiveByType("DDS", mDdsNodes);
 
-		const auto& tscObjects = ObjSerializer::FromBytes(mTscNode->GetBytesWithoutHeader());
-		const auto& treObjects = ObjSerializer::FromBytes(mTreNode->GetBytesWithoutHeader());
-		const auto& tatObjects = ObjSerializer::FromBytes(mTatNode->GetBytesWithoutHeader());
+		const auto& tscObjects = ObjSerializer::FromBytes(mTscNode->GetBytes());
+		const auto& treObjects = ObjSerializer::FromBytes(mTreNode->GetBytes());
+		const auto& tatObjects = ObjSerializer::FromBytes(mTatNode->GetBytes());
 
 		for (U32 i = 0; i < (U32)tscObjects.size(); i++)
 		{
@@ -213,14 +214,14 @@ namespace ark
 
 		for (const auto& node : mScrNodes)
 		{
-			ScrGroup& group = mScrGroups.emplace_back(ScrSerializer::FromBytes(node->GetBytesWithoutHeader()));
+			ScrGroup& group = mScrGroups.emplace_back(ScrSerializer::FromBytes(node->GetBytes()));
 
 			group.Name = node->GetName();
 		}
 
 		for (const auto& node : mDdsNodes)
 		{
-			mScrTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(node->GetBytesWithoutHeader()));
+			mScrTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(node->GetBytes()));
 		}
 	}
 
@@ -253,14 +254,14 @@ namespace ark
 
 					for (const auto& node : entityData.MdNodes)
 					{
-						auto& mdGroup = entityData.MdGroups.emplace_back(MdSerializer::FromBytes(node->GetBytesWithoutHeader()));
+						auto& mdGroup = entityData.MdGroups.emplace_back(MdSerializer::FromBytes(node->GetBytes()));
 
 						mdGroup.Name = node->GetName();
 					}
 
 					for (const auto& node : entityData.DdsNodes)
 					{
-						entityData.MdTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(node->GetBytesWithoutHeader()));
+						entityData.MdTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(node->GetBytes()));
 					}
 				}
 			}
@@ -293,14 +294,14 @@ namespace ark
 
 					for (const auto& node : entityData.MdNodes)
 					{
-						auto& mdGroup = entityData.MdGroups.emplace_back(MdSerializer::FromBytes(node->GetBytesWithoutHeader()));
+						auto& mdGroup = entityData.MdGroups.emplace_back(MdSerializer::FromBytes(node->GetBytes()));
 
 						mdGroup.Name = node->GetName();
 					}
 
 					for (const auto& node : entityData.DdsNodes)
 					{
-						entityData.MdTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(node->GetBytesWithoutHeader()));
+						entityData.MdTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(node->GetBytes()));
 					}
 				}
 			}
@@ -333,14 +334,14 @@ namespace ark
 
 					for (const auto& node : entityData.MdNodes)
 					{
-						auto& mdGroup = entityData.MdGroups.emplace_back(MdSerializer::FromBytes(node->GetBytesWithoutHeader()));
+						auto& mdGroup = entityData.MdGroups.emplace_back(MdSerializer::FromBytes(node->GetBytes()));
 
 						mdGroup.Name = node->GetName();
 					}
 
 					for (const auto& node : entityData.DdsNodes)
 					{
-						entityData.MdTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(node->GetBytesWithoutHeader()));
+						entityData.MdTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(node->GetBytes()));
 					}
 				}
 			}

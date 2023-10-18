@@ -21,7 +21,7 @@ namespace ark
 
 		std::vector<U32> transformOffsets = reader.Read<U32>(scrHeader.SubMeshCount);
 
-		reader.SeekAbsolute(ALIGN_UP(reader.GetPosition(), 16));
+		reader.SeekAbs(ALIGN_UP(reader.GetPosition(), 16));
 
 		for (U32 i = 0; i < scrHeader.SubMeshCount; i++)
 		{
@@ -40,7 +40,7 @@ namespace ark
 
 				for (U16 j = 0; j < mdModel.Entry.Header.MeshDivisions; j++)
 				{
-					reader.SeekAbsolute(mdbStart + divisionOffsets[j]);
+					reader.SeekAbs(mdbStart + divisionOffsets[j]);
 
 					U64 mdStart = reader.GetPosition();
 
@@ -51,36 +51,36 @@ namespace ark
 
 					if (mdDivision.Header.VertexOffset != 0)
 					{
-						reader.SeekAbsolute(mdStart + mdDivision.Header.VertexOffset);
+						reader.SeekAbs(mdStart + mdDivision.Header.VertexOffset);
 						reader.Read<MdVertex>(mdDivision.Vertices, mdDivision.Header.VertexCount);
 					}
 
 					if (mdDivision.Header.TextureMapOffset != 0)
 					{
-						reader.SeekAbsolute(mdStart + mdDivision.Header.TextureMapOffset);
+						reader.SeekAbs(mdStart + mdDivision.Header.TextureMapOffset);
 						reader.Read<MdTextureMap>(mdDivision.TextureMaps, mdDivision.Header.VertexCount);
 					}
 
 					if (mdDivision.Header.TextureUvOffset != 0)
 					{
-						reader.SeekAbsolute(mdStart + mdDivision.Header.TextureUvOffset);
+						reader.SeekAbs(mdStart + mdDivision.Header.TextureUvOffset);
 						reader.Read<MdUv>(mdDivision.TextureUvs, mdDivision.Header.VertexCount);
 					}
 
 					if (mdDivision.Header.ColorWeightOffset != 0)
 					{
-						reader.SeekAbsolute(mdStart + mdDivision.Header.ColorWeightOffset);
+						reader.SeekAbs(mdStart + mdDivision.Header.ColorWeightOffset);
 						reader.Read<MdColorWeight>(mdDivision.ColorWeights, mdDivision.Header.VertexCount);
 					}
 				}
 			}
 
-			reader.SeekAbsolute(ALIGN_UP(reader.GetPosition(), 16));
+			reader.SeekAbs(ALIGN_UP(reader.GetPosition(), 16));
 		}
 
 		for (U32 i = 0; i < scrHeader.SubMeshCount; i++)
 		{
-			reader.SeekAbsolute(transformOffsets[i]);
+			reader.SeekAbs(transformOffsets[i]);
 
 			MdModel& mdModel = group.Models[i];
 

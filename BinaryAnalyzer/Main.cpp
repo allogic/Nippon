@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 
 I32 main(I32 Argc, char** Argv)
 {
-	if (std::strcmp(Argv[1], "Help") == 0)
+	if ((Argc >= 2) && (std::strcmp(Argv[1], "Help") == 0))
 	{
 		LOG("\n");
 		LOG("BinaryAnalyzer.exe Compare <input-file-left> <input-file-right>\n");
@@ -22,7 +22,7 @@ I32 main(I32 Argc, char** Argv)
 		LOG("\n");
 	}
 
-	if (std::strcmp(Argv[1], "Compare") == 0)
+	if ((Argc >= 4) && (std::strcmp(Argv[1], "Compare") == 0))
 	{
 		fs::path inputFileLeft = Argv[2];
 		fs::path inputFileRight = Argv[3];
@@ -54,7 +54,7 @@ I32 main(I32 Argc, char** Argv)
 		}
 	}
 
-	if (std::strcmp(Argv[1], "Search") == 0)
+	if ((Argc >= 4) && (std::strcmp(Argv[1], "Search") == 0))
 	{
 		fs::path inputFile = Argv[2];
 
@@ -65,7 +65,7 @@ I32 main(I32 Argc, char** Argv)
 			if (bytePattern.empty())
 			{
 				LOG("\n");
-				LOG("Byte pattern is empty\n", inputFile.string().c_str());
+				LOG("Byte pattern is empty\n");
 				LOG("\n");
 			}
 			else

@@ -67,73 +67,78 @@ namespace ark
 	{
 		if (ImGui::BeginMenu("Scene"))
 		{
-			if (ImGui::BeginMenu("Levels"))
+			if (ImGui::BeginMenu("Open"))
 			{
-				for (const auto& groupInfo : SceneInfos::GetLevelGroups())
+				if (ImGui::BeginMenu("Levels"))
 				{
-					ImGui::PushID(&groupInfo);
-
-					if (ImGui::BeginMenu(groupInfo.MenuName.c_str()))
+					for (const auto& groupInfo : SceneInfos::GetLevelGroups())
 					{
-						for (const auto& sceneInfo : SceneInfos::GetLevelsByGroup(groupInfo))
+						ImGui::PushID(&groupInfo);
+
+						if (ImGui::BeginMenu(groupInfo.MenuName.c_str()))
 						{
-							ImGui::PushID(&sceneInfo);
-
-							if (ImGui::Selectable(sceneInfo.MenuName.c_str()))
+							for (const auto& sceneInfo : SceneInfos::GetLevelsByGroup(groupInfo))
 							{
-								if (Scene* scene = SceneManager::CreateScene(sceneInfo))
-								{
-									scene->SetEnableConsole(true);
-									scene->SetEnableDebug(true);
+								ImGui::PushID(&sceneInfo);
 
-									scene->CreateViewport();
-									scene->Load();
+								if (ImGui::Selectable(sceneInfo.MenuName.c_str()))
+								{
+									if (Scene* scene = SceneManager::CreateScene(sceneInfo))
+									{
+										scene->SetEnableConsole(true);
+										scene->SetEnableDebug(true);
+
+										scene->CreateViewport();
+										scene->Load();
+									}
 								}
+
+								ImGui::PopID();
 							}
 
-							ImGui::PopID();
+							ImGui::EndMenu();
 						}
 
-						ImGui::EndMenu();
+						ImGui::PopID();
 					}
 
-					ImGui::PopID();
+					ImGui::EndMenu();
 				}
 
-				ImGui::EndMenu();
-			}
-
-			if (ImGui::BeginMenu("Entities"))
-			{
-				for (const auto& groupInfo : SceneInfos::GetEntityGroups())
+				if (ImGui::BeginMenu("Entities"))
 				{
-					ImGui::PushID(&groupInfo);
-
-					if (ImGui::BeginMenu(groupInfo.MenuName.c_str()))
+					for (const auto& groupInfo : SceneInfos::GetEntityGroups())
 					{
-						for (const auto& sceneInfo : SceneInfos::GetEntitiesByGroup(groupInfo))
+						ImGui::PushID(&groupInfo);
+
+						if (ImGui::BeginMenu(groupInfo.MenuName.c_str()))
 						{
-							ImGui::PushID(&sceneInfo);
-
-							if (ImGui::Selectable(sceneInfo.MenuName.c_str()))
+							for (const auto& sceneInfo : SceneInfos::GetEntitiesByGroup(groupInfo))
 							{
-								if (Scene* scene = SceneManager::CreateScene(sceneInfo))
-								{
-									scene->SetEnableConsole(true);
-									scene->SetEnableDebug(true);
+								ImGui::PushID(&sceneInfo);
 
-									scene->CreateViewport();
-									scene->Load();
+								if (ImGui::Selectable(sceneInfo.MenuName.c_str()))
+								{
+									if (Scene* scene = SceneManager::CreateScene(sceneInfo))
+									{
+										scene->SetEnableConsole(true);
+										scene->SetEnableDebug(true);
+
+										scene->CreateViewport();
+										scene->Load();
+									}
 								}
+
+								ImGui::PopID();
 							}
 
-							ImGui::PopID();
+							ImGui::EndMenu();
 						}
 
-						ImGui::EndMenu();
+						ImGui::PopID();
 					}
 
-					ImGui::PopID();
+					ImGui::EndMenu();
 				}
 
 				ImGui::EndMenu();

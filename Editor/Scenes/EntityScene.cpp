@@ -89,14 +89,14 @@ namespace ark
 
 		for (const auto& node : mMdNodes)
 		{
-			MdGroup& group = mMdGroups.emplace_back(MdSerializer::FromBytes(node->GetBytesWithoutHeader()));
+			MdGroup& group = mMdGroups.emplace_back(MdSerializer::FromBytes(node->GetBytes()));
 
 			group.Name = node->GetName();
 		}
 
 		for (const auto& node : mDdsNodes)
 		{
-			mMdTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(node->GetBytesWithoutHeader()));
+			mMdTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(node->GetBytes()));
 		}
 	}
 
