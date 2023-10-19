@@ -25,7 +25,7 @@ Working Directory = $(SolutionDir)$(IntDir)
 
 ## Utility Programs
 #### Archive Analyzer
-There are mayn different files inside the okami data directory but most of em share a common file structure. To list a few of them `DAT`, `BIN`, `IDD`, `AKT`, `CMP`, `DDP`, `EFF`, `PAC`, `SCP`, `TBL`. This programs job is to simplify your everyday work with those files.
+There are many different files inside the okami data directory but most of em share a common file structure. To list a few of them `DAT`, `BIN`, `IDD`, `AKT`, `CMP`, `DDP`, `EFF`, `PAC`, `SCP`, `TBL`. This programs job is to simplify your everyday work with those files.
 ```
 ArchiveAnalyzer.exe Decrypt <cipher-key> <input-file> <output-file>
 ArchiveAnalyzer.exe Encrypt <cipher-key> <input-file> <output-file>
