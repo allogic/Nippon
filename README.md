@@ -29,11 +29,11 @@ There are many different files inside the okami data directory but most of em sh
 ```
 ArchiveAnalyzer.exe Decrypt <cipher-key> <input-file> <output-file>
 ArchiveAnalyzer.exe Encrypt <cipher-key> <input-file> <output-file>
-ArchiveAnalyzer.exe Unpack <input-file> <output-file>
+ArchiveAnalyzer.exe Extract <input-file> <output-file>
 ArchiveAnalyzer.exe ToC <input-file>
 
 ArchiveAnalyzer.exe Decrypt "YaKiNiKuM2rrVrPJpGMkfe3EK4RbpbHw" "...\Steam\steamapps\common\Okami\data_pc\etc\core.dat" "core.dat"
-ArchiveAnalyzer.exe Unpack "core.dat" "core"
+ArchiveAnalyzer.exe Extract "core.dat" "core"
 ArchiveAnalyzer.exe ToC "core.dat"
     |   00000 # kage                 # DDS  # 22.80 KB
     |   00001 # fude1                # DDS  # 22.80 KB
