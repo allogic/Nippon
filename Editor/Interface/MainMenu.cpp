@@ -410,7 +410,7 @@ namespace ark
 					{
 						Thumbnail::Generate(sceneInfo);
 
-						LOG("    Generated %s\n", sceneInfo.ThumbnailFileName.c_str());
+						LOG("    Generating %s\n", sceneInfo.ThumbnailFileName.c_str());
 					}
 
 					LOG("\n");
@@ -426,7 +426,7 @@ namespace ark
 					{
 						Thumbnail::Generate(sceneInfo);
 
-						LOG("    Generated %s\n", sceneInfo.ThumbnailFileName.c_str());
+						LOG("    Generating %s\n", sceneInfo.ThumbnailFileName.c_str());
 					}
 
 					LOG("\n");

@@ -27,7 +27,6 @@ namespace ark
 	static std::map<U8, std::string> sCategoryToGroupKey =
 	{
 		//{ 0x09, "" }, // 0xFC 0x1E
-
 		{ 0, "pl" },
 		{ 0, "em" },
 		{ 0, "an" },
@@ -36,6 +35,7 @@ namespace ark
 		{ 0, "es" },
 		{ 0, "gt" },
 		{ 0, "hm" },
+		{ 0, "hl" },
 		{ 0x0A, "it" },
 		{ 0x0B, "vt" },
 		{ 0x0C, "dr" },

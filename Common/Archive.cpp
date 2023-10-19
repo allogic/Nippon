@@ -8,7 +8,7 @@ namespace ark
 {
 	static std::set<std::string> sKnownDirectoryTypes
 	{
-		"", // Empty file types exist
+		"", // Empty directory types exist
 		"AKT",
 		"BIN",
 		"CMP",
@@ -266,6 +266,8 @@ namespace ark
 			if (mEntries[i].Offset)
 			{
 				mEntries[prevSequenceIndex].Size = mEntries[i].Offset - mEntries[prevSequenceIndex].Offset;
+				mEntries[prevSequenceIndex].Size -= 32;
+
 				prevSequenceIndex = i;
 			}
 		}
