@@ -5,6 +5,7 @@
 #include <cstring>
 
 #include <Common/Types.h>
+#include <Common/Macros.h>
 
 namespace ark
 {
@@ -12,17 +13,24 @@ namespace ark
 	{
 	public:
 
-		BinaryReader();
-		BinaryReader(const U8* Start, const U8* End);
+		BinaryReader(const U8* Bytes, U64 Size);
 
 	public:
 
+		inline const auto& GetBytes() const { return mBytes; }
+		inline const auto& GetSize() const { return mSize; }
 		inline const auto& GetPosition() const { return mPosition; }
 
 	public:
 
 		inline void SeekRel(I64 Value) { mPosition += Value; }
 		inline void SeekAbs(I64 Value) { mPosition = Value; }
+
+		inline void AlignUp(U64 Alignment) { mPosition = ALIGN_UP(mPosition, Alignment); }
+		inline void AlignDown(U64 Alignment) { mPosition = ALIGN_DOWN(mPosition, Alignment); }
+
+		inline void ModUp(U64 Modulus) { mPosition += mPosition % Modulus; }
+		inline void ModDown(U64 Modulus) { mPosition -= mPosition % Modulus; }
 
 	public:
 
@@ -43,10 +51,10 @@ namespace ark
 
 	private:
 
-		const U8* mStart;
-		const U8* mEnd;
+		const U8* mBytes;
+		U64 mSize;
 
-		U64 mPosition;
+		U64 mPosition = 0;
 	};
 }
 
@@ -57,7 +65,7 @@ namespace ark
 	{
 		T value = {};
 
-		std::memcpy((U8*)&value, mStart + mPosition, sizeof(T));
+		std::memcpy(&value, mBytes + mPosition, sizeof(T));
 
 		mPosition += sizeof(T);
 
@@ -71,10 +79,7 @@ namespace ark
 
 		values.resize(Count);
 
-		if (Count > 0)
-		{
-			std::memcpy((U8*)&values[0], mStart + mPosition, Count * sizeof(T));
-		}
+		std::memcpy(values.data(), mBytes + mPosition, Count * sizeof(T));
 
 		mPosition += Count * sizeof(T);
 
@@ -86,10 +91,7 @@ namespace ark
 	{
 		Values.resize(Count);
 
-		if (Count > 0)
-		{
-			std::memcpy((U8*)&Values[0], mStart + mPosition, Count * sizeof(T));
-		}
+		std::memcpy(Values.data(), mBytes + mPosition, Count * sizeof(T));
 
 		mPosition += Count * sizeof(T);
 	}

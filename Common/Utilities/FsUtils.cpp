@@ -76,7 +76,7 @@ namespace ark
 			}
 			else
 			{
-				Size = std::max(Size, (U64)Bytes.size());
+				Size = std::min(Size, (U64)Bytes.size());
 			}
 
 			if (Size)
@@ -84,6 +84,17 @@ namespace ark
 				stream.write((char*)&Bytes[0], Size);
 			}
 
+			stream.close();
+		}
+	}
+
+	void FsUtils::WriteBinary(const fs::path& File, U8* Bytes, U64 Size)
+	{
+		std::ofstream stream = std::ofstream{ File, std::ios::binary };
+
+		if (stream.is_open())
+		{
+			stream.write((char*)Bytes, Size);
 			stream.close();
 		}
 	}
@@ -100,7 +111,7 @@ namespace ark
 			}
 			else
 			{
-				Size = std::max(Size, (U64)Text.size());
+				Size = std::min(Size, (U64)Text.size());
 			}
 
 			if (Size)
@@ -112,7 +123,18 @@ namespace ark
 		}
 	}
 
-	void FsUtils::CreateIfNotExist(const fs::path& File, bool DotIsDirectory)
+	void FsUtils::WriteText(const fs::path& File, U8* Text, U64 Size)
+	{
+		std::ofstream stream = std::ofstream{ File };
+
+		if (stream.is_open())
+		{
+			stream.write((char*)Text, Size);
+			stream.close();
+		}
+	}
+
+	void FsUtils::CreateDirIfNotExist(const fs::path& File, bool DotIsDirectory)
 	{
 		fs::path partial = "";
 
@@ -139,7 +161,7 @@ namespace ark
 		}
 	}
 
-	std::vector<U64> FsUtils::SearchBytesInFile(const std::vector<U8>& Bytes, const std::vector<U8>& Pattern)
+	std::vector<U64> FsUtils::SearchStringsInFile(const std::vector<U8>& Bytes, const std::vector<U8>& Pattern)
 	{
 		std::vector<U64> indices = {};
 

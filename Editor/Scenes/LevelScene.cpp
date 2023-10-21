@@ -119,44 +119,44 @@ namespace ark
 
 	void LevelScene::LoadArchives()
 	{
-		fs::path relativeDatFileDir = fs::path{ GetGroupKey() } / GetDatArchiveFileName();
-		fs::path relativeBinFileDir = fs::path{ GetGroupKey() } / GetBinArchiveFileName();
+		fs::path relativeDatFile = fs::path{ GetGroupKey() } / GetDatArchiveFileName();
+		fs::path relativeBinFile = fs::path{ GetGroupKey() } / GetBinArchiveFileName();
 
-		fs::path absoluteDatFileDir = gDataDir / relativeDatFileDir;
-		fs::path absoluteBinFileDir = gDataDir / relativeBinFileDir;
+		fs::path absoluteDatFile = gDataDir / relativeDatFile;
+		fs::path absoluteBinFile = gDataDir / relativeBinFile;
 
-		std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
+		std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFile);
 
 		mCipher->Decrypt(datBytes);
 
-		mDatArchive = new Archive{ datBytes };
+		mDatArchive = new Archive;
 
-		mDatArchive->Load();
+		mDatArchive->DeSerialize(datBytes);
 
-		if (fs::exists(absoluteBinFileDir))
+		if (fs::exists(absoluteBinFile))
 		{
-			std::vector<U8> binBytes = FsUtils::ReadBinary(absoluteBinFileDir);
+			std::vector<U8> binBytes = FsUtils::ReadBinary(absoluteBinFile);
 
 			mCipher->Decrypt(binBytes);
 
-			mBinArchive = new Archive{ binBytes };
+			mBinArchive = new Archive;
 		
-			mBinArchive->Load();
+			mBinArchive->DeSerialize(binBytes);
 		}
 	}
 
 	void LevelScene::LoadLevel()
 	{
-		mDatArchive->FindNodeRecursiveByType("TSC", &mTscNode);
-		mDatArchive->FindNodeRecursiveByType("TRE", &mTreNode);
-		mDatArchive->FindNodeRecursiveByType("TAT", &mTatNode);
+		mDatArchive->FindArchiveByType("TSC", &mTscArchive);
+		mDatArchive->FindArchiveByType("TRE", &mTreArchive);
+		mDatArchive->FindArchiveByType("TAT", &mTatArchive);
 
-		mDatArchive->FindNodesRecursiveByType("SCR", mScrNodes);
-		mDatArchive->FindNodesRecursiveByType("DDS", mDdsNodes);
+		mDatArchive->FindArchivesByType("SCR", mScrArchives);
+		mDatArchive->FindArchivesByType("DDS", mDdsArchives);
 
-		const auto& tscObjects = ObjSerializer::FromBytes(mTscNode->GetBytes());
-		const auto& treObjects = ObjSerializer::FromBytes(mTreNode->GetBytes());
-		const auto& tatObjects = ObjSerializer::FromBytes(mTatNode->GetBytes());
+		const auto& tscObjects = ObjSerializer::FromBytes(mTscArchive->GetBytes(), mTscArchive->GetSize());
+		const auto& treObjects = ObjSerializer::FromBytes(mTreArchive->GetBytes(), mTreArchive->GetSize());
+		const auto& tatObjects = ObjSerializer::FromBytes(mTatArchive->GetBytes(), mTatArchive->GetSize());
 
 		for (U32 i = 0; i < (U32)tscObjects.size(); i++)
 		{
@@ -212,16 +212,16 @@ namespace ark
 			}
 		}
 
-		for (const auto& node : mScrNodes)
+		for (const auto& archive : mScrArchives)
 		{
-			ScrGroup& group = mScrGroups.emplace_back(ScrSerializer::FromBytes(node->GetBytes()));
+			ScrGroup& group = mScrGroups.emplace_back(ScrSerializer::FromBytes(archive->GetBytes(), archive->GetSize()));
 
-			group.Name = node->GetName();
+			group.Name = archive->GetName();
 		}
 
-		for (const auto& node : mDdsNodes)
+		for (const auto& archive : mDdsArchives)
 		{
-			mScrTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(node->GetBytes()));
+			mScrTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(archive->GetBytes(), archive->GetSize()));
 		}
 	}
 
@@ -238,30 +238,29 @@ namespace ark
 				// TODO: Resolve missing category groups keys!
 				if (entityData.SceneInfo->DatArchiveFileName != "")
 				{
-					fs::path relativeDatFileDir = fs::path{ entityData.SceneInfo->GroupKey } / entityData.SceneInfo->DatArchiveFileName;
+					fs::path relativeDatFile = fs::path{ entityData.SceneInfo->GroupKey } / entityData.SceneInfo->DatArchiveFileName;
 
-					fs::path absoluteDatFileDir = gDataDir / relativeDatFileDir;
+					fs::path absoluteDatFile = gDataDir / relativeDatFile;
 
-					std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
+					std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFile);
 
 					mCipher->Decrypt(datBytes);
 
-					entity.Archive->SetBytes(datBytes);
-					entity.Archive->Load();
+					entity.Archive->DeSerialize(datBytes);
 
-					entity.Archive->FindNodesRecursiveByType("MD", entityData.MdNodes);
-					entity.Archive->FindNodesRecursiveByType("DDS", entityData.DdsNodes);
+					entity.Archive->FindArchivesByType("MD", entityData.MdArchives);
+					entity.Archive->FindArchivesByType("DDS", entityData.DdsArchives);
 
-					for (const auto& node : entityData.MdNodes)
+					for (const auto& archive : entityData.MdArchives)
 					{
-						auto& mdGroup = entityData.MdGroups.emplace_back(MdSerializer::FromBytes(node->GetBytes()));
+						auto& mdGroup = entityData.MdGroups.emplace_back(MdSerializer::FromBytes(archive->GetBytes(), archive->GetSize()));
 
-						mdGroup.Name = node->GetName();
+						mdGroup.Name = archive->GetName();
 					}
 
-					for (const auto& node : entityData.DdsNodes)
+					for (const auto& archive : entityData.DdsArchives)
 					{
-						entityData.MdTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(node->GetBytes()));
+						entityData.MdTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(archive->GetBytes(), archive->GetSize()));
 					}
 				}
 			}
@@ -278,30 +277,29 @@ namespace ark
 				// TODO: Resolve missing category groups keys!
 				if (entityData.SceneInfo->DatArchiveFileName != "")
 				{
-					fs::path relativeDatFileDir = fs::path{ entityData.SceneInfo->GroupKey } / entityData.SceneInfo->DatArchiveFileName;
+					fs::path relativeDatFile = fs::path{ entityData.SceneInfo->GroupKey } / entityData.SceneInfo->DatArchiveFileName;
 
-					fs::path absoluteDatFileDir = gDataDir / relativeDatFileDir;
+					fs::path absoluteDatFile = gDataDir / relativeDatFile;
 
-					std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
+					std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFile);
 
 					mCipher->Decrypt(datBytes);
 
-					entity.Archive->SetBytes(datBytes);
-					entity.Archive->Load();
+					entity.Archive->DeSerialize(datBytes);
 
-					entity.Archive->FindNodesRecursiveByType("MD", entityData.MdNodes);
-					entity.Archive->FindNodesRecursiveByType("DDS", entityData.DdsNodes);
+					entity.Archive->FindArchivesByType("MD", entityData.MdArchives);
+					entity.Archive->FindArchivesByType("DDS", entityData.DdsArchives);
 
-					for (const auto& node : entityData.MdNodes)
+					for (const auto& archive : entityData.MdArchives)
 					{
-						auto& mdGroup = entityData.MdGroups.emplace_back(MdSerializer::FromBytes(node->GetBytes()));
+						auto& mdGroup = entityData.MdGroups.emplace_back(MdSerializer::FromBytes(archive->GetBytes(), archive->GetSize()));
 
-						mdGroup.Name = node->GetName();
+						mdGroup.Name = archive->GetName();
 					}
 
-					for (const auto& node : entityData.DdsNodes)
+					for (const auto& archive : entityData.DdsArchives)
 					{
-						entityData.MdTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(node->GetBytes()));
+						entityData.MdTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(archive->GetBytes(), archive->GetSize()));
 					}
 				}
 			}
@@ -318,30 +316,29 @@ namespace ark
 				// TODO: Resolve missing category groups keys!
 				if (entityData.SceneInfo->DatArchiveFileName != "")
 				{
-					fs::path relativeDatFileDir = fs::path{ entityData.SceneInfo->GroupKey } / entityData.SceneInfo->DatArchiveFileName;
+					fs::path relativeDatFile = fs::path{ entityData.SceneInfo->GroupKey } / entityData.SceneInfo->DatArchiveFileName;
 
-					fs::path absoluteDatFileDir = gDataDir / relativeDatFileDir;
+					fs::path absoluteDatFile = gDataDir / relativeDatFile;
 
-					std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
+					std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFile);
 
 					mCipher->Decrypt(datBytes);
 
-					entity.Archive->SetBytes(datBytes);
-					entity.Archive->Load();
+					entity.Archive->DeSerialize(datBytes);
 
-					entity.Archive->FindNodesRecursiveByType("MD", entityData.MdNodes);
-					entity.Archive->FindNodesRecursiveByType("DDS", entityData.DdsNodes);
+					entity.Archive->FindArchivesByType("MD", entityData.MdArchives);
+					entity.Archive->FindArchivesByType("DDS", entityData.DdsArchives);
 
-					for (const auto& node : entityData.MdNodes)
+					for (const auto& archive : entityData.MdArchives)
 					{
-						auto& mdGroup = entityData.MdGroups.emplace_back(MdSerializer::FromBytes(node->GetBytes()));
+						auto& mdGroup = entityData.MdGroups.emplace_back(MdSerializer::FromBytes(archive->GetBytes(), archive->GetSize()));
 
-						mdGroup.Name = node->GetName();
+						mdGroup.Name = archive->GetName();
 					}
 
-					for (const auto& node : entityData.DdsNodes)
+					for (const auto& archive : entityData.DdsArchives)
 					{
-						entityData.MdTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(node->GetBytes()));
+						entityData.MdTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(archive->GetBytes(), archive->GetSize()));
 					}
 				}
 			}
@@ -568,7 +565,7 @@ namespace ark
 	{
 		LOG("\n");
 		LOG(" Opening Level Scene \\%s\\%s\n", GetGroupKey().c_str(), GetSceneKey().c_str());
-		LOG("=============================================================\n");
+		LOG("-----------------------------------------------------------------------------------------\n");
 		LOG("\n");
 		LOG("Loading archives:\n");
 		LOG("    %s\n", GetDatArchiveFileName().c_str());
@@ -592,11 +589,11 @@ namespace ark
 		LOG("\n");
 		LOG("Searching files:\n");
 		LOG("    %s\n", GetDatArchiveFileName().c_str());
-		LOG("        Found %u TSC files\n", mTscNode ? 1 : 0);
-		LOG("        Found %u TRE files\n", mTreNode ? 1 : 0);
-		LOG("        Found %u TAT files\n", mTatNode ? 1 : 0);
-		LOG("        Found %u SCR files\n", (U32)mScrNodes.size());
-		LOG("        Found %u DDS files\n", (U32)mDdsNodes.size());
+		LOG("        Found %u TSC files\n", mTscArchive ? 1 : 0);
+		LOG("        Found %u TRE files\n", mTreArchive ? 1 : 0);
+		LOG("        Found %u TAT files\n", mTatArchive ? 1 : 0);
+		LOG("        Found %u SCR files\n", (U32)mScrArchives.size());
+		LOG("        Found %u DDS files\n", (U32)mDdsArchives.size());
 
 		for (const auto& [archiveFileName, archive] : mTscArchiveCache)
 		{
@@ -623,35 +620,35 @@ namespace ark
 		LOG("Loading models:\n");
 
 		LOG("    %s\n", GetDatArchiveFileName().c_str());
-		for (const auto& node : mScrNodes)
+		for (const auto& archive : mScrArchives)
 		{
-			LOG("        %s.%s\n", node->GetName().c_str(), node->GetType().c_str());
+			LOG("        %s.%s\n", archive->GetName().c_str(), archive->GetType().c_str());
 		}
 
-		for (const auto& [archiveFileName, archive] : mTscArchiveCache)
+		for (const auto& [archiveFileName, cachedArchive] : mTscArchiveCache)
 		{
 			LOG("    %s\n", archiveFileName.c_str());
-			for (const auto& node : mTscEntityDataCache[archive].MdNodes)
+			for (const auto& archive : mTscEntityDataCache[cachedArchive].MdArchives)
 			{
-				LOG("        %s.%s\n", node->GetName().c_str(), node->GetType().c_str());
+				LOG("        %s.%s\n", archive->GetName().c_str(), archive->GetType().c_str());
 			}
 		}
 
-		for (const auto& [archiveFileName, archive] : mTreArchiveCache)
+		for (const auto& [archiveFileName, cachedArchive] : mTreArchiveCache)
 		{
 			LOG("    %s\n", archiveFileName.c_str());
-			for (const auto& node : mTreEntityDataCache[archive].MdNodes)
+			for (const auto& archive : mTreEntityDataCache[cachedArchive].MdArchives)
 			{
-				LOG("        %s.%s\n", node->GetName().c_str(), node->GetType().c_str());
+				LOG("        %s.%s\n", archive->GetName().c_str(), archive->GetType().c_str());
 			}
 		}
 
-		for (const auto& [archiveFileName, archive] : mTatArchiveCache)
+		for (const auto& [archiveFileName, cachedArchive] : mTatArchiveCache)
 		{
 			LOG("    %s\n", archiveFileName.c_str());
-			for (const auto& node : mTatEntityDataCache[archive].MdNodes)
+			for (const auto& archive : mTatEntityDataCache[cachedArchive].MdArchives)
 			{
-				LOG("        %s.%s\n", node->GetName().c_str(), node->GetType().c_str());
+				LOG("        %s.%s\n", archive->GetName().c_str(), archive->GetType().c_str());
 			}
 		}
 
@@ -659,35 +656,35 @@ namespace ark
 		LOG("Loading textures:\n");
 
 		LOG("    %s\n", GetDatArchiveFileName().c_str());
-		for (const auto& node : mDdsNodes)
+		for (const auto& archive : mDdsArchives)
 		{
-			LOG("        %s.%s\n", node->GetName().c_str(), node->GetType().c_str());
+			LOG("        %s.%s\n", archive->GetName().c_str(), archive->GetType().c_str());
 		}
 
-		for (const auto& [archiveFileName, archive] : mTscArchiveCache)
+		for (const auto& [archiveFileName, cachedArchive] : mTscArchiveCache)
 		{
 			LOG("    %s\n", archiveFileName.c_str());
-			for (const auto& node : mTscEntityDataCache[archive].DdsNodes)
+			for (const auto& archive : mTscEntityDataCache[cachedArchive].DdsArchives)
 			{
-				LOG("        %s.%s\n", node->GetName().c_str(), node->GetType().c_str());
+				LOG("        %s.%s\n", archive->GetName().c_str(), archive->GetType().c_str());
 			}
 		}
 
-		for (const auto& [archiveFileName, archive] : mTreArchiveCache)
+		for (const auto& [archiveFileName, cachedArchive] : mTreArchiveCache)
 		{
 			LOG("    %s\n", archiveFileName.c_str());
-			for (const auto& node : mTreEntityDataCache[archive].DdsNodes)
+			for (const auto& archive : mTreEntityDataCache[cachedArchive].DdsArchives)
 			{
-				LOG("        %s.%s\n", node->GetName().c_str(), node->GetType().c_str());
+				LOG("        %s.%s\n", archive->GetName().c_str(), archive->GetType().c_str());
 			}
 		}
 
-		for (const auto& [archiveFileName, archive] : mTatArchiveCache)
+		for (const auto& [archiveFileName, cachedArchive] : mTatArchiveCache)
 		{
 			LOG("    %s\n", archiveFileName.c_str());
-			for (const auto& node : mTatEntityDataCache[archive].DdsNodes)
+			for (const auto& archive : mTatEntityDataCache[cachedArchive].DdsArchives)
 			{
-				LOG("        %s.%s\n", node->GetName().c_str(), node->GetType().c_str());
+				LOG("        %s.%s\n", archive->GetName().c_str(), archive->GetType().c_str());
 			}
 		}
 

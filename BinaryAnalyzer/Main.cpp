@@ -4,6 +4,8 @@
 
 #include <Common/Macros.h>
 #include <Common/Types.h>
+#include <Common/CommandLine.h>
+#include <Common/BlowFish.h>
 
 #include <Common/Utilities/DiffUtils.h>
 #include <Common/Utilities/FsUtils.h>
@@ -14,77 +16,108 @@ namespace fs = std::filesystem;
 
 I32 main(I32 Argc, char** Argv)
 {
-	if ((Argc >= 2) && (std::strcmp(Argv[1], "Help") == 0))
+	CommandLine::Init(Argc, Argv);
+
+	if (CommandLine::HasFirstArgument("Help"))
 	{
 		LOG("\n");
-		LOG("BinaryAnalyzer.exe Compare <input-file-left> <input-file-right>\n");
-		LOG("BinaryAnalyzer.exe Search <input-file> <byte-pattern>\n");
+		LOG("BinaryAnalyzer Compare LeftInput RightInput [LeftDecrypt|RightDecrypt|ResultCount|Size|Stride|LeadStrideMultiplier]\n");
+		LOG("BinaryAnalyzer Search Input StringPattern [Decrypt]\n");
 		LOG("\n");
 	}
 
-	if ((Argc >= 4) && (std::strcmp(Argv[1], "Compare") == 0))
+	if (CommandLine::HasFirstArgument("Compare"))
 	{
-		fs::path inputFileLeft = Argv[2];
-		fs::path inputFileRight = Argv[3];
+		std::string leftInputFile = "";
+		std::string rightInputFile = "";
 
-		if (fs::exists(inputFileLeft) && fs::exists(inputFileRight))
+		if (CommandLine::HasArgumentWithValue("LeftInput", leftInputFile, "Left input file is missing"))
 		{
-			std::vector<U8> bytesLeft = FsUtils::ReadBinary(inputFileLeft);
-			std::vector<U8> bytesRight = FsUtils::ReadBinary(inputFileRight);
-
-			std::vector<std::pair<U64, U64>> indices = {};
-
-			if (DiffUtils::Compare(bytesLeft, bytesRight, indices))
+			if (CommandLine::HasArgumentWithValue("RightInput", rightInputFile, "Right input file is missing"))
 			{
-				DiffUtils::HexDump(bytesLeft, bytesRight, indices);
-			}
-		}
-		else
-		{
-			LOG("\n");
-			if (!fs::exists(inputFileLeft))
-			{
-				LOG("Input file %s does not exist\n", inputFileLeft.string().c_str());
-			}
-			if (!fs::exists(inputFileRight))
-			{
-				LOG("Input file %s does not exist\n", inputFileRight.string().c_str());
-			}
-			LOG("\n");
-		}
-	}
-
-	if ((Argc >= 4) && (std::strcmp(Argv[1], "Search") == 0))
-	{
-		fs::path inputFile = Argv[2];
-
-		std::string bytePattern = Argv[3];
-
-		if (fs::exists(inputFile))
-		{
-			if (bytePattern.empty())
-			{
-				LOG("\n");
-				LOG("Byte pattern is empty\n");
-				LOG("\n");
-			}
-			else
-			{
-				std::vector<U8> bytes = FsUtils::ReadBinary(inputFile);
-
-				std::vector<U64> indices = FsUtils::SearchBytesInFile(bytes, { bytePattern.begin(), bytePattern.end() });
-
-				for (const auto index : indices)
+				if (fs::exists(leftInputFile) && fs::exists(rightInputFile))
 				{
-					LOG("Found at 0x%llX\n", index);
+					std::vector<U8> leftBytes = FsUtils::ReadBinary(leftInputFile);
+					std::vector<U8> rightBytes = FsUtils::ReadBinary(rightInputFile);
+
+					if (CommandLine::HasArgument("LeftDecrypt"))
+					{
+						BlowFish{ CIPHER_KEY }.Decrypt(leftBytes);
+					}
+
+					if (CommandLine::HasArgument("RightDecrypt"))
+					{
+						BlowFish{ CIPHER_KEY }.Decrypt(rightBytes);
+					}
+
+					std::vector<std::pair<U64, U64>> indices = {};
+
+					if (DiffUtils::Compare(leftBytes, rightBytes, indices))
+					{
+						U32 resultCount = 1;
+						U32 size = 64;
+						U32 stride = 16;
+						U32 leadStrideMultiplier = 3;
+
+						std::string resultCountStr = "";
+						std::string sizeStr = "";
+						std::string strideStr = "";
+						std::string leadStrideMultiplierStr = "";
+
+						if (CommandLine::HasArgumentWithValue("ResultCount", resultCountStr))
+						{
+							resultCount = std::atoi(resultCountStr.c_str());
+						}
+
+						if (CommandLine::HasArgumentWithValue("Size", sizeStr))
+						{
+							size = std::atoi(sizeStr.c_str());
+						}
+
+						if (CommandLine::HasArgumentWithValue("Stride", strideStr))
+						{
+							stride = std::atoi(strideStr.c_str());
+						}
+
+						if (CommandLine::HasArgumentWithValue("LeadStrideMultiplier", leadStrideMultiplierStr))
+						{
+							leadStrideMultiplier = std::atoi(leadStrideMultiplierStr.c_str());
+						}
+
+						DiffUtils::HexDump(leftBytes, rightBytes, indices, resultCount, size, stride, leadStrideMultiplier);
+					}
 				}
 			}
 		}
-		else
+	}
+
+	if (CommandLine::HasFirstArgument("Search"))
+	{
+		std::string inputFile = "";
+
+		std::string strPattern = "";
+
+		if (CommandLine::HasArgumentWithValue("Input", inputFile, "Input file is missing"))
 		{
-			LOG("\n");
-			LOG("Input file %s does not exist\n", inputFile.string().c_str());
-			LOG("\n");
+			if (CommandLine::HasArgumentWithValue("StringPattern", strPattern, "String pattern is missing"))
+			{
+				if (fs::exists(inputFile))
+				{
+					std::vector<U8> inputBytes = FsUtils::ReadBinary(inputFile);
+
+					if (CommandLine::HasArgument("Decrypt"))
+					{
+						BlowFish{ CIPHER_KEY }.Decrypt(inputBytes);
+					}
+
+					std::vector<U64> indices = FsUtils::SearchStringsInFile(inputBytes, { strPattern.begin(), strPattern.end() });
+
+					for (const auto index : indices)
+					{
+						LOG("Found at 0x%llX\n", index);
+					}
+				}
+			}
 		}
 	}
 

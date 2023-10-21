@@ -2,39 +2,25 @@
 
 namespace ark
 {
-	void BinaryWriter::SeekRelative(I64 Value)
+	BinaryWriter::BinaryWriter(U8* Bytes, U64 Size)
+		: mBytes{ Bytes }
+		, mSize{ Size }
 	{
-		mPosition += Value;
 
-		if (mPosition >= mBytes.size())
-		{
-			mBytes.resize(mPosition);
-		}
 	}
 
-	void BinaryWriter::SeekAbsolute(I64 Value)
+	void BinaryWriter::String(const std::string& Value, U64 Size)
 	{
-		mPosition = Value;
+		std::memset(mBytes + mPosition, 0, Size);
+		std::memcpy(mBytes + mPosition, Value.data(), Value.size());
 
-		if (mPosition >= mBytes.size())
-		{
-			mBytes.resize(mPosition);
-		}
+		mPosition += Size;
 	}
 
-	void BinaryWriter::String(const std::string& Value, U64 Count)
+	void BinaryWriter::Bytes(U8* Bytes, U64 Size)
 	{
-		if (mPosition >= mBytes.size())
-		{
-			mBytes.resize(mPosition + Count);
-		}
+		std::memcpy(mBytes + mPosition, Bytes, Size);
 
-		if (Count > 0)
-		{
-			std::memset(&mBytes[mPosition], 0, Count);
-			std::memcpy(&mBytes[mPosition], &Value[0], Value.size());
-		}
-
-		mPosition += Count;
+		mPosition += Size;
 	}
 }

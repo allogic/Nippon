@@ -2,9 +2,8 @@
 #include <Common/Archive.h>
 #include <Common/BlowFish.h>
 
+#include <Common/Utilities/DiffUtils.h>
 #include <Common/Utilities/FsUtils.h>
-
-#include <Common/Generated/SceneInfos.h>
 
 #include <Editor/Editor.h>
 #include <Editor/Scene.h>
@@ -14,8 +13,6 @@
 #include <Editor/TextureLoader.h>
 
 #include <Editor/Interface/MainMenu.h>
-
-#include <Editor/ImGui/imgui.h>
 
 namespace ark
 {
@@ -69,77 +66,7 @@ namespace ark
 		{
 			if (ImGui::BeginMenu("Open"))
 			{
-				if (ImGui::BeginMenu("Levels"))
-				{
-					for (const auto& groupInfo : SceneInfos::GetLevelGroups())
-					{
-						ImGui::PushID(&groupInfo);
-
-						if (ImGui::BeginMenu(groupInfo.MenuName.c_str()))
-						{
-							for (const auto& sceneInfo : SceneInfos::GetLevelsByGroup(groupInfo))
-							{
-								ImGui::PushID(&sceneInfo);
-
-								if (ImGui::Selectable(sceneInfo.MenuName.c_str()))
-								{
-									if (Scene* scene = SceneManager::CreateScene(sceneInfo))
-									{
-										scene->SetEnableConsole(true);
-										scene->SetEnableDebug(true);
-
-										scene->CreateViewport();
-										scene->Load();
-									}
-								}
-
-								ImGui::PopID();
-							}
-
-							ImGui::EndMenu();
-						}
-
-						ImGui::PopID();
-					}
-
-					ImGui::EndMenu();
-				}
-
-				if (ImGui::BeginMenu("Entities"))
-				{
-					for (const auto& groupInfo : SceneInfos::GetEntityGroups())
-					{
-						ImGui::PushID(&groupInfo);
-
-						if (ImGui::BeginMenu(groupInfo.MenuName.c_str()))
-						{
-							for (const auto& sceneInfo : SceneInfos::GetEntitiesByGroup(groupInfo))
-							{
-								ImGui::PushID(&sceneInfo);
-
-								if (ImGui::Selectable(sceneInfo.MenuName.c_str()))
-								{
-									if (Scene* scene = SceneManager::CreateScene(sceneInfo))
-									{
-										scene->SetEnableConsole(true);
-										scene->SetEnableDebug(true);
-
-										scene->CreateViewport();
-										scene->Load();
-									}
-								}
-
-								ImGui::PopID();
-							}
-
-							ImGui::EndMenu();
-						}
-
-						ImGui::PopID();
-					}
-
-					ImGui::EndMenu();
-				}
+				RenderMenuWithProcedure(OpenSceneProcedure);
 
 				ImGui::EndMenu();
 			}
@@ -152,240 +79,71 @@ namespace ark
 	{
 		if (ImGui::BeginMenu("Archive"))
 		{
-			if (ImGui::BeginMenu("Table Of Content"))
+			if (ImGui::Selectable("Test Kamui"))
 			{
-				if (ImGui::BeginMenu("Levels"))
-				{
-					for (const auto& groupInfo : SceneInfos::GetLevelGroups())
-					{
-						ImGui::PushID(&groupInfo);
+				ExecuteLevelByGroupKeyProcedure("st3", CopyAndDecryptOriginalToScratchProcedure);
+				ExecuteLevelByGroupKeyProcedure("st3", LoadAndSaveFromScratchToScratchProcedure);
+				ExecuteLevelByGroupKeyProcedure("st3", CopyScratchToFinishedProcedure);
+				ExecuteLevelByGroupKeyProcedure("st3", CopyAndDecryptOriginalToScratchProcedure);
+				ExecuteLevelByGroupKeyProcedure("st3", CompareScratchWithFinishedProcedure);
+			}
 
-						if (ImGui::BeginMenu(groupInfo.MenuName.c_str()))
-						{
-							for (const auto& sceneInfo : SceneInfos::GetLevelsByGroup(groupInfo))
-							{
-								ImGui::PushID(&sceneInfo);
+			if (ImGui::Selectable("Test Humans"))
+			{
+				ExecuteEntityByGroupKeyProcedure("hm", CopyAndDecryptOriginalToScratchProcedure);
+				ExecuteEntityByGroupKeyProcedure("hm", LoadAndSaveFromScratchToScratchProcedure);
+				ExecuteEntityByGroupKeyProcedure("hm", CopyScratchToFinishedProcedure);
+				ExecuteEntityByGroupKeyProcedure("hm", CopyAndDecryptOriginalToScratchProcedure);
+				ExecuteEntityByGroupKeyProcedure("hm", CompareScratchWithFinishedProcedure);
+			}
 
-								if (ImGui::Selectable(sceneInfo.MenuName.c_str()))
-								{
-									fs::path relativeDatFileDir = fs::path{ sceneInfo.GroupKey } / sceneInfo.DatArchiveFileName;
-									fs::path relativeBinFileDir = fs::path{ sceneInfo.GroupKey } / sceneInfo.BinArchiveFileName;
-
-									fs::path absoluteDatFileDir = gDataDir / relativeDatFileDir;
-									fs::path absoluteBinFileDir = gDataDir / relativeBinFileDir;
-
-									BlowFish cipher = gBlowFishKey;
-
-									std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
-
-									cipher.Decrypt(datBytes);
-
-									Archive datArchive = datBytes;
-
-									datArchive.Load();
-
-									LOG("\n");
-									LOG(" Table Of Content For Level \\%s\\%s .DAT\n", sceneInfo.GroupKey.c_str(), sceneInfo.SceneKey.c_str());
-									LOG("=============================================================\n");
-
-									datArchive.DumpTableOfContent(0, 4, 4);
-
-									LOG("\n");
-
-									if (fs::exists(absoluteBinFileDir))
-									{
-										std::vector<U8> binBytes = FsUtils::ReadBinary(absoluteBinFileDir);
-
-										cipher.Decrypt(binBytes);
-
-										Archive binArchive = binBytes;
-
-										binArchive.Load();
-
-										LOG("\n");
-										LOG(" Table Of Content For Level \\%s\\%s .BIN\n", sceneInfo.GroupKey.c_str(), sceneInfo.SceneKey.c_str());
-										LOG("=============================================================\n");
-
-										binArchive.DumpTableOfContent(0, 4, 4);
-
-										LOG("\n");
-									}
-								}
-
-								ImGui::PopID();
-							}
-
-							ImGui::EndMenu();
-						}
-
-						ImGui::PopID();
-					}
-
-					ImGui::EndMenu();
-				}
-
-				if (ImGui::BeginMenu("Entities"))
-				{
-					for (const auto& groupInfo : SceneInfos::GetEntityGroups())
-					{
-						ImGui::PushID(&groupInfo);
-
-						if (ImGui::BeginMenu(groupInfo.MenuName.c_str()))
-						{
-							for (const auto& sceneInfo : SceneInfos::GetEntitiesByGroup(groupInfo))
-							{
-								ImGui::PushID(&sceneInfo);
-
-								if (ImGui::Selectable(sceneInfo.MenuName.c_str()))
-								{
-									fs::path relativeDatFileDir = fs::path{ sceneInfo.GroupKey } / sceneInfo.DatArchiveFileName;
-
-									fs::path absoluteDatFileDir = gDataDir / relativeDatFileDir;
-
-									BlowFish cipher = gBlowFishKey;
-
-									std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
-
-									cipher.Decrypt(datBytes);
-
-									Archive datArchive = datBytes;
-
-									datArchive.Load();
-
-									LOG("\n");
-									LOG(" Table Of Content For Entity \\%s\\%s .DAT\n", sceneInfo.GroupKey.c_str(), sceneInfo.SceneKey.c_str());
-									LOG("=============================================================\n");
-
-									datArchive.DumpTableOfContent(0, 4, 4);
-
-									LOG("\n");
-								}
-
-								ImGui::PopID();
-							}
-
-							ImGui::EndMenu();
-						}
-
-						ImGui::PopID();
-					}
-
-					ImGui::EndMenu();
-				}
+			if (ImGui::BeginMenu("Copy And Decrypt Original To Scratch"))
+			{
+				RenderMenuWithProcedure(CopyAndDecryptOriginalToScratchProcedure);
 
 				ImGui::EndMenu();
 			}
 
-			if (ImGui::BeginMenu("Dump To Disk"))
+			if (ImGui::BeginMenu("Load And Save From Scratch To Scratch (Debug Only)"))
 			{
-				if (ImGui::BeginMenu("Levels"))
-				{
-					for (const auto& groupInfo : SceneInfos::GetLevelGroups())
-					{
-						ImGui::PushID(&groupInfo);
+				RenderMenuWithProcedure(LoadAndSaveFromScratchToScratchProcedure);
 
-						if (ImGui::BeginMenu(groupInfo.MenuName.c_str()))
-						{
-							for (const auto& sceneInfo : SceneInfos::GetLevelsByGroup(groupInfo))
-							{
-								ImGui::PushID(&sceneInfo);
+				ImGui::EndMenu();
+			}
 
-								if (ImGui::Selectable(sceneInfo.MenuName.c_str()))
-								{
-									fs::path exportDatDir = fs::path{ "Dumps" } / "Levels" / sceneInfo.DatArchiveFileName;
-									fs::path exportBinDir = fs::path{ "Dumps" } / "Levels" / sceneInfo.BinArchiveFileName;
+			if (ImGui::BeginMenu("Encrypt And Copy Scratch To Finished"))
+			{
+				RenderMenuWithProcedure(EncryptAndCopyScratchToFinishedProcedure);
 
-									fs::path relativeDatFileDir = fs::path{ sceneInfo.GroupKey } / sceneInfo.DatArchiveFileName;
-									fs::path relativeBinFileDir = fs::path{ sceneInfo.GroupKey } / sceneInfo.BinArchiveFileName;
+				ImGui::EndMenu();
+			}
 
-									fs::path absoluteDatFileDir = gDataDir / relativeDatFileDir;
-									fs::path absoluteBinFileDir = gDataDir / relativeBinFileDir;
+			if (ImGui::BeginMenu("Copy Scratch To Finished"))
+			{
+				RenderMenuWithProcedure(CopyScratchToFinishedProcedure);
 
-									BlowFish cipher = gBlowFishKey;
+				ImGui::EndMenu();
+			}
 
-									FsUtils::CreateIfNotExist(exportDatDir, true);
+			if (ImGui::BeginMenu("Compare Scratch With Finished (Debug Only)"))
+			{
+				RenderMenuWithProcedure(CompareScratchWithFinishedProcedure);
 
-									std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
+				ImGui::EndMenu();
+			}
 
-									cipher.Decrypt(datBytes);
+			ImGui::Separator();
 
-									Archive datArchive = datBytes;
+			if (ImGui::BeginMenu("Table Of Content"))
+			{
+				RenderMenuWithProcedure(PrintTableOfContentProcedure);
 
-									datArchive.Load();
-									datArchive.DumpToDiskRecursive(exportDatDir);
+				ImGui::EndMenu();
+			}
 
-									if (fs::exists(absoluteBinFileDir))
-									{
-										FsUtils::CreateIfNotExist(exportBinDir, true);
-
-										std::vector<U8> binBytes = FsUtils::ReadBinary(absoluteBinFileDir);
-
-										cipher.Decrypt(binBytes);
-
-										Archive binArchive = binBytes;
-
-										binArchive.Load();
-										binArchive.DumpToDiskRecursive(exportBinDir);
-									}
-								}
-
-								ImGui::PopID();
-							}
-
-							ImGui::EndMenu();
-						}
-
-						ImGui::PopID();
-					}
-
-					ImGui::EndMenu();
-				}
-
-				if (ImGui::BeginMenu("Entities"))
-				{
-					for (const auto& groupInfo : SceneInfos::GetEntityGroups())
-					{
-						ImGui::PushID(&groupInfo);
-
-						if (ImGui::BeginMenu(groupInfo.MenuName.c_str()))
-						{
-							for (const auto& sceneInfo : SceneInfos::GetEntitiesByGroup(groupInfo))
-							{
-								ImGui::PushID(&sceneInfo);
-
-								if (ImGui::Selectable(sceneInfo.MenuName.c_str()))
-								{
-									fs::path exportDatDir = fs::path{ "Dumps" } / "Entities" / sceneInfo.DatArchiveFileName;
-
-									fs::path relativeDatFileDir = fs::path{ sceneInfo.GroupKey } / sceneInfo.DatArchiveFileName;
-
-									fs::path absoluteDatFileDir = gDataDir / relativeDatFileDir;
-
-									BlowFish cipher = gBlowFishKey;
-
-									FsUtils::CreateIfNotExist(exportDatDir, true);
-
-									std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
-
-									cipher.Decrypt(datBytes);
-
-									Archive datArchive = datBytes;
-
-									datArchive.Load();
-									datArchive.DumpToDiskRecursive(exportDatDir);
-								}
-
-								ImGui::PopID();
-							}
-
-							ImGui::EndMenu();
-						}
-
-						ImGui::PopID();
-					}
-
-					ImGui::EndMenu();
-				}
+			if (ImGui::BeginMenu("Extract To Disk"))
+			{
+				RenderMenuWithProcedure(ExtractToDiskProcedure);
 
 				ImGui::EndMenu();
 			}
@@ -398,42 +156,339 @@ namespace ark
 	{
 		if (ImGui::BeginMenu("Tools"))
 		{
-			if (ImGui::Selectable("Generate Thumbnails"))
+			if (ImGui::BeginMenu("Generate Thumbnails"))
 			{
-				for (const auto& groupInfo : SceneInfos::GetLevelGroups())
-				{
-					LOG("\n");
-					LOG(" Generating Thumbnails For Level Group \\%s\\*\n", groupInfo.GroupKey.c_str());
-					LOG("=============================================================\n");
+				RenderMenuWithProcedure(CreateThumbnailProcedure);
 
-					for (const auto& sceneInfo : SceneInfos::GetLevelsByGroup(groupInfo))
-					{
-						Thumbnail::Generate(sceneInfo);
-
-						LOG("    Generating %s\n", sceneInfo.ThumbnailFileName.c_str());
-					}
-
-					LOG("\n");
-				}
-
-				for (const auto& groupInfo : SceneInfos::GetEntityGroups())
-				{
-					LOG("\n");
-					LOG(" Generating Thumbnails For Entity Group \\%s\\*\n", groupInfo.GroupKey.c_str());
-					LOG("=============================================================\n");
-
-					for (const auto& sceneInfo : SceneInfos::GetEntitiesByGroup(groupInfo))
-					{
-						Thumbnail::Generate(sceneInfo);
-
-						LOG("    Generating %s\n", sceneInfo.ThumbnailFileName.c_str());
-					}
-
-					LOG("\n");
-				}
+				ImGui::EndMenu();
 			}
 
 			ImGui::EndMenu();
 		}
+	}
+
+	void MainMenu::DebugProcedure(const SceneInfo* SceneInfo)
+	{
+		LOG("%s %s\n", SceneInfo->GroupKey.c_str(), SceneInfo->SceneKey.c_str());
+	}
+
+	void MainMenu::OpenSceneProcedure(const SceneInfo* SceneInfo)
+	{
+		if (Scene* scene = SceneManager::CreateScene(*SceneInfo))
+		{
+			scene->SetEnableConsole(true);
+			scene->SetEnableDebug(true);
+
+			scene->CreateViewport();
+			scene->Load();
+		}
+	}
+
+	void MainMenu::CopyAndDecryptOriginalToScratchProcedure(const SceneInfo* SceneInfo)
+	{
+		fs::path inputDatFile = gDataDir / fs::path{ SceneInfo->GroupKey } / SceneInfo->DatArchiveFileName;
+		fs::path inputBinFile = gDataDir / fs::path{ SceneInfo->GroupKey } / SceneInfo->BinArchiveFileName;
+
+		fs::path outputDatFile = fs::path{ "Scratch" } / fs::path{ SceneInfo->GroupKey } / SceneInfo->DatArchiveFileName;
+		fs::path outputBinFile = fs::path{ "Scratch" } / fs::path{ SceneInfo->GroupKey } / SceneInfo->BinArchiveFileName;
+
+		BlowFish cipher = gBlowFishKey;
+
+		if (fs::exists(inputDatFile))
+		{
+			FsUtils::CreateDirIfNotExist(outputDatFile);
+
+			std::vector<U8> datBytes = FsUtils::ReadBinary(inputDatFile);
+
+			cipher.Decrypt(datBytes);
+
+			FsUtils::WriteBinary(outputDatFile, datBytes);
+
+			LOG("Copied and decrypted from %s to %s\n", inputDatFile.relative_path().string().c_str(), outputDatFile.relative_path().string().c_str());
+		}
+		else
+		{
+			LOG("Input file %s does not exit\n", inputDatFile.string().c_str());
+		}
+		
+		if (SceneInfo->Type == eSceneTypeLevel)
+		{
+			if (fs::exists(inputBinFile))
+			{
+				FsUtils::CreateDirIfNotExist(outputBinFile);
+
+				std::vector<U8> binBytes = FsUtils::ReadBinary(inputBinFile);
+
+				cipher.Decrypt(binBytes);
+
+				FsUtils::WriteBinary(outputBinFile, binBytes);
+
+				LOG("Copied and decrypted from %s to %s\n", inputBinFile.relative_path().string().c_str(), outputBinFile.relative_path().string().c_str());
+			}
+			else
+			{
+				LOG("Input file %s does not exit\n", inputBinFile.string().c_str());
+			}
+		}
+	}
+
+	void MainMenu::LoadAndSaveFromScratchToScratchProcedure(const SceneInfo* SceneInfo)
+	{
+		fs::path inputDatFile = fs::path{ "Scratch" } / SceneInfo->GroupKey / SceneInfo->DatArchiveFileName;
+		fs::path inputBinFile = fs::path{ "Scratch" } / SceneInfo->GroupKey / SceneInfo->BinArchiveFileName;
+
+		fs::path outputDatFile = fs::path{ "Scratch" } / SceneInfo->GroupKey / SceneInfo->DatArchiveFileName;
+		fs::path outputBinFile = fs::path{ "Scratch" } / SceneInfo->GroupKey / SceneInfo->BinArchiveFileName;
+
+		if (fs::exists(inputDatFile))
+		{
+			FsUtils::CreateDirIfNotExist(outputDatFile);
+
+			Archive datArchive = {};
+
+			datArchive.DeSerialize(FsUtils::ReadBinary(inputDatFile));
+
+			FsUtils::WriteBinary(outputDatFile, datArchive.Serialize());
+
+			LOG("Loaded and saved from %s to %s\n", inputDatFile.relative_path().string().c_str(), outputDatFile.relative_path().string().c_str());
+		}
+		else
+		{
+			LOG("Input file %s does not exit\n", inputDatFile.string().c_str());
+		}
+
+		if (SceneInfo->Type == eSceneTypeLevel)
+		{
+			if (fs::exists(inputBinFile))
+			{
+				FsUtils::CreateDirIfNotExist(outputBinFile);
+
+				Archive binArchive = {};
+
+				binArchive.DeSerialize(FsUtils::ReadBinary(inputBinFile));
+
+				FsUtils::WriteBinary(outputBinFile, binArchive.Serialize());
+
+				LOG("Loaded and saved from %s to %s\n", inputBinFile.relative_path().string().c_str(), outputBinFile.relative_path().string().c_str());
+			}
+			else
+			{
+				LOG("Input file %s does not exit\n", outputBinFile.string().c_str());
+			}
+		}
+	}
+
+	void MainMenu::EncryptAndCopyScratchToFinishedProcedure(const SceneInfo* SceneInfo)
+	{
+		fs::path inputDatFile = fs::path{ "Scratch" } / SceneInfo->GroupKey / SceneInfo->DatArchiveFileName;
+		fs::path inputBinFile = fs::path{ "Scratch" } / SceneInfo->GroupKey / SceneInfo->BinArchiveFileName;
+
+		fs::path outputDatFile = fs::path{ "Finished" } / SceneInfo->GroupKey / SceneInfo->DatArchiveFileName;
+		fs::path outputBinFile = fs::path{ "Finished" } / SceneInfo->GroupKey / SceneInfo->BinArchiveFileName;
+
+		BlowFish cipher = gBlowFishKey;
+
+		if (fs::exists(inputDatFile))
+		{
+			FsUtils::CreateDirIfNotExist(outputDatFile);
+
+			std::vector<U8> datBytes = FsUtils::ReadBinary(inputDatFile);
+
+			cipher.Encrypt(datBytes);
+
+			FsUtils::WriteBinary(outputDatFile, datBytes);
+
+			LOG("Encrypted and copied from %s to %s\n", inputDatFile.relative_path().string().c_str(), outputDatFile.relative_path().string().c_str());
+		}
+		else
+		{
+			LOG("Input file %s does not exit\n", inputDatFile.string().c_str());
+		}
+
+		if (SceneInfo->Type == eSceneTypeLevel)
+		{
+			if (fs::exists(inputBinFile))
+			{
+				FsUtils::CreateDirIfNotExist(outputBinFile);
+
+				std::vector<U8> binBytes = FsUtils::ReadBinary(inputBinFile);
+
+				cipher.Encrypt(binBytes);
+
+				FsUtils::WriteBinary(outputBinFile, binBytes);
+
+				LOG("Encrypted and copied from %s to %s\n", inputBinFile.relative_path().string().c_str(), outputBinFile.relative_path().string().c_str());
+			}
+			else
+			{
+				LOG("Input file %s does not exit\n", inputBinFile.string().c_str());
+			}
+		}
+	}
+
+	void MainMenu::CopyScratchToFinishedProcedure(const SceneInfo* SceneInfo)
+	{
+		fs::path inputDatFile = fs::path{ "Scratch" } / SceneInfo->GroupKey / SceneInfo->DatArchiveFileName;
+		fs::path inputBinFile = fs::path{ "Scratch" } / SceneInfo->GroupKey / SceneInfo->BinArchiveFileName;
+
+		fs::path outputDatFile = fs::path{ "Finished" } / SceneInfo->GroupKey / SceneInfo->DatArchiveFileName;
+		fs::path outputBinFile = fs::path{ "Finished" } / SceneInfo->GroupKey / SceneInfo->BinArchiveFileName;
+
+		if (fs::exists(inputDatFile))
+		{
+			FsUtils::CreateDirIfNotExist(outputDatFile);
+
+			fs::copy(inputDatFile, outputDatFile, fs::copy_options::overwrite_existing);
+
+			LOG("Copied from %s to %s\n", inputDatFile.relative_path().string().c_str(), outputDatFile.relative_path().string().c_str());
+		}
+		else
+		{
+			LOG("Input file %s does not exit\n", inputDatFile.string().c_str());
+		}
+
+		if (SceneInfo->Type == eSceneTypeLevel)
+		{
+			if (fs::exists(inputBinFile))
+			{
+				FsUtils::CreateDirIfNotExist(outputBinFile);
+
+				fs::copy(inputBinFile, outputBinFile, fs::copy_options::overwrite_existing);
+
+				LOG("Copied from %s to %s\n", inputBinFile.relative_path().string().c_str(), outputBinFile.relative_path().string().c_str());
+			}
+			else
+			{
+				LOG("Input file %s does not exit\n", inputBinFile.string().c_str());
+			}
+		}
+	}
+
+	void MainMenu::CompareScratchWithFinishedProcedure(const SceneInfo* SceneInfo)
+	{
+		fs::path leftInputDatFile = fs::path{ "Scratch" } / SceneInfo->GroupKey / SceneInfo->DatArchiveFileName;
+		fs::path leftInputBinFile = fs::path{ "Scratch" } / SceneInfo->GroupKey / SceneInfo->BinArchiveFileName;
+
+		fs::path rightInputDatFile = fs::path{ "Finished" } / SceneInfo->GroupKey / SceneInfo->DatArchiveFileName;
+		fs::path rightInputBinFile = fs::path{ "Finished" } / SceneInfo->GroupKey / SceneInfo->BinArchiveFileName;
+
+		if (fs::exists(leftInputDatFile) && fs::exists(rightInputDatFile))
+		{
+			std::vector<U8> leftDatBytes = FsUtils::ReadBinary(leftInputDatFile);
+			std::vector<U8> rightDatBytes = FsUtils::ReadBinary(rightInputDatFile);
+
+			std::vector<std::pair<U64, U64>> indices = {};
+
+			if (DiffUtils::Compare(leftDatBytes, rightDatBytes, indices))
+			{
+				LOG("File missmatch %s\n", leftInputDatFile.relative_path().string().c_str());
+
+				DiffUtils::HexDump(leftDatBytes, rightDatBytes, indices, 1, 128, 16, 6);
+			}
+			else
+			{
+				LOG("File matches %s\n", leftInputDatFile.relative_path().string().c_str());
+			}
+		}
+
+		if (SceneInfo->Type == eSceneTypeLevel)
+		{
+			return; // TODO
+
+			if (fs::exists(leftInputBinFile) && fs::exists(rightInputBinFile))
+			{
+				std::vector<U8> leftBinBytes = FsUtils::ReadBinary(leftInputBinFile);
+				std::vector<U8> rightBinBytes = FsUtils::ReadBinary(rightInputBinFile);
+
+				std::vector<std::pair<U64, U64>> indices = {};
+
+				if (DiffUtils::Compare(leftBinBytes, rightBinBytes, indices))
+				{
+					LOG("File missmatch %s\n", leftInputBinFile.relative_path().string().c_str());
+
+					DiffUtils::HexDump(leftBinBytes, rightBinBytes, indices, 1, 128, 16, 6);
+				}
+				else
+				{
+					LOG("File matches %s\n", leftInputBinFile.relative_path().string().c_str());
+				}
+			}
+		}
+	}
+
+	void MainMenu::PrintTableOfContentProcedure(const SceneInfo* SceneInfo)
+	{
+		fs::path inputDatFile = gDataDir / SceneInfo->GroupKey / SceneInfo->DatArchiveFileName;
+		fs::path inputBinFile = gDataDir / SceneInfo->GroupKey / SceneInfo->BinArchiveFileName;
+
+		BlowFish cipher = gBlowFishKey;
+
+		std::vector<U8> datBytes = FsUtils::ReadBinary(inputDatFile);
+
+		cipher.Decrypt(datBytes);
+
+		Archive datArchive = {};
+
+		datArchive.DeSerialize(datBytes);
+		datArchive.PrintTableOfContent();
+
+		if (fs::exists(inputBinFile))
+		{
+			std::vector<U8> binBytes = FsUtils::ReadBinary(inputBinFile);
+
+			cipher.Decrypt(binBytes);
+
+			Archive binArchive = {};
+
+			binArchive.DeSerialize(binBytes);
+			binArchive.PrintTableOfContent();
+		}
+	}
+
+	void MainMenu::ExtractToDiskProcedure(const SceneInfo* SceneInfo)
+	{
+		fs::path inputDatFile = gDataDir / SceneInfo->GroupKey / SceneInfo->DatArchiveFileName;
+		fs::path inputBinFile = gDataDir / SceneInfo->GroupKey / SceneInfo->BinArchiveFileName;
+
+		fs::path outputDatFile = fs::path{ "Extracted" } / SceneInfo->DatArchiveFileName;
+		fs::path outputBinFile = fs::path{ "Extracted" } / SceneInfo->BinArchiveFileName;
+
+		BlowFish cipher = gBlowFishKey;
+
+		FsUtils::CreateDirIfNotExist(outputDatFile, true);
+
+		std::vector<U8> datBytes = FsUtils::ReadBinary(inputDatFile);
+
+		cipher.Decrypt(datBytes);
+
+		Archive datArchive = {};
+
+		datArchive.DeSerialize(datBytes);
+		datArchive.ExtractToDisk(outputDatFile);
+
+		if (fs::exists(inputBinFile))
+		{
+			FsUtils::CreateDirIfNotExist(outputBinFile, true);
+
+			std::vector<U8> binBytes = FsUtils::ReadBinary(inputBinFile);
+
+			cipher.Decrypt(binBytes);
+
+			Archive binArchive = {};
+
+			binArchive.DeSerialize(binBytes);
+			binArchive.ExtractToDisk(outputBinFile);
+		}
+	}
+
+	void MainMenu::CreateThumbnailProcedure(const SceneInfo* SceneInfo)
+	{
+		fs::path thumbnailDir = "Thumbnails";
+
+		FsUtils::CreateDirIfNotExist(thumbnailDir);
+
+		Thumbnail::Generate(*SceneInfo, thumbnailDir);
+
+		LOG("Generating Thumbnail %s\n", SceneInfo->ThumbnailFileName.c_str());
 	}
 }

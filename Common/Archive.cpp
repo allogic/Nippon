@@ -45,12 +45,6 @@ namespace ark
 
 	}
 
-	Archive::Archive(const std::vector<U8>& Bytes)
-		: mBytes{ Bytes }
-	{
-
-	}
-
 	Archive::Archive(Archive* Parent)
 		: mParent{ Parent }
 	{
@@ -59,244 +53,264 @@ namespace ark
 
 	Archive::~Archive()
 	{
-		for (auto& node : mNodes)
+		for (auto& archive : *this)
 		{
-			delete node;
-			node = nullptr;
+			delete archive;
+			archive = nullptr;
+		}
+
+		if (mBytes)
+		{
+			delete[] mBytes;
+			mBytes = nullptr;
 		}
 	}
 
-	void Archive::Load()
+	std::vector<U8> Archive::Serialize()
 	{
-		LoadRecursive(mBytes.data(), mBytes.data() + mBytes.size(), 0, 0, (U32)mBytes.size(), "", "");
+		ComputeDirectorySizesRecursive();
+		SerializeRecursive();
+
+		return { mBytes, mBytes + mSize };
 	}
 
-	void Archive::LoadRecursive(const U8* Start, const U8* End, U16 Index, U32 Offset, U32 Size, const std::string& Type, const std::string& Name)
+	void Archive::DeSerialize(const std::vector<U8>& Bytes)
 	{
-		mStart = Start;
-		mEnd = End;
+		mBytes = new U8[Bytes.size()];
+		mSize = Bytes.size();
 
-		mReader = { Start, End };
+		std::memcpy(mBytes, Bytes.data(), Bytes.size());
 
-		mIndex = Index;
-		mOffset = Offset;
-		mSize = Size;
-		mType = Type;
-		mName = Name;
+		DeSerializeRecursive();
+		ComputeDirectorySizesRecursive();
+	}
 
-		mIsOutOfBounds = CheckIfOutOfBounds();
-		mIsDirectory = CheckIfDirectory();
+	void Archive::ExtractToDisk(fs::path File)
+	{
+		ExtractToDiskRecursive(File);
+	}
 
-		if (!mIsOutOfBounds && mIsDirectory)
+	void Archive::UnfoldToDisk(fs::path File)
+	{
+		UnfoldToDiskRecursive(File);
+	}
+
+	void Archive::PrintTableOfContent(U32 Offset, U32 Indent, U32 Increment)
+	{
+		LOG("\n");
+		LOG(" Table Of Content\n");
+		LOG("-----------------------------------------------------------------------------------------\n");
+
+		PrintTableOfContentRecursive(Offset, Indent, Increment);
+
+		LOG("\n");
+	}
+
+	void Archive::FindArchiveByType(std::string Type, Archive** Result)
+	{
+		FindArchiveByTypeRecursive(Type, Result);
+	}
+
+	void Archive::FindArchivesByType(std::string Type, std::vector<Archive*>& Result)
+	{
+		FindArchivesByTypeRecursive(Type, Result);
+	}
+
+	void Archive::SerializeRecursive()
+	{
+		if (mIsDirectory)
 		{
-			ParseHeader();
-
-			for (U16 i = 0; i < (U16)mEntries.size(); i++)
+			if (mBytes)
 			{
-				Archive* archive = mNodes.emplace_back(new Archive{ this });
-				
-				archive->LoadRecursive(
-					mStart + mEntries[i].Offset,
-					mStart + mEntries[i].Offset + mEntries[i].Size,
-					i,
-					mEntries[i].Offset,
-					mEntries[i].Size,
-					mEntries[i].Type,
-					mEntries[i].Name
-				);
+				delete[] mBytes;
+				mBytes = new U8[mSize];
+			}
+
+			BinaryWriter writer = { mBytes, mSize };
+
+			WriteDirectoryHeader(writer);
+
+			for (const auto& archive : *this)
+			{
+				archive->SerializeRecursive();
+
+				writer.String("AABBCCDD", 8);
+				writer.String(archive->mType, 4);
+				writer.String(archive->mName, 20);
+				writer.Bytes(archive->mBytes, archive->mSize);
 			}
 		}
 	}
 
-	void Archive::SaveRecursive()
+	void Archive::DeSerializeRecursive()
 	{
-		
+		BinaryReader reader = { mBytes, mSize };
+
+		mIsDirectory = CheckIfDirectory(reader);
+
+		if (mIsDirectory)
+		{
+			CreateDirectory(reader);
+
+			for (const auto& archive : *this)
+			{
+				archive->DeSerializeRecursive();
+			}
+		}
 	}
 
-	void Archive::DumpToDiskRecursive(fs::path File, Archive* Node)
+	void Archive::ExtractToDiskRecursive(fs::path File)
 	{
-		if (!Node)
+		if (mIsDirectory)
 		{
-			Node = this;
-		}
-
-		if (Node->mIsDirectory)
-		{
-			if (Node->mParent)
+			if (mParent)
 			{
-				File /= Node->mType;
+				File /= mType;
 
-				FsUtils::CreateIfNotExist(File, true);
+				FsUtils::CreateDirIfNotExist(File, true);
 			}
 
-			for (const auto& node : Node->mNodes)
+			for (const auto& archive : *this)
 			{
-				DumpToDiskRecursive(File, node);
+				archive->ExtractToDiskRecursive(File);
 			}
 		}
 		else
 		{
-			if (Node->mSize)
+			if (mSize)
 			{
-				if (Node->mName != "" && Node->mType != "")
+				if (mName != "" && mType != "")
 				{
-					File /= Node->mName + "." + Node->mType;
+					File /= mName + "." + mType;
 				}
-				else if (Node->mName != "" && Node->mType == "")
+				else if (mName != "" && mType == "")
 				{
-					File /= Node->mName;
+					File /= mName;
 				}
-				else if (Node->mName == "" && Node->mType != "")
+				else if (mName == "" && mType != "")
 				{
-					File /= std::to_string(Node->mIndex) + "." + Node->mName;
+					File /= std::to_string(mParentIndex) + "." + mType;
+				}
+				else if (mName == "" && mType == "")
+				{
+					File /= std::to_string(mParentIndex);
 				}
 
-				FsUtils::WriteBinary(File, Node->GetBytes());
+				FsUtils::WriteBinary(File, mBytes, mSize);
 			}
 		}
 	}
 
-	void Archive::DumpTableOfContent(U32 Offset, U32 Indent, U32 Increment, Archive* Node)
+	void Archive::UnfoldToDiskRecursive(fs::path File)
 	{
-		if (!Node)
+		if (mIsDirectory)
 		{
-			Node = this;
-		}
+			for (const auto& archive : *this)
+			{
+				archive->UnfoldToDiskRecursive(File);
+			}
 
-		if (Node->mParent)
+			if (mParent)
+			{
+				if (mSize)
+				{
+					if (mName != "" && mType != "")
+					{
+						File /= mName + "." + mType;
+					}
+					else if (mName != "" && mType == "")
+					{
+						File /= mName;
+					}
+					else if (mName == "" && mType != "")
+					{
+						File /= std::to_string(mParentIndex) + "." + mType;
+					}
+					else if (mName == "" && mType == "")
+					{
+						File /= std::to_string(mParentIndex);
+					}
+
+					FsUtils::WriteBinary(File, mBytes, mSize);
+				}
+			}
+		}
+	}
+
+	void Archive::PrintTableOfContentRecursive(U32 Offset, U32 Indent, U32 Increment)
+	{
+		if (mParent)
 		{
+			for (U32 i = 0; i < Offset; i++)
+			{
+				LOG(" ");
+			}
+
 			for (U32 i = 0; i < Indent; i++)
 			{
-				LOG("%c", ((i % Increment == 0) && (i >= (Offset + Increment))) ? '|' : ' ');
+				LOG("%c", ((i % Increment == 0) && (i >= Increment)) ? '|' : ' ');
 			}
 
-			U32 kiloByteInteger = Node->GetSize() / 1000;
-			U32 kiloByteFraction = Node->GetSize() % 1000;
+			U64 kiloByteInteger = mSize / 1000;
+			U64 kiloByteFraction = mSize % 1000;
 
-			LOG("%05u # %-20s # %-4s # %u.%u KB\n", Node->mIndex, Node->mName.c_str(), Node->mType.c_str(), kiloByteInteger, kiloByteFraction);
+			LOG("0x%08X # %05u # %-20s # %-4s # %llu.%llu KB\n", mParentOffset, mParentIndex, mName.c_str(), mType.c_str(), kiloByteInteger, kiloByteFraction);
 		}
 
-		if (Node->mIsDirectory)
+		if (mIsDirectory)
 		{
-			for (const auto& node : Node->mNodes)
+			for (const auto& archive : *this)
 			{
-				DumpTableOfContent(Offset, Indent + Increment, Increment, node);
+				archive->PrintTableOfContentRecursive(Offset, Indent + Increment, Increment);
 			}
 		}
 	}
 
-	void Archive::FindNodeRecursiveByType(std::string Type, Archive** Result, Archive* Node)
+	void Archive::FindArchiveByTypeRecursive(std::string Type, Archive** Result)
 	{
-		if (!Node)
+		if (mIsDirectory)
 		{
-			Node = this;
-		}
-
-		if (Node->mIsDirectory)
-		{
-			for (const auto& node : Node->mNodes)
+			for (const auto& archive : *this)
 			{
-				FindNodeRecursiveByType(Type, Result, node);
+				archive->FindArchiveByTypeRecursive(Type, Result);
 			}
 		}
 		else
 		{
-			if (Type == Node->mType)
+			if (Type == mType)
 			{
-				(*Result) = Node;
+				(*Result) = this;
 
 				return;
 			}
 		}
 	}
 
-	void Archive::FindNodesRecursiveByType(std::string Type, std::vector<Archive*>& Result, Archive* Node)
+	void Archive::FindArchivesByTypeRecursive(std::string Type, std::vector<Archive*>& Result)
 	{
-		if (!Node)
+		if (mIsDirectory)
 		{
-			Node = this;
-		}
-
-		if (Node->mIsDirectory)
-		{
-			for (const auto& node : Node->mNodes)
+			for (const auto& archive : *this)
 			{
-				FindNodesRecursiveByType(Type, Result, node);
+				archive->FindArchivesByTypeRecursive(Type, Result);
 			}
 		}
 		else
 		{
-			if (Type == Node->mType)
+			if (Type == mType)
 			{
-				Result.emplace_back(Node);
+				Result.emplace_back(this);
 			}
 		}
 	}
 
-	void Archive::ParseHeader()
-	{
-		mReader.SeekAbs(0);
-
-		mEntries.resize(mReader.Read<U32>());
-
-		for (U32 i = 0; i < mEntries.size(); i++)
-		{
-			mEntries[i].Offset = mReader.Read<U32>();
-		}
-
-		for (U32 i = 0; i < mEntries.size(); i++)
-		{
-			mEntries[i].Type = StringUtils::RemoveNulls(mReader.String(4));
-		}
-
-		for (U32 i = 0; i < mEntries.size(); i++)
-		{
-			if (mEntries[i].Offset)
-			{
-				mReader.SeekAbs(mEntries[i].Offset);
-				mReader.SeekRel(-20);
-		
-				mEntries[i].Name = StringUtils::RemoveNulls(mReader.String(20));
-			}
-		}
-		
-		U32 prevSequenceIndex = 0;
-		for (U32 i = 1; i < mEntries.size(); i++)
-		{
-			if (mEntries[i].Offset)
-			{
-				mEntries[prevSequenceIndex].Size = mEntries[i].Offset - mEntries[prevSequenceIndex].Offset;
-				mEntries[prevSequenceIndex].Size -= 32;
-
-				prevSequenceIndex = i;
-			}
-		}
-
-		mEntries[mEntries.size() - 1].Size = mSize - mEntries[mEntries.size() - 1].Offset;
-	}
-
-	bool Archive::CheckIfOutOfBounds()
-	{
-		if (mParent)
-		{
-			if ((mStart < mParent->mStart) || (mStart > mParent->mEnd) ||
-				(mEnd < mParent->mStart) || (mEnd > mParent->mEnd) ||
-				(mStart > mEnd) || (mEnd < mStart))
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	bool Archive::CheckIfDirectory()
+	bool Archive::CheckIfDirectory(BinaryReader& Reader)
 	{
 		if (sKnownDirectoryTypes.contains(mType))
 		{
-			mReader.SeekAbs(0);
+			Reader.SeekAbs(0);
 
-			U32 entryCount = mReader.Read<U32>();
+			U16 entryCount = (U16)Reader.Read<U32>();
 
 			if (entryCount > 0 && entryCount < 0xFFFF)
 			{
@@ -307,7 +321,7 @@ namespace ark
 						return false;
 					}
 
-					U32 offset = mReader.Read<U32>();
+					U32 offset = Reader.Read<U32>();
 
 					if (offset >= mSize)
 					{
@@ -322,7 +336,7 @@ namespace ark
 						return false;
 					}
 
-					std::string type = StringUtils::RemoveNulls(mReader.String(4));
+					std::string type = StringUtils::RemoveNulls(Reader.String(4));
 
 					if (!sKnownDirectoryTypes.contains(type) && !sKnownFileTypes.contains(type))
 					{
@@ -335,5 +349,153 @@ namespace ark
 		}
 
 		return false;
+	}
+
+	void Archive::CreateDirectory(BinaryReader& Reader)
+	{
+		Reader.SeekAbs(0);
+
+		U16 entryCount = (U16)Reader.Read<U32>();
+
+		resize(entryCount);
+
+		for (U16 i = 0; i < entryCount; i++)
+		{
+			(*this)[i] = new Archive{ this };
+		}
+
+		for (U16 i = 0; i < entryCount; i++)
+		{
+			Archive* archive = (*this)[i];
+
+			archive->mParentIndex = i;
+		}
+
+		for (U16 i = 0; i < entryCount; i++)
+		{
+			Archive* archive = (*this)[i];
+
+			archive->mParentOffset = Reader.Read<U32>();
+		}
+
+		for (U16 i = 0; i < entryCount; i++)
+		{
+			Archive* archive = (*this)[i];
+
+			archive->mType = StringUtils::RemoveNulls(Reader.String(4));
+		}
+
+		for (U16 i = 0; i < entryCount; i++)
+		{
+			Archive* archive = (*this)[i];
+
+			if (archive->mParentOffset)
+			{
+				Reader.SeekAbs(archive->mParentOffset - FILE_HEADER_SIZE);
+				Reader.SeekRel(FILE_HEADER_SIZE - 20);
+
+				archive->mName = StringUtils::RemoveNulls(Reader.String(20));
+			}
+		}
+
+		U16 prevSequenceIndex = 0;
+
+		for (U16 i = 1; i < entryCount; i++)
+		{
+			Archive* currArchive = (*this)[i];
+			Archive* prevArchive = (*this)[prevSequenceIndex];
+
+			if (currArchive->mParentOffset)
+			{
+				prevArchive->mSize = currArchive->mParentOffset - prevArchive->mParentOffset;
+				prevSequenceIndex = i;
+			}
+		}
+
+		if (entryCount)
+		{
+			Archive* lastArchive = (*this)[entryCount - 1];
+
+			lastArchive->mSize = mSize - lastArchive->mParentOffset;
+		}
+
+		for (U16 i = 0; i < entryCount; i++)
+		{
+			Archive* archive = (*this)[i];
+
+			if (archive->mSize >= FILE_HEADER_SIZE)
+			{
+				archive->mSize -= FILE_HEADER_SIZE;
+			}
+		}
+
+		for (U16 i = 0; i < entryCount; i++)
+		{
+			Archive* archive = (*this)[i];
+
+			archive->mBytes = new U8[archive->mSize];
+
+			std::memset(archive->mBytes, 0, archive->mSize);
+			std::memcpy(archive->mBytes, mBytes + archive->mParentOffset, archive->mSize);
+		}
+	}
+
+	void Archive::WriteDirectoryHeader(BinaryWriter& Writer)
+	{
+		U16 entryCount = (U16)size();
+
+		Writer.Write<U32>((U32)entryCount);
+
+		U64 acc = 0;
+		
+		acc += 4 + ((entryCount * 2) * 4);
+
+		acc = ALIGN_UP(acc, 16);
+
+		for (U16 i = 0; i < entryCount; i++)
+		{
+			Archive* archive = (*this)[i];
+
+			acc += FILE_HEADER_SIZE;
+
+			Writer.Write<U32>((U32)acc);
+
+			acc += archive->mSize;
+		}
+
+		for (U16 i = 0; i < entryCount; i++)
+		{
+			Archive* archive = (*this)[i];
+
+			Writer.String(archive->mType, 4);
+		}
+
+		Writer.AlignUp(16);
+	}
+
+	U64 Archive::ComputeDirectorySizesRecursive()
+	{
+		U64 acc = 0;
+
+		if (mIsDirectory)
+		{
+			U16 entryCount = (U16)size();
+
+			acc += 4 + ((entryCount * 2) * 4);
+
+			acc = ALIGN_UP(acc, 16);
+
+			for (const auto& archive : *this)
+			{
+				acc += FILE_HEADER_SIZE;
+				acc += archive->ComputeDirectorySizesRecursive();
+			}
+		}
+		else
+		{
+			acc = mSize;
+		}
+
+		return mSize = acc;
 	}
 }

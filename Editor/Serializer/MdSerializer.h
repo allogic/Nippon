@@ -12,6 +12,6 @@ namespace ark
 	{
 	public:
 
-		static MdGroup FromBytes(const std::vector<U8>& Bytes);
+		static MdGroup FromBytes(U8* Bytes, U64 Size);
 	};
 }

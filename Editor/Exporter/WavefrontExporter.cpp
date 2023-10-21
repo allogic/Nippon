@@ -27,7 +27,7 @@ namespace ark
 	{
 		fs::path exportDir = "Exports";
 
-		FsUtils::CreateIfNotExist(exportDir / Scene->GetDatArchiveFileName() / Actor->GetName());
+		FsUtils::CreateDirIfNotExist(exportDir / Scene->GetDatArchiveFileName() / Actor->GetName());
 
 		std::ostringstream objectStream = {};
 		std::ostringstream materialStream = {};
@@ -38,7 +38,7 @@ namespace ark
 
 		LOG("\n");
 		LOG(" Exporting Actor %s\n", Actor->GetName().c_str());
-		LOG("=============================================================\n");
+		LOG("-----------------------------------------------------------------------------------------\n");
 		LOG("\n");
 		LOG("Creating objects:\n");
 

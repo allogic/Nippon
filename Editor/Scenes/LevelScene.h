@@ -75,12 +75,12 @@ namespace ark
 
 	private:
 
-		Archive* mTscNode = nullptr;
-		Archive* mTreNode = nullptr;
-		Archive* mTatNode = nullptr;
+		Archive* mTscArchive = nullptr;
+		Archive* mTreArchive = nullptr;
+		Archive* mTatArchive = nullptr;
 
-		std::vector<Archive*> mScrNodes = {};
-		std::vector<Archive*> mDdsNodes = {};
+		std::vector<Archive*> mScrArchives = {};
+		std::vector<Archive*> mDdsArchives = {};
 
 		std::vector<ScrGroup> mScrGroups = {};
 		std::vector<Texture2D*> mScrTextures = {};
@@ -89,12 +89,12 @@ namespace ark
 
 		struct EntityData
 		{
-			bool Loaded;
+			bool Loaded = false;
 
-			SceneInfo* SceneInfo;
+			SceneInfo* SceneInfo = nullptr;
 
-			std::vector<Archive*> MdNodes = {};
-			std::vector<Archive*> DdsNodes = {};
+			std::vector<Archive*> MdArchives = {};
+			std::vector<Archive*> DdsArchives = {};
 
 			std::vector<MdGroup> MdGroups = {};
 			std::vector<Texture2D*> MdTextures = {};

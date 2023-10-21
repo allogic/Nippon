@@ -15,6 +15,6 @@ namespace ark
 	{
 	public:
 
-		static void Generate(const SceneInfo& Info);
+		static void Generate(const SceneInfo& Info, const fs::path& ThumbnailDir);
 	};
 }

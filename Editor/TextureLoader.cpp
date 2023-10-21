@@ -14,13 +14,13 @@
 
 namespace ark
 {
-    Texture2D* TextureLoader::LoadDirectDrawSurface(const std::vector<U8>& Bytes)
+    Texture2D* TextureLoader::LoadDirectDrawSurface(U8* Bytes, U64 Size)
 	{
 		Texture2D* texture = nullptr;
 
 		DirectX::ScratchImage image = {};
 
-		DirectX::LoadFromDDSMemory(Bytes.data(), Bytes.size(), DirectX::DDS_FLAGS_NONE, nullptr, image);
+		DirectX::LoadFromDDSMemory(Bytes, Size, DirectX::DDS_FLAGS_NONE, nullptr, image);
 
 		U32 width = (U32)image.GetMetadata().width;
 		U32 height = (U32)image.GetMetadata().height;

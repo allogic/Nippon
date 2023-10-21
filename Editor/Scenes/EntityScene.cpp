@@ -69,34 +69,34 @@ namespace ark
 
 	void EntityScene::LoadArchive()
 	{
-		fs::path relativeDatFileDir = fs::path{ GetGroupKey() } / GetDatArchiveFileName();
+		fs::path relativeDatFile = fs::path{ GetGroupKey() } / GetDatArchiveFileName();
 
-		fs::path absoluteDatFileDir = gDataDir / relativeDatFileDir;
+		fs::path absoluteDatFile = gDataDir / relativeDatFile;
 
-		std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFileDir);
+		std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFile);
 
 		mCipher->Decrypt(datBytes);
 
-		mDatArchive = new Archive{ datBytes };
+		mDatArchive = new Archive;
 
-		mDatArchive->Load();
+		mDatArchive->DeSerialize(datBytes);
 	}
 
 	void EntityScene::LoadEntity()
 	{
-		mDatArchive->FindNodesRecursiveByType("MD", mMdNodes);
-		mDatArchive->FindNodesRecursiveByType("DDS", mDdsNodes);
+		mDatArchive->FindArchivesByType("MD", mMdArchives);
+		mDatArchive->FindArchivesByType("DDS", mDdsArchives);
 
-		for (const auto& node : mMdNodes)
+		for (const auto& archive : mMdArchives)
 		{
-			MdGroup& group = mMdGroups.emplace_back(MdSerializer::FromBytes(node->GetBytes()));
+			MdGroup& group = mMdGroups.emplace_back(MdSerializer::FromBytes(archive->GetBytes(), archive->GetSize()));
 
-			group.Name = node->GetName();
+			group.Name = archive->GetName();
 		}
 
-		for (const auto& node : mDdsNodes)
+		for (const auto& archive : mDdsArchives)
 		{
-			mMdTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(node->GetBytes()));
+			mMdTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(archive->GetBytes(), archive->GetSize()));
 		}
 	}
 
@@ -153,7 +153,7 @@ namespace ark
 	{
 		LOG("\n");
 		LOG(" Opening Entity Scene \\%s\\%s\n", GetGroupKey().c_str(), GetSceneKey().c_str());
-		LOG("=============================================================\n");
+		LOG("-----------------------------------------------------------------------------------------\n");
 		LOG("\n");
 		LOG("Loading archives:\n");
 		LOG("    %s\n", GetDatArchiveFileName().c_str());
@@ -161,23 +161,23 @@ namespace ark
 		LOG("\n");
 		LOG("Searching files:\n");
 		LOG("    %s\n", GetDatArchiveFileName().c_str());
-		LOG("        Found %u MD files\n", (U32)mMdNodes.size());
-		LOG("        Found %u DDS files\n", (U32)mDdsNodes.size());
+		LOG("        Found %u MD files\n", (U32)mMdArchives.size());
+		LOG("        Found %u DDS files\n", (U32)mDdsArchives.size());
 
 		LOG("\n");
 		LOG("Loading models:\n");
 
-		for (const auto& node : mMdNodes)
+		for (const auto& archive : mMdArchives)
 		{
-			LOG("    %s.%s\n", node->GetName().c_str(), node->GetType().c_str());
+			LOG("    %s.%s\n", archive->GetName().c_str(), archive->GetType().c_str());
 		}
 
 		LOG("\n");
 		LOG("Loading textures:\n");
 
-		for (const auto& node : mDdsNodes)
+		for (const auto& archive : mDdsArchives)
 		{
-			LOG("    %s.%s\n", node->GetName().c_str(), node->GetType().c_str());
+			LOG("    %s.%s\n", archive->GetName().c_str(), archive->GetType().c_str());
 		}
 
 		LOG("\n");

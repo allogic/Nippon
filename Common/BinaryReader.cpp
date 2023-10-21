@@ -2,17 +2,9 @@
 
 namespace ark
 {
-	BinaryReader::BinaryReader()
-		: mStart{ nullptr }
-		, mEnd{ nullptr }
-		, mPosition{ 0 }
-	{
-
-	}
-
-	BinaryReader::BinaryReader(const U8* Start, const U8* End)
-		: mStart{ Start }
-		, mEnd{ End }
+	BinaryReader::BinaryReader(const U8* Bytes, U64 Size)
+		: mBytes{ Bytes }
+		, mSize{ Size }
 		, mPosition{ 0 }
 	{
 
@@ -26,7 +18,7 @@ namespace ark
 
 		if (Count > 0)
 		{
-			std::memcpy(&bytes[0], mStart + mPosition, Count);
+			std::memcpy(&bytes[0], mBytes + mPosition, Count);
 		}
 
 		mPosition += Count;
@@ -42,7 +34,7 @@ namespace ark
 
 		if (Count > 0)
 		{
-			std::memcpy(&bytes[0], mStart + Offset, Count);
+			std::memcpy(&bytes[0], mBytes + Offset, Count);
 		}
 
 		return bytes;
@@ -56,7 +48,7 @@ namespace ark
 
 		if (Count > 0)
 		{
-			std::memcpy(&string[0], mStart + mPosition, Count);
+			std::memcpy(&string[0], mBytes + mPosition, Count);
 		}
 
 		mPosition += Count;
@@ -72,7 +64,7 @@ namespace ark
 
 		if (Count > 0)
 		{
-			std::memcpy(&string[0], mStart + Offset, Count);
+			std::memcpy(&string[0], mBytes + Offset, Count);
 		}
 
 		return string;

@@ -8,83 +8,81 @@
 
 #include <Common/Types.h>
 #include <Common/BinaryReader.h>
+#include <Common/BinaryWriter.h>
+
+#define FILE_HEADER_SIZE 32
 
 namespace ark
 {
 	namespace fs = std::filesystem;
 
-	struct ArchiveEntry
-	{
-		U32 Offset;
-		U32 Size;
-		std::string Type;
-		std::string Name;
-	};
-
-	class Archive
+	class Archive : private std::vector<Archive*>
 	{
 	public:
 
 		Archive();
-		Archive(const std::vector<U8>& Bytes);
 		Archive(Archive* Parent);
 		virtual ~Archive();
 
 	public:
 
-		void Load();
-		void LoadRecursive(const U8* Start, const U8* End, U16 Index, U32 Offset, U32 Size, const std::string& Type, const std::string& Name);
+		inline const auto& IsDirectory() const { return mIsDirectory; }
 
-		void SaveRecursive();
-
-	public:
-
+		inline const auto& GetBytes() const { return mBytes; }
+		inline const auto& GetSize() const { return mSize; }
+		inline const auto& GetParent() const { return mParent; }
 		inline const auto& GetName() const { return mName; }
 		inline const auto& GetType() const { return mType; }
-		inline const auto& GetOffset() const { return mOffset; }
-		inline const auto& GetSize() const { return mSize; }
-
-		inline const auto GetBytes() const { return mReader.BytesFrom(mSize, 0); }
+		inline const auto& GetParentOffset() const { return mParentOffset; }
+		inline const auto& GetParentIndex() const { return mParentIndex; }
 
 	public:
 
-		inline void SetBytes(const std::vector<U8>& Bytes) { mBytes = Bytes; }
+		std::vector<U8> Serialize();
+		void DeSerialize(const std::vector<U8>& Bytes);
 
-	public:
-
-		void DumpToDiskRecursive(fs::path File, Archive* Node = nullptr);
-		void DumpTableOfContent(U32 Offset, U32 Indent, U32 Increment, Archive* Node = nullptr);
-		void FindNodeRecursiveByType(std::string Type, Archive** Result, Archive* Node = nullptr);
-		void FindNodesRecursiveByType(std::string Type, std::vector<Archive*>& Result, Archive* Node = nullptr);
-
-	private:
-
-		void ParseHeader();
-
-		bool CheckIfOutOfBounds();
-		bool CheckIfDirectory();
+		void ExtractToDisk(fs::path File);
+		void UnfoldToDisk(fs::path File);
+		void PrintTableOfContent(U32 Offset = 0, U32 Indent = 0, U32 Increment = 4);
+		void FindArchiveByType(std::string Type, Archive** Result);
+		void FindArchivesByType(std::string Type, std::vector<Archive*>& Result);
 
 	private:
 
-		std::vector<U8> mBytes = {};
+		void SerializeRecursive();
+		void DeSerializeRecursive();
+
+		void ExtractToDiskRecursive(fs::path File);
+		void UnfoldToDiskRecursive(fs::path File);
+		void PrintTableOfContentRecursive(U32 Offset, U32 Indent, U32 Increment);
+		void FindArchiveByTypeRecursive(std::string Type, Archive** Result);
+		void FindArchivesByTypeRecursive(std::string Type, std::vector<Archive*>& Result);
+
+	private:
+
+		bool CheckIfDirectory(BinaryReader& Reader);
+		void CreateDirectory(BinaryReader& Reader);
+
+	private:
+
+		void WriteDirectoryHeader(BinaryWriter& Writer);
+
+	private:
+
+		U64 ComputeDirectorySizesRecursive();
+
+	private:
+
+		U8* mBytes = nullptr;
+		U64 mSize = 0;
 
 		Archive* mParent = nullptr;
 
-		const U8* mStart = nullptr;
-		const U8* mEnd = nullptr;
-
-		BinaryReader mReader = {};
-
-		U16 mIndex = 0;
-		U32 mOffset = 0;
-		U32 mSize = 0;
-		std::string mType = "";
 		std::string mName = "";
+		std::string mType = "";
+		U32 mParentOffset = 0;
+		U16 mParentIndex = 0;
 
-		bool mIsOutOfBounds = false;
 		bool mIsDirectory = false;
-
-		std::vector<ArchiveEntry> mEntries = {};
-		std::vector<Archive*> mNodes = {};
 	};
 }

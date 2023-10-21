@@ -19,7 +19,7 @@ namespace ark
 
 				U64 offset = 0;
 
-				// TODO: Implement clever window compare search..
+				// TODO: Implement clever window compare search!
 
 				while (Left[leftIndex + offset] != Right[rightIndex + offset])
 				{
@@ -45,31 +45,46 @@ namespace ark
 	void DiffUtils::HexDump(const std::vector<U8>& Left, const std::vector<U8>& Right, const std::vector<std::pair<U64, U64>>& Indices, U32 ResultLimit, U64 Size, U32 Stride, U32 LeadStrideMultiplier)
 	{
 		U32 resultCount = 0;
-		U32 offset = Stride * LeadStrideMultiplier;
+		U32 fileOffset = Stride * LeadStrideMultiplier;
 
-		Size += offset;
+		Size += fileOffset;
+
+		LOG("\n");
 
 		for (const auto& [leftIndex, rightIndex] : Indices)
 		{
-			LOG("  0x%08IX                                                                        0x%08IX\n", leftIndex, rightIndex);
-			LOG("---------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
-
-			for (U64 i = 0; i < Size; i += Stride)
+			LOG("  0x%08IX", leftIndex);
+			for (U32 i = 0; i < (3 + (Stride * 3) + 2 + Stride + 3); i++)
 			{
-				if (i == offset)
+				LOG(" ");
+			}
+			LOG("0x%08IX\n", rightIndex);
+			for (U32 i = 0; i < ((2 + 10 + 3 + (Stride * 3) + 2 + Stride + 2) + (1 + 10 + 3 + (Stride * 3) + 2 + Stride + 2)); i++)
+			{
+				LOG("-");
+			}
+			LOG("\n");
+
+			for (I64 i = 0; i < (I64)Size; i += Stride)
+			{
 				{
-					LOG("> 0x%08IX | ", leftIndex + i - offset);
-				}
-				else
-				{
-					LOG("  0x%08IX | ", leftIndex + i - offset);
+					I64 index = ALIGN_DOWN(leftIndex, (U64)Stride) + i - fileOffset;
+
+					if (i == fileOffset)
+					{
+						LOG("> 0x%08IX | ", (index < 0) ? 0 : index);
+					}
+					else
+					{
+						LOG("  0x%08IX | ", (index < 0) ? 0 : index);
+					}
 				}
 
-				for (U64 j = 0; j < Stride; j++)
+				for (I64 j = 0; j < Stride; j++)
 				{
-					U64 index = leftIndex + i + j - offset;
+					I64 index = ALIGN_DOWN(leftIndex, (U64)Stride) + i + j - fileOffset;
 
-					if (index >= 0 && index < Left.size())
+					if (index >= 0 && index < (I64)Left.size())
 					{
 						LOG("%02X ", Left[index]);
 					}
@@ -81,11 +96,11 @@ namespace ark
 
 				LOG("| ");
 
-				for (U64 j = 0; j < Stride; j++)
+				for (I64 j = 0; j < Stride; j++)
 				{
-					U64 index = leftIndex + i + j - offset;
+					I64 index = ALIGN_DOWN(leftIndex, (U64)Stride) + i + j - fileOffset;
 
-					if (index >= 0 && index < Left.size())
+					if (index >= 0 && index < (I64)Left.size())
 					{
 						if (Left[index] >= 32 && Left[index] < 127)
 						{
@@ -104,13 +119,17 @@ namespace ark
 
 				LOG(" | ");
 
-				LOG("0x%08IX | ", rightIndex + i - offset);
-
-				for (U64 j = 0; j < Stride; j++)
 				{
-					U64 index = rightIndex + i + j - offset;
+					I64 index = ALIGN_DOWN(rightIndex, (U64)Stride) + i - fileOffset;
 
-					if (index >= 0 && index < Right.size())
+					LOG("0x%08IX | ", (index < 0) ? 0 : index);
+				}
+
+				for (I64 j = 0; j < Stride; j++)
+				{
+					I64 index = ALIGN_DOWN(rightIndex, 16) + i + j - fileOffset;
+
+					if (index >= 0 && index < (I64)Right.size())
 					{
 						LOG("%02X ", Right[index]);
 					}
@@ -122,11 +141,11 @@ namespace ark
 
 				LOG("| ");
 
-				for (U64 j = 0; j < Stride; j++)
+				for (I64 j = 0; j < Stride; j++)
 				{
-					U64 index = rightIndex + i + j - offset;
+					I64 index = ALIGN_DOWN(rightIndex, 16) + i + j - fileOffset;
 
-					if (index >= 0 && index < Right.size())
+					if (index >= 0 && index < (I64)Right.size())
 					{
 						if (Right[index] >= 32 && Right[index] < 127)
 						{
@@ -150,7 +169,7 @@ namespace ark
 
 			resultCount += 1;
 
-			if (resultCount > ResultLimit)
+			if (resultCount >= ResultLimit)
 			{
 				break;
 			}

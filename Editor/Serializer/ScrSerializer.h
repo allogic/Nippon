@@ -12,6 +12,6 @@ namespace ark
 	{
 	public:
 
-		static ScrGroup FromBytes(const std::vector<U8>& Bytes);
+		static ScrGroup FromBytes(U8* Bytes, U64 Size);
 	};
 }

@@ -22,10 +22,13 @@ namespace ark
 		static std::string ReadText(const fs::path& File, U64 Size = 0);
 
 		static void WriteBinary(const fs::path& File, const std::vector<U8>& Bytes, U64 Size = 0);
+		static void WriteBinary(const fs::path& File, U8* Bytes, U64 Size);
+
 		static void WriteText(const fs::path& File, const std::string& Text, U64 Size = 0);
+		static void WriteText(const fs::path& File, U8* Text, U64 Size);
 
-		static void CreateIfNotExist(const fs::path& File, bool DotIsDirectory = false);
+		static void CreateDirIfNotExist(const fs::path& File, bool DotIsDirectory = false);
 
-		static std::vector<U64> SearchBytesInFile(const std::vector<U8>& Bytes, const std::vector<U8>& Pattern);
+		static std::vector<U64> SearchStringsInFile(const std::vector<U8>& Bytes, const std::vector<U8>& Pattern);
 	};
 }

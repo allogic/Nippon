@@ -6,11 +6,11 @@
 
 namespace ark
 {
-	std::vector<ObjEntry> ObjSerializer::FromBytes(const std::vector<U8>& Bytes)
+	std::vector<ObjEntry> ObjSerializer::FromBytes(U8* Bytes, U64 Size)
 	{
 		std::vector<ObjEntry> entries = {};
 
-		BinaryReader reader = { Bytes.data(), Bytes.data() + Bytes.size() };
+		BinaryReader reader = { Bytes, Size };
 
 		U32 entryCount = reader.Read<U32>();
 

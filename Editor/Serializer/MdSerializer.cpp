@@ -1,6 +1,5 @@
 #include <Common/BinaryReader.h>
 #include <Common/BinaryWriter.h>
-#include <Common/Macros.h>
 
 #include <Editor/Serializer/MdSerializer.h>
 
@@ -9,11 +8,11 @@
 
 namespace ark
 {
-	MdGroup MdSerializer::FromBytes(const std::vector<U8>& Bytes)
+	MdGroup MdSerializer::FromBytes(U8* Bytes, U64 Size)
 	{
 		MdGroup group = {};
 
-		BinaryReader reader = { Bytes.data(), Bytes.data() + Bytes.size() };
+		BinaryReader reader = { Bytes, Size };
 
 		ScrHeader scrHeader = reader.Read<ScrHeader>();
 
@@ -21,7 +20,7 @@ namespace ark
 
 		std::vector<U32> transformOffsets = reader.Read<U32>(scrHeader.SubMeshCount);
 
-		reader.SeekAbs(ALIGN_UP(reader.GetPosition(), 16));
+		reader.AlignUp(16);
 
 		for (U32 i = 0; i < scrHeader.SubMeshCount; i++)
 		{
@@ -75,7 +74,7 @@ namespace ark
 				}
 			}
 
-			reader.SeekAbs(ALIGN_UP(reader.GetPosition(), 16));
+			reader.AlignUp(16);
 		}
 
 		for (U32 i = 0; i < scrHeader.SubMeshCount; i++)

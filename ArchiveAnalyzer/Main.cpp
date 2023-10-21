@@ -1,10 +1,10 @@
 #include <string>
 #include <filesystem>
 #include <vector>
-#include <set>
 
 #include <Common/Macros.h>
 #include <Common/Types.h>
+#include <Common/CommandLine.h>
 #include <Common/BlowFish.h>
 #include <Common/Archive.h>
 
@@ -17,163 +17,248 @@ namespace fs = std::filesystem;
 
 I32 main(I32 Argc, char** Argv)
 {
-	if ((Argc >= 2) && (std::strcmp(Argv[1], "Help") == 0))
+	CommandLine::Init(Argc, Argv);
+
+	if (CommandLine::HasFirstArgument("Help"))
 	{
 		LOG("\n");
-		LOG("ArchiveAnalyzer.exe Decrypt <cipher-key> <input-file> <output-file>\n");
-		LOG("ArchiveAnalyzer.exe Encrypt <cipher-key> <input-file> <output-file>\n");
-		LOG("ArchiveAnalyzer.exe Unpack <input-file> <output-file>\n");
-		LOG("ArchiveAnalyzer.exe ToC <input-file>\n");
-		LOG("ArchiveAnalyzer.exe CollectTypes <input-file>\n");
+		LOG("ArchiveAnalyzer Decrypt Input Output\n");
+		LOG("ArchiveAnalyzer Encrypt Input Output\n");
+		LOG("ArchiveAnalyzer Compress Input Output [Decrypt|Encrypt] (Experimental)\n");
+		LOG("ArchiveAnalyzer Unfold Input Output [Decrypt]\n");
+		LOG("ArchiveAnalyzer Extract Input Output [Decrypt]\n");
+		LOG("ArchiveAnalyzer ToC Input [Decrypt|Offset|Increment]\n");
 		LOG("\n");
 	}
 
-	if ((Argc >= 5) && (std::strcmp(Argv[1], "Decrypt") == 0))
+	if (CommandLine::HasFirstArgument("Decrypt"))
 	{
-		std::string cipherKey = Argv[2];
+		std::string inputFile = "";
+		std::string outputFile = "";
 
-		fs::path inputFile = Argv[3];
-		fs::path outputFile = Argv[4];
-
-		if (cipherKey == "")
+		if (CommandLine::HasArgumentWithValue("Input", inputFile, "Input file is missing"))
 		{
-			LOG("\n");
-			LOG("Cipher key is missing\n");
-			LOG("\n");
+			if (CommandLine::HasArgumentWithValue("Output", outputFile, "Output file is missing"))
+			{
+				if (fs::exists(inputFile))
+				{
+					std::vector<U8> inputBytes = FsUtils::ReadBinary(inputFile);
+
+					BlowFish{ CIPHER_KEY }.Decrypt(inputBytes);
+
+					FsUtils::CreateDirIfNotExist(outputFile);
+					FsUtils::WriteBinary(outputFile, inputBytes);
+				}
+			}
 		}
-		else
+	}
+
+	if (CommandLine::HasFirstArgument("Encrypt"))
+	{
+		std::string inputFile = "";
+		std::string outputFile = "";
+
+		if (CommandLine::HasArgumentWithValue("Input", inputFile, "Input file is missing"))
+		{
+			if (CommandLine::HasArgumentWithValue("Output", outputFile, "Output file is missing"))
+			{
+				if (fs::exists(inputFile))
+				{
+					std::vector<U8> inputBytes = FsUtils::ReadBinary(inputFile);
+
+					BlowFish{ CIPHER_KEY }.Encrypt(inputBytes);
+
+					FsUtils::CreateDirIfNotExist(outputFile);
+					FsUtils::WriteBinary(outputFile, inputBytes);
+				}
+			}
+		}
+	}
+
+	if (CommandLine::HasFirstArgument("Compress"))
+	{
+		std::string inputFile = "";
+		std::string outputFile = "";
+
+		if (CommandLine::HasArgumentWithValue("Input", inputFile, "Input file is missing"))
+		{
+			if (CommandLine::HasArgumentWithValue("Output", outputFile, "Output file is missing"))
+			{
+				if (fs::exists(inputFile))
+				{
+					std::vector<U8> inputBytes = FsUtils::ReadBinary(inputFile);
+
+					if (CommandLine::HasArgument("Decrypt"))
+					{
+						BlowFish{ CIPHER_KEY }.Decrypt(inputBytes);
+					}
+
+					Archive archive = {};
+
+					archive.DeSerialize(inputBytes);
+
+					std::vector<U8> outputBytes = archive.Serialize();
+
+					if (CommandLine::HasArgument("Encrypt"))
+					{
+						BlowFish{ CIPHER_KEY }.Encrypt(outputBytes);
+					}
+
+					FsUtils::CreateDirIfNotExist(outputFile);
+					FsUtils::WriteBinary(outputFile, outputBytes);
+				}
+			}
+		}
+	}
+
+	if (CommandLine::HasFirstArgument("Unfold"))
+	{
+		std::string inputFile = "";
+		std::string outputFile = "";
+
+		if (CommandLine::HasArgumentWithValue("Input", inputFile, "Input file is missing"))
+		{
+			if (CommandLine::HasArgumentWithValue("Output", outputFile, "Output file is missing"))
+			{
+				if (fs::exists(inputFile))
+				{
+					std::vector<U8> inputBytes = FsUtils::ReadBinary(inputFile);
+
+					if (CommandLine::HasArgument("Decrypt"))
+					{
+						BlowFish{ CIPHER_KEY }.Decrypt(inputBytes);
+					}
+
+					FsUtils::CreateDirIfNotExist(outputFile, true);
+
+					Archive archive = {};
+
+					archive.DeSerialize(inputBytes);
+					archive.UnfoldToDisk(outputFile);
+				}
+			}
+		}
+	}
+
+	if (CommandLine::HasFirstArgument("Extract"))
+	{
+		std::string inputFile = "";
+		std::string outputFile = "";
+
+		if (CommandLine::HasArgumentWithValue("Input", inputFile, "Input file is missing"))
+		{
+			if (CommandLine::HasArgumentWithValue("Output", outputFile, "Output file is missing"))
+			{
+				if (fs::exists(inputFile))
+				{
+					std::vector<U8> inputBytes = FsUtils::ReadBinary(inputFile);
+
+					if (CommandLine::HasArgument("Decrypt"))
+					{
+						BlowFish{ CIPHER_KEY }.Decrypt(inputBytes);
+					}
+
+					FsUtils::CreateDirIfNotExist(outputFile, true);
+
+					Archive archive = {};
+
+					archive.DeSerialize(inputBytes);
+					archive.ExtractToDisk(outputFile);
+				}
+			}
+		}
+	}
+
+	if (CommandLine::HasFirstArgument("ToC"))
+	{
+		std::string inputFile = "";
+
+		if (CommandLine::HasArgumentWithValue("Input", inputFile, "Input file is missing"))
 		{
 			if (fs::exists(inputFile))
 			{
-				if (fs::exists(outputFile))
+				std::vector<U8> inputBytes = FsUtils::ReadBinary(inputFile);
+
+				if (CommandLine::HasArgument("Decrypt"))
 				{
-					LOG("\n");
-					LOG("Output file %s already exists\n", outputFile.string().c_str());
-					LOG("\n");
+					BlowFish{ CIPHER_KEY }.Decrypt(inputBytes);
 				}
-				else
+
+				Archive archive = {};
+
+				archive.DeSerialize(inputBytes);
+
+				U32 offset = 0;
+				U32 increment = 4;
+
+				std::string offsetStr = "";
+				std::string incrementStr = "";
+
+				if (CommandLine::HasArgumentWithValue("Offset", offsetStr))
 				{
-					BlowFish cipher = cipherKey;
-
-					std::vector<U8> bytes = FsUtils::ReadBinary(inputFile.string());
-
-					cipher.Decrypt(bytes);
-
-					FsUtils::CreateIfNotExist(outputFile);
-					FsUtils::WriteBinary(outputFile, bytes);
+					offset = std::atoi(offsetStr.c_str());
 				}
-			}
-			else
-			{
-				LOG("\n");
-				LOG("Input file %s does not exist\n", inputFile.string().c_str());
-				LOG("\n");
+
+				if (CommandLine::HasArgumentWithValue("Increment", incrementStr))
+				{
+					increment = std::atoi(incrementStr.c_str());
+				}
+
+				archive.PrintTableOfContent(offset, 0, increment);
 			}
 		}
 	}
 
-	if ((Argc >= 5) && (std::strcmp(Argv[1], "Encrypt") == 0))
+	// TODO: Remove this function afterwards!
+
+	if (CommandLine::HasFirstArgument("CheckAlignment"))
 	{
-		std::string cipherKey = Argv[2];
+		std::string inputFile = "";
 
-		fs::path inputFile = Argv[3];
-		fs::path outputFile = Argv[4];
-
-		if (cipherKey == "")
-		{
-			LOG("\n");
-			LOG("Cipher key is missing\n");
-			LOG("\n");
-		}
-		else
+		if (CommandLine::HasArgumentWithValue("Input", inputFile, "Input file is missing"))
 		{
 			if (fs::exists(inputFile))
 			{
-				if (fs::exists(outputFile))
+				std::vector<U8> originalBytes = FsUtils::ReadBinary(inputFile);
+
+				if (CommandLine::HasArgument("Decrypt"))
 				{
-					LOG("\n");
-					LOG("Output file %s already exists\n", outputFile.string().c_str());
-					LOG("\n");
+					BlowFish{ CIPHER_KEY }.Decrypt(originalBytes);
+				}
+
+				Archive archive = {};
+
+				archive.DeSerialize(originalBytes);
+
+				U32 v0 = 0;
+				U32 v1 = 0;
+
+				std::string v0Str = "";
+				std::string v1Str = "";
+
+				if (CommandLine::HasArgumentWithValue("V0", v0Str))
+				{
+					v0 = std::atoi(v0Str.c_str());
+				}
+
+				if (CommandLine::HasArgumentWithValue("V1", v1Str))
+				{
+					v1 = std::atoi(v1Str.c_str());
+				}
+
+				std::vector<U8> modifiedBytes = archive.Serialize();
+
+				std::vector<std::pair<U64, U64>> indices = {};
+
+				if (DiffUtils::Compare(originalBytes, modifiedBytes, indices))
+				{
+					DiffUtils::HexDump(originalBytes, modifiedBytes, indices, 1, 256, 16, 12);
 				}
 				else
 				{
-					BlowFish cipher = cipherKey;
-
-					std::vector<U8> bytes = FsUtils::ReadBinary(inputFile.string());
-
-					cipher.Encrypt(bytes);
-
-					FsUtils::CreateIfNotExist(outputFile);
-					FsUtils::WriteBinary(outputFile, bytes);
+					LOG("File matches %s\n", inputFile.c_str());
 				}
 			}
-			else
-			{
-				LOG("\n");
-				LOG("Input file %s does not exist\n", inputFile.string().c_str());
-				LOG("\n");
-			}
-		}
-	}
-
-	if ((Argc >= 4) && (std::strcmp(Argv[1], "Unpack") == 0))
-	{
-		fs::path inputFile = Argv[2];
-		fs::path outputFile = Argv[3];
-
-		if (fs::exists(inputFile))
-		{
-			if (fs::exists(outputFile))
-			{
-				LOG("\n");
-				LOG("Output file %s already exists\n", outputFile.string().c_str());
-				LOG("\n");
-			}
-			else
-			{
-				std::vector<U8> bytes = FsUtils::ReadBinary(inputFile);
-
-				FsUtils::CreateIfNotExist(outputFile, true);
-
-				Archive archive = bytes;
-
-				archive.Load();
-				archive.DumpToDiskRecursive(outputFile);
-			}
-		}
-		else
-		{
-			LOG("\n");
-			LOG("Input file %s does not exist\n", inputFile.string().c_str());
-			LOG("\n");
-		}
-	}
-
-	if ((Argc >= 3) && (std::strcmp(Argv[1], "ToC") == 0))
-	{
-		fs::path inputFile = Argv[2];
-
-		if (fs::exists(inputFile))
-		{
-			std::vector<U8> bytes = FsUtils::ReadBinary(inputFile);
-
-			Archive archive = bytes;
-
-			archive.Load();
-
-			LOG("\n");
-			LOG(" Table Of Content For %s\n", inputFile.filename().string().c_str());
-			LOG("=============================================================\n");
-
-			archive.DumpTableOfContent(0, 4, 4);
-
-			LOG("\n");
-		}
-		else
-		{
-			LOG("\n");
-			LOG("Input file %s does not exist\n", inputFile.string().c_str());
-			LOG("\n");
 		}
 	}
 

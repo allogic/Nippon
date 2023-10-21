@@ -12,6 +12,6 @@ namespace ark
 	{
 	public:
 
-		static std::vector<ItsEntry> FromBytes(const std::vector<U8>& Bytes);
+		static std::vector<ItsEntry> FromBytes(U8* Bytes, U64 Size);
 	};
 }

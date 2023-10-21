@@ -63,8 +63,8 @@ namespace ark
 
 	private:
 
-		std::vector<Archive*> mMdNodes;
-		std::vector<Archive*> mDdsNodes;
+		std::vector<Archive*> mMdArchives;
+		std::vector<Archive*> mDdsArchives;
 
 	private:
 

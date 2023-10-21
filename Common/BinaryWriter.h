@@ -5,6 +5,7 @@
 #include <cstring>
 
 #include <Common/Types.h>
+#include <Common/Macros.h>
 
 namespace ark
 {
@@ -12,18 +13,24 @@ namespace ark
 	{
 	public:
 
-		BinaryWriter() {}
+		BinaryWriter(U8* Bytes, U64 Size);
 
 	public:
 
-		inline auto GetPosition() const { return mPosition; }
-		inline auto GetSize() const { return mBytes.size(); }
 		inline const auto& GetBytes() const { return mBytes; }
+		inline const auto& GetSize() const { return mSize; }
+		inline const auto& GetPosition() const { return mPosition; }
 
 	public:
 
-		void SeekRelative(I64 Value);
-		void SeekAbsolute(I64 Value);
+		inline void SeekRel(I64 Value) { mPosition += Value; }
+		inline void SeekAbs(I64 Value) { mPosition = Value; }
+
+		inline void AlignUp(U64 Alignment) { mPosition = ALIGN_UP(mPosition, Alignment); }
+		inline void AlignDown(U64 Alignment) { mPosition = ALIGN_DOWN(mPosition, Alignment); }
+
+		inline void ModUp(U64 Modulus) { mPosition += (mPosition % Modulus); }
+		inline void ModDown(U64 Modulus) { mPosition -= (mPosition % Modulus); }
 
 	public:
 
@@ -33,11 +40,15 @@ namespace ark
 		template<typename T>
 		void Write(const std::vector<T>& Values);
 
-		void String(const std::string& Value, U64 Count = 0);
+		void String(const std::string& Value, U64 Size);
+
+		void Bytes(U8* Bytes, U64 Size);
 
 	private:
 
-		std::vector<U8> mBytes = {};
+		U8* mBytes;
+		U64 mSize;
+
 		U64 mPosition = 0;
 	};
 }
@@ -47,12 +58,7 @@ namespace ark
 	template<typename T>
 	void BinaryWriter::Write(T Value)
 	{
-		if (mPosition >= mBytes.size())
-		{
-			mBytes.resize(mPosition + sizeof(T));
-		}
-
-		std::memcpy(&mBytes[mPosition], (U8*)&Value, sizeof(T));
+		std::memcpy(mBytes + mPosition, &Value, sizeof(T));
 
 		mPosition += sizeof(T);
 	}
@@ -60,15 +66,7 @@ namespace ark
 	template<typename T>
 	void BinaryWriter::Write(const std::vector<T>& Values)
 	{
-		if (mPosition >= mBytes.size())
-		{
-			mBytes.resize(mPosition + (Values.size() * sizeof(T)));
-		}
-
-		if (Values.size())
-		{
-			std::memcpy(&mBytes[mPosition], (U8*)&Values[0], Values.size() * sizeof(T));
-		}
+		std::memcpy(mBytes + mPosition, Values.data(), Values.size() * sizeof(T));
 
 		mPosition += Values.size() * sizeof(T);
 	}

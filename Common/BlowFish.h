@@ -5,6 +5,8 @@
 
 #include <Common/Types.h>
 
+#define CIPHER_KEY "YaKiNiKuM2rrVrPJpGMkfe3EK4RbpbHw"
+
 namespace ark
 {
 	class BlowFish

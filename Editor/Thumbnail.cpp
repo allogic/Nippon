@@ -16,12 +16,8 @@
 
 namespace ark
 {
-	void Thumbnail::Generate(const SceneInfo& Info)
+	void Thumbnail::Generate(const SceneInfo& Info, const fs::path& ThumbnailDir)
 	{
-		fs::path exportDir = "Thumbnails";
-
-		FsUtils::CreateIfNotExist(exportDir);
-
 		if (Scene* scene = SceneManager::CreateScene(Info))
 		{
 			Actor* player = scene->GetPlayerActor();
@@ -36,7 +32,7 @@ namespace ark
 
 			std::vector<U8> bytes = scene->Snapshot(4, GL_UNSIGNED_BYTE);
 
-			TextureUtils::WritePNG(128, 128, bytes, exportDir / scene->GetThumbnailFileName());
+			TextureUtils::WritePNG(128, 128, bytes, ThumbnailDir / scene->GetThumbnailFileName());
 
 			SceneManager::DestroyScene(scene);
 		}
