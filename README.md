@@ -37,6 +37,9 @@ ArchiveAnalyzer Extract Input Output [Decrypt]
 ArchiveAnalyzer ToC Input [Decrypt|Offset|Increment]
 
 ArchiveAnalyzer.exe ToC Input="...\Steam\steamapps\common\Okami\data_pc\etc\core.dat" Decrypt
+
+ Table Of Content
+-----------------------------------------------------------------------------------------
     0x00000080 # 00000 # kage                 # DDS  # 22.48 KB
     0x000056C0 # 00001 # fude1                # DDS  # 22.48 KB
     0x0000AD00 # 00002 # fude2                # DDS  # 349.728 KB
@@ -63,6 +66,7 @@ BinaryAnalyzer Compare LeftInput RightInput [LeftDecrypt|RightDecrypt|ResultCoun
 BinaryAnalyzer Search Input StringPattern [Decrypt]
 
 BinaryAnalyzer Compare LeftInput="Scratch\r30d.dat" RightInput="Compress\r30d.dat" Stride=8
+
   0x00000018                                        0x00000018
 -----------------------------------------------------------------------------------------------------
   0x00000000 | 0F 00 00 00 A0 00 00 00 | ........ | 0x00000000 | 00 00 00 00 00 00 00 00 | ........
