@@ -6,6 +6,7 @@ Nippon is a collection of tools designed to interact with the okami PC port. Thi
 ## Starting The Editor
 The editor requires at least one command line arguments which is the directory where the okami data files are. Supply arguments which contain spaces as strings.
 ```
+Editor Help
 Editor DataDir [Width|Height]
 
 Editor DataDir="...\Steam\steamapps\common\Okami\data_pc" Width=1920 Height=1080
