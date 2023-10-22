@@ -99,10 +99,9 @@ namespace ark
 				ImVec2 windowPosition = ImGui::GetWindowPos();
 
 				U32 frameBuffer = mScene->GetFrameBuffer();
-				U32 colorTexture = FrameBuffer::GetColorTexture(frameBuffer, 1);
 
-				I32 windowWidth =  Texture2D::GetWidth(colorTexture);
-				I32 windowHeight = Texture2D::GetHeight(colorTexture);
+				I32 windowWidth =  FrameBuffer::GetWidth(frameBuffer);
+				I32 windowHeight = FrameBuffer::GetHeight(frameBuffer);
 
 				windowPosition.y += ImGui::GetFontSize() + style.FramePadding.y * 2;
 				windowPosition.y += windowHeight;

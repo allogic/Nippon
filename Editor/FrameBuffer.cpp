@@ -11,6 +11,9 @@ namespace ark
 
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
+		glFramebufferParameteri(GL_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_WIDTH, Width);
+		glFramebufferParameteri(GL_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_HEIGHT, Height);
+
 		U32 colorAttachment0 = Texture2D::Create(Width, Height, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_RGBA, GL_RGBA32F, GL_FLOAT, nullptr);
 		U32 colorAttachment1 = Texture2D::Create(Width, Height, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_RED_INTEGER, GL_R32UI, GL_UNSIGNED_INT, nullptr);
 		U32 depthStencilAttachment = Texture2D::Create(Width, Height, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_DEPTH_STENCIL, GL_DEPTH24_STENCIL8, GL_UNSIGNED_INT_24_8, nullptr);
@@ -47,6 +50,28 @@ namespace ark
 		Texture2D::Destroy(depthStencilAttachment);
 
 		glDeleteFramebuffers(1, &Id);
+	}
+
+	U32 FrameBuffer::GetWidth(U32 Id)
+	{
+		I32 value = 0;
+		
+		glBindFramebuffer(GL_FRAMEBUFFER, Id);
+		glGetFramebufferParameteriv(GL_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_WIDTH, &value);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		return value;
+	}
+
+	U32 FrameBuffer::GetHeight(U32 Id)
+	{
+		I32 value = 0;
+
+		glBindFramebuffer(GL_FRAMEBUFFER, Id);
+		glGetFramebufferParameteriv(GL_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_HEIGHT, &value);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		return value;
 	}
 
 	U32 FrameBuffer::GetColorTexture(U32 Id, U32 Index)

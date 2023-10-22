@@ -17,6 +17,8 @@ namespace ark
 
 	public:
 
+		static U32 GetWidth(U32 Id);
+		static U32 GetHeight(U32 Id);
 		static U32 GetColorTexture(U32 Id, U32 Index);
 		static U32 GetDepthStencilTexture(U32 Id);
 
