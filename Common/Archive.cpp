@@ -6,7 +6,7 @@
 
 namespace ark
 {
-	static std::set<std::string> sKnownDirectoryTypes
+	static std::set<std::string> sKnownDirectoryTypes =
 	{
 		"", // Empty directory types exist
 		"AKT",
@@ -20,7 +20,7 @@ namespace ark
 		"TBL",
 	};
 
-	static std::set<std::string> sKnownFileTypes
+	static std::set<std::string> sKnownFileTypes =
 	{
 		"", // Empty file types exist
 		"A00", "A01", "ACT", "AK", "ANS", "ANC",
@@ -68,7 +68,8 @@ namespace ark
 
 	std::vector<U8> Archive::Serialize()
 	{
-		ComputeDirectorySizesRecursive();
+		UpdateSizesRecursive();
+		UpdateByteArraysRecursive();
 		SerializeRecursive();
 
 		return { mBytes, mBytes + mSize };
@@ -82,7 +83,8 @@ namespace ark
 		std::memcpy(mBytes, Bytes.data(), Bytes.size());
 
 		DeSerializeRecursive();
-		ComputeDirectorySizesRecursive();
+		UpdateSizesRecursive();
+		UpdateByteArraysRecursive();
 	}
 
 	void Archive::ExtractToDisk(fs::path File)
@@ -118,26 +120,36 @@ namespace ark
 
 	void Archive::SerializeRecursive()
 	{
+		BinaryWriter writer = { mBytes, mSize };
+
 		if (mIsDirectory)
 		{
-			if (mBytes)
-			{
-				delete[] mBytes;
-				mBytes = new U8[mSize];
-			}
-
-			BinaryWriter writer = { mBytes, mSize };
-
 			WriteDirectoryHeader(writer);
 
 			for (const auto& archive : *this)
 			{
 				archive->SerializeRecursive();
 
-				writer.Zero(8);
-				writer.String(archive->mType, 4);
-				writer.String(archive->mName, 20);
-				writer.Bytes(archive->mBytes, archive->mSize);
+				WriteFileContent(writer, archive);
+			}
+		}
+		else
+		{
+			if (mType == "ROF")
+			{
+				writer.String("RUNOFS64", 8);
+
+				U64 acc = ALIGN_UP(4 + ((mParent->size() * 2) * 4), FILE_ALIGNMENT);
+
+				for (const auto& archive : *mParent)
+				{
+					acc += FILE_HEADER_SIZE;
+
+					writer.Write<U32>((U32)acc);
+					writer.SeekRel(4);
+
+					acc += archive->mSize;
+				}
 			}
 		}
 	}
@@ -165,7 +177,22 @@ namespace ark
 		{
 			if (mParent)
 			{
-				File /= mType;
+				if (mName != "" && mType != "")
+				{
+					File /= mName + "." + mType;
+				}
+				else if (mName != "" && mType == "")
+				{
+					File /= mName;
+				}
+				else if (mName == "" && mType != "")
+				{
+					File /= std::to_string(mParentIndex) + "." + mType;
+				}
+				else if (mName == "" && mType == "")
+				{
+					File /= std::to_string(mParentIndex);
+				}
 
 				FsUtils::CreateDirIfNotExist(File, true);
 			}
@@ -408,6 +435,8 @@ namespace ark
 			if (currArchive->mParentOffset)
 			{
 				prevArchive->mSize = currArchive->mParentOffset - prevArchive->mParentOffset;
+				prevArchive->mSizePrev = prevArchive->mSize;
+
 				prevSequenceIndex = i;
 			}
 		}
@@ -417,6 +446,7 @@ namespace ark
 			Archive* lastArchive = (*this)[entryCount - 1];
 
 			lastArchive->mSize = mSize - lastArchive->mParentOffset;
+			lastArchive->mSizePrev = lastArchive->mSize;
 		}
 
 		for (U16 i = 0; i < entryCount; i++)
@@ -446,7 +476,7 @@ namespace ark
 	{
 		U64 acc = 0;
 
-		acc += ComputeHeaderSize();
+		acc += ALIGN_UP(4 + ((size() * 2) * 4), FILE_ALIGNMENT);
 
 		Writer.ZeroNoInc(acc);
 
@@ -475,32 +505,66 @@ namespace ark
 		Writer.AlignUp(FILE_ALIGNMENT);
 	}
 
-	U64 Archive::ComputeDirectorySizesRecursive()
+	void Archive::WriteFileContent(BinaryWriter& Writer, Archive* Archive)
+	{
+		Writer.Zero(8);
+		Writer.String(Archive->mType, 4);
+		Writer.String(Archive->mName, 20);
+		Writer.Bytes(Archive->mBytes, Archive->mSize);
+	}
+
+	U64 Archive::UpdateSizesRecursive()
 	{
 		U64 acc = 0;
 
 		if (mIsDirectory)
 		{
-			acc += ComputeHeaderSize();
+			acc += ALIGN_UP(4 + ((size() * 2) * 4), FILE_ALIGNMENT);
 
 			for (const auto& archive : *this)
 			{
 				acc += FILE_HEADER_SIZE;
-				acc += archive->ComputeDirectorySizesRecursive();
+				acc += archive->UpdateSizesRecursive();
 			}
 		}
 		else
 		{
-			acc = mSize;
+			if (mType == "ROF")
+			{
+				acc = 8 + (mParent->size() * 8);
+			}
+			else
+			{
+				acc = mSize;
+			}
 		}
 
-		return mSize = acc;
+		mSizePrev = mSize;
+		mSize = acc;
+
+		return mSize;
 	}
 
-	U64 Archive::ComputeHeaderSize()
+	void Archive::UpdateByteArraysRecursive()
 	{
-		U64 acc = 4 + ((size() * 2) * 4);
+		if (mBytes && (mSize != mSizePrev))
+		{
+			U8* bytes = new U8[mSize];
 
-		return ALIGN_UP(acc, FILE_ALIGNMENT);
+			std::memset(bytes, 0, mSize);
+			std::memcpy(bytes, mBytes, std::min(mSize, mSizePrev));
+
+			delete[] mBytes;
+
+			mBytes = bytes;
+		}
+
+		if (mIsDirectory)
+		{
+			for (const auto& archive : *this)
+			{
+				archive->UpdateByteArraysRecursive();
+			}
+		}
 	}
 }

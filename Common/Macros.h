@@ -8,8 +8,8 @@
 #define LOG(FMT, ...) std::printf(FMT, __VA_ARGS__)
 #endif
 
-#define ALIGN_DOWN(VALUE, ALIGNMENT) (VALUE & ~(ALIGNMENT - 1))
-#define ALIGN_UP(VALUE, ALIGNMENT) ((VALUE + (ALIGNMENT - 1)) & ~(ALIGNMENT - 1))
+#define ALIGN_DOWN(VALUE, ALIGNMENT) ((VALUE) & ~(ALIGNMENT - 1))
+#define ALIGN_UP(VALUE, ALIGNMENT) (((VALUE) + (ALIGNMENT - 1)) & ~(ALIGNMENT - 1))
 
 #define LIT_TO_BIG_ENDIAN32(VALUE) \
 	(((VALUE >> 24) & 0xFF) | \

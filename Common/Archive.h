@@ -2,9 +2,9 @@
 
 #include <string>
 #include <cstring>
+#include <filesystem>
 #include <vector>
 #include <set>
-#include <filesystem>
 
 #include <Common/Types.h>
 #include <Common/BinaryReader.h>
@@ -67,16 +67,19 @@ namespace ark
 	private:
 
 		void WriteDirectoryHeader(BinaryWriter& Writer);
+		void WriteFileContent(BinaryWriter& Writer, Archive* Archive);
 
 	private:
 
-		U64 ComputeDirectorySizesRecursive();
-		U64 ComputeHeaderSize();
+		U64 UpdateSizesRecursive();
+		void UpdateByteArraysRecursive();
 
 	private:
 
 		U8* mBytes = nullptr;
+
 		U64 mSize = 0;
+		U64 mSizePrev = 0;
 
 		Archive* mParent = nullptr;
 
