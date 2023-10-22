@@ -7,6 +7,7 @@
 #include <Editor/Actor.h>
 #include <Editor/Editor.h>
 #include <Editor/TextureLoader.h>
+#include <Editor/Texture2D.h>
 #include <Editor/Magic.h>
 
 #include <Editor/Scenes/EntityScene.h>
@@ -28,16 +29,11 @@ namespace ark
 
 	EntityScene::~EntityScene()
 	{
-		for (auto& texture : mMdTextures)
-		{
-			delete texture;
-			texture = nullptr;
-		}
+		Texture2D::Destroy(mMdTextures);
 
 		if (mDatArchive)
 		{
 			delete mDatArchive;
-			mDatArchive = nullptr;
 		}
 	}
 
@@ -88,7 +84,7 @@ namespace ark
 
 		for (const auto& archive : mDdsArchives)
 		{
-			mMdTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(archive->GetBytes(), archive->GetSize()));
+			mMdTextures.emplace_back(TextureLoader::LoadDDS(archive->GetBytes(), archive->GetSize()));
 		}
 	}
 
@@ -127,8 +123,7 @@ namespace ark
 					std::vector<U32> elements = ElementConverter::ToElementBuffer(division.Vertices);
 
 					U32 textureIndex = division.Header.TextureIndex;
-
-					Texture2D* texture = (textureIndex < mMdTextures.size()) ? mMdTextures[textureIndex] : nullptr;
+					U32 texture = (textureIndex < mMdTextures.size()) ? mMdTextures[textureIndex] : 0;
 
 					divisionRenderable->SetVertexBuffer(vertices);
 					divisionRenderable->SetElementBuffer(elements);

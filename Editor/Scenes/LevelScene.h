@@ -21,7 +21,6 @@ namespace ark
 
 	class Archive;
 	class Actor;
-	class Texture2D;
 
 	class LevelScene : public Scene
 	{
@@ -80,7 +79,7 @@ namespace ark
 		std::vector<Archive*> mDdsArchives = {};
 
 		std::vector<ScrGroup> mScrGroups = {};
-		std::vector<Texture2D*> mScrTextures = {};
+		std::vector<U32> mScrTextures = {};
 
 	private:
 
@@ -94,7 +93,7 @@ namespace ark
 			std::vector<Archive*> DdsArchives = {};
 
 			std::vector<MdGroup> MdGroups = {};
-			std::vector<Texture2D*> MdTextures = {};
+			std::vector<U32> MdTextures = {};
 		};
 
 		std::map<std::string, Archive*> mTscArchiveCache = {};

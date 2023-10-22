@@ -1,6 +1,6 @@
 #include <Editor/Event.h>
 #include <Editor/Scene.h>
-#include <Editor/Texture.h>
+#include <Editor/Texture2D.h>
 #include <Editor/SceneManager.h>
 #include <Editor/InterfaceManager.h>
 #include <Editor/FrameBuffer.h>
@@ -33,7 +33,7 @@ namespace ark
 			if (HasResized())
 			{
 				mScene->Resize(mWidth, mHeight);
-				mScene->Step();
+				mScene->Invalidate();
 			}
 
 			if (HasFocus())
@@ -42,10 +42,10 @@ namespace ark
 
 				HandleActorSelection();
 
-				mScene->Step();
+				mScene->Invalidate();
 			}
 
-			ImGui::Image((void*)(U64)mScene->GetFrameBuffer()->GetColorTexture(0)->GetId(), ImVec2{ (R32)mWidth, (R32)mHeight }, ImVec2{ 0.0F, 1.0F }, ImVec2{ 1.0F, 0.0F });
+			ImGui::Image((void*)(U64)FrameBuffer::GetColorTexture(mScene->GetFrameBuffer(), 0), ImVec2{ (R32)mWidth, (R32)mHeight }, ImVec2{ 0.0F, 1.0F }, ImVec2{ 1.0F, 0.0F });
 		}
 		else
 		{
@@ -98,11 +98,11 @@ namespace ark
 				ImVec2 mousePosition = io.MousePos;
 				ImVec2 windowPosition = ImGui::GetWindowPos();
 
-				FrameBuffer* frameBuffer = mScene->GetFrameBuffer();
-				RenderTexture* colorTexture = frameBuffer->GetColorTexture(1);
+				U32 frameBuffer = mScene->GetFrameBuffer();
+				U32 colorTexture = FrameBuffer::GetColorTexture(frameBuffer, 1);
 
-				I32 windowWidth = colorTexture->GetWidth();
-				I32 windowHeight = colorTexture->GetHeight();
+				I32 windowWidth =  Texture2D::GetWidth(colorTexture);
+				I32 windowHeight = Texture2D::GetHeight(colorTexture);
 
 				windowPosition.y += ImGui::GetFontSize() + style.FramePadding.y * 2;
 				windowPosition.y += windowHeight;
@@ -116,7 +116,7 @@ namespace ark
 				if (mousePositionX > windowWidth) mousePositionX = windowWidth;
 				if (mousePositionY > windowHeight) mousePositionY = windowHeight;
 
-				U32 actorId = frameBuffer->ReadPixel<U32>(mousePositionX, mousePositionY, 1);
+				U32 actorId = FrameBuffer::ReadIntegerAt(frameBuffer, mousePositionX, mousePositionY, 1);
 
 				if (actorId > 0)
 				{

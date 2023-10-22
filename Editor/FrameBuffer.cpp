@@ -1,59 +1,127 @@
 #include <Editor/FrameBuffer.h>
+#include <Editor/Texture2D.h>
 
 namespace ark
 {
-	FrameBuffer::FrameBuffer(const std::vector<AttachmentDescription>& AttachmentDescriptions, const AttachmentDescription& DepthAttachmentDescription)
-		: mAttachmentCount{ (U32)AttachmentDescriptions.size() }
+	U32 FrameBuffer::Create(U32 Width, U32 Height)
 	{
-		mColorTextures.resize(mAttachmentCount);
-		mAttachmentIndices.resize(mAttachmentCount);
+		U32 frameBuffer = 0;
 
-		for (U32 i = 0; i < mAttachmentCount; i++)
-		{
-			mColorTextures[i] = new RenderTexture{ AttachmentDescriptions[i].Wrap, AttachmentDescriptions[i].Filter, AttachmentDescriptions[i].Format, AttachmentDescriptions[i].FormatInternal, AttachmentDescriptions[i].Type };
-			mAttachmentIndices[i] = GL_COLOR_ATTACHMENT0 + i;
-		}
+		glGenFramebuffers(1, &frameBuffer);
 
-		mDepthStencilTexture = new DepthStencilTexture{ DepthAttachmentDescription.Wrap, DepthAttachmentDescription.Filter, DepthAttachmentDescription.Format, DepthAttachmentDescription.FormatInternal, DepthAttachmentDescription.Type };
+		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
-		glGenFramebuffers(1, &mFbo);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mFbo);
+		U32 colorAttachment0 = Texture2D::Create(Width, Height, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_RGBA, GL_RGBA32F, GL_FLOAT, nullptr);
+		U32 colorAttachment1 = Texture2D::Create(Width, Height, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_RED_INTEGER, GL_R32UI, GL_UNSIGNED_INT, nullptr);
+		U32 depthStencilAttachment = Texture2D::Create(Width, Height, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_DEPTH_STENCIL, GL_DEPTH24_STENCIL8, GL_UNSIGNED_INT_24_8, nullptr);
 
-		for (U32 i = 0; i < mAttachmentCount; i++)
-		{
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, mColorTextures[i]->GetId(), 0);
-		}
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorAttachment0, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, colorAttachment1, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, depthStencilAttachment, 0);
 
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, mDepthStencilTexture->GetId(), 0);
+		U32 attachments[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 
-		glDrawBuffers(mAttachmentCount, mAttachmentIndices.data());
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		glDrawBuffers(2, attachments);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		return frameBuffer;
 	}
 
-	FrameBuffer::~FrameBuffer()
+	void FrameBuffer::Destroy(U32 Id)
 	{
-		glDeleteFramebuffers(1, &mFbo);
+		I32 colorAttachment0 = 0;
+		I32 colorAttachment1 = 0;
+		I32 depthStencilAttachment = 0;
 
-		delete mDepthStencilTexture;
+		glBindFramebuffer(GL_FRAMEBUFFER, Id);
 
-		for (auto& colorTexture : mColorTextures)
-		{
-			delete colorTexture;
-			colorTexture = nullptr;
-		}
+		glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &colorAttachment0);
+		glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &colorAttachment1);
+		glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &depthStencilAttachment);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		Texture2D::Destroy(colorAttachment0);
+		Texture2D::Destroy(colorAttachment1);
+		Texture2D::Destroy(depthStencilAttachment);
+
+		glDeleteFramebuffers(1, &Id);
 	}
 
-	void FrameBuffer::Resize(U32 Width, U32 Height)
+	U32 FrameBuffer::GetColorTexture(U32 Id, U32 Index)
 	{
-		for (U32 i = 0; i < mAttachmentCount; i++)
-		{
-			mColorTextures[i]->Bind();
-			mColorTextures[i]->Resize(Width, Height);
-			mColorTextures[i]->UnBind();
-		}
+		I32 texture = 0;
 
-		mDepthStencilTexture->Bind();
-		mDepthStencilTexture->Resize(Width, Height);
-		mDepthStencilTexture->UnBind();
+		glBindFramebuffer(GL_FRAMEBUFFER, Id);
+		glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + Index, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &texture);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		return texture;
+	}
+
+	U32 FrameBuffer::GetDepthStencilTexture(U32 Id)
+	{
+		I32 texture = 0;
+
+		glBindFramebuffer(GL_FRAMEBUFFER, Id);
+		glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &texture);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		return texture;
+	}
+
+	U32 FrameBuffer::ReadIntegerAt(U32 Id, U32 X, U32 Y, U32 Index)
+	{
+		U32 value = 0;
+
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, Id);
+		glReadBuffer(GL_COLOR_ATTACHMENT0 + Index);
+		glReadPixels((I32)X, (I32)Y, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, &value);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+
+		return value;
+	}
+
+	std::vector<U8> FrameBuffer::CopyRGB(U32 Id)
+	{
+		std::vector<U8> bytes = {};
+
+		I32 width = 0;
+		I32 height = 0;
+
+		glBindFramebuffer(GL_FRAMEBUFFER, Id);
+
+		glGetFramebufferParameteriv(GL_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_WIDTH, &width);
+		glGetFramebufferParameteriv(GL_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_HEIGHT, &height);
+
+		bytes.resize(width * height * 3);
+
+		glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, bytes.data());
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		return bytes;
+	}
+
+	std::vector<U8> FrameBuffer::CopyRGBA(U32 Id)
+	{
+		std::vector<U8> bytes = {};
+
+		I32 width = 0;
+		I32 height = 0;
+
+		glBindFramebuffer(GL_FRAMEBUFFER, Id);
+
+		glGetFramebufferParameteriv(GL_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_WIDTH, &width);
+		glGetFramebufferParameteriv(GL_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_HEIGHT, &height);
+
+		bytes.resize(width * height * 4);
+
+		glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, bytes.data());
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		return bytes;
 	}
 }

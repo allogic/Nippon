@@ -65,7 +65,7 @@ namespace ark
 		{
 			mSelectedActor = Actor;
 
-			Scene->Step();
+			Scene->Invalidate();
 		}
 
 		if (ImGui::BeginPopupContextItem("Outline Context Menu"))
@@ -88,14 +88,14 @@ namespace ark
 
 			Actor->MakeShouldBeDestroyedRecursiveDown(true);
 
-			Scene->Step();
+			Scene->Invalidate();
 		}
 		ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 50.0F);
 		if (ImGui::Button("-", ImVec2{ 25.0F, 0.0F }))
 		{
 			Actor->MakeActiveRecursiveDown(!Actor->IsActive());
 
-			Scene->Step();
+			Scene->Invalidate();
 		}
 
 		ImGui::PopStyleColor();

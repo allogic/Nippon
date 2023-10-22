@@ -28,9 +28,9 @@ namespace ark
 
 			scene->Load();
 			scene->Resize(128, 128);
-			scene->Step();
+			scene->Invalidate();
 
-			std::vector<U8> bytes = scene->Snapshot(4, GL_UNSIGNED_BYTE);
+			std::vector<U8> bytes = scene->CopyRGBA();
 
 			TextureUtils::WritePNG(128, 128, bytes, ThumbnailDir / scene->GetThumbnailFileName());
 

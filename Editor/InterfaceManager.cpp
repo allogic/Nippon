@@ -3,8 +3,8 @@
 #include <Common/Generated/SceneInfos.h>
 
 #include <Editor/InterfaceManager.h>
-#include <Editor/Texture.h>
 #include <Editor/TextureLoader.h>
+#include <Editor/Texture2D.h>
 
 #include <Editor/Interface/EntityBrowser.h>
 #include <Editor/Interface/Inspector.h>
@@ -14,8 +14,8 @@
 
 namespace ark
 {
-	static std::map<std::string, Texture2D*> sLevelThumbnails = {};
-	static std::map<std::string, Texture2D*> sEntityThumbnails = {};
+	static std::map<std::string, U32> sLevelThumbnails = {};
+	static std::map<std::string, U32> sEntityThumbnails = {};
 
 	static EntityBrowser* sEntityBrowser = nullptr;
 	static Inspector* sInspector = nullptr;
@@ -66,12 +66,12 @@ namespace ark
 		DestroyThumbnails();
 	}
 
-	Texture2D* InterfaceManager::GetLevelThumbnail(const std::string& ThumbnailFileName)
+	U32 InterfaceManager::GetLevelThumbnail(const std::string& ThumbnailFileName)
 	{
 		return sLevelThumbnails[ThumbnailFileName];
 	}
 
-	Texture2D* InterfaceManager::GetEntityThumbnail(const std::string& ThumbnailFileName)
+	U32 InterfaceManager::GetEntityThumbnail(const std::string& ThumbnailFileName)
 	{
 		return sEntityThumbnails[ThumbnailFileName];
 	}
@@ -86,11 +86,11 @@ namespace ark
 			{
 				if (fs::exists(file / sceneInfo.ThumbnailFileName))
 				{
-					sLevelThumbnails[sceneInfo.ThumbnailFileName] = TextureLoader::LoadGeneric(file / sceneInfo.ThumbnailFileName);
+					sLevelThumbnails[sceneInfo.ThumbnailFileName] = TextureLoader::LoadPNG(file / sceneInfo.ThumbnailFileName);
 				}
 				else
 				{
-					LOG("Missing thumbnail %s\n", sceneInfo.ThumbnailFileName.c_str());
+					LOG("Missing Thumbnail %s\n", sceneInfo.ThumbnailFileName.c_str());
 				}
 			}
 		}
@@ -101,11 +101,11 @@ namespace ark
 			{
 				if (fs::exists(file / sceneInfo.ThumbnailFileName))
 				{
-					sEntityThumbnails[sceneInfo.ThumbnailFileName] = TextureLoader::LoadGeneric(file / sceneInfo.ThumbnailFileName);
+					sEntityThumbnails[sceneInfo.ThumbnailFileName] = TextureLoader::LoadPNG(file / sceneInfo.ThumbnailFileName);
 				}
 				else
 				{
-					LOG("Missing thumbnail %s\n", sceneInfo.ThumbnailFileName.c_str());
+					LOG("Missing Thumbnail %s\n", sceneInfo.ThumbnailFileName.c_str());
 				}
 			}
 		}
@@ -117,8 +117,7 @@ namespace ark
 		{
 			for (const auto& sceneInfo : SceneInfos::GetEntitiesByGroup(groupInfo))
 			{
-				delete sEntityThumbnails[sceneInfo.ThumbnailFileName];
-				sEntityThumbnails[sceneInfo.ThumbnailFileName] = nullptr;
+				Texture2D::Destroy(sEntityThumbnails[sceneInfo.ThumbnailFileName]);
 			}
 		}
 
@@ -126,8 +125,7 @@ namespace ark
 		{
 			for (const auto& sceneInfo : SceneInfos::GetLevelsByGroup(groupInfo))
 			{
-				delete sLevelThumbnails[sceneInfo.ThumbnailFileName];
-				sLevelThumbnails[sceneInfo.ThumbnailFileName] = nullptr;
+				Texture2D::Destroy(sLevelThumbnails[sceneInfo.ThumbnailFileName]);
 			}
 		}
 	}

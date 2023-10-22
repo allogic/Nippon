@@ -8,6 +8,7 @@
 #include <Editor/Actor.h>
 #include <Editor/Editor.h>
 #include <Editor/TextureLoader.h>
+#include <Editor/Texture2D.h>
 #include <Editor/Magic.h>
 
 #include <Editor/Scenes/LevelScene.h>
@@ -53,11 +54,7 @@ namespace ark
 	{
 		// TODO: Delete all entity textures..
 
-		for (auto& texture : mScrTextures)
-		{
-			delete texture;
-			texture = nullptr;
-		}
+		Texture2D::Destroy(mScrTextures);
 
 		for (auto& [archiveName, archive] : mTatArchiveCache)
 		{
@@ -213,7 +210,7 @@ namespace ark
 
 		for (const auto& archive : mDdsArchives)
 		{
-			mScrTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(archive->GetBytes(), archive->GetSize()));
+			mScrTextures.emplace_back(TextureLoader::LoadDDS(archive->GetBytes(), archive->GetSize()));
 		}
 	}
 
@@ -252,7 +249,7 @@ namespace ark
 
 					for (const auto& archive : entityData.DdsArchives)
 					{
-						entityData.MdTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(archive->GetBytes(), archive->GetSize()));
+						entityData.MdTextures.emplace_back(TextureLoader::LoadDDS(archive->GetBytes(), archive->GetSize()));
 					}
 				}
 			}
@@ -291,7 +288,7 @@ namespace ark
 
 					for (const auto& archive : entityData.DdsArchives)
 					{
-						entityData.MdTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(archive->GetBytes(), archive->GetSize()));
+						entityData.MdTextures.emplace_back(TextureLoader::LoadDDS(archive->GetBytes(), archive->GetSize()));
 					}
 				}
 			}
@@ -330,7 +327,7 @@ namespace ark
 
 					for (const auto& archive : entityData.DdsArchives)
 					{
-						entityData.MdTextures.emplace_back(TextureLoader::LoadDirectDrawSurface(archive->GetBytes(), archive->GetSize()));
+						entityData.MdTextures.emplace_back(TextureLoader::LoadDDS(archive->GetBytes(), archive->GetSize()));
 					}
 				}
 			}
@@ -372,8 +369,7 @@ namespace ark
 					std::vector<U32> elements = ElementConverter::ToElementBuffer(division.Vertices);
 
 					U32 textureIndex = division.Header.TextureIndex;
-
-					Texture2D* texture = (textureIndex < mScrTextures.size()) ? mScrTextures[textureIndex] : nullptr;
+					U32 texture = (textureIndex < mScrTextures.size()) ? mScrTextures[textureIndex] : 0;
 
 					divisionRenderable->SetVertexBuffer(vertices);
 					divisionRenderable->SetElementBuffer(elements);
@@ -422,8 +418,7 @@ namespace ark
 						std::vector<U32> elements = ElementConverter::ToElementBuffer(division.Vertices);
 
 						U32 textureIndex = division.Header.TextureIndex;
-
-						Texture2D* texture = (textureIndex < entityData.MdTextures.size()) ? entityData.MdTextures[textureIndex] : nullptr;
+						U32 texture = (textureIndex < entityData.MdTextures.size()) ? entityData.MdTextures[textureIndex] : 0;
 
 						divisionRenderable->SetVertexBuffer(vertices);
 						divisionRenderable->SetElementBuffer(elements);
@@ -473,8 +468,7 @@ namespace ark
 						std::vector<U32> elements = ElementConverter::ToElementBuffer(division.Vertices);
 
 						U32 textureIndex = division.Header.TextureIndex;
-
-						Texture2D* texture = (textureIndex < entityData.MdTextures.size()) ? entityData.MdTextures[textureIndex] : nullptr;
+						U32 texture = (textureIndex < entityData.MdTextures.size()) ? entityData.MdTextures[textureIndex] : 0;
 
 						divisionRenderable->SetVertexBuffer(vertices);
 						divisionRenderable->SetElementBuffer(elements);
@@ -524,8 +518,7 @@ namespace ark
 						std::vector<U32> elements = ElementConverter::ToElementBuffer(division.Vertices);
 
 						U32 textureIndex = division.Header.TextureIndex;
-
-						Texture2D* texture = (textureIndex < entityData.MdTextures.size()) ? entityData.MdTextures[textureIndex] : nullptr;
+						U32 texture = (textureIndex < entityData.MdTextures.size()) ? entityData.MdTextures[textureIndex] : 0;
 
 						divisionRenderable->SetVertexBuffer(vertices);
 						divisionRenderable->SetElementBuffer(elements);

@@ -6,14 +6,12 @@
 
 #include <Editor/Component.h>
 #include <Editor/Mesh.h>
-#include <Editor/Texture.h>
 #include <Editor/Vertex.h>
 
 namespace ark
 {
 	class Scene;
 	class Actor;
-	class Texture2D;
 
 	class Renderable : public Component
 	{
@@ -34,7 +32,7 @@ namespace ark
 
 		inline void SetVertexBuffer(const std::vector<DefaultVertex>& VertexBuffer) { mVertexBuffer = VertexBuffer; }
 		inline void SetElementBuffer(const std::vector<U32>& ElementBuffer) { mElementBuffer = ElementBuffer; }
-		inline void SetTexture(U32 TextureIndex, Texture2D* Texture) { mTextureIndex = TextureIndex; mTexture = Texture; }
+		inline void SetTexture(U32 TextureIndex, U32 Texture) { mTextureIndex = TextureIndex; mTexture = Texture; }
 
 	public:
 
@@ -48,6 +46,6 @@ namespace ark
 
 		Mesh<DefaultVertex, U32>* mMesh = {};
 		U32 mTextureIndex = 0;
-		Texture2D* mTexture = nullptr;
+		U32 mTexture = 0;
 	};
 }

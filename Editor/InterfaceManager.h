@@ -15,7 +15,6 @@ namespace ark
 	class LevelBrowser;
 	class MainMenu;
 	class Outline;
-	class Texture2D;
 
 	class InterfaceManager
 	{
@@ -38,8 +37,8 @@ namespace ark
 
 	public:
 
-		static Texture2D* GetLevelThumbnail(const std::string& ThumbnailFileName);
-		static Texture2D* GetEntityThumbnail(const std::string& ThumbnailFileName);
+		static U32 GetLevelThumbnail(const std::string& ThumbnailFileName);
+		static U32 GetEntityThumbnail(const std::string& ThumbnailFileName);
 
 	private:
 

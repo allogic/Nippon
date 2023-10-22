@@ -7,6 +7,7 @@
 #include <Editor/Scene.h>
 #include <Editor/Actor.h>
 #include <Editor/Magic.h>
+#include <Editor/Texture2D.h>
 
 #include <Editor/Scenes/LevelScene.h>
 #include <Editor/Scenes/EntityScene.h>
@@ -160,11 +161,14 @@ namespace ark
 				{
 					LOG("    %s\n", textureName.c_str());
 
-					if (Texture2D* texture = renderable->GetTexture())
+					if (U32 texture = renderable->GetTexture())
 					{
-						std::vector<U8> bytes = texture->Snapshot(4, GL_UNSIGNED_BYTE);
+						std::vector<U8> bytes = Texture2D::CopyRGBA(texture);
 
-						TextureUtils::WritePNG(texture->GetWidth(), texture->GetHeight(), bytes, ExportDir / textureName);
+						U32 width = Texture2D::GetWidth(texture);
+						U32 height = Texture2D::GetHeight(texture);
+
+						TextureUtils::WritePNG(width, height, bytes, ExportDir / textureName);
 					}
 				}
 			}

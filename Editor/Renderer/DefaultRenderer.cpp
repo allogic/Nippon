@@ -2,7 +2,7 @@
 #include <Editor/Shader.h>
 #include <Editor/Scene.h>
 #include <Editor/SceneManager.h>
-#include <Editor/Texture.h>
+#include <Editor/Texture2D.h>
 #include <Editor/Vertex.h>
 
 #include <Editor/Components/Camera.h>
@@ -44,10 +44,10 @@ namespace ark
 
 				mShader->SetUniformR32M4("UniformModelMatrix", transform->GetModelMatrix());
 
-				if (Texture2D* texture = renderable->GetTexture())
+				if (U32 texture = renderable->GetTexture())
 				{
-					texture->Bind();
-					texture->Mount(0);
+					Texture2D::Bind(texture);
+					Texture2D::Mount(0, texture);
 				}
 
 				if (Mesh<DefaultVertex, U32>* mesh = renderable->GetMesh())
@@ -57,10 +57,10 @@ namespace ark
 					mesh->Unbind();
 				}
 
-				if (Texture2D* texture = renderable->GetTexture())
+				if (U32 texture = renderable->GetTexture())
 				{
-					texture->UnMount();
-					texture->UnBind();
+					Texture2D::UnMount(0);
+					Texture2D::UnBind();
 				}
 
 				mRenderQueue.pop();

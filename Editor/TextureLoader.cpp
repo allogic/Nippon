@@ -1,4 +1,4 @@
-#include <Editor/Texture.h>
+#include <Editor/Texture2D.h>
 #include <Editor/TextureLoader.h>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -14,74 +14,110 @@
 
 namespace ark
 {
-    Texture2D* TextureLoader::LoadDirectDrawSurface(U8* Bytes, U64 Size)
+	U32 TextureLoader::LoadDDS(const fs::path& File)
 	{
-		Texture2D* texture = nullptr;
+		U32 texture = 0;
 
 		DirectX::ScratchImage image = {};
 
-		DirectX::LoadFromDDSMemory(Bytes, Size, DirectX::DDS_FLAGS_NONE, nullptr, image);
+		DirectX::LoadFromDDSFile(File.wstring().c_str(), DirectX::DDS_FLAGS_NONE, nullptr, image);
 
-		U32 width = (U32)image.GetMetadata().width;
-		U32 height = (U32)image.GetMetadata().height;
-		U32 format = image.GetMetadata().format;
+		const DirectX::Image* mip = image.GetImage(0, 0, 0);
 
-		switch (format)
+		switch (image.GetMetadata().format)
 		{
 			case DXGI_FORMAT_BC7_UNORM:
 			{
-				texture = new Texture2D{ width, height, GL_REPEAT, GL_LINEAR, GL_RGBA, GL_COMPRESSED_RGBA_BPTC_UNORM, GL_UNSIGNED_BYTE };
-
-				texture->Bind();
-
-				const DirectX::Image* mip = image.GetImage(0, 0, 0);
-
-				glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_BPTC_UNORM, (I32)mip->width, (I32)mip->height, 0, (I32)(mip->width * mip->height), mip->pixels);
-
-				texture->UnBind();
+				texture = Texture2D::Create((U32)mip->width, (U32)mip->height, GL_REPEAT, GL_LINEAR, GL_RGBA, GL_COMPRESSED_RGBA_BPTC_UNORM, GL_UNSIGNED_BYTE, mip->pixels, true);
 			}
 		}
 
 		return texture;
 	}
 
-    Texture2D* TextureLoader::LoadGeneric(const fs::path& File)
+    U32 TextureLoader::LoadDDS(U8* Bytes, U64 Size)
 	{
-		Texture2D* texture = nullptr;
+		U32 texture = 0;
 
-		U32 width = 0;
-		U32 height = 0;
-		U32 channels = 0;
+		DirectX::ScratchImage image = {};
 
-		U8* bytes = stbi_load(File.string().c_str(), (I32*)&width, (I32*)&height, (I32*)&channels, 0);
+		DirectX::LoadFromDDSMemory(Bytes, Size, DirectX::DDS_FLAGS_NONE, nullptr, image);
 
-		switch (channels)
+		const DirectX::Image* mip = image.GetImage(0, 0, 0);
+
+		switch (image.GetMetadata().format)
 		{
-			case 3:
+			case DXGI_FORMAT_BC7_UNORM:
 			{
-				texture = new Texture2D{ width, height, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_RGB, GL_RGB32UI, GL_UNSIGNED_BYTE };
-
-				texture->Bind();
-
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, bytes);
-
-				texture->UnBind();
-
-				break;
-			}
-			case 4:
-			{
-				texture = new Texture2D{ width, height, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_RGBA, GL_RGBA32UI, GL_UNSIGNED_BYTE };
-
-				texture->Bind();
-
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
-
-				texture->UnBind();
-
-				break;
+				texture = Texture2D::Create((U32)mip->width, (U32)mip->height, GL_REPEAT, GL_LINEAR, GL_RGBA, GL_COMPRESSED_RGBA_BPTC_UNORM, GL_UNSIGNED_BYTE, mip->pixels, true);
 			}
 		}
+
+		return texture;
+	}
+
+    U32 TextureLoader::LoadPNG(const fs::path& File)
+	{
+		U32 texture = 0;
+
+		I32 width = 0;
+		I32 height = 0;
+		I32 channels = 0;
+
+		U8* bytes = stbi_load(File.string().c_str(), &width, &height, &channels, 0);
+
+		texture = Texture2D::Create(width, height, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+
+		stbi_image_free(bytes);
+
+		return texture;
+	}
+
+	U32 TextureLoader::LoadPNG(U8* Bytes, U64 Size)
+	{
+		U32 texture = 0;
+
+		I32 width = 0;
+		I32 height = 0;
+		I32 channels = 0;
+
+		U8* bytes = stbi_load_from_memory(Bytes, (I32)Size, &width, &height, &channels, 0);
+
+		texture = Texture2D::Create(width, height, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+
+		stbi_image_free(bytes);
+
+		return texture;
+	}
+
+	U32 TextureLoader::LoadJPG(const fs::path& File)
+	{
+		U32 texture = 0;
+
+		I32 width = 0;
+		I32 height = 0;
+		I32 channels = 0;
+
+		U8* bytes = stbi_load(File.string().c_str(), &width, &height, &channels, 0);
+
+		texture = Texture2D::Create(width, height, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, bytes);
+
+		stbi_image_free(bytes);
+
+		return texture;
+	}
+
+	U32 TextureLoader::LoadJPG(U8* Bytes, U64 Size)
+	{
+		U32 texture = 0;
+
+		I32 width = 0;
+		I32 height = 0;
+		I32 channels = 0;
+
+		U8* bytes = stbi_load_from_memory(Bytes, (I32)Size, &width, &height, &channels, 0);
+
+		texture = Texture2D::Create(width, height, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, bytes);
 
 		stbi_image_free(bytes);
 

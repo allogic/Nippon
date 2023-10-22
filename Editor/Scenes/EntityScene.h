@@ -17,7 +17,6 @@ namespace ark
 	namespace fs = std::filesystem;
 
 	class Archive;
-	class Texture2D;
 
 	class EntityScene : public Scene
 	{
@@ -66,6 +65,6 @@ namespace ark
 	private:
 
 		std::vector<MdGroup> mMdGroups = {};
-		std::vector<Texture2D*> mMdTextures = {};
+		std::vector<U32> mMdTextures = {};
 	};
 }

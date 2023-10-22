@@ -7,7 +7,7 @@
 #include <Editor/Scene.h>
 #include <Editor/SceneManager.h>
 #include <Editor/InterfaceManager.h>
-#include <Editor/Texture.h>
+#include <Editor/Texture2D.h>
 
 #include <Editor/Exporter/WavefrontExporter.h>
 
@@ -59,9 +59,9 @@ namespace ark
 
 						ImTextureID textureId = nullptr;
 
-						if (Texture2D* texture = InterfaceManager::GetLevelThumbnail(sceneInfos[i].ThumbnailFileName))
+						if (U32 texture = InterfaceManager::GetLevelThumbnail(sceneInfos[i].ThumbnailFileName))
 						{
-							textureId = (ImTextureID)(U64)texture->GetId();
+							textureId = (ImTextureID)(U64)texture;
 						}
 
 						if (ImGui::ImageButton(textureId, ImVec2{ 128.0F, 128.0F }))

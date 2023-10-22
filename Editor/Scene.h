@@ -11,7 +11,6 @@
 #include <Common/Generated/SceneInfos.h>
 
 #include <Editor/Actor.h>
-#include <Editor/FrameBuffer.h>
 
 #include <Editor/Glad/glad.h>
 
@@ -21,7 +20,6 @@ namespace ark
 
 	class Viewport;
 	class Camera;
-	class FrameBuffer;
 
 	class Scene
 	{
@@ -77,7 +75,7 @@ namespace ark
 		void Update();
 		void PostUpdate();
 
-		void Step();
+		void Invalidate();
 
 	public:
 
@@ -90,7 +88,8 @@ namespace ark
 
 	public:
 
-		std::vector<U8> Snapshot(U8 Channels, U32 Type) const;
+		std::vector<U8> CopyRGB() const;
+		std::vector<U8> CopyRGBA() const;
 
 	public:
 
@@ -115,10 +114,10 @@ namespace ark
 
 		Camera* mMainCamera = nullptr;
 
-		U32 mWidth = 1;
-		U32 mHeight = 1;
+		U32 mWidth = 0;
+		U32 mHeight = 0;
 
-		FrameBuffer* mFrameBuffer = nullptr;
+		U32 mFrameBuffer = 0;
 
 		bool mIsDirty = false;
 		bool mShouldBeDestroyed = false;

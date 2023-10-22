@@ -1,8 +1,8 @@
 #include <Editor/Editor.h>
-#include <Editor/Texture.h>
 #include <Editor/InterfaceManager.h>
 #include <Editor/SceneManager.h>
 #include <Editor/Scene.h>
+#include <Editor/FrameBuffer.h>
 
 #include <Editor/Actors/Player.h>
 
@@ -23,15 +23,6 @@ namespace ark
 	Scene::Scene(const SceneInfo& Info)
 		: mSceneInfo{ Info }
 	{
-		mFrameBuffer = new FrameBuffer
-		{
-			{
-				AttachmentDescription{ GL_CLAMP_TO_EDGE, GL_LINEAR, GL_RGBA, GL_RGBA32F, GL_FLOAT },
-				AttachmentDescription{ GL_CLAMP_TO_EDGE, GL_LINEAR, GL_RED_INTEGER, GL_R32UI, GL_UNSIGNED_INT },
-			},
-			AttachmentDescription{ GL_CLAMP_TO_EDGE, GL_LINEAR, GL_DEPTH_STENCIL, GL_DEPTH24_STENCIL8, GL_UNSIGNED_INT_24_8 }
-		};
-
 		mRootActor = CreateActor<Actor>("Root", nullptr);
 		mPlayerActor = CreateActor<Player>("Player", nullptr);
 
@@ -44,14 +35,12 @@ namespace ark
 
 		if (mFrameBuffer)
 		{
-			delete mFrameBuffer;
-			mFrameBuffer = nullptr;
+			FrameBuffer::Destroy(mFrameBuffer);
 		}
 
 		if (mViewport)
 		{
 			delete mViewport;
-			mViewport = nullptr;
 		}
 	}
 
@@ -75,7 +64,12 @@ namespace ark
 		mWidth = Width;
 		mHeight = Height;
 
-		mFrameBuffer->Resize(mWidth, mHeight);
+		if (mFrameBuffer)
+		{
+			FrameBuffer::Destroy(mFrameBuffer);
+		}
+
+		mFrameBuffer = FrameBuffer::Create(mWidth, mHeight);
 	}
 
 	void Scene::PreRender()
@@ -97,34 +91,38 @@ namespace ark
 
 	void Scene::Render()
 	{
-		glViewport(0, 0, (I32)mWidth, (I32)mHeight);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mFrameBuffer->GetId());
+		if (mFrameBuffer)
+		{
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mFrameBuffer);
 
-		glClearColor(0.125F, 0.125F, 0.125F, 1.0F);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+			glViewport(0, 0, (I32)mWidth, (I32)mHeight);
 
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glClearColor(0.125F, 0.125F, 0.125F, 1.0F);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-		// TODO: https://learnopengl.com/Guest-Articles/2020/OIT/Weighted-Blended
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
+			// TODO: https://learnopengl.com/Guest-Articles/2020/OIT/Weighted-Blended
 
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-		glFrontFace(GL_CW);
+			glEnable(GL_DEPTH_TEST);
+			glDepthFunc(GL_LESS);
 
-		gDefaultRenderer->Render();
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_BACK);
+			glFrontFace(GL_CW);
 
-		glDisable(GL_CULL_FACE);
+			gDefaultRenderer->Render();
 
-		gDebugRenderer->Render();
+			glDisable(GL_CULL_FACE);
 
-		glDisable(GL_DEPTH_TEST);
-		glDisable(GL_BLEND);
+			gDebugRenderer->Render();
 
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+			glDisable(GL_DEPTH_TEST);
+			glDisable(GL_BLEND);
+
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		}
 	}
 
 	void Scene::PostRender()
@@ -149,11 +147,11 @@ namespace ark
 			mIsDirty = false;
 
 			DestroyActorIfMarkedRecursive();
-			Step();
+			Invalidate();
 		}
 	}
 
-	void Scene::Step()
+	void Scene::Invalidate()
 	{
 		PreRender();
 		Render();
@@ -360,16 +358,13 @@ namespace ark
 		}
 	}
 
-	std::vector<U8> Scene::Snapshot(U8 Channels, U32 Type) const
+	std::vector<U8> Scene::CopyRGB() const
 	{
-		std::vector<U8> bytes = {};
+		return FrameBuffer::CopyRGB(mFrameBuffer);
+	}
 
-		bytes.resize(mWidth * mHeight * Channels);
-
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, mFrameBuffer->GetId());
-		glReadPixels(0, 0, mWidth, mHeight, mFrameBuffer->GetColorTexture(0)->GetFormat(), Type, &bytes[0]);
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-
-		return bytes;
+	std::vector<U8> Scene::CopyRGBA() const
+	{
+		return FrameBuffer::CopyRGBA(mFrameBuffer);
 	}
 }

@@ -1,4 +1,4 @@
-#include <Editor/Texture.h>
+#include <Editor/Texture2D.h>
 #include <Editor/Actor.h>
 #include <Editor/Scene.h>
 #include <Editor/SceneManager.h>
@@ -45,7 +45,7 @@ namespace ark
 
 							actor->ComputeAABB();
 
-							scene->Step();
+							scene->Invalidate();
 						}
 
 						R32V3 eulerAngles = transform->GetLocalEulerAngles();
@@ -55,7 +55,7 @@ namespace ark
 
 							actor->ComputeAABB();
 
-							scene->Step();
+							scene->Invalidate();
 						}
 
 						R32V3 localScale = transform->GetLocalScale();
@@ -65,7 +65,7 @@ namespace ark
 
 							actor->ComputeAABB();
 
-							scene->Step();
+							scene->Invalidate();
 						}
 
 						ImGui::PopItemWidth();
@@ -86,7 +86,7 @@ namespace ark
 						{
 							camera->SetFov(fov);
 
-							scene->Step();
+							scene->Invalidate();
 						}
 
 						R32 near = camera->GetNear();
@@ -94,7 +94,7 @@ namespace ark
 						{
 							camera->SetNear(near);
 
-							scene->Step();
+							scene->Invalidate();
 						}
 
 						R32 far = camera->GetFar();
@@ -102,7 +102,7 @@ namespace ark
 						{
 							camera->SetFar(far);
 
-							scene->Step();
+							scene->Invalidate();
 						}
 
 						ImGui::PopItemWidth();
@@ -170,6 +170,11 @@ namespace ark
 						ImGui::Text("Vertices: %u", (U32)renderable->GetVertexBuffer().size());
 						ImGui::Text("Indices: %u", (U32)renderable->GetElementBuffer().size());
 						ImGui::Text("Texture Index: %u", renderable->GetTextureIndex());
+
+						//if (ImGui::Combo())
+						//{
+						//
+						//}
 
 						ImGui::PopItemWidth();
 						ImGui::TreePop();
