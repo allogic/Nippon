@@ -6,7 +6,6 @@
 
 #include <Editor/Actor.h>
 #include <Editor/Editor.h>
-#include <Editor/TextureLoader.h>
 #include <Editor/Texture2D.h>
 #include <Editor/Magic.h>
 
@@ -19,6 +18,8 @@
 #include <Editor/Converter/VertexConverter.h>
 
 #include <Editor/Serializer/MdSerializer.h>
+
+#include <Editor/Utilities/TextureUtils.h>
 
 namespace ark
 {
@@ -84,7 +85,7 @@ namespace ark
 
 		for (const auto& archive : mDdsArchives)
 		{
-			mMdTextures.emplace_back(TextureLoader::LoadDDS(archive->GetBytes(), archive->GetSize()));
+			mMdTextures.emplace_back(TextureUtils::ReadDDS(archive->GetBytes(), archive->GetSize()));
 		}
 	}
 

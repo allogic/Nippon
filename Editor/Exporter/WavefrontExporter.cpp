@@ -1,7 +1,6 @@
 #include <Common/Macros.h>
 
 #include <Common/Utilities/FsUtils.h>
-#include <Common/Utilities/TextureUtils.h>
 
 #include <Editor/Editor.h>
 #include <Editor/Scene.h>
@@ -21,6 +20,8 @@
 #include <Editor/Components/Renderable.h>
 
 #include <Editor/Glad/glad.h>
+
+#include <Editor/Utilities/TextureUtils.h>
 
 namespace ark
 {
@@ -163,12 +164,7 @@ namespace ark
 
 					if (U32 texture = renderable->GetTexture())
 					{
-						std::vector<U8> bytes = Texture2D::CopyRGBA(texture);
-
-						U32 width = Texture2D::GetWidth(texture);
-						U32 height = Texture2D::GetHeight(texture);
-
-						TextureUtils::WritePNG(width, height, bytes, ExportDir / textureName);
+						TextureUtils::WritePNG(texture, ExportDir / textureName);
 					}
 				}
 			}

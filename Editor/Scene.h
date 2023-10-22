@@ -88,11 +88,6 @@ namespace ark
 
 	public:
 
-		std::vector<U8> CopyRGB() const;
-		std::vector<U8> CopyRGBA() const;
-
-	public:
-
 		virtual void Load() = 0;
 		virtual void Save() = 0;
 

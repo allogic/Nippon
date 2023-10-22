@@ -204,7 +204,7 @@
     <ClCompile Include="Serializer\ScrSerializer.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Texture2D.cpp" />
-    <ClCompile Include="TextureLoader.cpp" />
+    <ClCompile Include="Utilities\TextureUtils.cpp" />
     <ClCompile Include="Thumbnail.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -262,7 +262,7 @@
     <ClInclude Include="Structs\ObjStructs.h" />
     <ClInclude Include="Structs\ScrStructs.h" />
     <ClInclude Include="Texture2D.h" />
-    <ClInclude Include="TextureLoader.h" />
+    <ClInclude Include="Utilities\TextureUtils.h" />
     <ClInclude Include="Thumbnail.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>

@@ -1,5 +1,4 @@
 #include <Common/Utilities/FsUtils.h>
-#include <Common/Utilities/TextureUtils.h>
 
 #include <Common/Generated/SceneInfos.h>
 

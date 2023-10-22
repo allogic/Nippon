@@ -14,9 +14,9 @@ namespace ark
 		glFramebufferParameteri(GL_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_WIDTH, Width);
 		glFramebufferParameteri(GL_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_HEIGHT, Height);
 
-		U32 colorAttachment0 = Texture2D::Create(Width, Height, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_RGBA, GL_RGBA32F, GL_FLOAT, nullptr);
-		U32 colorAttachment1 = Texture2D::Create(Width, Height, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_RED_INTEGER, GL_R32UI, GL_UNSIGNED_INT, nullptr);
-		U32 depthStencilAttachment = Texture2D::Create(Width, Height, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_DEPTH_STENCIL, GL_DEPTH24_STENCIL8, GL_UNSIGNED_INT_24_8, nullptr);
+		U32 colorAttachment0 = Texture2D::Create(Width, Height, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_RGBA, GL_RGBA32F, GL_FLOAT, nullptr);
+		U32 colorAttachment1 = Texture2D::Create(Width, Height, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_RED_INTEGER, GL_R32UI, GL_UNSIGNED_INT, nullptr);
+		U32 depthStencilAttachment = Texture2D::Create(Width, Height, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_DEPTH_STENCIL, GL_DEPTH24_STENCIL8, GL_UNSIGNED_INT_24_8, nullptr);
 
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorAttachment0, 0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, colorAttachment1, 0);

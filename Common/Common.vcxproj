@@ -164,7 +164,6 @@
     <ClCompile Include="Utilities\DiffUtils.cpp" />
     <ClCompile Include="Utilities\FsUtils.cpp" />
     <ClCompile Include="Utilities\StringUtils.cpp" />
-    <ClCompile Include="Utilities\TextureUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Archive.h" />
@@ -178,7 +177,6 @@
     <ClInclude Include="Utilities\DiffUtils.h" />
     <ClInclude Include="Utilities\FsUtils.h" />
     <ClInclude Include="Utilities\StringUtils.h" />
-    <ClInclude Include="Utilities\TextureUtils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

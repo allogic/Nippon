@@ -16,7 +16,6 @@ namespace ark
 		glTextureParameteri(id, GL_TEXTURE_WRAP_T, (I32)Wrap);
 
 		glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, (I32)Filter);
-		glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, (I32)Filter);
 
 		if (Compressed)
 		{
@@ -26,6 +25,8 @@ namespace ark
 		{
 			glTexImage2D(GL_TEXTURE_2D, 0, FormatInternal, Width, Height, 0, Format, Type, Data);
 		}
+
+		glGenerateMipmap(GL_TEXTURE_2D);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 

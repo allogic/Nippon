@@ -9,7 +9,6 @@
 #include <Editor/Scene.h>
 #include <Editor/SceneManager.h>
 #include <Editor/Thumbnail.h>
-#include <Editor/TextureLoader.h>
 
 #include <Editor/Interface/MainMenu.h>
 

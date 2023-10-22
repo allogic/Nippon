@@ -1,10 +1,10 @@
 #include <Common/Utilities/FsUtils.h>
-#include <Common/Utilities/TextureUtils.h>
 
 #include <Editor/Actor.h>
 #include <Editor/Thumbnail.h>
 #include <Editor/Scene.h>
 #include <Editor/SceneManager.h>
+#include <Editor/FrameBuffer.h>
 
 #include <Editor/Components/Transform.h>
 #include <Editor/Components/Camera.h>
@@ -13,6 +13,8 @@
 #include <Editor/Scenes/EntityScene.h>
 
 #include <Editor/Glad/glad.h>
+
+#include <Editor/Utilities/TextureUtils.h>
 
 namespace ark
 {
@@ -30,9 +32,11 @@ namespace ark
 			scene->Resize(128, 128);
 			scene->Invalidate();
 
-			std::vector<U8> bytes = scene->CopyRGBA();
+			U32 frameBuffer = scene->GetFrameBuffer();
 
-			TextureUtils::WritePNG(128, 128, bytes, ThumbnailDir / scene->GetThumbnailFileName());
+			U32 colorTexture = FrameBuffer::GetColorTexture(frameBuffer, 0);
+
+			TextureUtils::WritePNG(colorTexture, ThumbnailDir / scene->GetThumbnailFileName());
 
 			SceneManager::DestroyScene(scene);
 		}

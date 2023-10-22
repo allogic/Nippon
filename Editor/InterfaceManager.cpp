@@ -3,7 +3,6 @@
 #include <Common/Generated/SceneInfos.h>
 
 #include <Editor/InterfaceManager.h>
-#include <Editor/TextureLoader.h>
 #include <Editor/Texture2D.h>
 
 #include <Editor/Interface/EntityBrowser.h>
@@ -11,6 +10,8 @@
 #include <Editor/Interface/LevelBrowser.h>
 #include <Editor/Interface/MainMenu.h>
 #include <Editor/Interface/Outline.h>
+
+#include <Editor/Utilities/TextureUtils.h>
 
 namespace ark
 {
@@ -86,7 +87,7 @@ namespace ark
 			{
 				if (fs::exists(file / sceneInfo.ThumbnailFileName))
 				{
-					sLevelThumbnails[sceneInfo.ThumbnailFileName] = TextureLoader::LoadPNG(file / sceneInfo.ThumbnailFileName);
+					sLevelThumbnails[sceneInfo.ThumbnailFileName] = TextureUtils::ReadPNG(file / sceneInfo.ThumbnailFileName);
 				}
 				else
 				{
@@ -101,7 +102,7 @@ namespace ark
 			{
 				if (fs::exists(file / sceneInfo.ThumbnailFileName))
 				{
-					sEntityThumbnails[sceneInfo.ThumbnailFileName] = TextureLoader::LoadPNG(file / sceneInfo.ThumbnailFileName);
+					sEntityThumbnails[sceneInfo.ThumbnailFileName] = TextureUtils::ReadPNG(file / sceneInfo.ThumbnailFileName);
 				}
 				else
 				{

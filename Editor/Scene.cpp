@@ -357,14 +357,4 @@ namespace ark
 			}
 		}
 	}
-
-	std::vector<U8> Scene::CopyRGB() const
-	{
-		return FrameBuffer::CopyRGB(mFrameBuffer);
-	}
-
-	std::vector<U8> Scene::CopyRGBA() const
-	{
-		return FrameBuffer::CopyRGBA(mFrameBuffer);
-	}
 }
