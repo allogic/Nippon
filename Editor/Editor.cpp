@@ -1,5 +1,7 @@
 #include <Common/Macros.h>
 #include <Common/Types.h>
+#include <Common/BlowFish.h>
+#include <Common/CommandLine.h>
 
 #include <Common/Utilities/FsUtils.h>
 
@@ -23,9 +25,9 @@ using namespace ark;
 
 namespace ark
 {
-	fs::path gDataDir;
+	fs::path gDataDir = "";
 
-	std::string gBlowFishKey;
+	BlowFish* gBlowFish = nullptr;
 
 	R32 gTimeDelta = 0.0F;
 
@@ -162,8 +164,40 @@ static void ImGuiSetupStyle()
 
 I32 main(I32 Argc, char** Argv)
 {
-	gDataDir = Argv[1];
-	gBlowFishKey = Argv[2];
+	CommandLine::Init(Argc, Argv);
+
+	U32 width = 1920;
+	U32 height = 1080;
+
+	std::string dataDirStr = "";
+	std::string widthStr = "";
+	std::string heightStr = "";
+
+	if (CommandLine::HasFirstArgument("Help"))
+	{
+		LOG("\n");
+		LOG("Editor DataDir [Width|Height]\n");
+		LOG("\n");
+
+		return 0;
+	}
+
+	if (CommandLine::HasArgumentWithValue("DataDir", dataDirStr, "Data directory is missing"))
+	{
+		gDataDir = dataDirStr;
+	}
+
+	if (CommandLine::HasArgumentWithValue("Width", widthStr))
+	{
+		width = std::atoi(widthStr.c_str());
+	}
+
+	if (CommandLine::HasArgumentWithValue("Height", heightStr))
+	{
+		height = std::atoi(heightStr.c_str());
+	}
+
+	gBlowFish = new BlowFish{ CIPHER_KEY };
 
 	glfwSetErrorCallback(GlfwDebugProc);
 
@@ -175,7 +209,7 @@ I32 main(I32 Argc, char** Argv)
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, 1);
 
-		sGlfwContext = glfwCreateWindow(1920, 1080, "Editor", nullptr, nullptr);
+		sGlfwContext = glfwCreateWindow((I32)width, (I32)height, "Editor", nullptr, nullptr);
 
 		if (sGlfwContext)
 		{

@@ -134,7 +134,7 @@ namespace ark
 			{
 				archive->SerializeRecursive();
 
-				writer.String("AABBCCDD", 8);
+				writer.Zero(8);
 				writer.String(archive->mType, 4);
 				writer.String(archive->mName, 20);
 				writer.Bytes(archive->mBytes, archive->mSize);
@@ -433,24 +433,26 @@ namespace ark
 		{
 			Archive* archive = (*this)[i];
 
-			archive->mBytes = new U8[archive->mSize];
+			archive->mBytes = new U8[ALIGN_UP(archive->mSize, FILE_ALIGNMENT)];
 
-			std::memset(archive->mBytes, 0, archive->mSize);
+			std::memset(archive->mBytes, 0, ALIGN_UP(archive->mSize, FILE_ALIGNMENT));
 			std::memcpy(archive->mBytes, mBytes + archive->mParentOffset, archive->mSize);
+
+			archive->mSize = ALIGN_UP(archive->mSize, FILE_ALIGNMENT);
 		}
 	}
 
 	void Archive::WriteDirectoryHeader(BinaryWriter& Writer)
 	{
+		U64 acc = 0;
+
+		acc += ComputeHeaderSize();
+
+		Writer.ZeroNoInc(acc);
+
 		U16 entryCount = (U16)size();
 
 		Writer.Write<U32>((U32)entryCount);
-
-		U64 acc = 0;
-		
-		acc += 4 + ((entryCount * 2) * 4);
-
-		acc = ALIGN_UP(acc, 16);
 
 		for (U16 i = 0; i < entryCount; i++)
 		{
@@ -470,7 +472,7 @@ namespace ark
 			Writer.String(archive->mType, 4);
 		}
 
-		Writer.AlignUp(16);
+		Writer.AlignUp(FILE_ALIGNMENT);
 	}
 
 	U64 Archive::ComputeDirectorySizesRecursive()
@@ -479,11 +481,7 @@ namespace ark
 
 		if (mIsDirectory)
 		{
-			U16 entryCount = (U16)size();
-
-			acc += 4 + ((entryCount * 2) * 4);
-
-			acc = ALIGN_UP(acc, 16);
+			acc += ComputeHeaderSize();
 
 			for (const auto& archive : *this)
 			{
@@ -497,5 +495,12 @@ namespace ark
 		}
 
 		return mSize = acc;
+	}
+
+	U64 Archive::ComputeHeaderSize()
+	{
+		U64 acc = 4 + ((size() * 2) * 4);
+
+		return ALIGN_UP(acc, FILE_ALIGNMENT);
 	}
 }

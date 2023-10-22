@@ -192,15 +192,13 @@ namespace ark
 		fs::path outputDatFile = fs::path{ "Scratch" } / fs::path{ SceneInfo->GroupKey } / SceneInfo->DatArchiveFileName;
 		fs::path outputBinFile = fs::path{ "Scratch" } / fs::path{ SceneInfo->GroupKey } / SceneInfo->BinArchiveFileName;
 
-		BlowFish cipher = gBlowFishKey;
-
 		if (fs::exists(inputDatFile))
 		{
 			FsUtils::CreateDirIfNotExist(outputDatFile);
 
 			std::vector<U8> datBytes = FsUtils::ReadBinary(inputDatFile);
 
-			cipher.Decrypt(datBytes);
+			gBlowFish->Decrypt(datBytes);
 
 			FsUtils::WriteBinary(outputDatFile, datBytes);
 
@@ -219,7 +217,7 @@ namespace ark
 
 				std::vector<U8> binBytes = FsUtils::ReadBinary(inputBinFile);
 
-				cipher.Decrypt(binBytes);
+				gBlowFish->Decrypt(binBytes);
 
 				FsUtils::WriteBinary(outputBinFile, binBytes);
 
@@ -286,15 +284,13 @@ namespace ark
 		fs::path outputDatFile = fs::path{ "Finished" } / SceneInfo->GroupKey / SceneInfo->DatArchiveFileName;
 		fs::path outputBinFile = fs::path{ "Finished" } / SceneInfo->GroupKey / SceneInfo->BinArchiveFileName;
 
-		BlowFish cipher = gBlowFishKey;
-
 		if (fs::exists(inputDatFile))
 		{
 			FsUtils::CreateDirIfNotExist(outputDatFile);
 
 			std::vector<U8> datBytes = FsUtils::ReadBinary(inputDatFile);
 
-			cipher.Encrypt(datBytes);
+			gBlowFish->Encrypt(datBytes);
 
 			FsUtils::WriteBinary(outputDatFile, datBytes);
 
@@ -313,7 +309,7 @@ namespace ark
 
 				std::vector<U8> binBytes = FsUtils::ReadBinary(inputBinFile);
 
-				cipher.Encrypt(binBytes);
+				gBlowFish->Encrypt(binBytes);
 
 				FsUtils::WriteBinary(outputBinFile, binBytes);
 
@@ -421,11 +417,9 @@ namespace ark
 		fs::path inputDatFile = gDataDir / SceneInfo->GroupKey / SceneInfo->DatArchiveFileName;
 		fs::path inputBinFile = gDataDir / SceneInfo->GroupKey / SceneInfo->BinArchiveFileName;
 
-		BlowFish cipher = gBlowFishKey;
-
 		std::vector<U8> datBytes = FsUtils::ReadBinary(inputDatFile);
 
-		cipher.Decrypt(datBytes);
+		gBlowFish->Decrypt(datBytes);
 
 		Archive datArchive = {};
 
@@ -436,7 +430,7 @@ namespace ark
 		{
 			std::vector<U8> binBytes = FsUtils::ReadBinary(inputBinFile);
 
-			cipher.Decrypt(binBytes);
+			gBlowFish->Decrypt(binBytes);
 
 			Archive binArchive = {};
 
@@ -453,13 +447,11 @@ namespace ark
 		fs::path outputDatFile = fs::path{ "Extracted" } / SceneInfo->DatArchiveFileName;
 		fs::path outputBinFile = fs::path{ "Extracted" } / SceneInfo->BinArchiveFileName;
 
-		BlowFish cipher = gBlowFishKey;
-
 		FsUtils::CreateDirIfNotExist(outputDatFile, true);
 
 		std::vector<U8> datBytes = FsUtils::ReadBinary(inputDatFile);
 
-		cipher.Decrypt(datBytes);
+		gBlowFish->Decrypt(datBytes);
 
 		Archive datArchive = {};
 
@@ -472,7 +464,7 @@ namespace ark
 
 			std::vector<U8> binBytes = FsUtils::ReadBinary(inputBinFile);
 
-			cipher.Decrypt(binBytes);
+			gBlowFish->Decrypt(binBytes);
 
 			Archive binArchive = {};
 

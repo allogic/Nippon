@@ -10,6 +10,7 @@
 #include <Common/BinaryReader.h>
 #include <Common/BinaryWriter.h>
 
+#define FILE_ALIGNMENT 256
 #define FILE_HEADER_SIZE 32
 
 namespace ark
@@ -70,6 +71,7 @@ namespace ark
 	private:
 
 		U64 ComputeDirectorySizesRecursive();
+		U64 ComputeHeaderSize();
 
 	private:
 

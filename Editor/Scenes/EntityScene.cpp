@@ -23,8 +23,6 @@ namespace ark
 {
 	EntityScene::EntityScene(const SceneInfo& Info) : Scene{ Info }
 	{
-		mCipher = new BlowFish{ gBlowFishKey };
-
 		mEntityGeometryActor = CreateActor<Actor>("Entity Geometry", nullptr);
 	}
 
@@ -40,12 +38,6 @@ namespace ark
 		{
 			delete mDatArchive;
 			mDatArchive = nullptr;
-		}
-
-		if (mCipher)
-		{
-			delete mCipher;
-			mCipher = nullptr;
 		}
 	}
 
@@ -75,7 +67,7 @@ namespace ark
 
 		std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFile);
 
-		mCipher->Decrypt(datBytes);
+		gBlowFish->Decrypt(datBytes);
 
 		mDatArchive = new Archive;
 

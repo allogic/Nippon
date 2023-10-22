@@ -45,8 +45,6 @@ namespace ark
 
 	LevelScene::LevelScene(const SceneInfo& Info) : Scene{ Info }
 	{
-		mCipher = new BlowFish{ gBlowFishKey };
-
 		mLevelGeometryActor = CreateActor<Actor>("Level Geometry", nullptr);
 		mEntityGeometryActor = CreateActor<Actor>("Entity Geometry", nullptr);
 	}
@@ -90,12 +88,6 @@ namespace ark
 			delete mDatArchive;
 			mDatArchive = nullptr;
 		}
-
-		if (mCipher)
-		{
-			delete mCipher;
-			mCipher = nullptr;
-		}
 	}
 
 	void LevelScene::Load()
@@ -127,7 +119,7 @@ namespace ark
 
 		std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFile);
 
-		mCipher->Decrypt(datBytes);
+		gBlowFish->Decrypt(datBytes);
 
 		mDatArchive = new Archive;
 
@@ -137,7 +129,7 @@ namespace ark
 		{
 			std::vector<U8> binBytes = FsUtils::ReadBinary(absoluteBinFile);
 
-			mCipher->Decrypt(binBytes);
+			gBlowFish->Decrypt(binBytes);
 
 			mBinArchive = new Archive;
 		
@@ -244,7 +236,7 @@ namespace ark
 
 					std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFile);
 
-					mCipher->Decrypt(datBytes);
+					gBlowFish->Decrypt(datBytes);
 
 					entity.Archive->DeSerialize(datBytes);
 
@@ -283,7 +275,7 @@ namespace ark
 
 					std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFile);
 
-					mCipher->Decrypt(datBytes);
+					gBlowFish->Decrypt(datBytes);
 
 					entity.Archive->DeSerialize(datBytes);
 
@@ -322,7 +314,7 @@ namespace ark
 
 					std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFile);
 
-					mCipher->Decrypt(datBytes);
+					gBlowFish->Decrypt(datBytes);
 
 					entity.Archive->DeSerialize(datBytes);
 

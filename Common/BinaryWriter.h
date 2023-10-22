@@ -40,9 +40,12 @@ namespace ark
 		template<typename T>
 		void Write(const std::vector<T>& Values);
 
+		void Repeat(U8 Char, U64 Size);
 		void String(const std::string& Value, U64 Size);
-
 		void Bytes(U8* Bytes, U64 Size);
+
+		void Zero(U64 Size);
+		void ZeroNoInc(U64 Size);
 
 	private:
 

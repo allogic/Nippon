@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <cstdlib>
 #include <filesystem>
 #include <vector>
 #include <map>
@@ -11,12 +12,13 @@ namespace ark
 {
 	namespace fs = std::filesystem;
 
+	class BlowFish;
 	class DebugRenderer;
 	class DefaultRenderer;
 
 	extern fs::path gDataDir;
 	
-	extern std::string gBlowFishKey;
+	extern BlowFish* gBlowFish;
 
 	extern R32 gTimeDelta;
 
