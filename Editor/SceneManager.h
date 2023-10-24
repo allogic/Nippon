@@ -6,11 +6,10 @@
 
 #include <Common/Types.h>
 
-#include <Common/Generated/SceneInfos.h>
-
 namespace ark
 {
 	class Scene;
+	class FileContainer;
 
 	class SceneManager
 	{
@@ -40,7 +39,7 @@ namespace ark
 
 	public:
 
-		static Scene* CreateScene(const SceneInfo& Info);
+		static Scene* CreateScene(const FileContainer* FileContainer);
 		static void DestroyScene(Scene* Scene);
 	};
 }

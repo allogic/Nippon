@@ -18,12 +18,12 @@ namespace ark
 		U32 vid = glCreateShader(GL_VERTEX_SHADER);
 		U32 fid = glCreateShader(GL_FRAGMENT_SHADER);
 
-		char const* vertexShaderPtr = &vertexShader[0];
+		const I8* vertexShaderPtr = &vertexShader[0];
 		glShaderSource(vid, 1, &vertexShaderPtr, nullptr);
 		glCompileShader(vid);
 		U32 vsCompileStatus = CheckCompileStatus(vid);
 
-		char const* fragmentShaderPtr = &fragmentShader[0];
+		const I8* fragmentShaderPtr = &fragmentShader[0];
 		glShaderSource(fid, 1, &fragmentShaderPtr, nullptr);
 		glCompileShader(fid);
 		U32 fsCompileStatus = CheckCompileStatus(fid);

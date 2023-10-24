@@ -363,7 +363,7 @@ namespace ark
 						return false;
 					}
 
-					std::string type = StringUtils::RemoveNulls(Reader.String(4));
+					std::string type = StringUtils::RemoveChars(Reader.String(4), '\0');
 
 					if (!sKnownDirectoryTypes.contains(type) && !sKnownFileTypes.contains(type))
 					{
@@ -409,7 +409,7 @@ namespace ark
 		{
 			Archive* archive = (*this)[i];
 
-			archive->mType = StringUtils::RemoveNulls(Reader.String(4));
+			archive->mType = StringUtils::RemoveChars(Reader.String(4), '\0');
 		}
 
 		for (U16 i = 0; i < entryCount; i++)
@@ -421,7 +421,7 @@ namespace ark
 				Reader.SeekAbs(archive->mParentOffset - FILE_HEADER_SIZE);
 				Reader.SeekRel(FILE_HEADER_SIZE - 20);
 
-				archive->mName = StringUtils::RemoveNulls(Reader.String(20));
+				archive->mName = StringUtils::RemoveChars(Reader.String(20), '\0');
 			}
 		}
 

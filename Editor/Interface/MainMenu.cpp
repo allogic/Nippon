@@ -8,7 +8,9 @@
 #include <Editor/Editor.h>
 #include <Editor/Scene.h>
 #include <Editor/SceneManager.h>
-#include <Editor/Thumbnail.h>
+
+#include <Editor/Databases/FileDatabase.h>
+#include <Editor/Databases/ThumbnailDatabase.h>
 
 #include <Editor/Interface/MainMenu.h>
 
@@ -64,7 +66,7 @@ namespace ark
 		{
 			if (ImGui::BeginMenu("Open"))
 			{
-				RenderMenuWithProcedure(OpenSceneProcedure);
+				//RenderMenuWithProcedure(OpenSceneProcedure);
 
 				ImGui::EndMenu();
 			}
@@ -79,53 +81,53 @@ namespace ark
 		{
 			if (ImGui::Selectable("Test Kamui"))
 			{
-				ExecuteLevelByGroupKeyProcedure("st3", CopyAndDecryptOriginalToScratchProcedure);
-				ExecuteLevelByGroupKeyProcedure("st3", LoadAndSaveFromScratchToScratchProcedure);
-				ExecuteLevelByGroupKeyProcedure("st3", CopyScratchToFinishedProcedure);
-				ExecuteLevelByGroupKeyProcedure("st3", CopyAndDecryptOriginalToScratchProcedure);
-				ExecuteLevelByGroupKeyProcedure("st3", CompareScratchWithFinishedProcedure);
+				//ExecuteLevelByGroupKeyProcedure("st3", CopyAndDecryptOriginalToScratchProcedure);
+				//ExecuteLevelByGroupKeyProcedure("st3", LoadAndSaveFromScratchToScratchProcedure);
+				//ExecuteLevelByGroupKeyProcedure("st3", CopyScratchToFinishedProcedure);
+				//ExecuteLevelByGroupKeyProcedure("st3", CopyAndDecryptOriginalToScratchProcedure);
+				//ExecuteLevelByGroupKeyProcedure("st3", CompareScratchWithFinishedProcedure);
 			}
 
 			if (ImGui::Selectable("Test Humans"))
 			{
-				ExecuteEntityByGroupKeyProcedure("hm", CopyAndDecryptOriginalToScratchProcedure);
-				ExecuteEntityByGroupKeyProcedure("hm", LoadAndSaveFromScratchToScratchProcedure);
-				ExecuteEntityByGroupKeyProcedure("hm", CopyScratchToFinishedProcedure);
-				ExecuteEntityByGroupKeyProcedure("hm", CopyAndDecryptOriginalToScratchProcedure);
-				ExecuteEntityByGroupKeyProcedure("hm", CompareScratchWithFinishedProcedure);
+				//ExecuteEntityByGroupKeyProcedure("hm", CopyAndDecryptOriginalToScratchProcedure);
+				//ExecuteEntityByGroupKeyProcedure("hm", LoadAndSaveFromScratchToScratchProcedure);
+				//ExecuteEntityByGroupKeyProcedure("hm", CopyScratchToFinishedProcedure);
+				//ExecuteEntityByGroupKeyProcedure("hm", CopyAndDecryptOriginalToScratchProcedure);
+				//ExecuteEntityByGroupKeyProcedure("hm", CompareScratchWithFinishedProcedure);
 			}
 
 			if (ImGui::BeginMenu("Copy And Decrypt Original To Scratch"))
 			{
-				RenderMenuWithProcedure(CopyAndDecryptOriginalToScratchProcedure);
+				//RenderMenuWithProcedure(CopyAndDecryptOriginalToScratchProcedure);
 
 				ImGui::EndMenu();
 			}
 
 			if (ImGui::BeginMenu("Load And Save From Scratch To Scratch (Debug Only)"))
 			{
-				RenderMenuWithProcedure(LoadAndSaveFromScratchToScratchProcedure);
+				//RenderMenuWithProcedure(LoadAndSaveFromScratchToScratchProcedure);
 
 				ImGui::EndMenu();
 			}
 
 			if (ImGui::BeginMenu("Encrypt And Copy Scratch To Finished"))
 			{
-				RenderMenuWithProcedure(EncryptAndCopyScratchToFinishedProcedure);
+				//RenderMenuWithProcedure(EncryptAndCopyScratchToFinishedProcedure);
 
 				ImGui::EndMenu();
 			}
 
 			if (ImGui::BeginMenu("Copy Scratch To Finished"))
 			{
-				RenderMenuWithProcedure(CopyScratchToFinishedProcedure);
+				//RenderMenuWithProcedure(CopyScratchToFinishedProcedure);
 
 				ImGui::EndMenu();
 			}
 
 			if (ImGui::BeginMenu("Compare Scratch With Finished (Debug Only)"))
 			{
-				RenderMenuWithProcedure(CompareScratchWithFinishedProcedure);
+				//RenderMenuWithProcedure(CompareScratchWithFinishedProcedure);
 
 				ImGui::EndMenu();
 			}
@@ -134,14 +136,14 @@ namespace ark
 
 			if (ImGui::BeginMenu("Table Of Content"))
 			{
-				RenderMenuWithProcedure(PrintTableOfContentProcedure);
+				//RenderMenuWithProcedure(PrintTableOfContentProcedure);
 
 				ImGui::EndMenu();
 			}
 
 			if (ImGui::BeginMenu("Extract To Disk"))
 			{
-				RenderMenuWithProcedure(ExtractToDiskProcedure);
+				//RenderMenuWithProcedure(ExtractToDiskProcedure);
 
 				ImGui::EndMenu();
 			}
@@ -154,17 +156,61 @@ namespace ark
 	{
 		if (ImGui::BeginMenu("Tools"))
 		{
-			if (ImGui::BeginMenu("Generate Thumbnails"))
+			if (ImGui::Selectable("Generate File Database"))
 			{
-				RenderMenuWithProcedure(CreateThumbnailProcedure);
+				FileDatabase::Generate();
+			}
 
-				ImGui::EndMenu();
+			if (ImGui::Selectable("Generate Thumbnail Database"))
+			{
+				ThumbnailDatabase::Generate();
+			}
+
+			ImGui::Separator();
+
+			if (ImGui::Selectable("Generate ImGui Config"))
+			{
+				GenerateImGuiConfig();
 			}
 
 			ImGui::EndMenu();
 		}
 	}
 
+	void MainMenu::GenerateImGuiConfig()
+	{
+		std::ostringstream oss;
+
+		for (const auto& directory : FileDatabase::GetLevelDirectories())
+		{
+			for (const auto& fileContainer : FileDatabase::GetLevelFileContainersByDirectory(directory))
+			{
+				oss << "[Window][" << fileContainer.GetWindowName() << "]\n";
+				oss << "Pos=308,28\n";
+				oss << "Size=1044,1052\n";
+				oss << "Collapsed=0\n";
+				oss << "DockId=0x00000002,0\n";
+				oss << "\n";
+			}
+		}
+
+		for (const auto& directory : FileDatabase::GetEntityDirectories())
+		{
+			for (const auto& fileContainer : FileDatabase::GetEntityFileContainersByDirectory(directory))
+			{
+				oss << "[Window][" << fileContainer.GetWindowName() << "]\n";
+				oss << "Pos=308,28\n";
+				oss << "Size=1044,1052\n";
+				oss << "Collapsed=0\n";
+				oss << "DockId=0x00000002,0\n";
+				oss << "\n";
+			}
+		}
+
+		FsUtils::WriteText("Imgui.txt", oss.str().c_str());
+	}
+
+	/*
 	void MainMenu::DebugProcedure(const SceneInfo* SceneInfo)
 	{
 		LOG("%s %s\n", SceneInfo->GroupKey.c_str(), SceneInfo->SceneKey.c_str());
@@ -481,4 +527,5 @@ namespace ark
 
 		LOG("Generating Thumbnail %s\n", SceneInfo->ThumbnailFileName.c_str());
 	}
+	*/
 }

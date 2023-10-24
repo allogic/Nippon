@@ -7,7 +7,7 @@ namespace ark
 
 #pragma pack(push, 1)
 
-	typedef struct
+	struct Fi2Entry
 	{
         U8 Id;
         U8 Category;
@@ -28,7 +28,7 @@ namespace ark
         U32 Unknown8[10];
         U32 Values6[2];
         U32 Unknown9[66];
-	} Fi2Entry;
+	};
 
 #pragma pack(pop)
 

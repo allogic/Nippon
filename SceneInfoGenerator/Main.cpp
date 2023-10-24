@@ -9,7 +9,8 @@
 
 using namespace ark;
 
-void WriteHeader(const std::string& FileName) {
+static void WriteHeader(const std::string& FileName)
+{
 	std::ostringstream oss;
 
 	oss << "#pragma once\n";
@@ -70,7 +71,8 @@ void WriteHeader(const std::string& FileName) {
 	FsUtils::WriteText(FileName + ".h", oss.str().c_str());
 }
 
-void WriteSource(const std::string& FileName) {
+static void WriteSource(const std::string& FileName)
+{
 	std::ostringstream oss;
 
 	oss << "#include <Editor/Generated/" << FileName << ".h>\n";
@@ -291,7 +293,7 @@ void WriteSource(const std::string& FileName) {
 	FsUtils::WriteText(FileName + ".cpp", oss.str().c_str());
 }
 
-I32 main(I32 Argc, char** Argv)
+I32 main(I32 Argc, I8** Argv)
 {
 	WriteHeader("SceneInfos");
 	WriteSource("SceneInfos");

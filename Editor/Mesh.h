@@ -10,13 +10,13 @@
 
 namespace ark
 {
-	typedef enum
+	enum RenderMode : U32
 	{
 		eRenderModePoints = 0,
 		eRenderModeLines = 1,
 		eRenderModeTriangles = 4,
 		eRenderModeTriangleStrip = 5,
-	} RenderMode;
+	};
 
 	template<typename V, typename E>
 	class Mesh

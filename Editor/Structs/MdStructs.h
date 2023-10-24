@@ -12,7 +12,7 @@ namespace ark
 
 #pragma pack(push, 1)
 
-	typedef struct
+	struct MdHeader
 	{
 		U32 VertexOffset; // offset from this spot to vertex info
 		U32 Unknown1; // 0?
@@ -21,9 +21,9 @@ namespace ark
 		U32 TextureUvOffset; // texture uv
 		U16 VertexCount; // count
 		U16 TextureIndex; // file index of DDS in DDP
-	} MdHeader;
+	};
 
-	typedef struct
+	struct MdTransform
 	{
 		I16 Unknown1;
 		I16 Unknown2;
@@ -32,42 +32,42 @@ namespace ark
 		R32V3 Rotation;
 		R32V3 Position;
 		U8 Padding[20];
-	} MdTransform;
+	};
 
-	typedef struct
+	struct MdVertex
 	{
 		R32 X;
 		R32 Y;
 		R32 Z;
 		U16 Connection;
 		U16 Unknown1;
-	} MdVertex;
+	};
 
-	typedef struct
+	struct MdTextureMap
 	{
 		U16 U;
 		U16 V;
-	} MdTextureMap;
+	};
 
-	typedef struct
+	struct MdUv
 	{
 		U16 U;
 		U16 V;
 		U16 Unknown1;
 		U16 Unknown2;
-	} MdUv;
+	};
 
-	typedef struct
+	struct MdColorWeight
 	{
 		U8 R;
 		U8 G;
 		U8 B;
 		U8 A;
-	} MdColorWeight;
+	};
 
 #pragma pack(pop)
 
-	typedef struct
+	struct MdDivision
 	{
 		U32 Index;
 		MdHeader Header;
@@ -75,24 +75,24 @@ namespace ark
 		std::vector<MdTextureMap> TextureMaps;
 		std::vector<MdUv> TextureUvs;
 		std::vector<MdColorWeight> ColorWeights;
-	} MdDivision;
+	};
 
-	typedef struct
+	struct MdEntry
 	{
 		MdbHeader Header;
 		std::vector<MdDivision> Divisions;
-	} MdEntry;
+	};
 
-	typedef struct
+	struct MdModel
 	{
 		U32 Index;
 		MdEntry Entry;
 		MdTransform Transform;
-	} MdModel;
+	};
 
-	typedef struct
+	struct MdGroup
 	{
 		std::string Name;
 		std::vector<MdModel> Models;
-	} MdGroup;
+	};
 }

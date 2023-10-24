@@ -8,9 +8,9 @@
 
 #include <Common/Types.h>
 
-#include <Common/Generated/SceneInfos.h>
-
 #include <Editor/Actor.h>
+
+#include <Editor/Databases/FileDatabase.h>
 
 #include <Editor/Glad/glad.h>
 
@@ -25,19 +25,12 @@ namespace ark
 	{
 	public:
 
-		Scene(const SceneInfo& Info);
+		Scene(const FileContainer* FileContainer);
 		virtual ~Scene();
 
 	public:
 
-		inline const auto& GetSceneType() const { return mSceneInfo.Type; }
-		inline const auto& GetGroupKey() const { return mSceneInfo.GroupKey; }
-		inline const auto& GetSceneKey() const { return mSceneInfo.SceneKey; }
-		inline const auto& GetDatArchiveFileName() const { return mSceneInfo.DatArchiveFileName; }
-		inline const auto& GetBinArchiveFileName() const { return mSceneInfo.BinArchiveFileName; }
-		inline const auto& GetThumbnailFileName() const { return mSceneInfo.ThumbnailFileName; }
-		inline const auto& GetName() const { return mSceneInfo.Name; }
-		inline const auto& GetWindowName() const { return mSceneInfo.WindowName; }
+		inline const auto& GetFileContainer() const { return mFileContainer; }
 		inline const auto& GetWidth() const { return mWidth; }
 		inline const auto& GetHeight() const { return mHeight; }
 		inline const auto& GetFrameBuffer() const { return mFrameBuffer; }
@@ -98,7 +91,7 @@ namespace ark
 
 	private:
 
-		SceneInfo mSceneInfo;
+		const FileContainer* mFileContainer;
 
 		Viewport* mViewport = nullptr;
 

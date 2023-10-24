@@ -5,6 +5,8 @@
 #include <Editor/SceneManager.h>
 #include <Editor/InterfaceManager.h>
 
+#include <Editor/Databases/FileDatabase.h>
+
 #include <Editor/Interface/Viewport.h>
 #include <Editor/Interface/Outline.h>
 
@@ -13,15 +15,13 @@
 
 namespace ark
 {
-	struct SceneByInfo
+	struct SceneByIdentifier
 	{
-		SceneType Type;
-		std::string GroupKey;
-		std::string SceneKey;
+		U32 Identifier;
 
 		bool operator () (Scene* Scene) const
 		{
-			return Type == Scene->GetSceneType() && GroupKey == Scene->GetGroupKey() && SceneKey == Scene->GetSceneKey();
+			return Identifier == Scene->GetFileContainer()->GetIdentifier();
 		};
 	};
 
@@ -134,18 +134,18 @@ namespace ark
 		}
 	}
 
-	Scene* SceneManager::CreateScene(const SceneInfo& Info)
+	Scene* SceneManager::CreateScene(const FileContainer* FileContainer)
 	{
 		Scene* scene = nullptr;
 
-		const auto findIt = std::find_if(sScenes.begin(), sScenes.end(), SceneByInfo{ Info.Type, Info.GroupKey, Info.SceneKey });
+		const auto findIt = std::find_if(sScenes.begin(), sScenes.end(), SceneByIdentifier{ FileContainer->GetIdentifier() });
 
 		if (findIt == sScenes.end())
 		{
-			switch (Info.Type)
+			switch (FileContainer->GetType())
 			{
-				case eSceneTypeLevel: scene = sScenes.emplace_back(new LevelScene{ Info }); break;
-				case eSceneTypeEntity: scene = sScenes.emplace_back(new EntityScene{ Info }); break;
+				case FileContainer::eFileTypeLevel: scene = sScenes.emplace_back(new LevelScene{ FileContainer }); break;
+				case FileContainer::eFileTypeEntity: scene = sScenes.emplace_back(new EntityScene{ FileContainer }); break;
 			}
 
 			SetActiveScene(scene);

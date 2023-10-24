@@ -7,8 +7,6 @@
 
 #include <Common/Types.h>
 
-#include <Common/Generated/SceneInfos.h>
-
 #include <Editor/Scene.h>
 
 #include <Editor/Structs/ScrStructs.h>
@@ -19,6 +17,7 @@ namespace ark
 {
 	namespace fs = std::filesystem;
 
+	class FileContainer;
 	class Archive;
 	class Actor;
 
@@ -26,7 +25,7 @@ namespace ark
 	{
 	public:
 
-		LevelScene(const SceneInfo& Info);
+		LevelScene(const FileContainer* FileContainer);
 		virtual ~LevelScene();
 
 	public:
@@ -35,9 +34,6 @@ namespace ark
 		inline const auto& GetEntityGeometryActor() const { return mEntityGeometryActor; }
 		inline const auto& GetScrGroups() const { return mScrGroups; }
 		inline const auto& GetScrTextures() const { return mScrTextures; }
-		inline const auto& GetTscEntities() const { return mTscEntities; }
-		inline const auto& GetTreEntities() const { return mTreEntities; }
-		inline const auto& GetTatEntities() const { return mTatEntities; }
 
 	public:
 
@@ -56,7 +52,6 @@ namespace ark
 
 	private:
 
-		SceneInfo* ObjectToSceneInfo(const ObjEntry& Object);
 		void PrintSummary();
 
 	private:
@@ -83,6 +78,7 @@ namespace ark
 
 	private:
 
+		/*
 		struct EntityData
 		{
 			bool Loaded = false;
@@ -114,5 +110,6 @@ namespace ark
 		std::vector<Entity> mTscEntities = {};
 		std::vector<Entity> mTreEntities = {};
 		std::vector<Entity> mTatEntities = {};
+		*/
 	};
 }

@@ -12,7 +12,7 @@ namespace ark
 	{
 	public:
 
-		static void Init(U32 Argc, char** Argv);
+		static void Init(U32 Argc, I8** Argv);
 
 		static bool HasArgument(const std::string Argument);
 		static bool HasFirstArgument(const std::string Argument);

@@ -13,15 +13,15 @@ namespace ark
 
 #pragma pack(push, 1)
 
-	typedef struct
+	struct ScrHeader
 	{
 		U32 ScrId; // always 0x00726373
 		U32 FileType; // 0 for md, 1 for scr?
 		U32 SubMeshCount; // for many but not all files, this is the number of submeshes.
 		U32 Padding; // always zero
-	} ScrHeader;
+	};
 
-	typedef struct
+	struct ScrTransform
 	{
 		I16 Unknown1;
 		I16 Unknown2;
@@ -36,39 +36,39 @@ namespace ark
 		U16V3 Scale;
 		I16V3 Rotation;
 		I16V3 Position;
-	} ScrTransform;
+	};
 
-	typedef struct
+	struct ScrVertex
 	{
 		I16 X;
 		I16 Y;
 		I16 Z;
 		U16 Connection;
-	} ScrVertex;
+	};
 
-	typedef struct
+	struct ScrTextureMap
 	{
 		U16 U;
 		U16 V;
-	} ScrTextureMap;
+	};
 
-	typedef struct
+	struct ScrUv
 	{
 		U16 U;
 		U16 V;
-	} ScrUv;
+	};
 
-	typedef struct
+	struct ScrColorWeight
 	{
 		U8 R;
 		U8 G;
 		U8 B;
 		U8 A;
-	} ScrColorWeight;
+	};
 
 #pragma pack(pop)
 
-	typedef struct
+	struct ScrDivision
 	{
 		U32 Index;
 		MdHeader Header;
@@ -76,24 +76,24 @@ namespace ark
 		std::vector<ScrTextureMap> TextureMaps;
 		std::vector<ScrUv> TextureUvs;
 		std::vector<ScrColorWeight> ColorWeights;
-	} ScrDivision;
+	};
 
-	typedef struct
+	struct ScrEntry
 	{
 		MdbHeader Header;
 		std::vector<ScrDivision> Divisions;
-	} ScrEntry;
+	};
 
-	typedef struct
+	struct ScrModel
 	{
 		U32 Index;
 		ScrEntry Entry;
 		ScrTransform Transform;
-	} ScrModel;
+	};
 
-	typedef struct
+	struct ScrGroup
 	{
 		std::string Name;
 		std::vector<ScrModel> Models;
-	} ScrGroup;
+	};
 }

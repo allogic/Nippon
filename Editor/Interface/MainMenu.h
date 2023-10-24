@@ -3,10 +3,9 @@
 #include <vector>
 #include <filesystem>
 #include <utility>
+#include <sstream>
 
 #include <Common/Types.h>
-
-#include <Common/Generated/SceneInfos.h>
 
 #include <Editor/Interface.h>
 
@@ -38,6 +37,11 @@ namespace ark
 
 	private:
 
+		static void GenerateImGuiConfig();
+
+	private:
+
+		/*
 		static void DebugProcedure(const SceneInfo* SceneInfo);
 
 		static void OpenSceneProcedure(const SceneInfo* SceneInfo);
@@ -52,9 +56,11 @@ namespace ark
 		static void ExtractToDiskProcedure(const SceneInfo* SceneInfo);
 
 		static void CreateThumbnailProcedure(const SceneInfo* SceneInfo);
+		*/
 
 	private:
 
+		/*
 		template<typename P, typename ... Args>
 		void RenderMenuWithProcedure(P Procedure, Args && ... Arguments)
 		{
@@ -201,5 +207,6 @@ namespace ark
 				Procedure(&sceneInfo, std::forward<Args>(Arguments) ...);
 			}
 		}
+		*/
 	};
 }

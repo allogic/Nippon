@@ -7,7 +7,7 @@ namespace ark
 
 #pragma pack(push, 1)
 
-	typedef struct
+	struct ObjEntry
 	{
 		U8 Id; // lots of values 00-fe 
 		U8 Category; // category id - which folder it comes from
@@ -21,7 +21,7 @@ namespace ark
 		U8 Unknown7; // 00-0c
 		U8 Unknown8; // lots of values
 		U8 Padding[14];
-	} ObjEntry;
+	};
 
 #pragma pack(pop)
 

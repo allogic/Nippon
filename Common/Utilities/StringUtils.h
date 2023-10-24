@@ -17,11 +17,15 @@ namespace ark
 
 		static std::string CutFront(const std::string& String, U64 Size);
 		static std::string CutBack(const std::string& String, U64 Size);
-		static std::string RemoveNulls(const std::string& String);
-		static std::string ToLower(std::string String);
-		static std::string ToUpper(std::string String);
-		static std::string PosixPath(const std::string& String);
-		static std::string SelectExpr(const std::string& String, const std::string& Expr);
-		static std::string ByteToString(U8 Byte);
+
+		static std::string RemoveChars(const std::string& String, I8 Char);
+
+		static std::string ToLower(const std::string& String);
+		static std::string ToUpper(const std::string& String);
+
+		static std::string SelectExpr(const std::string& String, const std::string& Expression);
+
+		static std::string ByteToHexStr(U8 Byte);
+		static U8 HexStrToByte(const std::string& String);
 	};
 }

@@ -9,6 +9,8 @@
 #include <Editor/Texture2D.h>
 #include <Editor/Magic.h>
 
+#include <Editor/Databases/FileDatabase.h>
+
 #include <Editor/Scenes/EntityScene.h>
 
 #include <Editor/Components/Transform.h>
@@ -19,11 +21,11 @@
 
 #include <Editor/Serializer/MdSerializer.h>
 
-#include <Editor/Utilities/TextureUtils.h>
+#include <Editor/Utilities/ImageUtils.h>
 
 namespace ark
 {
-	EntityScene::EntityScene(const SceneInfo& Info) : Scene{ Info }
+	EntityScene::EntityScene(const FileContainer* FileContainer) : Scene{ FileContainer }
 	{
 		mEntityGeometryActor = CreateActor<Actor>("Entity Geometry", nullptr);
 	}
@@ -40,7 +42,7 @@ namespace ark
 
 	void EntityScene::Load()
 	{
-		LoadArchive();
+		LoadArchives();
 		LoadEntity();
 
 		AddStaticGeometry();
@@ -56,13 +58,11 @@ namespace ark
 
 	}
 
-	void EntityScene::LoadArchive()
+	void EntityScene::LoadArchives()
 	{
-		fs::path relativeDatFile = fs::path{ GetGroupKey() } / GetDatArchiveFileName();
+		fs::path datFile = gDataDir / GetFileContainer()->GetDatFile().GetRelativeFile();
 
-		fs::path absoluteDatFile = gDataDir / relativeDatFile;
-
-		std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFile);
+		std::vector<U8> datBytes = FsUtils::ReadBinary(datFile);
 
 		gBlowFish->Decrypt(datBytes);
 
@@ -85,7 +85,7 @@ namespace ark
 
 		for (const auto& archive : mDdsArchives)
 		{
-			mMdTextures.emplace_back(TextureUtils::ReadDDS(archive->GetBytes(), archive->GetSize()));
+			mMdTextures.emplace_back(ImageUtils::ReadDDS(archive->GetBytes(), archive->GetSize()));
 		}
 	}
 
@@ -140,15 +140,15 @@ namespace ark
 	void EntityScene::PrintSummary()
 	{
 		LOG("\n");
-		LOG(" Opening Entity Scene \\%s\\%s\n", GetGroupKey().c_str(), GetSceneKey().c_str());
+		LOG(" Opening Entity Scene \\%s\\%s\n", GetFileContainer()->GetDirectoryId(), GetFileContainer()->GetFileId());
 		LOG("-----------------------------------------------------------------------------------------\n");
 		LOG("\n");
 		LOG("Loading archives:\n");
-		LOG("    %s\n", GetDatArchiveFileName().c_str());
+		LOG("    %s\n", GetFileContainer()->GetDatFile().GetRelativeFile());
 
 		LOG("\n");
 		LOG("Searching files:\n");
-		LOG("    %s\n", GetDatArchiveFileName().c_str());
+		LOG("    %s\n", GetFileContainer()->GetDatFile().GetRelativeFile());
 		LOG("        Found %u MD files\n", (U32)mMdArchives.size());
 		LOG("        Found %u DDS files\n", (U32)mDdsArchives.size());
 

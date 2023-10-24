@@ -9,7 +9,8 @@
 
 using namespace ark;
 
-void WriteConfig(const std::string& FileName) {
+static void WriteConfig(const std::string& FileName)
+{
 	std::ostringstream oss;
 
 	for (const auto& groupInfo : SceneInfos::GetLevelGroups())
@@ -41,7 +42,7 @@ void WriteConfig(const std::string& FileName) {
 	FsUtils::WriteText(FileName + ".ini", oss.str().c_str());
 }
 
-I32 main(I32 Argc, char** Argv)
+I32 main(I32 Argc, I8** Argv)
 {
 	WriteConfig("imgui");
 

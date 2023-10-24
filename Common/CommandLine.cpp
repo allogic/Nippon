@@ -14,7 +14,7 @@ namespace ark
 
 	static std::vector<std::string> sArguments = {};
 
-	void CommandLine::Init(U32 Argc, char** Argv)
+	void CommandLine::Init(U32 Argc, I8** Argv)
 	{
 		sArguments = { Argv + 1, Argv + Argc };
 	}

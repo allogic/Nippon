@@ -1,6 +1,6 @@
 #include <Editor/Texture2D.h>
 
-#include <Editor/Utilities/TextureUtils.h>
+#include <Editor/Utilities/ImageUtils.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <Vendor/StbImage/stb_image.h>
@@ -18,7 +18,7 @@
 
 namespace ark
 {
-	U32 TextureUtils::ReadDDS(const fs::path& File)
+	U32 ImageUtils::ReadDDS(const fs::path& File)
 	{
 		U32 texture = 0;
 
@@ -39,7 +39,7 @@ namespace ark
 		return texture;
 	}
 
-    U32 TextureUtils::ReadDDS(U8* Bytes, U64 Size)
+    U32 ImageUtils::ReadDDS(U8* Bytes, U64 Size)
 	{
 		U32 texture = 0;
 
@@ -60,7 +60,7 @@ namespace ark
 		return texture;
 	}
 
-    U32 TextureUtils::ReadPNG(const fs::path& File)
+    U32 ImageUtils::ReadPNG(const fs::path& File)
 	{
 		U32 texture = 0;
 
@@ -68,16 +68,16 @@ namespace ark
 		I32 height = 0;
 		I32 channels = 0;
 
-		U8* bytes = stbi_load(File.string().c_str(), &width, &height, &channels, 0);
+		U8* data = stbi_load(File.string().c_str(), &width, &height, &channels, 0);
 
-		texture = Texture2D::Create(width, height, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+		texture = Texture2D::Create(width, height, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
-		stbi_image_free(bytes);
+		stbi_image_free(data);
 
 		return texture;
 	}
 
-	U32 TextureUtils::ReadPNG(U8* Bytes, U64 Size)
+	U32 ImageUtils::ReadPNG(U8* Bytes, U64 Size)
 	{
 		U32 texture = 0;
 
@@ -85,16 +85,16 @@ namespace ark
 		I32 height = 0;
 		I32 channels = 0;
 
-		U8* bytes = stbi_load_from_memory(Bytes, (I32)Size, &width, &height, &channels, 0);
+		U8* data = stbi_load_from_memory(Bytes, (I32)Size, &width, &height, &channels, 0);
 
-		texture = Texture2D::Create(width, height, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+		texture = Texture2D::Create(width, height, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
-		stbi_image_free(bytes);
+		stbi_image_free(data);
 
 		return texture;
 	}
 
-	U32 TextureUtils::ReadJPG(const fs::path& File)
+	U32 ImageUtils::ReadJPG(const fs::path& File)
 	{
 		U32 texture = 0;
 
@@ -102,16 +102,16 @@ namespace ark
 		I32 height = 0;
 		I32 channels = 0;
 
-		U8* bytes = stbi_load(File.string().c_str(), &width, &height, &channels, 0);
+		U8* data = stbi_load(File.string().c_str(), &width, &height, &channels, 0);
 
-		texture = Texture2D::Create(width, height, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, bytes);
+		texture = Texture2D::Create(width, height, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, data);
 
-		stbi_image_free(bytes);
+		stbi_image_free(data);
 
 		return texture;
 	}
 
-	U32 TextureUtils::ReadJPG(U8* Bytes, U64 Size)
+	U32 ImageUtils::ReadJPG(U8* Bytes, U64 Size)
 	{
 		U32 texture = 0;
 
@@ -119,16 +119,16 @@ namespace ark
 		I32 height = 0;
 		I32 channels = 0;
 
-		U8* bytes = stbi_load_from_memory(Bytes, (I32)Size, &width, &height, &channels, 0);
+		U8* data = stbi_load_from_memory(Bytes, (I32)Size, &width, &height, &channels, 0);
 
-		texture = Texture2D::Create(width, height, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, bytes);
+		texture = Texture2D::Create(width, height, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, data);
 
-		stbi_image_free(bytes);
+		stbi_image_free(data);
 
 		return texture;
 	}
 
-	void TextureUtils::WriteJPG(U32 Id, const fs::path& File)
+	void ImageUtils::WriteJPG(U32 Id, const fs::path& File)
 	{
 		U32 width = Texture2D::GetWidth(Id);
 		U32 height = Texture2D::GetHeight(Id);
@@ -139,7 +139,28 @@ namespace ark
 		stbi_write_jpg(File.string().c_str(), width, height, 3, bytes.data(), 100);
 	}
 
-	void TextureUtils::WritePNG(U32 Id, const fs::path& File)
+	/*
+	std::vector<U8> ImageUtils::WriteJPG(U32 Id)
+	{
+		U32 width = Texture2D::GetWidth(Id);
+		U32 height = Texture2D::GetHeight(Id);
+
+		std::vector<U8> bytes = Texture2D::CopyRGB(Id);
+
+		stbi_flip_vertically_on_write(true);
+
+		I32 size = 0;
+		U8* data = stbi_write_jpg_to_mem(bytes.data(), 0, width, height, 3, &size);
+
+		std::vector<U8> result = { data, data + size };
+
+		stbi_image_free(data);
+
+		return result;
+	}
+	*/
+
+	void ImageUtils::WritePNG(U32 Id, const fs::path& File)
 	{
 		U32 width = Texture2D::GetWidth(Id);
 		U32 height = Texture2D::GetHeight(Id);
@@ -148,5 +169,24 @@ namespace ark
 
 		stbi_flip_vertically_on_write(true);
 		stbi_write_png(File.string().c_str(), width, height, 4, bytes.data(), 0);
+	}
+
+	std::vector<U8> ImageUtils::WritePNG(U32 Id)
+	{
+		U32 width = Texture2D::GetWidth(Id);
+		U32 height = Texture2D::GetHeight(Id);
+
+		std::vector<U8> bytes = Texture2D::CopyRGBA(Id);
+
+		stbi_flip_vertically_on_write(true);
+
+		I32 size = 0;
+		U8* data = stbi_write_png_to_mem(bytes.data(), 0, width, height, 4, &size);
+
+		std::vector<U8> result = { data, data + size };
+
+		stbi_image_free(data);
+
+		return result;
 	}
 }

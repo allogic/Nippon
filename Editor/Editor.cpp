@@ -9,6 +9,9 @@
 #include <Editor/InterfaceManager.h>
 #include <Editor/SceneManager.h>
 
+#include <Editor/Databases/FileDatabase.h>
+#include <Editor/Databases/ThumbnailDatabase.h>
+
 #include <Editor/Renderer/DebugRenderer.h>
 #include <Editor/Renderer/DefaultRenderer.h>
 
@@ -40,7 +43,7 @@ static GLFWwindow* sGlfwContext = nullptr;
 static R32 sTime = 0.0F;
 static R32 sTimePrev = 0.0F;
 
-static void GlfwDebugProc(I32 Error, char const* Msg)
+static void GlfwDebugProc(I32 Error, const I8* Msg)
 {
 	LOG("Error:%d Message:%s\n", Error, Msg);
 }
@@ -50,7 +53,7 @@ static void GlfwMouseProc(GLFWwindow* Context, R64 X, R64 Y)
 	Event::SetMouseY((R32)Y);
 }
 
-static void GlDebugCallback(U32 Source, U32 Type, U32 Id, U32 Severity, I32 Length, char const* Msg, void const* UserParam)
+static void GlDebugCallback(U32 Source, U32 Type, U32 Id, U32 Severity, I32 Length, const I8* Msg, void const* UserParam)
 {
 	switch (Severity)
 	{
@@ -162,14 +165,14 @@ static void ImGuiSetupStyle()
 	style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.5860000252723694f);
 }
 
-I32 main(I32 Argc, char** Argv)
+I32 main(I32 Argc, I8** Argv)
 {
 	CommandLine::Init(Argc, Argv);
 
 	U32 width = 1920;
 	U32 height = 1080;
 
-	std::string dataDirStr = "";
+	std::string dataDir = "";
 	std::string widthStr = "";
 	std::string heightStr = "";
 
@@ -182,9 +185,9 @@ I32 main(I32 Argc, char** Argv)
 		return 0;
 	}
 
-	if (CommandLine::HasArgumentWithValue("DataDir", dataDirStr, "Data directory is missing"))
+	if (CommandLine::HasArgumentWithValue("DataDir", dataDir, "Data directory is missing"))
 	{
-		gDataDir = dataDirStr;
+		gDataDir = dataDir;
 	}
 
 	if (CommandLine::HasArgumentWithValue("Width", widthStr))
@@ -231,6 +234,9 @@ I32 main(I32 Argc, char** Argv)
 
 				ImGui_ImplGlfw_InitForOpenGL(sGlfwContext, 1);
 				ImGui_ImplOpenGL3_Init("#version 450 core");
+
+				FileDatabase::Create();
+				ThumbnailDatabase::Create();
 
 				InterfaceManager::Create();
 				SceneManager::Create();
@@ -310,6 +316,9 @@ I32 main(I32 Argc, char** Argv)
 
 				SceneManager::Destroy();
 				InterfaceManager::Destroy();
+
+				ThumbnailDatabase::Destroy();
+				FileDatabase::Destroy();
 
 				ImGui_ImplOpenGL3_Shutdown();
 				ImGui_ImplGlfw_Shutdown();

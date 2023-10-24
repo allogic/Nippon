@@ -36,10 +36,13 @@
     <ClCompile Include="BlowFish.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Generated\SceneInfos.cpp">
+    <ClCompile Include="CommandLine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CommandLine.cpp">
+    <ClCompile Include="CRC32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UUID.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -71,10 +74,13 @@
     <ClInclude Include="Types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Generated\SceneInfos.h">
+    <ClInclude Include="CommandLine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CommandLine.h">
+    <ClInclude Include="CRC32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UUID.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

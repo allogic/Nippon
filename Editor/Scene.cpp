@@ -20,8 +20,8 @@
 
 namespace ark
 {
-	Scene::Scene(const SceneInfo& Info)
-		: mSceneInfo{ Info }
+	Scene::Scene(const FileContainer* FileContainer)
+		: mFileContainer{ FileContainer }
 	{
 		mRootActor = CreateActor<Actor>("Root", nullptr);
 		mPlayerActor = CreateActor<Player>("Player", nullptr);

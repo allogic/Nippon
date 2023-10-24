@@ -94,7 +94,6 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -111,7 +110,6 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -128,7 +126,6 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -145,7 +142,6 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -160,10 +156,11 @@
     <ClCompile Include="BinaryWriter.cpp" />
     <ClCompile Include="BlowFish.cpp" />
     <ClCompile Include="CommandLine.cpp" />
-    <ClCompile Include="Generated\SceneInfos.cpp" />
+    <ClCompile Include="CRC32.cpp" />
     <ClCompile Include="Utilities\DiffUtils.cpp" />
     <ClCompile Include="Utilities\FsUtils.cpp" />
     <ClCompile Include="Utilities\StringUtils.cpp" />
+    <ClCompile Include="UUID.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Archive.h" />
@@ -171,12 +168,13 @@
     <ClInclude Include="BinaryWriter.h" />
     <ClInclude Include="BlowFish.h" />
     <ClInclude Include="CommandLine.h" />
-    <ClInclude Include="Generated\SceneInfos.h" />
+    <ClInclude Include="CRC32.h" />
     <ClInclude Include="Macros.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Utilities\DiffUtils.h" />
     <ClInclude Include="Utilities\FsUtils.h" />
     <ClInclude Include="Utilities\StringUtils.h" />
+    <ClInclude Include="UUID.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

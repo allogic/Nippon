@@ -1,15 +1,9 @@
 #pragma once
 
-#include <string>
-#include <filesystem>
-#include <map>
-
 #include <Common/Types.h>
 
 namespace ark
 {
-	namespace fs = std::filesystem;
-
 	class EntityBrowser;
 	class Inspector;
 	class LevelBrowser;
@@ -34,15 +28,5 @@ namespace ark
 	public:
 
 		static void Render();
-
-	public:
-
-		static U32 GetLevelThumbnail(const std::string& ThumbnailFileName);
-		static U32 GetEntityThumbnail(const std::string& ThumbnailFileName);
-
-	private:
-
-		static void CreateThumbnails();
-		static void DestroyThumbnails();
 	};
 }

@@ -96,12 +96,12 @@ namespace ark
 		return texture;
 	}
 
-	U32 FrameBuffer::ReadIntegerAt(U32 Id, U32 X, U32 Y, U32 Index)
+	U32 FrameBuffer::ReadInteger(U32 Id, U32 X, U32 Y)
 	{
 		U32 value = 0;
 
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, Id);
-		glReadBuffer(GL_COLOR_ATTACHMENT0 + Index);
+		glReadBuffer(GL_COLOR_ATTACHMENT1);
 		glReadPixels((I32)X, (I32)Y, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, &value);
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 

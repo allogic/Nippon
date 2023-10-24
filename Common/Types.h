@@ -5,10 +5,10 @@
 
 namespace ark
 {
-	typedef signed char I8;
-	typedef signed short I16;
-	typedef signed int I32;
-	typedef signed long long I64;
+	typedef char I8;
+	typedef short I16;
+	typedef int I32;
+	typedef long long I64;
 
 	typedef glm::i8vec2 I8V2;
 	typedef glm::i8vec3 I8V3;
@@ -60,11 +60,11 @@ namespace ark
 
 	typedef glm::fquat R32Q;
 
-	typedef struct
+	struct AABB
 	{
 		R32V3 Min;
 		R32V3 Max;
 		R32V3 Size;
 		R32V3 Center;
-	} AABB;
+	};
 }

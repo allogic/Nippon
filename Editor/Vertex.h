@@ -4,11 +4,11 @@
 
 namespace ark
 {
-	typedef enum
+	enum VertexType : U32
 	{
 		eVertexTypeDefault,
 		eVertexTypeDebug,
-	} VertexType;
+	};
 
 #pragma pack(push, 1)
 

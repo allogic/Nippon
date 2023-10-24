@@ -1,9 +1,4 @@
-#include <Common/Macros.h>
-
-#include <Common/Generated/SceneInfos.h>
-
 #include <Editor/InterfaceManager.h>
-#include <Editor/Texture2D.h>
 
 #include <Editor/Interface/EntityBrowser.h>
 #include <Editor/Interface/Inspector.h>
@@ -11,13 +6,8 @@
 #include <Editor/Interface/MainMenu.h>
 #include <Editor/Interface/Outline.h>
 
-#include <Editor/Utilities/TextureUtils.h>
-
 namespace ark
 {
-	static std::map<std::string, U32> sLevelThumbnails = {};
-	static std::map<std::string, U32> sEntityThumbnails = {};
-
 	static EntityBrowser* sEntityBrowser = nullptr;
 	static Inspector* sInspector = nullptr;
 	static LevelBrowser* sLevelBrowser = nullptr;
@@ -32,8 +22,6 @@ namespace ark
 
 	void InterfaceManager::Create()
 	{
-		CreateThumbnails();
-
 		sEntityBrowser = new EntityBrowser;
 		sInspector = new Inspector;
 		sLevelBrowser = new LevelBrowser;
@@ -63,71 +51,5 @@ namespace ark
 		sLevelBrowser = nullptr;
 		sMainMenu = nullptr;
 		sOutline = nullptr;
-
-		DestroyThumbnails();
-	}
-
-	U32 InterfaceManager::GetLevelThumbnail(const std::string& ThumbnailFileName)
-	{
-		return sLevelThumbnails[ThumbnailFileName];
-	}
-
-	U32 InterfaceManager::GetEntityThumbnail(const std::string& ThumbnailFileName)
-	{
-		return sEntityThumbnails[ThumbnailFileName];
-	}
-
-	void InterfaceManager::CreateThumbnails()
-	{
-		fs::path file = "Thumbnails";
-
-		for (const auto& groupInfo : SceneInfos::GetLevelGroups())
-		{
-			for (const auto& sceneInfo : SceneInfos::GetLevelsByGroup(groupInfo))
-			{
-				if (fs::exists(file / sceneInfo.ThumbnailFileName))
-				{
-					sLevelThumbnails[sceneInfo.ThumbnailFileName] = TextureUtils::ReadPNG(file / sceneInfo.ThumbnailFileName);
-				}
-				else
-				{
-					LOG("Missing Thumbnail %s\n", sceneInfo.ThumbnailFileName.c_str());
-				}
-			}
-		}
-
-		for (const auto& groupInfo : SceneInfos::GetEntityGroups())
-		{
-			for (const auto& sceneInfo : SceneInfos::GetEntitiesByGroup(groupInfo))
-			{
-				if (fs::exists(file / sceneInfo.ThumbnailFileName))
-				{
-					sEntityThumbnails[sceneInfo.ThumbnailFileName] = TextureUtils::ReadPNG(file / sceneInfo.ThumbnailFileName);
-				}
-				else
-				{
-					LOG("Missing Thumbnail %s\n", sceneInfo.ThumbnailFileName.c_str());
-				}
-			}
-		}
-	}
-
-	void InterfaceManager::DestroyThumbnails()
-	{
-		for (const auto& groupInfo : SceneInfos::GetEntityGroups())
-		{
-			for (const auto& sceneInfo : SceneInfos::GetEntitiesByGroup(groupInfo))
-			{
-				Texture2D::Destroy(sEntityThumbnails[sceneInfo.ThumbnailFileName]);
-			}
-		}
-
-		for (const auto& groupInfo : SceneInfos::GetLevelGroups())
-		{
-			for (const auto& sceneInfo : SceneInfos::GetLevelsByGroup(groupInfo))
-			{
-				Texture2D::Destroy(sLevelThumbnails[sceneInfo.ThumbnailFileName]);
-			}
-		}
 	}
 }

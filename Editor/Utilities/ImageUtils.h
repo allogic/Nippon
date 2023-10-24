@@ -9,7 +9,7 @@ namespace ark
 {
     namespace fs = std::filesystem;
 
-    class TextureUtils
+    class ImageUtils
     {
     public:
 
@@ -23,7 +23,9 @@ namespace ark
         static U32 ReadPNG(U8* Bytes, U64 Size);
 
         static void WriteJPG(U32 Id, const fs::path& File);
+        //static std::vector<U8> WriteJPG(U32 Id);
 
         static void WritePNG(U32 Id, const fs::path& File);
+        static std::vector<U8> WritePNG(U32 Id);
     };
 }

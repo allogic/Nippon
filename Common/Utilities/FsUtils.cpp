@@ -24,7 +24,7 @@ namespace ark
 
 			if (Size)
 			{
-				stream.read((char*)&bytes[0], Size);
+				stream.read((I8*)bytes.data(), Size);
 			}
 
 			stream.close();
@@ -55,7 +55,7 @@ namespace ark
 
 			if (Size)
 			{
-				stream.read(&text[0], Size);
+				stream.read(text.data(), Size);
 			}
 
 			stream.close();
@@ -81,7 +81,7 @@ namespace ark
 
 			if (Size)
 			{
-				stream.write((char*)&Bytes[0], Size);
+				stream.write((const I8*)Bytes.data(), Size);
 			}
 
 			stream.close();
@@ -94,7 +94,7 @@ namespace ark
 
 		if (stream.is_open())
 		{
-			stream.write((char*)Bytes, Size);
+			stream.write((I8*)Bytes, Size);
 			stream.close();
 		}
 	}
@@ -116,7 +116,7 @@ namespace ark
 
 			if (Size)
 			{
-				stream.write(&Text[0], Size);
+				stream.write(Text.data(), Size);
 			}
 
 			stream.close();
@@ -129,7 +129,7 @@ namespace ark
 
 		if (stream.is_open())
 		{
-			stream.write((char*)Text, Size);
+			stream.write((I8*)Text, Size);
 			stream.close();
 		}
 	}

@@ -24,7 +24,7 @@ namespace ark
 
 	public:
 
-		static U32 ReadIntegerAt(U32 Id, U32 X, U32 Y, U32 Index);
+		static U32 ReadInteger(U32 Id, U32 X, U32 Y);
 
 	public:
 

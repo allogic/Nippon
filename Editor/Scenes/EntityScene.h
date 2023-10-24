@@ -6,8 +6,6 @@
 
 #include <Common/Types.h>
 
-#include <Common/Generated/SceneInfos.h>
-
 #include <Editor/Scene.h>
 
 #include <Editor/Structs/MdStructs.h>
@@ -16,13 +14,15 @@ namespace ark
 {
 	namespace fs = std::filesystem;
 
+	class FileContainer;
 	class Archive;
+	class Actor;
 
 	class EntityScene : public Scene
 	{
 	public:
 
-		EntityScene(const SceneInfo& Info);
+		EntityScene(const FileContainer* FileContainer);
 		virtual ~EntityScene();
 
 	public:
@@ -38,7 +38,7 @@ namespace ark
 
 	private:
 
-		void LoadArchive();
+		void LoadArchives();
 		void LoadEntity();
 
 	private:

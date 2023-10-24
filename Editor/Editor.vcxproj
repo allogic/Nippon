@@ -98,7 +98,6 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -116,7 +115,6 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -134,7 +132,6 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -152,7 +149,6 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -173,6 +169,8 @@
     <ClCompile Include="Components\Transform.cpp" />
     <ClCompile Include="Converter\ElementConverter.cpp" />
     <ClCompile Include="Converter\VertexConverter.cpp" />
+    <ClCompile Include="Databases\FileDatabase.cpp" />
+    <ClCompile Include="Databases\ThumbnailDatabase.cpp" />
     <ClCompile Include="Editor.cpp" />
     <ClCompile Include="Event.cpp" />
     <ClCompile Include="Exporter\WavefrontExporter.cpp" />
@@ -204,13 +202,14 @@
     <ClCompile Include="Serializer\ScrSerializer.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Texture2D.cpp" />
-    <ClCompile Include="Utilities\TextureUtils.cpp" />
-    <ClCompile Include="Thumbnail.cpp" />
+    <ClCompile Include="Utilities\ImageUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h" />
     <ClInclude Include="Actors\Player.h" />
     <ClInclude Include="Actors\Test.h" />
+    <ClInclude Include="Databases\FileDatabase.h" />
+    <ClInclude Include="Databases\ThumbnailDatabase.h" />
     <ClInclude Include="Magic.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Components\Camera.h" />
@@ -262,8 +261,7 @@
     <ClInclude Include="Structs\ObjStructs.h" />
     <ClInclude Include="Structs\ScrStructs.h" />
     <ClInclude Include="Texture2D.h" />
-    <ClInclude Include="Utilities\TextureUtils.h" />
-    <ClInclude Include="Thumbnail.h" />
+    <ClInclude Include="Utilities\ImageUtils.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,12 +1,13 @@
 #include <Common/Utilities/FsUtils.h>
 
-#include <Common/Generated/SceneInfos.h>
-
 #include <Editor/Editor.h>
 #include <Editor/Scene.h>
 #include <Editor/SceneManager.h>
 #include <Editor/InterfaceManager.h>
 #include <Editor/Texture2D.h>
+
+#include <Editor/Databases/FileDatabase.h>
+#include <Editor/Databases/ThumbnailDatabase.h>
 
 #include <Editor/Exporter/WavefrontExporter.h>
 
@@ -37,19 +38,19 @@ namespace ark
 
 		if (ImGui::BeginTabBar("Entities"))
 		{
-			for (const auto& groupInfo : SceneInfos::GetEntityGroups())
+			for (const auto& directory : FileDatabase::GetEntityDirectories())
 			{
-				ImGui::PushID(&groupInfo);
+				ImGui::PushID(directory);
 
-				if (ImGui::BeginTabItem(groupInfo.GroupKey.c_str()))
+				if (ImGui::BeginTabItem(FileDatabase::GetEntityDirectoryIdByDirectory(directory)))
 				{
-					ImGui::BeginChild("Level Group");
+					ImGui::BeginChild("Entity Directory");
 
-					const auto& sceneInfos = SceneInfos::GetEntitiesByGroup(groupInfo);
+					const auto& fileContainers = FileDatabase::GetEntityFileContainersByDirectory(directory);
 
-					for (U32 i = 0; i < sceneInfos.size(); i++)
+					for (U32 i = 0; i < fileContainers.size(); i++)
 					{
-						ImGui::PushID(&sceneInfos[i]);
+						ImGui::PushID(&fileContainers[i]);
 
 						if ((i > 0) && ((i % 3) != 0))
 						{
@@ -58,14 +59,16 @@ namespace ark
 
 						ImTextureID textureId = nullptr;
 
-						if (U32 texture = InterfaceManager::GetEntityThumbnail(sceneInfos[i].ThumbnailFileName))
+						const auto& thumbnailContainer = ThumbnailDatabase::GetThumbnailContainerByIdentifier(fileContainers[i].GetIdentifier());
+
+						if (U32 texture = thumbnailContainer.GetTexture())
 						{
 							textureId = (ImTextureID)(U64)texture;
 						}
 
 						if (ImGui::ImageButton(textureId, ImVec2{ 128.0F, 128.0F }))
 						{
-							if (Scene* scene = SceneManager::CreateScene(sceneInfos[i]))
+							if (Scene* scene = SceneManager::CreateScene(&fileContainers[i]))
 							{
 								scene->SetEnableConsole(true);
 								scene->SetEnableDebug(true);

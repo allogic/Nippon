@@ -10,6 +10,8 @@
 #include <Editor/Texture2D.h>
 #include <Editor/Magic.h>
 
+#include <Editor/Databases/FileDatabase.h>
+
 #include <Editor/Scenes/LevelScene.h>
 
 #include <Editor/Components/Transform.h>
@@ -22,7 +24,7 @@
 #include <Editor/Serializer/MdSerializer.h>
 #include <Editor/Serializer/ObjSerializer.h>
 
-#include <Editor/Utilities/TextureUtils.h>
+#include <Editor/Utilities/ImageUtils.h>
 
 namespace ark
 {
@@ -45,7 +47,7 @@ namespace ark
 		{ 0, "wp" },
 	};
 
-	LevelScene::LevelScene(const SceneInfo& Info) : Scene{ Info }
+	LevelScene::LevelScene(const FileContainer* FileContainer) : Scene{ FileContainer }
 	{
 		mLevelGeometryActor = CreateActor<Actor>("Level Geometry", nullptr);
 		mEntityGeometryActor = CreateActor<Actor>("Entity Geometry", nullptr);
@@ -56,30 +58,6 @@ namespace ark
 		// TODO: Delete all entity textures..
 
 		Texture2D::Destroy(mScrTextures);
-
-		for (auto& [archiveName, archive] : mTatArchiveCache)
-		{
-			delete archive;
-			archive = nullptr;
-		}
-
-		for (auto& [archiveName, archive] : mTreArchiveCache)
-		{
-			delete archive;
-			archive = nullptr;
-		}
-
-		for (auto& [archiveName, archive] : mTscArchiveCache)
-		{
-			delete archive;
-			archive = nullptr;
-		}
-
-		if (mBinArchive)
-		{
-			delete mBinArchive;
-			mBinArchive = nullptr;
-		}
 
 		if (mDatArchive)
 		{
@@ -109,30 +87,15 @@ namespace ark
 
 	void LevelScene::LoadArchives()
 	{
-		fs::path relativeDatFile = fs::path{ GetGroupKey() } / GetDatArchiveFileName();
-		fs::path relativeBinFile = fs::path{ GetGroupKey() } / GetBinArchiveFileName();
+		fs::path datFile = gDataDir / GetFileContainer()->GetDatFile().GetRelativeFile();
 
-		fs::path absoluteDatFile = gDataDir / relativeDatFile;
-		fs::path absoluteBinFile = gDataDir / relativeBinFile;
-
-		std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFile);
+		std::vector<U8> datBytes = FsUtils::ReadBinary(datFile);
 
 		gBlowFish->Decrypt(datBytes);
 
 		mDatArchive = new Archive;
 
 		mDatArchive->DeSerialize(datBytes);
-
-		if (fs::exists(absoluteBinFile))
-		{
-			std::vector<U8> binBytes = FsUtils::ReadBinary(absoluteBinFile);
-
-			gBlowFish->Decrypt(binBytes);
-
-			mBinArchive = new Archive;
-		
-			mBinArchive->DeSerialize(binBytes);
-		}
 	}
 
 	void LevelScene::LoadLevel()
@@ -148,6 +111,7 @@ namespace ark
 		const auto& treObjects = ObjSerializer::FromBytes(mTreArchive->GetBytes(), mTreArchive->GetSize());
 		const auto& tatObjects = ObjSerializer::FromBytes(mTatArchive->GetBytes(), mTatArchive->GetSize());
 
+		/*
 		for (U32 i = 0; i < (U32)tscObjects.size(); i++)
 		{
 			SceneInfo* sceneInfo = ObjectToSceneInfo(tscObjects[i]);
@@ -201,6 +165,7 @@ namespace ark
 				mTatEntities.emplace_back(i, tatObjects[i], mTatArchiveCache[sceneInfo->DatArchiveFileName]);
 			}
 		}
+		*/
 
 		for (const auto& archive : mScrArchives)
 		{
@@ -211,12 +176,13 @@ namespace ark
 
 		for (const auto& archive : mDdsArchives)
 		{
-			mScrTextures.emplace_back(TextureUtils::ReadDDS(archive->GetBytes(), archive->GetSize()));
+			mScrTextures.emplace_back(ImageUtils::ReadDDS(archive->GetBytes(), archive->GetSize()));
 		}
 	}
 
 	void LevelScene::LoadEntities()
 	{
+		/*
 		for (auto& entity : mTscEntities)
 		{
 			auto& entityData = mTscEntityDataCache[entity.Archive];
@@ -250,7 +216,7 @@ namespace ark
 
 					for (const auto& archive : entityData.DdsArchives)
 					{
-						entityData.MdTextures.emplace_back(TextureUtils::ReadDDS(archive->GetBytes(), archive->GetSize()));
+						entityData.MdTextures.emplace_back(ImageUtils::ReadDDS(archive->GetBytes(), archive->GetSize()));
 					}
 				}
 			}
@@ -289,7 +255,7 @@ namespace ark
 
 					for (const auto& archive : entityData.DdsArchives)
 					{
-						entityData.MdTextures.emplace_back(TextureUtils::ReadDDS(archive->GetBytes(), archive->GetSize()));
+						entityData.MdTextures.emplace_back(ImageUtils::ReadDDS(archive->GetBytes(), archive->GetSize()));
 					}
 				}
 			}
@@ -328,11 +294,12 @@ namespace ark
 
 					for (const auto& archive : entityData.DdsArchives)
 					{
-						entityData.MdTextures.emplace_back(TextureUtils::ReadDDS(archive->GetBytes(), archive->GetSize()));
+						entityData.MdTextures.emplace_back(ImageUtils::ReadDDS(archive->GetBytes(), archive->GetSize()));
 					}
 				}
 			}
 		}
+		*/
 	}
 
 	void LevelScene::AddStaticGeometry()
@@ -382,6 +349,7 @@ namespace ark
 			}
 		}
 
+		/*
 		for (const auto& entity : mTscEntities)
 		{
 			auto& entityData = mTscEntityDataCache[entity.Archive];
@@ -531,32 +499,19 @@ namespace ark
 				}
 			}
 		}
-	}
-
-	SceneInfo* LevelScene::ObjectToSceneInfo(const ObjEntry& Object)
-	{
-		std::string groupKey = sCategoryToGroupKey[Object.Category];
-		std::string sceneKey = StringUtils::ByteToString(Object.Id);
-
-		// TODO: Resolve missing category groups keys!
-		if (groupKey != "")
-		{
-			return SceneInfos::GetEntityByKey(groupKey, sceneKey);
-		}
-
-		return {};
+		*/
 	}
 
 	void LevelScene::PrintSummary()
 	{
 		LOG("\n");
-		LOG(" Opening Level Scene \\%s\\%s\n", GetGroupKey().c_str(), GetSceneKey().c_str());
+		LOG(" Opening Level Scene \\%s\\%s\n", GetFileContainer()->GetDirectoryId(), GetFileContainer()->GetFileId());
 		LOG("-----------------------------------------------------------------------------------------\n");
 		LOG("\n");
 		LOG("Loading archives:\n");
-		LOG("    %s\n", GetDatArchiveFileName().c_str());
-		LOG("    %s\n", GetBinArchiveFileName().c_str());
+		LOG("    %s\n", GetFileContainer()->GetDatFile().GetRelativeFile());
 
+		/*
 		for (const auto& [archiveFileName, archive] : mTscArchiveCache)
 		{
 			LOG("    %s\n", archiveFileName.c_str());
@@ -571,16 +526,18 @@ namespace ark
 		{
 			LOG("    %s\n", archiveFileName.c_str());
 		}
+		*/
 
 		LOG("\n");
 		LOG("Searching files:\n");
-		LOG("    %s\n", GetDatArchiveFileName().c_str());
+		LOG("    %s\n", GetFileContainer()->GetDatFile().GetRelativeFile());
 		LOG("        Found %u TSC files\n", mTscArchive ? 1 : 0);
 		LOG("        Found %u TRE files\n", mTreArchive ? 1 : 0);
 		LOG("        Found %u TAT files\n", mTatArchive ? 1 : 0);
 		LOG("        Found %u SCR files\n", (U32)mScrArchives.size());
 		LOG("        Found %u DDS files\n", (U32)mDdsArchives.size());
 
+		/*
 		for (const auto& [archiveFileName, archive] : mTscArchiveCache)
 		{
 			LOG("    %s\n", archiveFileName.c_str());
@@ -601,16 +558,18 @@ namespace ark
 			LOG("        Found %u MD files\n", (U32)mTatEntityDataCache[archive].MdGroups.size());
 			LOG("        Found %u DDS files\n", (U32)mTatEntityDataCache[archive].MdTextures.size());
 		}
+		*/
 
 		LOG("\n");
 		LOG("Loading models:\n");
 
-		LOG("    %s\n", GetDatArchiveFileName().c_str());
+		LOG("    %s\n", GetFileContainer()->GetDatFile().GetRelativeFile());
 		for (const auto& archive : mScrArchives)
 		{
 			LOG("        %s.%s\n", archive->GetName().c_str(), archive->GetType().c_str());
 		}
 
+		/*
 		for (const auto& [archiveFileName, cachedArchive] : mTscArchiveCache)
 		{
 			LOG("    %s\n", archiveFileName.c_str());
@@ -637,16 +596,18 @@ namespace ark
 				LOG("        %s.%s\n", archive->GetName().c_str(), archive->GetType().c_str());
 			}
 		}
+		*/
 
 		LOG("\n");
 		LOG("Loading textures:\n");
 
-		LOG("    %s\n", GetDatArchiveFileName().c_str());
+		LOG("    %s\n", GetFileContainer()->GetDatFile().GetRelativeFile());
 		for (const auto& archive : mDdsArchives)
 		{
 			LOG("        %s.%s\n", archive->GetName().c_str(), archive->GetType().c_str());
 		}
 
+		/*
 		for (const auto& [archiveFileName, cachedArchive] : mTscArchiveCache)
 		{
 			LOG("    %s\n", archiveFileName.c_str());
@@ -673,7 +634,9 @@ namespace ark
 				LOG("        %s.%s\n", archive->GetName().c_str(), archive->GetType().c_str());
 			}
 		}
+		*/
 
+		/*
 		LOG("\n");
 		LOG("Loading TSC objects:\n");
 
@@ -695,6 +658,7 @@ namespace ark
 		{
 			LOG("    Id=0x%02X Category=0x%02X\n", entity.Object.Id, entity.Object.Category);
 		}
+		*/
 
 		LOG("\n");
 	}

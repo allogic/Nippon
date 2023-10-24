@@ -15,7 +15,7 @@ using namespace ark;
 
 namespace fs = std::filesystem;
 
-I32 main(I32 Argc, char** Argv)
+I32 main(I32 Argc, I8** Argv)
 {
 	CommandLine::Init(Argc, Argv);
 

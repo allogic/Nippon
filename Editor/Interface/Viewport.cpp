@@ -26,7 +26,7 @@ namespace ark
 	void Viewport::Render()
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0F, 0.0F });
-		ImGui::Begin(mScene->GetWindowName().c_str(), &mIsOpen);
+		ImGui::Begin(mScene->GetFileContainer()->GetWindowName(), &mIsOpen);
 
 		if (mIsOpen)
 		{
@@ -58,7 +58,7 @@ namespace ark
 
 	void Viewport::SetFocused()
 	{
-		ImGui::SetWindowFocus(mScene->GetWindowName().c_str());
+		ImGui::SetWindowFocus(mScene->GetFileContainer()->GetWindowName());
 	}
 
 	bool Viewport::HasResized()
@@ -115,7 +115,7 @@ namespace ark
 				if (mousePositionX > windowWidth) mousePositionX = windowWidth;
 				if (mousePositionY > windowHeight) mousePositionY = windowHeight;
 
-				U32 actorId = FrameBuffer::ReadIntegerAt(frameBuffer, mousePositionX, mousePositionY, 1);
+				U32 actorId = FrameBuffer::ReadInteger(frameBuffer, mousePositionX, mousePositionY);
 
 				if (actorId > 0)
 				{

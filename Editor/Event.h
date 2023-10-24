@@ -6,7 +6,7 @@ struct GLFWwindow;
 
 namespace ark
 {
-	typedef enum
+	enum KeyCode : U32
 	{
 		eKeyCodeA = 65,
 		eKeyCodeB = 66,
@@ -40,9 +40,9 @@ namespace ark
 
 		eKeyCodeRightShift = 344,
 		eKeyCodeRightCtrl = 245,
-	} KeyCode;
+	};
 
-	typedef enum
+	enum MouseCode : U32
 	{
 		eMouseCode1 = 0,
 		eMouseCode2 = 1,
@@ -55,13 +55,13 @@ namespace ark
 		eMouseCodeLeft = 0,
 		eMouseCodeRight = 1,
 		eMouseCodeMiddle = 2,
-	} MouseCode;
+	};
 
 	class Event
 	{
 	private:
 
-		enum EventState
+		enum EventState : U32
 		{
 			eEventStateNone,
 			eEventStateDown,
