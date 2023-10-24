@@ -1,36 +1,28 @@
 #pragma once
 
+#include <cstdlib>
 #include <vector>
-#include <string>
-#include <cstring>
+#include <sstream>
 
 #include <Common/Types.h>
 #include <Common/Macros.h>
 
 namespace ark
 {
-	class BinaryWriter
+	class BinaryWriter : private std::ostringstream
 	{
 	public:
 
-		BinaryWriter(U8* Bytes, U64 Size);
+		inline const auto GetBytes() const { return (U8*)rdbuf()->view().data(); }
+		inline const auto GetSize() const { return rdbuf()->view().size(); }
 
 	public:
 
-		inline const auto& GetBytes() const { return mBytes; }
-		inline const auto& GetSize() const { return mSize; }
-		inline const auto& GetPosition() const { return mPosition; }
+		inline void SeekRel(I64 Value) { seekp(Value, std::ios_base::cur); }
+		inline void SeekAbs(U64 Value) { seekp(Value, std::ios_base::beg); }
 
-	public:
-
-		inline void SeekRel(I64 Value) { mPosition += Value; }
-		inline void SeekAbs(I64 Value) { mPosition = Value; }
-
-		inline void AlignUp(U64 Alignment) { mPosition = ALIGN_UP(mPosition, Alignment); }
-		inline void AlignDown(U64 Alignment) { mPosition = ALIGN_DOWN(mPosition, Alignment); }
-
-		inline void ModUp(U64 Modulus) { mPosition += (mPosition % Modulus); }
-		inline void ModDown(U64 Modulus) { mPosition -= (mPosition % Modulus); }
+		inline void AlignUp(U64 Alignment) { seekp(ALIGN_UP((U64)tellp(), Alignment), std::ios_base::beg); }
+		inline void AlignDown(U64 Alignment) { seekp(ALIGN_DOWN((U64)tellp(), Alignment), std::ios_base::beg); }
 
 	public:
 
@@ -40,19 +32,13 @@ namespace ark
 		template<typename T>
 		void Write(const std::vector<T>& Values);
 
-		void Repeat(U8 Char, U64 Size);
-		void String(const std::string& Value, U64 Size);
-		void Bytes(U8* Bytes, U64 Size);
+		void FillRange(U8 Byte, U64 Size);
+		void ByteRange(const U8* Bytes, U64 Size);
+		void StringRange(const I8* Bytes, U64 Size);
 
-		void Zero(U64 Size);
-		void ZeroNoInc(U64 Size);
+	public:
 
-	private:
-
-		U8* mBytes;
-		U64 mSize;
-
-		U64 mPosition = 0;
+		void CopyDataInto(U8* Bytes);
 	};
 }
 
@@ -61,16 +47,12 @@ namespace ark
 	template<typename T>
 	void BinaryWriter::Write(T Value)
 	{
-		std::memcpy(mBytes + mPosition, &Value, sizeof(T));
-
-		mPosition += sizeof(T);
+		write((I8*)&Value, sizeof(T));
 	}
 
 	template<typename T>
 	void BinaryWriter::Write(const std::vector<T>& Values)
 	{
-		std::memcpy(mBytes + mPosition, Values.data(), Values.size() * sizeof(T));
-
-		mPosition += Values.size() * sizeof(T);
+		write((I8*)Values.data(), Values.size() * sizeof(T));
 	}
 }

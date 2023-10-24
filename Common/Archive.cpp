@@ -87,12 +87,12 @@ namespace ark
 		UpdateByteArraysRecursive();
 	}
 
-	void Archive::ExtractToDisk(fs::path File)
+	void Archive::ExtractToDisk(const fs::path& File)
 	{
 		ExtractToDiskRecursive(File);
 	}
 
-	void Archive::UnfoldToDisk(fs::path File)
+	void Archive::UnfoldToDisk(const fs::path& File)
 	{
 		UnfoldToDiskRecursive(File);
 	}
@@ -108,19 +108,19 @@ namespace ark
 		LOG("\n");
 	}
 
-	void Archive::FindArchiveByType(std::string Type, Archive** Result)
+	void Archive::FindArchiveByType(const std::string& Type, Archive** Result)
 	{
 		FindArchiveByTypeRecursive(Type, Result);
 	}
 
-	void Archive::FindArchivesByType(std::string Type, std::vector<Archive*>& Result)
+	void Archive::FindArchivesByType(const std::string& Type, std::vector<Archive*>& Result)
 	{
 		FindArchivesByTypeRecursive(Type, Result);
 	}
 
 	void Archive::SerializeRecursive()
 	{
-		BinaryWriter writer = { mBytes, mSize };
+		BinaryWriter writer = {};
 
 		if (mIsDirectory)
 		{
@@ -137,7 +137,7 @@ namespace ark
 		{
 			if (mType == "ROF")
 			{
-				writer.String("RUNOFS64", 8);
+				writer.StringRange("RUNOFS64", 8);
 
 				U64 acc = ALIGN_UP(4 + ((mParent->size() * 2) * 4), FILE_ALIGNMENT);
 
@@ -152,6 +152,8 @@ namespace ark
 				}
 			}
 		}
+
+		writer.CopyDataInto(mBytes);
 	}
 
 	void Archive::DeSerializeRecursive()
@@ -474,15 +476,13 @@ namespace ark
 
 	void Archive::WriteDirectoryHeader(BinaryWriter& Writer)
 	{
-		U64 acc = 0;
-
-		acc += ALIGN_UP(4 + ((size() * 2) * 4), FILE_ALIGNMENT);
-
-		Writer.ZeroNoInc(acc);
-
 		U16 entryCount = (U16)size();
 
 		Writer.Write<U32>((U32)entryCount);
+
+		U64 acc = 0;
+
+		acc += ALIGN_UP(4 + ((size() * 2) * 4), FILE_ALIGNMENT);
 
 		for (U16 i = 0; i < entryCount; i++)
 		{
@@ -499,7 +499,7 @@ namespace ark
 		{
 			Archive* archive = (*this)[i];
 
-			Writer.String(archive->mType, 4);
+			Writer.StringRange(archive->mType.data(), 4);
 		}
 
 		Writer.AlignUp(FILE_ALIGNMENT);
@@ -507,10 +507,10 @@ namespace ark
 
 	void Archive::WriteFileContent(BinaryWriter& Writer, Archive* Archive)
 	{
-		Writer.Zero(8);
-		Writer.String(Archive->mType, 4);
-		Writer.String(Archive->mName, 20);
-		Writer.Bytes(Archive->mBytes, Archive->mSize);
+		Writer.FillRange('\0', 8);
+		Writer.StringRange(Archive->mType.c_str(), 4);
+		Writer.StringRange(Archive->mName.c_str(), 20);
+		Writer.ByteRange(Archive->mBytes, Archive->mSize);
 	}
 
 	U64 Archive::UpdateSizesRecursive()

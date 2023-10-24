@@ -179,26 +179,13 @@ namespace ark
 
 	void MainMenu::GenerateImGuiConfig()
 	{
-		std::ostringstream oss;
+		std::ostringstream oss = {};
 
-		for (const auto& directory : FileDatabase::GetLevelDirectories())
+		for (const auto& directory : FileDatabase::GetAllDirectories())
 		{
-			for (const auto& fileContainer : FileDatabase::GetLevelFileContainersByDirectory(directory))
+			for (const auto& fileContainer : FileDatabase::GetFileContainersByDirectory(directory))
 			{
-				oss << "[Window][" << fileContainer.GetWindowName() << "]\n";
-				oss << "Pos=308,28\n";
-				oss << "Size=1044,1052\n";
-				oss << "Collapsed=0\n";
-				oss << "DockId=0x00000002,0\n";
-				oss << "\n";
-			}
-		}
-
-		for (const auto& directory : FileDatabase::GetEntityDirectories())
-		{
-			for (const auto& fileContainer : FileDatabase::GetEntityFileContainersByDirectory(directory))
-			{
-				oss << "[Window][" << fileContainer.GetWindowName() << "]\n";
+				oss << "[Window][" << fileContainer->GetWindowName() << "]\n";
 				oss << "Pos=308,28\n";
 				oss << "Size=1044,1052\n";
 				oss << "Collapsed=0\n";

@@ -42,11 +42,11 @@ namespace ark
 		std::vector<U8> Serialize();
 		void DeSerialize(const std::vector<U8>& Bytes);
 
-		void ExtractToDisk(fs::path File);
-		void UnfoldToDisk(fs::path File);
+		void ExtractToDisk(const fs::path& File);
+		void UnfoldToDisk(const fs::path& File);
 		void PrintTableOfContent(U32 Offset = 0, U32 Indent = 0, U32 Increment = 4);
-		void FindArchiveByType(std::string Type, Archive** Result);
-		void FindArchivesByType(std::string Type, std::vector<Archive*>& Result);
+		void FindArchiveByType(const std::string& Type, Archive** Result);
+		void FindArchivesByType(const std::string& Type, std::vector<Archive*>& Result);
 
 	private:
 

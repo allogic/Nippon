@@ -1,5 +1,6 @@
 #include <Common/Macros.h>
 #include <Common/BinaryReader.h>
+#include <Common/BinaryWriter.h>
 
 #include <Common/Utilities/FsUtils.h>
 
@@ -15,9 +16,11 @@
 
 #include <Editor/Utilities/ImageUtils.h>
 
+#define FILE_DATABASE_NAME "ThumbnailDatabase.db"
+
 namespace ark
 {
-	static std::map<U32, ThumbnailContainer> sThumbnailsByIdentifier = {};
+	static std::map<U32, const ThumbnailContainer*> sThumbnailsByIdentifier = {};
 
 	void ThumbnailDatabase::Create()
 	{
@@ -26,114 +29,71 @@ namespace ark
 
 	void ThumbnailDatabase::Generate()
 	{
-		fs::path databaseFile = "ThumbnailDatabase.db";
+		BinaryWriter writer = {};
 
-		std::ofstream stream = std::ofstream{ databaseFile, std::ios::binary };
+		U32 entryCount = FileDatabase::GetTotalLevelCount() + FileDatabase::GetTotalEntityCount();
 
-		if (stream.is_open())
+		writer.Write<U32>(entryCount);
+
+		for (const auto& directory : FileDatabase::GetAllDirectories())
 		{
-			U32 entryCount = FileDatabase::GetTotalLevelCount() + FileDatabase::GetTotalEntityCount();
-
-			stream.write((I8*)&entryCount, sizeof(U32));
-
-			for (const auto& directory : FileDatabase::GetLevelDirectories())
+			for (const auto& fileContainer : FileDatabase::GetFileContainersByDirectory(directory))
 			{
-				for (const auto& fileContainer : FileDatabase::GetLevelFileContainersByDirectory(directory))
+				if (Scene* scene = SceneManager::CreateScene(fileContainer))
 				{
-					if (Scene* scene = SceneManager::CreateScene(&fileContainer))
-					{
-						LOG("Generating for \\%s\\%s\n", fileContainer.GetDirectoryId(), fileContainer.GetFileId());
+					LOG("Generating for \\%s\\%s\n", fileContainer->GetDirectoryId(), fileContainer->GetFileId());
 
-						Actor* player = scene->GetPlayerActor();
-						Camera* camera = scene->GetMainCamera();
+					Actor* player = scene->GetPlayerActor();
+					Camera* camera = scene->GetMainCamera();
 
-						player->GetTransform()->SetLocalPosition(R32V3{ 100.0F, 50.0F, 100.0F });
-						player->GetTransform()->SetLocalRotation(R32V3{ -20.0F, 45.0F, 0.0F });
+					player->GetTransform()->SetLocalPosition(R32V3{ 100.0F, 50.0F, 100.0F });
+					player->GetTransform()->SetLocalRotation(R32V3{ -20.0F, 45.0F, 0.0F });
 
-						scene->Load();
-						scene->Resize(128, 128);
-						scene->Invalidate();
+					scene->Load();
+					scene->Resize(128, 128);
+					scene->Invalidate();
 
-						U32 frameBuffer = scene->GetFrameBuffer();
-						U32 colorTexture = FrameBuffer::GetColorTexture(frameBuffer, 0);
+					U32 frameBuffer = scene->GetFrameBuffer();
+					U32 colorTexture = FrameBuffer::GetColorTexture(frameBuffer, 0);
 
-						U32 dummyTexture = 0;
+					U32 dummyTexture = 0;
 
-						std::vector<U8> bytes = ImageUtils::WritePNG(colorTexture);
-						U32 size = (U32)bytes.size();
+					std::vector<U8> bytes = ImageUtils::WritePNG(colorTexture);
 
-						stream.write((I8*)&fileContainer.GetIdentifier(), sizeof(U32));
-						stream.write((I8*)&fileContainer.GetType(), sizeof(U32));
-						stream.write((I8*)&dummyTexture, sizeof(U32));
-						stream.write((I8*)&size, sizeof(U32));
-						stream.write((I8*)bytes.data(), bytes.size());
+					writer.Write<U32>(fileContainer->GetIdentifier());
+					writer.Write<U32>(fileContainer->GetType());
+					writer.Write<U32>(dummyTexture);
+					writer.Write<U32>((U32)bytes.size());
+					writer.ByteRange(bytes.data(), bytes.size());
 
-						SceneManager::DestroyScene(scene);
-					}
+					SceneManager::DestroyScene(scene);
 				}
 			}
-
-			for (const auto& directory : FileDatabase::GetEntityDirectories())
-			{
-				for (const auto& fileContainer : FileDatabase::GetEntityFileContainersByDirectory(directory))
-				{
-					if (Scene* scene = SceneManager::CreateScene(&fileContainer))
-					{
-						LOG("Generating for \\%s\\%s\n", fileContainer.GetDirectoryId(), fileContainer.GetFileId());
-
-						Actor* player = scene->GetPlayerActor();
-						Camera* camera = scene->GetMainCamera();
-
-						player->GetTransform()->SetLocalPosition(R32V3{ 100.0F, 50.0F, 100.0F });
-						player->GetTransform()->SetLocalRotation(R32V3{ -20.0F, 45.0F, 0.0F });
-
-						scene->Load();
-						scene->Resize(128, 128);
-						scene->Invalidate();
-
-						U32 frameBuffer = scene->GetFrameBuffer();
-						U32 colorTexture = FrameBuffer::GetColorTexture(frameBuffer, 0);
-
-						U32 dummyTexture = 0;
-
-						std::vector<U8> bytes = ImageUtils::WritePNG(colorTexture);
-						U32 size = (U32)bytes.size();
-
-						stream.write((I8*)&fileContainer.GetIdentifier(), sizeof(U32));
-						stream.write((I8*)&fileContainer.GetType(), sizeof(U32));
-						stream.write((I8*)&dummyTexture, sizeof(U32));
-						stream.write((I8*)&size, sizeof(U32));
-						stream.write((I8*)bytes.data(), bytes.size());
-
-						SceneManager::DestroyScene(scene);
-					}
-				}
-			}
-
-			stream.close();
 		}
+
+		FsUtils::WriteBinary(FILE_DATABASE_NAME, writer.GetBytes(), writer.GetSize());
 	}
 
 	void ThumbnailDatabase::Destroy()
 	{
 		for (const auto& [identifier, thumbnailContainer] : sThumbnailsByIdentifier)
 		{
-			Texture2D::Destroy(thumbnailContainer.mTexture);
+			Texture2D::Destroy(thumbnailContainer->mTexture);
+
+			delete thumbnailContainer;
 		}
 	}
 
-	const ThumbnailContainer& ThumbnailDatabase::GetThumbnailContainerByIdentifier(U32 Identifier)
+	const ThumbnailContainer* ThumbnailDatabase::GetThumbnailContainerByIdentifier(U32 Identifier)
 	{
 		return sThumbnailsByIdentifier[Identifier];
 	}
 
 	void ThumbnailDatabase::LoadThumbnails()
 	{
-		fs::path databaseFile = "ThumbnailDatabase.db";
-
-		if (fs::exists(databaseFile))
+		if (fs::exists(FILE_DATABASE_NAME))
 		{
-			std::vector<U8> bytes = FsUtils::ReadBinary(databaseFile);
+			std::vector<U8> bytes = FsUtils::ReadBinary(FILE_DATABASE_NAME);
 
 			BinaryReader reader = { bytes.data(), bytes.size() };
 
@@ -141,20 +101,23 @@ namespace ark
 
 			for (U32 i = 0; i < entryCount; i++)
 			{
-				ThumbnailContainer thumbnailContainerTmp = reader.Read<ThumbnailContainer>();
+				ThumbnailContainer* thumbnailContainer = new ThumbnailContainer;
+
+				ThumbnailContainer dummyThumbnailContainer = reader.Read<ThumbnailContainer>();
+
+				std::memcpy(thumbnailContainer, &dummyThumbnailContainer, sizeof(ThumbnailContainer));
+
+				sThumbnailsByIdentifier[thumbnailContainer->mIdentifier] = thumbnailContainer;
+
 				U32 thumbnailSize = reader.Read<U32>();
 				std::vector<U8> bytes = reader.Bytes(thumbnailSize);
 
-				sThumbnailsByIdentifier[thumbnailContainerTmp.mIdentifier] = thumbnailContainerTmp;
-
-				ThumbnailContainer& thumbnailContainer = sThumbnailsByIdentifier[thumbnailContainerTmp.mIdentifier];
-
-				thumbnailContainer.mTexture = ImageUtils::ReadPNG(bytes.data(), bytes.size());
+				thumbnailContainer->mTexture = ImageUtils::ReadPNG(bytes.data(), bytes.size());
 			}
 		}
 		else
 		{
-			LOG("Thumbnail database %s does not exist\n", databaseFile.string().c_str());
+			LOG("Thumbnail database does not exist\n");
 		}
 	}
 }

@@ -42,7 +42,7 @@ namespace ark
 			{
 				ImGui::PushID(directory);
 
-				if (ImGui::BeginTabItem(FileDatabase::GetEntityDirectoryIdByDirectory(directory)))
+				if (ImGui::BeginTabItem(FileDatabase::GetDirectoryIdByDirectory(directory)))
 				{
 					ImGui::BeginChild("Entity Directory");
 
@@ -59,16 +59,16 @@ namespace ark
 
 						ImTextureID textureId = nullptr;
 
-						const auto& thumbnailContainer = ThumbnailDatabase::GetThumbnailContainerByIdentifier(fileContainers[i].GetIdentifier());
+						const auto& thumbnailContainer = ThumbnailDatabase::GetThumbnailContainerByIdentifier(fileContainers[i]->GetIdentifier());
 
-						if (U32 texture = thumbnailContainer.GetTexture())
+						if (U32 texture = thumbnailContainer->GetTexture())
 						{
 							textureId = (ImTextureID)(U64)texture;
 						}
 
 						if (ImGui::ImageButton(textureId, ImVec2{ 128.0F, 128.0F }))
 						{
-							if (Scene* scene = SceneManager::CreateScene(&fileContainers[i]))
+							if (Scene* scene = SceneManager::CreateScene(fileContainers[i]))
 							{
 								scene->SetEnableConsole(true);
 								scene->SetEnableDebug(true);

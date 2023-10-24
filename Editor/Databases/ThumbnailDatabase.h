@@ -6,7 +6,6 @@
 #include <vector>
 #include <set>
 #include <map>
-#include <fstream>
 
 #include <Common/Types.h>
 
@@ -54,7 +53,7 @@ namespace ark
 
 	public:
 
-		static const ThumbnailContainer& GetThumbnailContainerByIdentifier(U32 Identifier);
+		static const ThumbnailContainer* GetThumbnailContainerByIdentifier(U32 Identifier);
 
 	private:
 

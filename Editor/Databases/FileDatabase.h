@@ -6,7 +6,6 @@
 #include <vector>
 #include <set>
 #include <map>
-#include <fstream>
 #include <sstream>
 
 #include <Common/Types.h>
@@ -118,24 +117,25 @@ namespace ark
 
 	public:
 
+		static U32 GetTotalCount();
 		static U32 GetTotalLevelCount();
 		static U32 GetTotalEntityCount();
 
+		static const std::set<U16>& GetAllDirectories();
 		static const std::set<U16>& GetLevelDirectories();
 		static const std::set<U16>& GetEntityDirectories();
 
-		static const I8* GetLevelDirectoryIdByDirectory(U16 Directory);
-		static const I8* GetEntityDirectoryIdByDirectory(U16 Directory);
+		static const I8* GetDirectoryIdByDirectory(U16 Directory);
+		static const I8* GetDirectoryNameByDirectory(U16 Directory);
 
-		static const I8* GetLevelDirectoryNameByDirectory(U16 Directory);
-		static const I8* GetEntityDirectoryNameByDirectory(U16 Directory);
-
-		static const std::vector<FileContainer>& GetLevelFileContainersByDirectory(U16 Directory);
-		static const std::vector<FileContainer>& GetEntityFileContainersByDirectory(U16 Directory);
+		static const std::vector<const FileContainer*>& GetFileContainersByDirectory(U16 Directory);
+		static const std::vector<const FileContainer*>& GetLevelFileContainersByDirectory(U16 Directory);
+		static const std::vector<const FileContainer*>& GetEntityFileContainersByDirectory(U16 Directory);
 
 	private:
 
 		static std::map<U32, std::string> LoadLabels();
+		static void BuildFileContainersForDirectories(const std::set<std::string>& Directories, std::map<U32, std::string>& Labels, FileContainer::FileType Type, std::map<U32, FileContainer>& FileContainers);
 		static void LoadFileContainers();
 	};
 }

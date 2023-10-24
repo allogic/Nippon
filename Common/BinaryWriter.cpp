@@ -2,47 +2,34 @@
 
 namespace ark
 {
-	BinaryWriter::BinaryWriter(U8* Bytes, U64 Size)
-		: mBytes{ Bytes }
-		, mSize{ Size }
-	{
-
-	}
-
-	void BinaryWriter::Repeat(U8 Char, U64 Size)
+	void BinaryWriter::FillRange(U8 Byte, U64 Size)
 	{
 		for (U64 i = 0; i < Size; i++)
 		{
-			*(mBytes + mPosition + i) = Char;
+			write((I8*)&Byte, sizeof(U8));
 		}
-
-		mPosition += Size;
 	}
 
-	void BinaryWriter::String(const std::string& Value, U64 Size)
+	void BinaryWriter::ByteRange(const U8* Bytes, U64 Size)
 	{
-		std::memset(mBytes + mPosition, 0, Size);
-		std::memcpy(mBytes + mPosition, Value.data(), Value.size());
-
-		mPosition += Size;
+		for (U64 i = 0; i < Size; i++)
+		{
+			write((I8*)(Bytes + i), sizeof(U8));
+		}
 	}
 
-	void BinaryWriter::Bytes(U8* Bytes, U64 Size)
+	void BinaryWriter::StringRange(const I8* Bytes, U64 Size)
 	{
-		std::memcpy(mBytes + mPosition, Bytes, Size);
-
-		mPosition += Size;
+		for (U64 i = 0; i < Size; i++)
+		{
+			write(Bytes + i, sizeof(I8));
+		}
 	}
 
-	void BinaryWriter::Zero(U64 Size)
+	void BinaryWriter::CopyDataInto(U8* Bytes)
 	{
-		std::memset(mBytes + mPosition, 0, Size);
+		const std::string& string = str();
 
-		mPosition += Size;
-	}
-
-	void BinaryWriter::ZeroNoInc(U64 Size)
-	{
-		std::memset(mBytes + mPosition, 0, Size);
+		std::memcpy(Bytes, string.data(), string.size());
 	}
 }
