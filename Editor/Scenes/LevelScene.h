@@ -3,15 +3,10 @@
 #include <string>
 #include <filesystem>
 #include <vector>
-#include <map>
 
 #include <Common/Types.h>
 
 #include <Editor/Scene.h>
-
-#include <Editor/Structs/ScrStructs.h>
-#include <Editor/Structs/MdStructs.h>
-#include <Editor/Structs/ObjStructs.h>
 
 namespace ark
 {
@@ -32,8 +27,6 @@ namespace ark
 
 		inline const auto& GetLevelGeometryActor() const { return mLevelGeometryActor; }
 		inline const auto& GetEntityGeometryActor() const { return mEntityGeometryActor; }
-		inline const auto& GetScrGroups() const { return mScrGroups; }
-		inline const auto& GetScrTextures() const { return mScrTextures; }
 
 	public:
 
@@ -43,7 +36,7 @@ namespace ark
 	private:
 
 		void LoadArchives();
-		void LoadLevel();
+		void LoadAssets();
 		void LoadEntities();
 
 	private:
@@ -72,9 +65,6 @@ namespace ark
 
 		std::vector<Archive*> mScrArchives = {};
 		std::vector<Archive*> mDdsArchives = {};
-
-		std::vector<ScrGroup> mScrGroups = {};
-		std::vector<U32> mScrTextures = {};
 
 	private:
 

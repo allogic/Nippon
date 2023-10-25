@@ -3,7 +3,6 @@
 #include <Common/Archive.h>
 
 #include <Common/Utilities/FsUtils.h>
-#include <Common/Utilities/StringUtils.h>
 
 #include <Editor/Actor.h>
 #include <Editor/Editor.h>
@@ -20,9 +19,8 @@
 #include <Editor/Converter/ElementConverter.h>
 #include <Editor/Converter/VertexConverter.h>
 
-#include <Editor/Serializer/ScrSerializer.h>
-#include <Editor/Serializer/MdSerializer.h>
-#include <Editor/Serializer/ObjSerializer.h>
+#include <Editor/Serializer/ModelSerializer.h>
+#include <Editor/Serializer/ObjectSerializer.h>
 
 #include <Editor/Utilities/ImageUtils.h>
 
@@ -55,21 +53,16 @@ namespace ark
 
 	LevelScene::~LevelScene()
 	{
-		// TODO: Delete all entity textures..
-
-		Texture2D::Destroy(mScrTextures);
-
 		if (mDatArchive)
 		{
 			delete mDatArchive;
-			mDatArchive = nullptr;
 		}
 	}
 
 	void LevelScene::Load()
 	{
 		LoadArchives();
-		LoadLevel();
+		LoadAssets();
 		LoadEntities();
 
 		AddStaticGeometry();
@@ -96,20 +89,38 @@ namespace ark
 		mDatArchive = new Archive;
 
 		mDatArchive->DeSerialize(datBytes);
-	}
 
-	void LevelScene::LoadLevel()
-	{
 		mDatArchive->FindArchiveByType("TSC", &mTscArchive);
 		mDatArchive->FindArchiveByType("TRE", &mTreArchive);
 		mDatArchive->FindArchiveByType("TAT", &mTatArchive);
 
 		mDatArchive->FindArchivesByType("SCR", mScrArchives);
 		mDatArchive->FindArchivesByType("DDS", mDdsArchives);
+	}
 
-		const auto& tscObjects = ObjSerializer::FromBytes(mTscArchive->GetBytes(), mTscArchive->GetSize());
-		const auto& treObjects = ObjSerializer::FromBytes(mTreArchive->GetBytes(), mTreArchive->GetSize());
-		const auto& tatObjects = ObjSerializer::FromBytes(mTatArchive->GetBytes(), mTatArchive->GetSize());
+	void LevelScene::LoadAssets()
+	{
+		for (const auto& archive : mScrArchives)
+		{
+			GenericModel& model = AddModel();
+
+			model.SetType(GenericModel::eModelTypeScr);
+			model.SetName(archive->GetName());
+			model.SetScrMeshes(ModelSerializer::DeSerialize<ScrMesh>(archive->GetBytes(), archive->GetSize()));
+		}
+
+		for (const auto& archive : mDdsArchives)
+		{
+			GenericTexture& texture = AddTexture();
+
+			texture.SetType(GenericTexture::eTextureTypeScr);
+			texture.SetName(archive->GetName());
+			texture.SetTexture(ImageUtils::ReadDDS(archive->GetBytes(), archive->GetSize()));
+		}
+
+		//const auto& tscObjects = ObjectSerializer::DeSerialize(mTscArchive->GetBytes(), mTscArchive->GetSize());
+		//const auto& treObjects = ObjectSerializer::DeSerialize(mTreArchive->GetBytes(), mTreArchive->GetSize());
+		//const auto& tatObjects = ObjectSerializer::DeSerialize(mTatArchive->GetBytes(), mTatArchive->GetSize());
 
 		/*
 		for (U32 i = 0; i < (U32)tscObjects.size(); i++)
@@ -167,17 +178,17 @@ namespace ark
 		}
 		*/
 
-		for (const auto& archive : mScrArchives)
-		{
-			ScrGroup& group = mScrGroups.emplace_back(ScrSerializer::FromBytes(archive->GetBytes(), archive->GetSize()));
-
-			group.Name = archive->GetName();
-		}
-
-		for (const auto& archive : mDdsArchives)
-		{
-			mScrTextures.emplace_back(ImageUtils::ReadDDS(archive->GetBytes(), archive->GetSize()));
-		}
+		//for (const auto& archive : mScrArchives)
+		//{
+		//	ScrGroup& group = mScrGroups.emplace_back(ScrSerializer::FromBytes(archive->GetBytes(), archive->GetSize()));
+		//
+		//	group.Name = archive->GetName();
+		//}
+		//
+		//for (const auto& archive : mDdsArchives)
+		//{
+		//	mScrTextures.emplace_back(ImageUtils::ReadDDS(archive->GetBytes(), archive->GetSize()));
+		//}
 	}
 
 	void LevelScene::LoadEntities()
@@ -304,47 +315,50 @@ namespace ark
 
 	void LevelScene::AddStaticGeometry()
 	{
-		for (const auto& group : mScrGroups)
+		const auto& models = GetModels();
+		const auto& textures = GetTextures();
+
+		for (const auto& model : models)
 		{
-			Actor* groupActor = CreateActor<Actor>(group.Name, mLevelGeometryActor);
+			Actor* modelActor = CreateActor<Actor>(model.GetName(), mLevelGeometryActor);
 
-			for (const auto& model : group.Models)
+			for (const auto& mesh : model.GetScrMeshes())
 			{
-				Actor* modelActor = CreateActor<Actor>("Model_" + std::to_string(model.Index), groupActor);
+				Actor* meshActor = CreateActor<Actor>("Mesh_" + std::to_string(mesh.Index), modelActor);
 
-				Transform* modelTransform = modelActor->GetTransform();
+				Transform* meshTransform = meshActor->GetTransform();
 
-				const ScrTransform& transform = model.Transform;
+				const ScrTransform& transform = mesh.Transform;
 
 				R32V3 position = R32V3{ transform.Position.x, transform.Position.y, transform.Position.z } * MAGIC_WORLD_SCALE;
 				R32V3 rotation = glm::degrees(R32V3{ transform.Rotation.x, transform.Rotation.y, transform.Rotation.z } / 360.0F * MAGIC_ROTATION_COEFFICIENT);
 				R32V3 scale = R32V3{ transform.Scale.x, transform.Scale.y, transform.Scale.z } / MAGIC_SCALE_COEFFICIENT * MAGIC_WORLD_SCALE;
 
-				modelTransform->SetLocalPosition(position);
+				meshTransform->SetLocalPosition(position);
 
-				for (const auto& division : model.Entry.Divisions)
+				for (const auto& subMesh : mesh.SubMeshes)
 				{
-					Actor* divisonActor = CreateActor<Actor>("Division_" + std::to_string(division.Index), modelActor);
+					Actor* subMeshActor = CreateActor<Actor>("SubMesh_" + std::to_string(subMesh.Index), meshActor);
 
-					Transform* divisionTransform = divisonActor->GetComponent<Transform>();
+					Transform* subMeshTransform = subMeshActor->GetComponent<Transform>();
 
-					divisionTransform->SetLocalRotation(rotation);
-					divisionTransform->SetLocalScale(scale);
+					subMeshTransform->SetLocalRotation(rotation);
+					subMeshTransform->SetLocalScale(scale);
 
-					Renderable* divisionRenderable = divisonActor->AttachComponent<Renderable>();
+					Renderable* subMeshRenderable = subMeshActor->AttachComponent<Renderable>();
 
-					std::vector<DefaultVertex> vertices = VertexConverter::ToVertexBuffer(divisonActor, division.Vertices, division.TextureMaps, division.TextureUvs, division.ColorWeights);
-					std::vector<U32> elements = ElementConverter::ToElementBuffer(division.Vertices);
+					std::vector<DefaultVertex> vertices = VertexConverter::ToVertexBuffer(subMeshActor, subMesh.Vertices, subMesh.TextureMaps, subMesh.TextureUvs, subMesh.ColorWeights);
+					std::vector<U32> elements = ElementConverter::ToElementBuffer(subMesh.Vertices);
 
-					U32 textureIndex = division.Header.TextureIndex;
-					U32 texture = (textureIndex < mScrTextures.size()) ? mScrTextures[textureIndex] : 0;
+					U32 textureIndex = subMesh.Header.TextureIndex;
+					U32 texture = (textureIndex < textures.size()) ? textures[textureIndex].GetTexture() : 0;
 
-					divisionRenderable->SetVertexBuffer(vertices);
-					divisionRenderable->SetElementBuffer(elements);
-					divisionRenderable->LocalToRemote();
-					divisionRenderable->SetTexture(textureIndex, texture);
+					subMeshRenderable->SetVertexBuffer(vertices);
+					subMeshRenderable->SetElementBuffer(elements);
+					subMeshRenderable->LocalToRemote();
+					subMeshRenderable->SetTexture(textureIndex, texture);
 
-					divisonActor->ComputeAABB();
+					subMeshActor->ComputeAABB();
 				}
 			}
 		}

@@ -8,8 +8,6 @@
 
 #include <Editor/Scene.h>
 
-#include <Editor/Structs/MdStructs.h>
-
 namespace ark
 {
 	namespace fs = std::filesystem;
@@ -28,8 +26,6 @@ namespace ark
 	public:
 
 		inline const auto& GetEntityGeometryActor() const { return mEntityGeometryActor; }
-		inline const auto& GetMdGroups() const { return mMdGroups; }
-		inline const auto& GetMdTextures() const { return mMdTextures; }
 
 	public:
 
@@ -39,7 +35,7 @@ namespace ark
 	private:
 
 		void LoadArchives();
-		void LoadEntity();
+		void LoadAssets();
 
 	private:
 
@@ -61,10 +57,5 @@ namespace ark
 
 		std::vector<Archive*> mMdArchives;
 		std::vector<Archive*> mDdsArchives;
-
-	private:
-
-		std::vector<MdGroup> mMdGroups = {};
-		std::vector<U32> mMdTextures = {};
 	};
 }

@@ -6,8 +6,7 @@
 
 #include <Editor/Vertex.h>
 
-#include <Editor/Structs/ScrStructs.h>
-#include <Editor/Structs/MdStructs.h>
+#include <Editor/Structs/ModelStructs.h>
 
 namespace ark
 {
@@ -17,7 +16,7 @@ namespace ark
 	{
 	public:
 
-		static std::vector<DefaultVertex> ToVertexBuffer(Actor* Actor, const std::vector<ScrVertex>& Vertices, const std::vector<ScrTextureMap>& TextureMaps, const std::vector<ScrUv>& TextureUvs, const std::vector<ScrColorWeight>& ColorWeights);
-		static std::vector<DefaultVertex> ToVertexBuffer(Actor* Actor, const std::vector<MdVertex>& Vertices, const std::vector<MdTextureMap>& TextureMaps, const std::vector<MdUv>& TextureUvs, const std::vector<MdColorWeight>& ColorWeights);
+		static std::vector<DefaultVertex> ToVertexBuffer(Actor* Actor, const std::vector<ScrVertex>& Vertices, const std::vector<TextureMap>& TextureMaps, const std::vector<ScrUv>& TextureUvs, const std::vector<ColorWeight>& ColorWeights);
+		static std::vector<DefaultVertex> ToVertexBuffer(Actor* Actor, const std::vector<MdVertex>& Vertices, const std::vector<TextureMap>& TextureMaps, const std::vector<MdUv>& TextureUvs, const std::vector<ColorWeight>& ColorWeights);
 	};
 }

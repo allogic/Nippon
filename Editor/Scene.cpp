@@ -338,4 +338,14 @@ namespace ark
 			}
 		}
 	}
+
+	GenericModel& Scene::AddModel()
+	{
+		return mModels.emplace_back();
+	}
+
+	GenericTexture& Scene::AddTexture()
+	{
+		return mTextures.emplace_back();
+	}
 }

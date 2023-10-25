@@ -19,7 +19,7 @@
 #include <Editor/Converter/ElementConverter.h>
 #include <Editor/Converter/VertexConverter.h>
 
-#include <Editor/Serializer/MdSerializer.h>
+#include <Editor/Serializer/ModelSerializer.h>
 
 #include <Editor/Utilities/ImageUtils.h>
 
@@ -32,8 +32,6 @@ namespace ark
 
 	EntityScene::~EntityScene()
 	{
-		Texture2D::Destroy(mMdTextures);
-
 		if (mDatArchive)
 		{
 			delete mDatArchive;
@@ -43,7 +41,7 @@ namespace ark
 	void EntityScene::Load()
 	{
 		LoadArchives();
-		LoadEntity();
+		LoadAssets();
 
 		AddStaticGeometry();
 		
@@ -69,69 +67,78 @@ namespace ark
 		mDatArchive = new Archive;
 
 		mDatArchive->DeSerialize(datBytes);
-	}
 
-	void EntityScene::LoadEntity()
-	{
 		mDatArchive->FindArchivesByType("MD", mMdArchives);
 		mDatArchive->FindArchivesByType("DDS", mDdsArchives);
+	}
 
+	void EntityScene::LoadAssets()
+	{
 		for (const auto& archive : mMdArchives)
 		{
-			MdGroup& group = mMdGroups.emplace_back(MdSerializer::FromBytes(archive->GetBytes(), archive->GetSize()));
+			GenericModel& model = AddModel();
 
-			group.Name = archive->GetName();
+			model.SetType(GenericModel::eModelTypeMd);
+			model.SetName(archive->GetName());
+			model.SetMdMeshes(ModelSerializer::DeSerialize<MdMesh>(archive->GetBytes(), archive->GetSize()));
 		}
-
+		
 		for (const auto& archive : mDdsArchives)
 		{
-			mMdTextures.emplace_back(ImageUtils::ReadDDS(archive->GetBytes(), archive->GetSize()));
+			GenericTexture& texture = AddTexture();
+
+			texture.SetType(GenericTexture::eTextureTypeMd);
+			texture.SetName(archive->GetName());
+			texture.SetTexture(ImageUtils::ReadDDS(archive->GetBytes(), archive->GetSize()));
 		}
 	}
 
 	void EntityScene::AddStaticGeometry()
 	{
-		for (const auto& group : mMdGroups)
+		const auto& models = GetModels();
+		const auto& textures = GetTextures();
+
+		for (const auto& model : models)
 		{
-			Actor* groupActor = CreateActor<Actor>(group.Name, mEntityGeometryActor);
+			Actor* modelActor = CreateActor<Actor>(model.GetName(), mEntityGeometryActor);
 
-			for (const auto& model : group.Models)
+			for (const auto& mesh : model.GetMdMeshes())
 			{
-				Actor* modelActor = CreateActor<Actor>("Model_" + std::to_string(model.Index), groupActor);
+				Actor* meshActor = CreateActor<Actor>("Mesh_" + std::to_string(mesh.Index), modelActor);
 
-				Transform* modelTransform = modelActor->GetTransform();
+				Transform* meshTransform = meshActor->GetTransform();
 
-				const MdTransform& transform = model.Transform;
+				const MdTransform& transform = mesh.Transform;
 
 				R32V3 position = R32V3{ transform.Position.x, transform.Position.y, transform.Position.z };
 				R32V3 rotation = glm::degrees(R32V3{ transform.Rotation.x, transform.Rotation.y, transform.Rotation.z } / 360.0F * MAGIC_ROTATION_COEFFICIENT);
 				R32V3 scale = R32V3{ transform.Scale.x, transform.Scale.y, transform.Scale.z };
 
-				modelTransform->SetLocalPosition(position);
+				meshTransform->SetLocalPosition(position);
 
-				for (const auto& division : model.Entry.Divisions)
+				for (const auto& subMesh : mesh.SubMeshes)
 				{
-					Actor* divisonActor = CreateActor<Actor>("Division_" + std::to_string(division.Index), modelActor);
+					Actor* subMeshActor = CreateActor<Actor>("SubMesh_" + std::to_string(subMesh.Index), meshActor);
 
-					Transform* divisionTransform = divisonActor->GetComponent<Transform>();
+					Transform* subMeshTransform = subMeshActor->GetComponent<Transform>();
 
-					divisionTransform->SetLocalRotation(rotation);
-					divisionTransform->SetLocalScale(scale);
+					subMeshTransform->SetLocalRotation(rotation);
+					subMeshTransform->SetLocalScale(scale);
 
-					Renderable* divisionRenderable = divisonActor->AttachComponent<Renderable>();
+					Renderable* subMeshRenderable = subMeshActor->AttachComponent<Renderable>();
 
-					std::vector<DefaultVertex> vertices = VertexConverter::ToVertexBuffer(divisonActor, division.Vertices, division.TextureMaps, division.TextureUvs, division.ColorWeights);
-					std::vector<U32> elements = ElementConverter::ToElementBuffer(division.Vertices);
+					std::vector<DefaultVertex> vertices = VertexConverter::ToVertexBuffer(subMeshActor, subMesh.Vertices, subMesh.TextureMaps, subMesh.TextureUvs, subMesh.ColorWeights);
+					std::vector<U32> elements = ElementConverter::ToElementBuffer(subMesh.Vertices);
 
-					U32 textureIndex = division.Header.TextureIndex;
-					U32 texture = (textureIndex < mMdTextures.size()) ? mMdTextures[textureIndex] : 0;
+					U32 textureIndex = subMesh.Header.TextureIndex;
+					U32 texture = (textureIndex < textures.size()) ? textures[textureIndex].GetTexture() : 0;
 
-					divisionRenderable->SetVertexBuffer(vertices);
-					divisionRenderable->SetElementBuffer(elements);
-					divisionRenderable->LocalToRemote();
-					divisionRenderable->SetTexture(textureIndex, texture);
+					subMeshRenderable->SetVertexBuffer(vertices);
+					subMeshRenderable->SetElementBuffer(elements);
+					subMeshRenderable->LocalToRemote();
+					subMeshRenderable->SetTexture(textureIndex, texture);
 
-					divisonActor->ComputeAABB();
+					subMeshActor->ComputeAABB();
 				}
 			}
 		}

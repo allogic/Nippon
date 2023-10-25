@@ -72,13 +72,7 @@
     <ClCompile Include="Serializer\ItsSerializer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Serializer\MdSerializer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Serializer\ObjSerializer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Serializer\ScrSerializer.cpp">
+    <ClCompile Include="Serializer\ObjectSerializer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Actor.cpp">
@@ -147,6 +141,15 @@
     <ClCompile Include="Databases\ThumbnailDatabase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Databases\AssetDatabase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GenericModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GenericTexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actors\Player.h">
@@ -206,28 +209,19 @@
     <ClInclude Include="Serializer\ItsSerializer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Serializer\MdSerializer.h">
+    <ClInclude Include="Serializer\ObjectSerializer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Serializer\ObjSerializer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Serializer\ScrSerializer.h">
+    <ClInclude Include="Serializer\ModelSerializer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Structs\ItsStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Structs\MdbStructs.h">
+    <ClInclude Include="Structs\ObjectStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Structs\MdStructs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Structs\ObjStructs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Structs\ScrStructs.h">
+    <ClInclude Include="Structs\ModelStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Actor.h">
@@ -321,6 +315,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Databases\ThumbnailDatabase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Databases\AssetDatabase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GenericModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GenericTexture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

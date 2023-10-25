@@ -5,7 +5,7 @@
 
 namespace ark
 {
-	std::vector<DefaultVertex> VertexConverter::ToVertexBuffer(Actor* Actor, const std::vector<ScrVertex>& Vertices, const std::vector<ScrTextureMap>& TextureMaps, const std::vector<ScrUv>& TextureUvs, const std::vector<ScrColorWeight>& ColorWeights)
+	std::vector<DefaultVertex> VertexConverter::ToVertexBuffer(Actor* Actor, const std::vector<ScrVertex>& Vertices, const std::vector<TextureMap>& TextureMaps, const std::vector<ScrUv>& TextureUvs, const std::vector<ColorWeight>& ColorWeights)
 	{
 		std::vector<DefaultVertex> vertices = {};
 
@@ -38,7 +38,7 @@ namespace ark
 		return vertices;
 	}
 
-	std::vector<DefaultVertex> VertexConverter::ToVertexBuffer(Actor* Actor, const std::vector<MdVertex>& Vertices, const std::vector<MdTextureMap>& TextureMaps, const std::vector<MdUv>& TextureUvs, const std::vector<MdColorWeight>& ColorWeights)
+	std::vector<DefaultVertex> VertexConverter::ToVertexBuffer(Actor* Actor, const std::vector<MdVertex>& Vertices, const std::vector<TextureMap>& TextureMaps, const std::vector<MdUv>& TextureUvs, const std::vector<ColorWeight>& ColorWeights)
 	{
 		std::vector<DefaultVertex> vertices = {};
 

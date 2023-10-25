@@ -9,6 +9,8 @@
 #include <Common/Types.h>
 
 #include <Editor/Actor.h>
+#include <Editor/GenericModel.h>
+#include <Editor/GenericTexture.h>
 
 #include <Editor/Databases/FileDatabase.h>
 
@@ -20,6 +22,7 @@ namespace ark
 
 	class Viewport;
 	class Camera;
+	class GenericModel;
 
 	class Scene
 	{
@@ -39,6 +42,8 @@ namespace ark
 		inline const auto& GetMainCamera() const { return mMainCamera; }
 		inline const auto& GetViewport() const { return mViewport; }
 		inline const auto& GetShouldBeDestroyed() const { return mShouldBeDestroyed; }
+		inline const auto& GetModels() const { return mModels; }
+		inline const auto& GetTextures() const { return mTextures; }
 
 	public:
 
@@ -81,6 +86,11 @@ namespace ark
 
 	protected:
 
+		GenericModel& AddModel();
+		GenericTexture& AddTexture();
+
+	protected:
+
 		bool mEnableConsole = false;
 		bool mEnableDebug = false;
 
@@ -104,6 +114,9 @@ namespace ark
 
 		bool mIsDirty = false;
 		bool mShouldBeDestroyed = false;
+
+		std::vector<GenericModel> mModels = {};
+		std::vector<GenericTexture> mTextures = {};
 	};
 }
 

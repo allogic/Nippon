@@ -4,8 +4,7 @@
 
 #include <Common/Types.h>
 
-#include <Editor/Structs/ScrStructs.h>
-#include <Editor/Structs/MdStructs.h>
+#include <Editor/Structs/ModelStructs.h>
 
 namespace ark
 {

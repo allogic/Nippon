@@ -171,10 +171,25 @@ namespace ark
 						ImGui::Text("Indices: %u", (U32)renderable->GetElementBuffer().size());
 						ImGui::Text("Texture Index: %u", renderable->GetTextureIndex());
 
-						//if (ImGui::Combo())
+						U32 currModel = 0;
+						U32 currTexture = 0;
+
+						//if (ImGui::Combo("Model", &currModel, scene->GetModelList()))
 						//{
 						//
 						//}
+
+						std::string selectedTexture = std::to_string(renderable->GetTexture());
+
+						if (ImGui::BeginCombo("Model", selectedTexture.c_str()))
+						{
+							for (const auto& texture : scene->GetTextures())
+							{
+
+							}
+
+							ImGui::EndCombo();
+						}
 
 						ImGui::PopItemWidth();
 						ImGui::TreePop();
