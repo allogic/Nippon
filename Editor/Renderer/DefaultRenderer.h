@@ -1,16 +1,20 @@
 #pragma once
 
-#include <queue>
-#include <filesystem>
+#include <vector>
 
 #include <Common/Types.h>
 
 namespace ark
 {
-	namespace fs = std::filesystem;
-
-	class Actor;
 	class Shader;
+	class Transform;
+	class Renderable;
+
+	struct RenderTask
+	{
+		Transform* Transform;
+		Renderable* Renderable;
+	};
 
 	class DefaultRenderer
 	{
@@ -25,12 +29,13 @@ namespace ark
 
 	public:
 
-		void AddToRenderQueue(Actor* Actor);
+		void FlushRenderTasks();
+		void AddRenderTask(const RenderTask& RenderTask);
 
 	private:
 
 		Shader* mShader;
 
-		std::queue<Actor*> mRenderQueue = {};
+		std::vector<RenderTask> mRenderTasks = {};
 	};
 }

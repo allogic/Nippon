@@ -1,15 +1,11 @@
 #pragma once
 
-#include <filesystem>
-
 #include <Common/Types.h>
 
 #include <Editor/Vertex.h>
 
 namespace ark
 {
-	namespace fs = std::filesystem;
-
 	class Shader;
 
 	template<typename V, typename E>

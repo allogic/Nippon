@@ -60,13 +60,8 @@ namespace ark
 
 		void Resize(U32 Width, U32 Height);
 
-		void PreRender();
-		void Render();
-		void PostRender();
-
-		void PreUpdate();
 		void Update();
-		void PostUpdate();
+		void Render();
 
 		void Invalidate();
 

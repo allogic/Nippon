@@ -6,6 +6,8 @@
 
 #include <Editor/Components/Camera.h>
 
+#include <Editor/Glad/glad.h>
+
 #include <Editor/Renderer/DebugRenderer.h>
 
 namespace ark
@@ -30,22 +32,23 @@ namespace ark
 
 	void DebugRenderer::Render()
 	{
-		Camera* camera = SceneManager::GetActiveScene()->GetMainCamera();
-
-		if (camera)
+		if (Scene* scene = SceneManager::GetActiveScene())
 		{
-			mShader->Bind();
+			if (Camera* camera = scene->GetMainCamera())
+			{
+				mShader->Bind();
 
-			mShader->SetUniformR32M4("UniformProjectionMatrix", camera->GetProjectionMatrix());
-			mShader->SetUniformR32M4("UniformViewMatrix", camera->GetViewMatrix());
+				mShader->SetUniformR32M4("UniformProjectionMatrix", camera->GetProjectionMatrix());
+				mShader->SetUniformR32M4("UniformViewMatrix", camera->GetViewMatrix());
 
-			mMesh->Bind();
-			mMesh->SetVertices(mVertexBuffer, mVertexOffset);
-			mMesh->SetElements(mElementBuffer, mElementOffset);
-			mMesh->Render(eRenderModeLines);
-			mMesh->Unbind();
+				mMesh->Bind();
+				mMesh->SetVertices(mVertexBuffer, mVertexOffset);
+				mMesh->SetElements(mElementBuffer, mElementOffset);
+				mMesh->Render(GL_LINES);
+				mMesh->Unbind();
 
-			mShader->UnBind();
+				mShader->UnBind();
+			}
 		}
 
 		mVertexOffset = 0;

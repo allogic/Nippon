@@ -289,14 +289,8 @@ I32 main(I32 Argc, I8** Argv)
 
 					InterfaceManager::Render();
 
-					SceneManager::PreUpdate();
-					SceneManager::PreRender();
-
 					SceneManager::Update();
 					SceneManager::Render();
-
-					SceneManager::PostUpdate();
-					SceneManager::PostRender();
 
 					ImGui::Render();
 					

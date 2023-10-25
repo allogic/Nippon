@@ -30,7 +30,10 @@ namespace ark
 	private:
 
 		bool HasResized();
+
+		bool HasGainedFocus();
 		bool HasFocus();
+		bool HasLostFocus();
 
 	private:
 

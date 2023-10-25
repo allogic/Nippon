@@ -36,13 +36,23 @@ namespace ark
 				mScene->Invalidate();
 			}
 
-			if (HasFocus())
+			if (HasGainedFocus())
 			{
 				SceneManager::SetActiveScene(mScene);
 
+				mScene->Invalidate();
+			}
+
+			if (HasFocus())
+			{
 				HandleActorSelection();
 
-				mScene->Invalidate();
+				mScene->Render();
+			}
+
+			if (HasLostFocus())
+			{
+
 			}
 
 			ImGui::Image((void*)(U64)FrameBuffer::GetColorTexture(mScene->GetFrameBuffer(), 0), ImVec2{ (R32)mWidth, (R32)mHeight }, ImVec2{ 0.0F, 1.0F }, ImVec2{ 1.0F, 0.0F });
@@ -81,9 +91,19 @@ namespace ark
 		return false;
 	}
 
+	bool Viewport::HasGainedFocus()
+	{
+		return !mIsFocused && ImGui::IsWindowFocused();
+	}
+
 	bool Viewport::HasFocus()
 	{
 		return mIsFocused = ImGui::IsWindowFocused();
+	}
+
+	bool Viewport::HasLostFocus()
+	{
+		return mIsFocused && !ImGui::IsWindowFocused();
 	}
 
 	void Viewport::HandleActorSelection()

@@ -29,13 +29,8 @@ namespace ark
 
 	public:
 
-		static void PreRender();
-		static void Render();
-		static void PostRender();
-
-		static void PreUpdate();
 		static void Update();
-		static void PostUpdate();
+		static void Render();
 
 	public:
 

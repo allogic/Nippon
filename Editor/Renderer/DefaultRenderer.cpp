@@ -9,6 +9,8 @@
 #include <Editor/Components/Transform.h>
 #include <Editor/Components/Renderable.h>
 
+#include <Editor/Glad/glad.h>
+
 #include <Editor/Renderer/DefaultRenderer.h>
 
 namespace ark
@@ -26,52 +28,54 @@ namespace ark
 
 	void DefaultRenderer::Render()
 	{
-		Camera* camera = SceneManager::GetActiveScene()->GetMainCamera();
-
-		if (camera)
+		if (Scene* scene = SceneManager::GetActiveScene())
 		{
-			mShader->Bind();
-
-			mShader->SetUniformR32M4("UniformProjectionMatrix", camera->GetProjectionMatrix());
-			mShader->SetUniformR32M4("UniformViewMatrix", camera->GetViewMatrix());
-
-			while (!mRenderQueue.empty())
+			if (Camera* camera = scene->GetMainCamera())
 			{
-				Actor* actor = mRenderQueue.front();
+				mShader->Bind();
 
-				Transform* transform = actor->GetTransform();
-				Renderable* renderable = actor->GetComponent<Renderable>();
+				mShader->SetUniformR32M4("UniformProjectionMatrix", camera->GetProjectionMatrix());
+				mShader->SetUniformR32M4("UniformViewMatrix", camera->GetViewMatrix());
 
-				mShader->SetUniformR32M4("UniformModelMatrix", transform->GetModelMatrix());
-
-				if (U32 texture = renderable->GetTexture())
+				for (const auto& task : mRenderTasks)
 				{
-					Texture2D::Bind(texture);
-					Texture2D::Mount(0, texture);
+					mShader->SetUniformR32M4("UniformModelMatrix", task.Transform->GetModelMatrix());
+
+					Mesh<DefaultVertex, U32>* mesh = task.Renderable->GetMesh();
+					U32 texture = task.Renderable->GetTexture();
+
+					if (texture)
+					{
+						Texture2D::Bind(texture);
+						Texture2D::Mount(0, texture);
+					}
+
+					if (mesh)
+					{
+						mesh->Bind();
+						mesh->Render(GL_TRIANGLES);
+						mesh->Unbind();
+					}
+
+					if (texture)
+					{
+						Texture2D::UnMount(0);
+						Texture2D::UnBind();
+					}
 				}
 
-				if (Mesh<DefaultVertex, U32>* mesh = renderable->GetMesh())
-				{
-					mesh->Bind();
-					mesh->Render(eRenderModeTriangles);
-					mesh->Unbind();
-				}
-
-				if (U32 texture = renderable->GetTexture())
-				{
-					Texture2D::UnMount(0);
-					Texture2D::UnBind();
-				}
-
-				mRenderQueue.pop();
+				mShader->UnBind();
 			}
-
-			mShader->UnBind();
 		}
 	}
 
-	void DefaultRenderer::AddToRenderQueue(Actor* Actor)
+	void DefaultRenderer::FlushRenderTasks()
 	{
-		mRenderQueue.emplace(Actor);
+		mRenderTasks.clear();
+	}
+
+	void DefaultRenderer::AddRenderTask(const RenderTask& RenderTask)
+	{
+		mRenderTasks.emplace_back(RenderTask);
 	}
 }

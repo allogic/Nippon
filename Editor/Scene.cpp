@@ -72,10 +72,20 @@ namespace ark
 		mFrameBuffer = FrameBuffer::Create(mWidth, mHeight);
 	}
 
-	void Scene::PreRender()
+	void Scene::Update()
 	{
-		SubmitActorToRendererRecursive();
+		UpdateActorRecursive();
 
+		if (mIsDirty)
+		{
+			mIsDirty = false;
+
+			DestroyActorIfMarkedRecursive();
+		}
+	}
+
+	void Scene::Render()
+	{
 		if (mEnableDebug)
 		{
 			gDebugRenderer->DebugLine(R32V3{ 0.0F, 0.0F, 0.0F }, R32V3{ 1.0F, 0.0F, 0.0F }, R32V4{ 1.0F, 0.0F, 0.0F, 1.0F });
@@ -87,10 +97,7 @@ namespace ark
 				HandleActorSelectionRecursive(actor);
 			}
 		}
-	}
 
-	void Scene::Render()
-	{
 		if (mFrameBuffer)
 		{
 			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mFrameBuffer);
@@ -125,41 +132,15 @@ namespace ark
 		}
 	}
 
-	void Scene::PostRender()
-	{
-		// TODO
-	}
-
-	void Scene::PreUpdate()
-	{
-		// TODO
-	}
-
-	void Scene::Update()
-	{
-		UpdateActorRecursive();
-	}
-
-	void Scene::PostUpdate()
-	{
-		if (mIsDirty)
-		{
-			mIsDirty = false;
-
-			DestroyActorIfMarkedRecursive();
-			Invalidate();
-		}
-	}
-
 	void Scene::Invalidate()
 	{
-		PreRender();
-		Render();
-		PostRender();
+		gDefaultRenderer->FlushRenderTasks();
 
-		PreUpdate();
 		Update();
-		PostUpdate();
+
+		SubmitActorToRendererRecursive();
+
+		Render();
 	}
 
 	void Scene::UpdateActorRecursive(Actor* Actor)
@@ -322,7 +303,7 @@ namespace ark
 
 			if (transform && renderable)
 			{
-				gDefaultRenderer->AddToRenderQueue(Actor);
+				gDefaultRenderer->AddRenderTask({ transform, renderable });
 			}
 		}
 	}

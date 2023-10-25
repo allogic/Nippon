@@ -76,6 +76,7 @@ namespace ark
 
 								scene->CreateViewport();
 								scene->Load();
+								scene->Invalidate();
 							}
 						}
 

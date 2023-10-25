@@ -10,14 +10,6 @@
 
 namespace ark
 {
-	enum RenderMode : U32
-	{
-		eRenderModePoints = 0,
-		eRenderModeLines = 1,
-		eRenderModeTriangles = 4,
-		eRenderModeTriangleStrip = 5,
-	};
-
 	template<typename V, typename E>
 	class Mesh
 	{
@@ -29,7 +21,7 @@ namespace ark
 	public:
 
 		void Bind() const;
-		void Render(RenderMode RenderMode) const;
+		void Render(U32 RenderMode) const;
 		void Unbind() const;
 
 	public:
@@ -113,9 +105,9 @@ namespace ark
 	}
 
 	template<typename V, typename E>
-	void Mesh<V, E>::Render(RenderMode renderMode) const
+	void Mesh<V, E>::Render(U32 RenderMode) const
 	{
-		glDrawElements(renderMode, mElementSize, GL_UNSIGNED_INT, NULL);
+		glDrawElements(RenderMode, mElementSize, GL_UNSIGNED_INT, NULL);
 	}
 
 	template<typename V, typename E>

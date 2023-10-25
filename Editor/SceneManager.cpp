@@ -68,40 +68,12 @@ namespace ark
 		}
 	}
 
-	void SceneManager::PreRender()
-	{
-		// TODO
-	}
-
-	void SceneManager::Render()
+	void SceneManager::Update()
 	{
 		for (const auto& scene : sScenes)
 		{
-			if (Viewport* viewport = scene->GetViewport())
-			{
-				viewport->Render();
-			}
+			scene->Update();
 		}
-	}
-
-	void SceneManager::PostRender()
-	{
-		// TODO
-	}
-
-	void SceneManager::PreUpdate()
-	{
-		// TODO
-	}
-
-	void SceneManager::Update()
-	{
-		// TODO
-	}
-
-	void SceneManager::PostUpdate()
-	{
-		// TODO
 
 		if (sIsDirty)
 		{
@@ -130,6 +102,17 @@ namespace ark
 				{
 					it++;
 				}
+			}
+		}
+	}
+
+	void SceneManager::Render()
+	{
+		for (const auto& scene : sScenes)
+		{
+			if (Viewport* viewport = scene->GetViewport())
+			{
+				viewport->Render();
 			}
 		}
 	}
