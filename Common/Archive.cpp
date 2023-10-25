@@ -1,5 +1,6 @@
 ﻿#include <Common/Macros.h>
 #include <Common/Archive.h>
+#include <Common/BinaryMediator.h>
 
 #include <Common/Utilities/FsUtils.h>
 #include <Common/Utilities/StringUtils.h>
@@ -120,24 +121,24 @@ namespace ark
 
 	void Archive::SerializeRecursive()
 	{
-		BinaryWriter writer = {};
+		BinaryMediator mediator = { mBytes, mSize };
 
 		if (mIsDirectory)
 		{
-			WriteDirectoryHeader(writer);
+			WriteDirectoryHeader(&mediator);
 
 			for (const auto& archive : *this)
 			{
 				archive->SerializeRecursive();
 
-				WriteFileContent(writer, archive);
+				WriteFileContent(&mediator, archive);
 			}
 		}
 		else
 		{
-			if (mType == "ROF")
+			if (std::strcmp(mType, "ROF") == 0)
 			{
-				writer.StringRange("RUNOFS64", 8);
+				mediator.WriteStringRange("RUNOFS64", 8);
 
 				U64 acc = ALIGN_UP(4 + ((mParent->size() * 2) * 4), FILE_ALIGNMENT);
 
@@ -145,26 +146,24 @@ namespace ark
 				{
 					acc += FILE_HEADER_SIZE;
 
-					writer.Write<U32>((U32)acc);
-					writer.SeekRel(4);
+					mediator.Write<U32>((U32)acc);
+					mediator.SeekRel(4);
 
 					acc += archive->mSize;
 				}
 			}
 		}
-
-		writer.CopyDataInto(mBytes);
 	}
 
 	void Archive::DeSerializeRecursive()
 	{
-		BinaryReader reader = { mBytes, mSize };
+		BinaryMediator mediator = { mBytes, mSize };
 
-		mIsDirectory = CheckIfDirectory(reader);
+		mIsDirectory = CheckIfDirectory(&mediator);
 
 		if (mIsDirectory)
 		{
-			CreateDirectory(reader);
+			CreateDirectory(&mediator);
 
 			for (const auto& archive : *this)
 			{
@@ -179,19 +178,22 @@ namespace ark
 		{
 			if (mParent)
 			{
-				if (mName != "" && mType != "")
+				std::string name = mName;
+				std::string type = mType;
+
+				if (name != "" && type != "")
 				{
-					File /= mName + "." + mType;
+					File /= name + "." + type;
 				}
-				else if (mName != "" && mType == "")
+				else if (name != "" && type == "")
 				{
-					File /= mName;
+					File /= name;
 				}
-				else if (mName == "" && mType != "")
+				else if (name == "" && type != "")
 				{
-					File /= std::to_string(mParentIndex) + "." + mType;
+					File /= std::to_string(mParentIndex) + "." + type;
 				}
-				else if (mName == "" && mType == "")
+				else if (name == "" && type == "")
 				{
 					File /= std::to_string(mParentIndex);
 				}
@@ -208,19 +210,22 @@ namespace ark
 		{
 			if (mSize)
 			{
-				if (mName != "" && mType != "")
+				std::string name = mName;
+				std::string type = mType;
+
+				if (name != "" && type != "")
 				{
-					File /= mName + "." + mType;
+					File /= name + "." + type;
 				}
-				else if (mName != "" && mType == "")
+				else if (name != "" && type == "")
 				{
-					File /= mName;
+					File /= name;
 				}
-				else if (mName == "" && mType != "")
+				else if (name == "" && type != "")
 				{
-					File /= std::to_string(mParentIndex) + "." + mType;
+					File /= std::to_string(mParentIndex) + "." + type;
 				}
-				else if (mName == "" && mType == "")
+				else if (name == "" && type == "")
 				{
 					File /= std::to_string(mParentIndex);
 				}
@@ -243,19 +248,22 @@ namespace ark
 			{
 				if (mSize)
 				{
-					if (mName != "" && mType != "")
+					std::string name = mName;
+					std::string type = mType;
+
+					if (name != "" && type != "")
 					{
-						File /= mName + "." + mType;
+						File /= name + "." + type;
 					}
-					else if (mName != "" && mType == "")
+					else if (name != "" && type == "")
 					{
-						File /= mName;
+						File /= name;
 					}
-					else if (mName == "" && mType != "")
+					else if (name == "" && type != "")
 					{
-						File /= std::to_string(mParentIndex) + "." + mType;
+						File /= std::to_string(mParentIndex) + "." + type;
 					}
-					else if (mName == "" && mType == "")
+					else if (name == "" && type == "")
 					{
 						File /= std::to_string(mParentIndex);
 					}
@@ -283,7 +291,7 @@ namespace ark
 			U64 kiloByteInteger = mSize / 1000;
 			U64 kiloByteFraction = mSize % 1000;
 
-			LOG("0x%08X # %05u # %-20s # %-4s # %llu.%llu KB\n", mParentOffset, mParentIndex, mName.c_str(), mType.c_str(), kiloByteInteger, kiloByteFraction);
+			LOG("0x%08X # %05u # %-20s # %-4s # %llu.%llu KB\n", mParentOffset, mParentIndex, mName, mType, kiloByteInteger, kiloByteFraction);
 		}
 
 		if (mIsDirectory)
@@ -295,7 +303,7 @@ namespace ark
 		}
 	}
 
-	void Archive::FindArchiveByTypeRecursive(std::string Type, Archive** Result)
+	void Archive::FindArchiveByTypeRecursive(const std::string& Type, Archive** Result)
 	{
 		if (mIsDirectory)
 		{
@@ -306,7 +314,7 @@ namespace ark
 		}
 		else
 		{
-			if (Type == mType)
+			if (std::strcmp(mType, Type.data()) == 0)
 			{
 				(*Result) = this;
 
@@ -315,7 +323,7 @@ namespace ark
 		}
 	}
 
-	void Archive::FindArchivesByTypeRecursive(std::string Type, std::vector<Archive*>& Result)
+	void Archive::FindArchivesByTypeRecursive(const std::string& Type, std::vector<Archive*>& Result)
 	{
 		if (mIsDirectory)
 		{
@@ -326,20 +334,20 @@ namespace ark
 		}
 		else
 		{
-			if (Type == mType)
+			if (std::strcmp(mType, Type.data()) == 0)
 			{
 				Result.emplace_back(this);
 			}
 		}
 	}
 
-	bool Archive::CheckIfDirectory(BinaryReader& Reader)
+	bool Archive::CheckIfDirectory(BinaryMediator* Mediator)
 	{
 		if (sKnownDirectoryTypes.contains(mType))
 		{
-			Reader.SeekAbs(0);
+			Mediator->SeekAbs(0);
 
-			U16 entryCount = (U16)Reader.Read<U32>();
+			U16 entryCount = (U16)Mediator->Read<U32>();
 
 			if (entryCount > 0 && entryCount < 0xFFFF)
 			{
@@ -350,7 +358,7 @@ namespace ark
 						return false;
 					}
 
-					U32 offset = Reader.Read<U32>();
+					U32 offset = Mediator->Read<U32>();
 
 					if (offset >= mSize)
 					{
@@ -365,7 +373,7 @@ namespace ark
 						return false;
 					}
 
-					std::string type = StringUtils::RemoveChars(Reader.String(4), '\0');
+					std::string type = StringUtils::RemoveChars(Mediator->ReadStringRange(4), '\0');
 
 					if (!sKnownDirectoryTypes.contains(type) && !sKnownFileTypes.contains(type))
 					{
@@ -380,11 +388,11 @@ namespace ark
 		return false;
 	}
 
-	void Archive::CreateDirectory(BinaryReader& Reader)
+	void Archive::CreateDirectory(BinaryMediator* Mediator)
 	{
-		Reader.SeekAbs(0);
+		Mediator->SeekAbs(0);
 
-		U16 entryCount = (U16)Reader.Read<U32>();
+		U16 entryCount = (U16)Mediator->Read<U32>();
 
 		resize(entryCount);
 
@@ -404,14 +412,16 @@ namespace ark
 		{
 			Archive* archive = (*this)[i];
 
-			archive->mParentOffset = Reader.Read<U32>();
+			archive->mParentOffset = Mediator->Read<U32>();
 		}
 
 		for (U16 i = 0; i < entryCount; i++)
 		{
 			Archive* archive = (*this)[i];
 
-			archive->mType = StringUtils::RemoveChars(Reader.String(4), '\0');
+			std::string type = Mediator->ReadStringRange(4);
+
+			std::memcpy(archive->mType, type.data(), 4);
 		}
 
 		for (U16 i = 0; i < entryCount; i++)
@@ -420,10 +430,12 @@ namespace ark
 
 			if (archive->mParentOffset)
 			{
-				Reader.SeekAbs(archive->mParentOffset - FILE_HEADER_SIZE);
-				Reader.SeekRel(FILE_HEADER_SIZE - 20);
+				Mediator->SeekAbs(archive->mParentOffset - FILE_HEADER_SIZE);
+				Mediator->SeekRel(FILE_HEADER_SIZE - 20);
 
-				archive->mName = StringUtils::RemoveChars(Reader.String(20), '\0');
+				std::string name = Mediator->ReadStringRange(20);
+
+				std::memcpy(archive->mName, name.data(), 20);
 			}
 		}
 
@@ -474,15 +486,15 @@ namespace ark
 		}
 	}
 
-	void Archive::WriteDirectoryHeader(BinaryWriter& Writer)
+	void Archive::WriteDirectoryHeader(BinaryMediator* Mediator)
 	{
-		U16 entryCount = (U16)size();
-
-		Writer.Write<U32>((U32)entryCount);
-
 		U64 acc = 0;
 
 		acc += ALIGN_UP(4 + ((size() * 2) * 4), FILE_ALIGNMENT);
+
+		U16 entryCount = (U16)size();
+
+		Mediator->Write<U32>((U32)entryCount);
 
 		for (U16 i = 0; i < entryCount; i++)
 		{
@@ -490,7 +502,7 @@ namespace ark
 
 			acc += FILE_HEADER_SIZE;
 
-			Writer.Write<U32>((U32)acc);
+			Mediator->Write<U32>((U32)acc);
 
 			acc += archive->mSize;
 		}
@@ -499,18 +511,19 @@ namespace ark
 		{
 			Archive* archive = (*this)[i];
 
-			Writer.StringRange(archive->mType.data(), 4);
+			Mediator->WriteStringRange(archive->mType, 4);
 		}
 
-		Writer.AlignUp(FILE_ALIGNMENT);
+		Mediator->AlignUp(FILE_ALIGNMENT);
 	}
 
-	void Archive::WriteFileContent(BinaryWriter& Writer, Archive* Archive)
+	void Archive::WriteFileContent(BinaryMediator* Mediator, Archive* Archive)
 	{
-		Writer.FillRange('\0', 8);
-		Writer.StringRange(Archive->mType.c_str(), 4);
-		Writer.StringRange(Archive->mName.c_str(), 20);
-		Writer.ByteRange(Archive->mBytes, Archive->mSize);
+		Mediator->Write<U32>(0xDEADBEEF);
+		Mediator->Write<U32>(0xDEADBEEF);
+		Mediator->WriteStringRange(Archive->mType, 4);
+		Mediator->WriteStringRange(Archive->mName, 20);
+		Mediator->WriteByteRange(Archive->mBytes, Archive->mSize);
 	}
 
 	U64 Archive::UpdateSizesRecursive()
@@ -529,7 +542,7 @@ namespace ark
 		}
 		else
 		{
-			if (mType == "ROF")
+			if (std::strcmp(mType, "ROF") == 0)
 			{
 				acc = 8 + (mParent->size() * 8);
 			}

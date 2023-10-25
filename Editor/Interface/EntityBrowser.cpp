@@ -59,11 +59,12 @@ namespace ark
 
 						ImTextureID textureId = nullptr;
 
-						const auto& thumbnailContainer = ThumbnailDatabase::GetThumbnailContainerByIdentifier(fileContainers[i]->GetIdentifier());
-
-						if (U32 texture = thumbnailContainer->GetTexture())
+						if (const ThumbnailContainer* thumbnailContainer = ThumbnailDatabase::GetThumbnailContainerByIdentifier(fileContainers[i]->GetIdentifier()))
 						{
-							textureId = (ImTextureID)(U64)texture;
+							if (U32 texture = thumbnailContainer->GetTexture())
+							{
+								textureId = (ImTextureID)(U64)texture;
+							}
 						}
 
 						if (ImGui::ImageButton(textureId, ImVec2{ 128.0F, 128.0F }))

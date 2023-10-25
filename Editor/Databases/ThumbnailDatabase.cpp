@@ -1,6 +1,5 @@
 #include <Common/Macros.h>
-#include <Common/BinaryReader.h>
-#include <Common/BinaryWriter.h>
+#include <Common/BinaryMediator.h>
 
 #include <Common/Utilities/FsUtils.h>
 
@@ -29,11 +28,15 @@ namespace ark
 
 	void ThumbnailDatabase::Generate()
 	{
-		BinaryWriter writer = {};
+		std::vector<U8> bytes = {};
+
+		bytes.resize(12 * 1024 * 1024);
+
+		BinaryMediator mediator = { bytes.data(), bytes .size() };
 
 		U32 entryCount = FileDatabase::GetTotalLevelCount() + FileDatabase::GetTotalEntityCount();
 
-		writer.Write<U32>(entryCount);
+		mediator.Write<U32>(entryCount);
 
 		for (const auto& directory : FileDatabase::GetAllDirectories())
 		{
@@ -60,25 +63,28 @@ namespace ark
 
 					std::vector<U8> bytes = ImageUtils::WritePNG(colorTexture);
 
-					writer.Write<U32>(fileContainer->GetIdentifier());
-					writer.Write<U32>(fileContainer->GetType());
-					writer.Write<U32>(dummyTexture);
-					writer.Write<U32>((U32)bytes.size());
-					writer.ByteRange(bytes.data(), bytes.size());
+					mediator.Write<U32>(fileContainer->GetIdentifier());
+					mediator.Write<U32>(fileContainer->GetType());
+					mediator.Write<U32>(dummyTexture);
+					mediator.Write<U32>((U32)bytes.size());
+					mediator.WriteByteRange(bytes.data(), bytes.size());
 
 					SceneManager::DestroyScene(scene);
 				}
 			}
 		}
 
-		FsUtils::WriteBinary(FILE_DATABASE_NAME, writer.GetBytes(), writer.GetSize());
+		FsUtils::WriteBinary(FILE_DATABASE_NAME, bytes);
 	}
 
 	void ThumbnailDatabase::Destroy()
 	{
 		for (const auto& [identifier, thumbnailContainer] : sThumbnailsByIdentifier)
 		{
-			Texture2D::Destroy(thumbnailContainer->mTexture);
+			if (thumbnailContainer->mTexture)
+			{
+				Texture2D::Destroy(thumbnailContainer->mTexture);
+			}
 
 			delete thumbnailContainer;
 		}
@@ -95,22 +101,22 @@ namespace ark
 		{
 			std::vector<U8> bytes = FsUtils::ReadBinary(FILE_DATABASE_NAME);
 
-			BinaryReader reader = { bytes.data(), bytes.size() };
+			BinaryMediator mediator = { bytes.data(), bytes.size() };
 
-			U32 entryCount = reader.Read<U32>();
+			U32 entryCount = mediator.Read<U32>();
 
 			for (U32 i = 0; i < entryCount; i++)
 			{
 				ThumbnailContainer* thumbnailContainer = new ThumbnailContainer;
 
-				ThumbnailContainer dummyThumbnailContainer = reader.Read<ThumbnailContainer>();
+				ThumbnailContainer dummyThumbnailContainer = mediator.Read<ThumbnailContainer>();
 
 				std::memcpy(thumbnailContainer, &dummyThumbnailContainer, sizeof(ThumbnailContainer));
 
 				sThumbnailsByIdentifier[thumbnailContainer->mIdentifier] = thumbnailContainer;
 
-				U32 thumbnailSize = reader.Read<U32>();
-				std::vector<U8> bytes = reader.Bytes(thumbnailSize);
+				U32 thumbnailSize = mediator.Read<U32>();
+				std::vector<U8> bytes = mediator.ReadByteRange(thumbnailSize);
 
 				thumbnailContainer->mTexture = ImageUtils::ReadPNG(bytes.data(), bytes.size());
 			}

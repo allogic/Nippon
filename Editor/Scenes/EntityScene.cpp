@@ -157,7 +157,7 @@ namespace ark
 
 		for (const auto& archive : mMdArchives)
 		{
-			LOG("    %s.%s\n", archive->GetName().c_str(), archive->GetType().c_str());
+			LOG("    %s.%s\n", archive->GetName(), archive->GetType());
 		}
 
 		LOG("\n");
@@ -165,7 +165,7 @@ namespace ark
 
 		for (const auto& archive : mDdsArchives)
 		{
-			LOG("    %s.%s\n", archive->GetName().c_str(), archive->GetType().c_str());
+			LOG("    %s.%s\n", archive->GetName(), archive->GetType());
 		}
 
 		LOG("\n");

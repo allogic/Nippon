@@ -7,8 +7,6 @@
 #include <set>
 
 #include <Common/Types.h>
-#include <Common/BinaryReader.h>
-#include <Common/BinaryWriter.h>
 
 #define FILE_ALIGNMENT 256
 #define FILE_HEADER_SIZE 32
@@ -16,6 +14,8 @@
 namespace ark
 {
 	namespace fs = std::filesystem;
+
+	class BinaryMediator;
 
 	class Archive : private std::vector<Archive*>
 	{
@@ -32,8 +32,8 @@ namespace ark
 		inline const auto& GetBytes() const { return mBytes; }
 		inline const auto& GetSize() const { return mSize; }
 		inline const auto& GetParent() const { return mParent; }
-		inline const auto& GetName() const { return mName; }
 		inline const auto& GetType() const { return mType; }
+		inline const auto& GetName() const { return mName; }
 		inline const auto& GetParentOffset() const { return mParentOffset; }
 		inline const auto& GetParentIndex() const { return mParentIndex; }
 
@@ -56,18 +56,18 @@ namespace ark
 		void ExtractToDiskRecursive(fs::path File);
 		void UnfoldToDiskRecursive(fs::path File);
 		void PrintTableOfContentRecursive(U32 Offset, U32 Indent, U32 Increment);
-		void FindArchiveByTypeRecursive(std::string Type, Archive** Result);
-		void FindArchivesByTypeRecursive(std::string Type, std::vector<Archive*>& Result);
+		void FindArchiveByTypeRecursive(const std::string& Type, Archive** Result);
+		void FindArchivesByTypeRecursive(const std::string& Type, std::vector<Archive*>& Result);
 
 	private:
 
-		bool CheckIfDirectory(BinaryReader& Reader);
-		void CreateDirectory(BinaryReader& Reader);
+		bool CheckIfDirectory(BinaryMediator* Mediator);
+		void CreateDirectory(BinaryMediator* Mediator);
 
 	private:
 
-		void WriteDirectoryHeader(BinaryWriter& Writer);
-		void WriteFileContent(BinaryWriter& Writer, Archive* Archive);
+		void WriteDirectoryHeader(BinaryMediator* Mediator);
+		void WriteFileContent(BinaryMediator* Mediator, Archive* Archive);
 
 	private:
 
@@ -83,8 +83,8 @@ namespace ark
 
 		Archive* mParent = nullptr;
 
-		std::string mName = "";
-		std::string mType = "";
+		I8 mType[4] = "";
+		I8 mName[20] = "";
 		U32 mParentOffset = 0;
 		U16 mParentIndex = 0;
 

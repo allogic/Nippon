@@ -152,8 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Archive.cpp" />
-    <ClCompile Include="BinaryReader.cpp" />
-    <ClCompile Include="BinaryWriter.cpp" />
+    <ClCompile Include="BinaryMediator.cpp" />
     <ClCompile Include="BlowFish.cpp" />
     <ClCompile Include="CommandLine.cpp" />
     <ClCompile Include="CRC32.cpp" />
@@ -164,8 +163,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Archive.h" />
-    <ClInclude Include="BinaryReader.h" />
-    <ClInclude Include="BinaryWriter.h" />
+    <ClInclude Include="BinaryMediator.h" />
     <ClInclude Include="BlowFish.h" />
     <ClInclude Include="CommandLine.h" />
     <ClInclude Include="CRC32.h" />

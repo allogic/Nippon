@@ -1,6 +1,4 @@
-#include <Common/BinaryReader.h>
-#include <Common/BinaryWriter.h>
-#include <Common/Macros.h>
+#include <Common/BinaryMediator.h>
 
 #include <Editor/Serializer/ObjSerializer.h>
 
@@ -10,11 +8,11 @@ namespace ark
 	{
 		std::vector<ObjEntry> entries = {};
 
-		BinaryReader reader = { Bytes, Size };
+		BinaryMediator mediator = { Bytes, Size };
 
-		U32 entryCount = reader.Read<U32>();
+		U32 entryCount = mediator.Read<U32>();
 
-		reader.Read<ObjEntry>(entries, entryCount);
+		mediator.Read<ObjEntry>(entries, entryCount);
 
 		return entries;
 	}

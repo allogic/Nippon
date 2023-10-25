@@ -27,10 +27,7 @@
     <ClCompile Include="Archive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BinaryReader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BinaryWriter.cpp">
+    <ClCompile Include="BinaryMediator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BlowFish.cpp">
@@ -59,10 +56,7 @@
     <ClInclude Include="Archive.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BinaryReader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BinaryWriter.h">
+    <ClInclude Include="BinaryMediator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BlowFish.h">

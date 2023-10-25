@@ -566,7 +566,7 @@ namespace ark
 		LOG("    %s\n", GetFileContainer()->GetDatFile().GetRelativeFile());
 		for (const auto& archive : mScrArchives)
 		{
-			LOG("        %s.%s\n", archive->GetName().c_str(), archive->GetType().c_str());
+			LOG("        %s.%s\n", archive->GetName(), archive->GetType());
 		}
 
 		/*
@@ -604,7 +604,7 @@ namespace ark
 		LOG("    %s\n", GetFileContainer()->GetDatFile().GetRelativeFile());
 		for (const auto& archive : mDdsArchives)
 		{
-			LOG("        %s.%s\n", archive->GetName().c_str(), archive->GetType().c_str());
+			LOG("        %s.%s\n", archive->GetName(), archive->GetType());
 		}
 
 		/*

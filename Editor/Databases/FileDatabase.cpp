@@ -1,6 +1,5 @@
 #include <Common/Macros.h>
-#include <Common/BinaryReader.h>
-#include <Common/BinaryWriter.h>
+#include <Common/BinaryMediator.h>
 #include <Common/CRC32.h>
 
 #include <Common/Utilities/FsUtils.h>
@@ -74,16 +73,20 @@ namespace ark
 		BuildFileContainersForDirectories(levelDirectories, labels, FileContainer::eFileTypeLevel, fileContainers);
 		BuildFileContainersForDirectories(entityDirectories, labels, FileContainer::eFileTypeEntity, fileContainers);
 
-		BinaryWriter writer = {};
+		std::vector<U8> bytes = {};
 
-		writer.Write<U32>((U32)fileContainers.size());
+		bytes.resize(4 * 1024 * 1024);
+
+		BinaryMediator mediator = { bytes.data(), bytes.size() };
+
+		mediator.Write<U32>((U32)fileContainers.size());
 
 		for (const auto& [identifier, fileContainer] : fileContainers)
 		{
-			writer.Write<FileContainer>(fileContainer);
+			mediator.Write<FileContainer>(fileContainer);
 		}
 
-		FsUtils::WriteBinary(FILE_DATABASE_NAME, writer.GetBytes(), writer.GetSize());
+		FsUtils::WriteBinary(FILE_DATABASE_NAME, bytes);
 	}
 
 	void FileDatabase::Destroy()
@@ -182,8 +185,8 @@ namespace ark
 				fileContainer.mIdentifier = containerIdentifier;
 				fileContainer.mType = Type;
 
-				std::memcpy(fileContainer.mDirectoryId, directoryId.c_str(), directoryId.size());
-				std::memcpy(fileContainer.mFileId, fileId.c_str(), fileId.size());
+				std::memcpy(fileContainer.mDirectoryId, directoryId.c_str(), 2);
+				std::memcpy(fileContainer.mFileId, fileId.c_str(), 2);
 
 				std::memcpy(fileContainer.mDirectoryName, Labels[directoryIdentifier].c_str(), Labels[directoryIdentifier].size());
 				std::memcpy(fileContainer.mFileName, Labels[containerIdentifier].c_str(), Labels[containerIdentifier].size());
@@ -358,15 +361,15 @@ namespace ark
 		{
 			std::vector<U8> bytes = FsUtils::ReadBinary(FILE_DATABASE_NAME);
 
-			BinaryReader reader = { bytes.data(), bytes.size() };
+			BinaryMediator mediator = { bytes.data(), bytes.size() };
 
-			U32 entryCount = reader.Read<U32>();
+			U32 entryCount = mediator.Read<U32>();
 
 			for (U32 i = 0; i < entryCount; i++)
 			{
 				FileContainer* fileContainer = new FileContainer;
 
-				FileContainer dummyFileContainer = reader.Read<FileContainer>();
+				FileContainer dummyFileContainer = mediator.Read<FileContainer>();
 
 				std::memcpy(fileContainer, &dummyFileContainer, sizeof(FileContainer));
 
