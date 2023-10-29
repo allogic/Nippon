@@ -7,7 +7,7 @@ namespace ark
 
 #pragma pack(push, 1)
 
-	struct ObjEntry
+	struct Object
 	{
 		U8 Id; // lots of values 00-fe 
 		U8 Category; // category id - which folder it comes from

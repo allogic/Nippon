@@ -9,6 +9,7 @@
 #include <sstream>
 
 #include <Common/Types.h>
+#include <Common/Archive.h>
 
 namespace ark
 {
@@ -29,7 +30,7 @@ namespace ark
 
 		U32 mCrc32 = 0;
 
-		I8 mRelativeFile[32] = {};
+		I8 mRelativeFile[32 + 1] = {};
 	};
 
 	class FileContainer
@@ -56,22 +57,26 @@ namespace ark
 		inline const auto& GetDirectoryName() const { return mDirectoryName; }
 		inline const auto& GetFileName() const { return mFileName; }
 		inline const auto& GetWindowName() const { return mWindowName; }
-		inline const auto& GetDatFile() const { return mDatFile; }
-		inline const auto& GetDatFFile() const { return mDatFFile; }
-		inline const auto& GetDatGFile() const { return mDatGFile; }
-		inline const auto& GetDatJFile() const { return mDatJFile; }
-		inline const auto& GetDat20File() const { return mDat20File; }
-		inline const auto& GetDat20FFile() const { return mDat20FFile; }
-		inline const auto& GetDat20GFile() const { return mDat20GFile; }
-		inline const auto& GetDat20JFile() const { return mDat20JFile; }
-		inline const auto& GetBinFile() const { return mBinFile; }
-		inline const auto& GetBinFFile() const { return mBinFFile; }
-		inline const auto& GetBinGFile() const { return mBinGFile; }
-		inline const auto& GetBinJFile() const { return mBinJFile; }
-		inline const auto& GetBin20File() const { return mBin20File; }
-		inline const auto& GetBin20FFile() const { return mBin20FFile; }
-		inline const auto& GetBin20GFile() const { return mBin20GFile; }
-		inline const auto& GetBin20JFile() const { return mBin20JFile; }
+
+		inline const auto GetDatFile() const { return &mDatFile; }
+		inline const auto GetDatFFile() const { return &mDatFFile; }
+		inline const auto GetDatGFile() const { return &mDatGFile; }
+		inline const auto GetDatJFile() const { return &mDatJFile; }
+
+		inline const auto GetDat20File() const { return &mDat20File; }
+		inline const auto GetDat20FFile() const { return &mDat20FFile; }
+		inline const auto GetDat20GFile() const { return &mDat20GFile; }
+		inline const auto GetDat20JFile() const { return &mDat20JFile; }
+
+		inline const auto GetBinFile() const { return &mBinFile; }
+		inline const auto GetBinFFile() const { return &mBinFFile; }
+		inline const auto GetBinGFile() const { return &mBinGFile; }
+		inline const auto GetBinJFile() const { return &mBinJFile; }
+
+		inline const auto GetBin20File() const { return &mBin20File; }
+		inline const auto GetBin20FFile() const { return &mBin20FFile; }
+		inline const auto GetBin20GFile() const { return &mBin20GFile; }
+		inline const auto GetBin20JFile() const { return &mBin20JFile; }
 
 	private:
 
@@ -79,12 +84,12 @@ namespace ark
 
 		FileType mType = eFileTypeNone;
 
-		I8 mDirectoryId[3] = {};
-		I8 mFileId[3] = {};
+		I8 mDirectoryId[2 + 1] = {};
+		I8 mFileId[2 + 1] = {};
 
-		I8 mDirectoryName[256] = {};
-		I8 mFileName[256] = {};
-		I8 mWindowName[256] = {};
+		I8 mDirectoryName[256 + 1] = {};
+		I8 mFileName[256 + 1] = {};
+		I8 mWindowName[256 + 1] = {};
 
 		FileInfo mDatFile = {};
 		FileInfo mDatFFile = {};
@@ -121,13 +126,14 @@ namespace ark
 		static U32 GetTotalLevelCount();
 		static U32 GetTotalEntityCount();
 
-		static const std::set<U16>& GetAllDirectories();
+		static const std::set<U16>& GetDirectories();
 		static const std::set<U16>& GetLevelDirectories();
 		static const std::set<U16>& GetEntityDirectories();
 
 		static const I8* GetDirectoryIdByDirectory(U16 Directory);
 		static const I8* GetDirectoryNameByDirectory(U16 Directory);
 
+		static const FileContainer* GetFileContainerByIdentifier(U32 Identifier);
 		static const std::vector<const FileContainer*>& GetFileContainersByDirectory(U16 Directory);
 		static const std::vector<const FileContainer*>& GetLevelFileContainersByDirectory(U16 Directory);
 		static const std::vector<const FileContainer*>& GetEntityFileContainersByDirectory(U16 Directory);

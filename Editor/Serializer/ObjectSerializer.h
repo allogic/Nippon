@@ -12,6 +12,6 @@ namespace ark
 	{
 	public:
 
-		static std::vector<ObjEntry> DeSerialize(U8* Bytes, U64 Size);
+		static std::vector<Object> DeSerialize(U8* Bytes, U64 Size);
 	};
 }

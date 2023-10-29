@@ -21,8 +21,6 @@
 
 #include <Editor/Serializer/ModelSerializer.h>
 
-#include <Editor/Utilities/ImageUtils.h>
-
 namespace ark
 {
 	EntityScene::EntityScene(const FileContainer* FileContainer) : Scene{ FileContainer }
@@ -32,23 +30,14 @@ namespace ark
 
 	EntityScene::~EntityScene()
 	{
-		if (mDatArchive)
-		{
-			delete mDatArchive;
-		}
+		
 	}
 
 	void EntityScene::Load()
 	{
-		LoadArchives();
-		LoadAssets();
-
-		AddStaticGeometry();
-		
-		if (mEnableConsole)
-		{
-			PrintSummary();
-		}
+		AddResources();
+		CreateAssets();
+		BuildActors();
 	}
 
 	void EntityScene::Save()
@@ -56,49 +45,40 @@ namespace ark
 
 	}
 
-	void EntityScene::LoadArchives()
+	void EntityScene::AddResources()
 	{
-		fs::path datFile = gDataDir / GetFileContainer()->GetDatFile().GetRelativeFile();
+		U32 identifier = GetFileContainer()->GetIdentifier();
 
-		std::vector<U8> datBytes = FsUtils::ReadBinary(datFile);
-
-		gBlowFish->Decrypt(datBytes);
-
-		mDatArchive = new Archive;
-
-		mDatArchive->DeSerialize(datBytes);
-
-		mDatArchive->FindArchivesByType("MD", mMdArchives);
-		mDatArchive->FindArchivesByType("DDS", mDdsArchives);
+		Archive* datArchive = AddResource(identifier, GetFileContainer()->GetDatFile());
 	}
 
-	void EntityScene::LoadAssets()
+	void EntityScene::CreateAssets()
 	{
-		for (const auto& archive : mMdArchives)
-		{
-			GenericModel& model = AddModel();
+		U32 identifier = GetFileContainer()->GetIdentifier();
 
-			model.SetType(GenericModel::eModelTypeMd);
-			model.SetName(archive->GetName());
-			model.SetMdMeshes(ModelSerializer::DeSerialize<MdMesh>(archive->GetBytes(), archive->GetSize()));
+		SceneResource* sceneResource = GetSceneResourceByIdentifier(identifier);
+
+		const auto& mdArchives = sceneResource->GetArchive()->FindArchivesByType("MD");
+		const auto& ddsArchives = sceneResource->GetArchive()->FindArchivesByType("DDS");
+
+		for (const auto& archive : mdArchives)
+		{
+			sceneResource->AddMdModelFromArchive(archive, nullptr);
 		}
-		
-		for (const auto& archive : mDdsArchives)
-		{
-			GenericTexture& texture = AddTexture();
 
-			texture.SetType(GenericTexture::eTextureTypeMd);
-			texture.SetName(archive->GetName());
-			texture.SetTexture(ImageUtils::ReadDDS(archive->GetBytes(), archive->GetSize()));
+		for (const auto& archive : ddsArchives)
+		{
+			sceneResource->AddTextureFromArchive(archive);
 		}
 	}
 
-	void EntityScene::AddStaticGeometry()
+	void EntityScene::BuildActors()
 	{
-		const auto& models = GetModels();
-		const auto& textures = GetTextures();
+		U32 identifier = GetFileContainer()->GetIdentifier();
 
-		for (const auto& model : models)
+		SceneResource* sceneResource = GetSceneResourceByIdentifier(identifier);
+
+		for (const auto& model : sceneResource->GetModels())
 		{
 			Actor* modelActor = CreateActor<Actor>(model.GetName(), mEntityGeometryActor);
 
@@ -131,7 +111,7 @@ namespace ark
 					std::vector<U32> elements = ElementConverter::ToElementBuffer(subMesh.Vertices);
 
 					U32 textureIndex = subMesh.Header.TextureIndex;
-					U32 texture = (textureIndex < textures.size()) ? textures[textureIndex].GetTexture() : 0;
+					U32 texture = sceneResource->GetTexturesByIndex(textureIndex);
 
 					subMeshRenderable->SetVertexBuffer(vertices);
 					subMeshRenderable->SetElementBuffer(elements);
@@ -142,39 +122,5 @@ namespace ark
 				}
 			}
 		}
-	}
-
-	void EntityScene::PrintSummary()
-	{
-		LOG("\n");
-		LOG(" Opening Entity Scene \\%s\\%s\n", GetFileContainer()->GetDirectoryId(), GetFileContainer()->GetFileId());
-		LOG("-----------------------------------------------------------------------------------------\n");
-		LOG("\n");
-		LOG("Loading archives:\n");
-		LOG("    %s\n", GetFileContainer()->GetDatFile().GetRelativeFile());
-
-		LOG("\n");
-		LOG("Searching files:\n");
-		LOG("    %s\n", GetFileContainer()->GetDatFile().GetRelativeFile());
-		LOG("        Found %u MD files\n", (U32)mMdArchives.size());
-		LOG("        Found %u DDS files\n", (U32)mDdsArchives.size());
-
-		LOG("\n");
-		LOG("Loading models:\n");
-
-		for (const auto& archive : mMdArchives)
-		{
-			LOG("    %s.%s\n", archive->GetName(), archive->GetType());
-		}
-
-		LOG("\n");
-		LOG("Loading textures:\n");
-
-		for (const auto& archive : mDdsArchives)
-		{
-			LOG("    %s.%s\n", archive->GetName(), archive->GetType());
-		}
-
-		LOG("\n");
 	}
 }

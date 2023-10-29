@@ -5,6 +5,8 @@
 #include <Editor/InterfaceManager.h>
 #include <Editor/FrameBuffer.h>
 
+#include <Editor/Databases/FileDatabase.h>
+
 #include <Editor/Interface/Viewport.h>
 #include <Editor/Interface/Outline.h>
 

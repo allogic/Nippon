@@ -71,13 +71,19 @@ namespace ark
 						{
 							if (Scene* scene = SceneManager::CreateScene(fileContainers[i]))
 							{
-								scene->SetEnableConsole(true);
 								scene->SetEnableDebug(true);
 
 								scene->CreateViewport();
 								scene->Load();
 								scene->Invalidate();
 							}
+						}
+
+						if (ImGui::IsItemHovered())
+						{
+							ImGui::BeginTooltip();
+							ImGui::Text(fileContainers[i]->GetWindowName());
+							ImGui::EndTooltip();
 						}
 
 						ImGui::PopID();

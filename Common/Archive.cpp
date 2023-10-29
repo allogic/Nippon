@@ -109,14 +109,22 @@ namespace ark
 		LOG("\n");
 	}
 
-	void Archive::FindArchiveByType(const std::string& Type, Archive** Result)
+	Archive* Archive::FindArchiveByType(const std::string& Type)
 	{
-		FindArchiveByTypeRecursive(Type, Result);
+		Archive* result = nullptr;
+
+		FindArchiveByTypeRecursive(Type, &result);
+
+		return result;
 	}
 
-	void Archive::FindArchivesByType(const std::string& Type, std::vector<Archive*>& Result)
+	std::vector<Archive*> Archive::FindArchivesByType(const std::string& Type)
 	{
-		FindArchivesByTypeRecursive(Type, Result);
+		std::vector<Archive*> result = {};
+
+		FindArchivesByTypeRecursive(Type, result);
+
+		return result;
 	}
 
 	void Archive::SerializeRecursive()
@@ -314,7 +322,7 @@ namespace ark
 		}
 		else
 		{
-			if (std::strcmp(mType, Type.data()) == 0)
+			if (std::strcmp(mType, Type.c_str()) == 0)
 			{
 				(*Result) = this;
 
@@ -334,7 +342,7 @@ namespace ark
 		}
 		else
 		{
-			if (std::strcmp(mType, Type.data()) == 0)
+			if (std::strcmp(mType, Type.c_str()) == 0)
 			{
 				Result.emplace_back(this);
 			}

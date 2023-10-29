@@ -241,7 +241,7 @@ I32 main(I32 Argc, I8** Argv)
 				InterfaceManager::Create();
 				SceneManager::Create();
 
-				gDebugRenderer = new DebugRenderer{ 65535, 65535 * 2 };
+				gDebugRenderer = new DebugRenderer{ 131070, 131070 * 2 };
 				gDefaultRenderer = new DefaultRenderer{};
 
 				while (!glfwWindowShouldClose(sGlfwContext))

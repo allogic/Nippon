@@ -4,15 +4,15 @@
 
 namespace ark
 {
-	std::vector<ObjEntry> ObjectSerializer::DeSerialize(U8* Bytes, U64 Size)
+	std::vector<Object> ObjectSerializer::DeSerialize(U8* Bytes, U64 Size)
 	{
-		std::vector<ObjEntry> objects = {};
+		std::vector<Object> objects = {};
 
 		BinaryMediator mediator = { Bytes, Size };
 
 		U32 entryCount = mediator.Read<U32>();
 
-		mediator.Read<ObjEntry>(objects, entryCount);
+		mediator.Read<Object>(objects, entryCount);
 
 		return objects;
 	}

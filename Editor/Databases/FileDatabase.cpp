@@ -18,13 +18,14 @@ namespace ark
 	static U32 sTotalLevelCount = 0;
 	static U32 sTotalEntityCount = 0;
 
-	static std::set<U16> sAllDirectories = {};
+	static std::set<U16> sDirectories = {};
 	static std::set<U16> sLevelDirectories = {};
 	static std::set<U16> sEntityDirectories = {};
 
 	static std::map<U16, const I8*> sDirectoryIdByDirectory = {};
 	static std::map<U16, const I8*> sDirectoryNameByDirectory = {};
 
+	static std::map<U32, const FileContainer*> sFileContainersByIdentifier = {};
 	static std::map<U16, std::vector<const FileContainer*>> sFileContainersByDirectory = {};
 	static std::map<U16, std::vector<const FileContainer*>> sLevelFileContainersByDirectory = {};
 	static std::map<U16, std::vector<const FileContainer*>> sEntityFileContainersByDirectory = {};
@@ -115,9 +116,9 @@ namespace ark
 		return sTotalEntityCount;
 	}
 
-	const std::set<U16>& FileDatabase::GetAllDirectories()
+	const std::set<U16>& FileDatabase::GetDirectories()
 	{
-		return sAllDirectories;
+		return sDirectories;
 	}
 
 	const std::set<U16>& FileDatabase::GetLevelDirectories()
@@ -138,6 +139,11 @@ namespace ark
 	const I8* FileDatabase::GetDirectoryNameByDirectory(U16 Directory)
 	{
 		return sDirectoryNameByDirectory[Directory];
+	}
+
+	const FileContainer* FileDatabase::GetFileContainerByIdentifier(U32 Identifier)
+	{
+		return sFileContainersByIdentifier[Identifier];
 	}
 
 	const std::vector<const FileContainer*>& FileDatabase::GetFileContainersByDirectory(U16 Directory)
@@ -375,9 +381,10 @@ namespace ark
 
 				U16 directory = (fileContainer->mIdentifier >> 16) & 0xFFFF;
 
+				sFileContainersByIdentifier[fileContainer->mIdentifier] = fileContainer;
 				sFileContainersByDirectory[directory].emplace_back(fileContainer);
 
-				sAllDirectories.emplace(directory);
+				sDirectories.emplace(directory);
 
 				sDirectoryIdByDirectory[directory] = fileContainer->mDirectoryId;
 				sDirectoryNameByDirectory[directory] = fileContainer->mDirectoryName;

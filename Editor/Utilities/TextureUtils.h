@@ -9,7 +9,7 @@ namespace ark
 {
     namespace fs = std::filesystem;
 
-    class ImageUtils
+    class TextureUtils
     {
     public:
 

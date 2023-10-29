@@ -45,8 +45,8 @@ namespace ark
 		void ExtractToDisk(const fs::path& File);
 		void UnfoldToDisk(const fs::path& File);
 		void PrintTableOfContent(U32 Offset = 0, U32 Indent = 0, U32 Increment = 4);
-		void FindArchiveByType(const std::string& Type, Archive** Result);
-		void FindArchivesByType(const std::string& Type, std::vector<Archive*>& Result);
+		Archive* FindArchiveByType(const std::string& Type);
+		std::vector<Archive*> FindArchivesByType(const std::string& Type);
 
 	private:
 
@@ -83,8 +83,8 @@ namespace ark
 
 		Archive* mParent = nullptr;
 
-		I8 mType[4] = "";
-		I8 mName[20] = "";
+		I8 mType[4 + 1] = "";
+		I8 mName[20 + 1] = "";
 		U32 mParentOffset = 0;
 		U16 mParentIndex = 0;
 

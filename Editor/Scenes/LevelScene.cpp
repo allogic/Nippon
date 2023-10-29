@@ -22,27 +22,28 @@
 #include <Editor/Serializer/ModelSerializer.h>
 #include <Editor/Serializer/ObjectSerializer.h>
 
-#include <Editor/Utilities/ImageUtils.h>
-
 namespace ark
 {
-	static std::map<U8, std::string> sCategoryToGroupKey =
+	static std::map<U8, U16> sDirectoryByCategory =
 	{
-		//{ 0x09, "" }, // 0xFC 0x1E
-		{ 0, "pl" },
-		{ 0, "em" },
-		{ 0, "an" },
-		{ 0x03, "et" },
-		{ 0x08, "ut" },
-		{ 0, "es" },
-		{ 0, "gt" },
-		{ 0, "hm" },
-		{ 0, "hl" },
-		{ 0x0A, "it" },
-		{ 0x0B, "vt" },
-		{ 0x0C, "dr" },
-		{ 0x0F, "us" },
-		{ 0, "wp" },
+		//{ 0x00, (('p' << 8) | 'l') },
+		//{ 0x00, (('e' << 8) | 'm') },
+		//{ 0x00, (('a' << 8) | 'n') },
+		//{ 0x00, (('g' << 8) | 't') },
+		//{ 0x00, (('h' << 8) | 'm') },
+		//{ 0x00, (('h' << 8) | 'l') },
+		//{ 0x00, (('w' << 8) | 'p') },
+
+		{ 0x00, (('?' << 8) | '?') }, // Still unknown.. 0x52
+		{ 0x01, (('?' << 8) | '?') }, // Still unknown.. 0x01 0x02 0x03
+		{ 0x03, (('e' << 8) | 't') },
+		{ 0x08, (('u' << 8) | 't') },
+		{ 0x09, (('e' << 8) | 's') },
+		{ 0x0A, (('i' << 8) | 't') },
+		{ 0x0B, (('v' << 8) | 't') },
+		{ 0x0C, (('d' << 8) | 'r') },
+		{ 0x0E, (('?' << 8) | '?') }, // Still unknown..
+		{ 0x0F, (('u' << 8) | 's') },
 	};
 
 	LevelScene::LevelScene(const FileContainer* FileContainer) : Scene{ FileContainer }
@@ -53,24 +54,14 @@ namespace ark
 
 	LevelScene::~LevelScene()
 	{
-		if (mDatArchive)
-		{
-			delete mDatArchive;
-		}
+
 	}
 
 	void LevelScene::Load()
 	{
-		LoadArchives();
-		LoadAssets();
-		LoadEntities();
-
-		AddStaticGeometry();
-
-		if (mEnableConsole)
-		{
-			PrintSummary();
-		}
+		AddResources();
+		CreateAssets();
+		BuildActors();
 	}
 
 	void LevelScene::Save()
@@ -78,247 +69,67 @@ namespace ark
 
 	}
 
-	void LevelScene::LoadArchives()
+	void LevelScene::AddResources()
 	{
-		fs::path datFile = gDataDir / GetFileContainer()->GetDatFile().GetRelativeFile();
+		U32 identifier = GetFileContainer()->GetIdentifier();
 
-		std::vector<U8> datBytes = FsUtils::ReadBinary(datFile);
+		Archive* datArchive = AddResource(identifier, GetFileContainer()->GetDatFile());
 
-		gBlowFish->Decrypt(datBytes);
+		Archive* tscArchive = datArchive->FindArchiveByType("TSC");
+		Archive* treArchive = datArchive->FindArchiveByType("TRE");
+		Archive* tatArchive = datArchive->FindArchiveByType("TAT");
 
-		mDatArchive = new Archive;
+		mTscObjects = ObjectSerializer::DeSerialize(tscArchive->GetBytes(), tscArchive->GetSize());
+		mTreObjects = ObjectSerializer::DeSerialize(treArchive->GetBytes(), treArchive->GetSize());
+		mTatObjects = ObjectSerializer::DeSerialize(tatArchive->GetBytes(), tatArchive->GetSize());
 
-		mDatArchive->DeSerialize(datBytes);
+		AddEntityResources(mTscObjects);
+		AddEntityResources(mTreObjects);
+		AddEntityResources(mTatObjects);
 
-		mDatArchive->FindArchiveByType("TSC", &mTscArchive);
-		mDatArchive->FindArchiveByType("TRE", &mTreArchive);
-		mDatArchive->FindArchiveByType("TAT", &mTatArchive);
-
-		mDatArchive->FindArchivesByType("SCR", mScrArchives);
-		mDatArchive->FindArchivesByType("DDS", mDdsArchives);
+		for (const auto& [cat, ids] : mTmp)
+		{
+			LOG("0x%02X -> ", cat);
+			for (const auto& id : ids)
+			{
+				LOG("0x%02X ", id);
+			}
+			LOG("\n");
+		}
+		LOG("\n");
 	}
 
-	void LevelScene::LoadAssets()
+	void LevelScene::CreateAssets()
 	{
-		for (const auto& archive : mScrArchives)
-		{
-			GenericModel& model = AddModel();
+		U32 identifier = GetFileContainer()->GetIdentifier();
 
-			model.SetType(GenericModel::eModelTypeScr);
-			model.SetName(archive->GetName());
-			model.SetScrMeshes(ModelSerializer::DeSerialize<ScrMesh>(archive->GetBytes(), archive->GetSize()));
+		SceneResource* sceneResource = GetSceneResourceByIdentifier(identifier);
+
+		const auto& scrArchives = sceneResource->GetArchive()->FindArchivesByType("SCR");
+		const auto& ddsArchives = sceneResource->GetArchive()->FindArchivesByType("DDS");
+
+		for (const auto& archive : scrArchives)
+		{
+			sceneResource->AddScrModelFromArchive(archive);
 		}
 
-		for (const auto& archive : mDdsArchives)
+		for (const auto& archive : ddsArchives)
 		{
-			GenericTexture& texture = AddTexture();
-
-			texture.SetType(GenericTexture::eTextureTypeScr);
-			texture.SetName(archive->GetName());
-			texture.SetTexture(ImageUtils::ReadDDS(archive->GetBytes(), archive->GetSize()));
+			sceneResource->AddTextureFromArchive(archive);
 		}
 
-		//const auto& tscObjects = ObjectSerializer::DeSerialize(mTscArchive->GetBytes(), mTscArchive->GetSize());
-		//const auto& treObjects = ObjectSerializer::DeSerialize(mTreArchive->GetBytes(), mTreArchive->GetSize());
-		//const auto& tatObjects = ObjectSerializer::DeSerialize(mTatArchive->GetBytes(), mTatArchive->GetSize());
-
-		/*
-		for (U32 i = 0; i < (U32)tscObjects.size(); i++)
-		{
-			SceneInfo* sceneInfo = ObjectToSceneInfo(tscObjects[i]);
-
-			if (sceneInfo)
-			{
-				if (!mTscArchiveCache[sceneInfo->DatArchiveFileName])
-				{
-					Archive* archive = new Archive;
-
-					mTscArchiveCache[sceneInfo->DatArchiveFileName] = archive;
-					mTscEntityDataCache[archive].SceneInfo = sceneInfo;
-				}
-
-				mTscEntities.emplace_back(i, tscObjects[i], mTscArchiveCache[sceneInfo->DatArchiveFileName]);
-			}
-		}
-
-		for (U32 i = 0; i < (U32)treObjects.size(); i++)
-		{
-			SceneInfo* sceneInfo = ObjectToSceneInfo(treObjects[i]);
-
-			if (sceneInfo)
-			{
-				if (!mTreArchiveCache[sceneInfo->DatArchiveFileName])
-				{
-					Archive* archive = new Archive;
-
-					mTreArchiveCache[sceneInfo->DatArchiveFileName] = archive;
-					mTreEntityDataCache[archive].SceneInfo = sceneInfo;
-				}
-
-				mTreEntities.emplace_back(i, treObjects[i], mTreArchiveCache[sceneInfo->DatArchiveFileName]);
-			}
-		}
-
-		for (U32 i = 0; i < (U32)tatObjects.size(); i++)
-		{
-			SceneInfo* sceneInfo = ObjectToSceneInfo(tatObjects[i]);
-
-			if (sceneInfo)
-			{
-				if (!mTatArchiveCache[sceneInfo->DatArchiveFileName])
-				{
-					Archive* archive = new Archive;
-
-					mTatArchiveCache[sceneInfo->DatArchiveFileName] = archive;
-					mTatEntityDataCache[archive].SceneInfo = sceneInfo;
-				}
-
-				mTatEntities.emplace_back(i, tatObjects[i], mTatArchiveCache[sceneInfo->DatArchiveFileName]);
-			}
-		}
-		*/
-
-		//for (const auto& archive : mScrArchives)
-		//{
-		//	ScrGroup& group = mScrGroups.emplace_back(ScrSerializer::FromBytes(archive->GetBytes(), archive->GetSize()));
-		//
-		//	group.Name = archive->GetName();
-		//}
-		//
-		//for (const auto& archive : mDdsArchives)
-		//{
-		//	mScrTextures.emplace_back(ImageUtils::ReadDDS(archive->GetBytes(), archive->GetSize()));
-		//}
+		CreateEntityAssets(mTscObjects);
+		CreateEntityAssets(mTreObjects);
+		CreateEntityAssets(mTatObjects);
 	}
 
-	void LevelScene::LoadEntities()
+	void LevelScene::BuildActors()
 	{
-		/*
-		for (auto& entity : mTscEntities)
-		{
-			auto& entityData = mTscEntityDataCache[entity.Archive];
+		U32 identifier = GetFileContainer()->GetIdentifier();
 
-			if (!entityData.Loaded)
-			{
-				entityData.Loaded = true;
+		SceneResource* sceneResource = GetSceneResourceByIdentifier(identifier);
 
-				// TODO: Resolve missing category groups keys!
-				if (entityData.SceneInfo->DatArchiveFileName != "")
-				{
-					fs::path relativeDatFile = fs::path{ entityData.SceneInfo->GroupKey } / entityData.SceneInfo->DatArchiveFileName;
-
-					fs::path absoluteDatFile = gDataDir / relativeDatFile;
-
-					std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFile);
-
-					gBlowFish->Decrypt(datBytes);
-
-					entity.Archive->DeSerialize(datBytes);
-
-					entity.Archive->FindArchivesByType("MD", entityData.MdArchives);
-					entity.Archive->FindArchivesByType("DDS", entityData.DdsArchives);
-
-					for (const auto& archive : entityData.MdArchives)
-					{
-						auto& mdGroup = entityData.MdGroups.emplace_back(MdSerializer::FromBytes(archive->GetBytes(), archive->GetSize()));
-
-						mdGroup.Name = archive->GetName();
-					}
-
-					for (const auto& archive : entityData.DdsArchives)
-					{
-						entityData.MdTextures.emplace_back(ImageUtils::ReadDDS(archive->GetBytes(), archive->GetSize()));
-					}
-				}
-			}
-		}
-
-		for (auto& entity : mTreEntities)
-		{
-			auto& entityData = mTreEntityDataCache[entity.Archive];
-
-			if (!entityData.Loaded)
-			{
-				entityData.Loaded = true;
-
-				// TODO: Resolve missing category groups keys!
-				if (entityData.SceneInfo->DatArchiveFileName != "")
-				{
-					fs::path relativeDatFile = fs::path{ entityData.SceneInfo->GroupKey } / entityData.SceneInfo->DatArchiveFileName;
-
-					fs::path absoluteDatFile = gDataDir / relativeDatFile;
-
-					std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFile);
-
-					gBlowFish->Decrypt(datBytes);
-
-					entity.Archive->DeSerialize(datBytes);
-
-					entity.Archive->FindArchivesByType("MD", entityData.MdArchives);
-					entity.Archive->FindArchivesByType("DDS", entityData.DdsArchives);
-
-					for (const auto& archive : entityData.MdArchives)
-					{
-						auto& mdGroup = entityData.MdGroups.emplace_back(MdSerializer::FromBytes(archive->GetBytes(), archive->GetSize()));
-
-						mdGroup.Name = archive->GetName();
-					}
-
-					for (const auto& archive : entityData.DdsArchives)
-					{
-						entityData.MdTextures.emplace_back(ImageUtils::ReadDDS(archive->GetBytes(), archive->GetSize()));
-					}
-				}
-			}
-		}
-
-		for (auto& entity : mTatEntities)
-		{
-			auto& entityData = mTatEntityDataCache[entity.Archive];
-
-			if (!entityData.Loaded)
-			{
-				entityData.Loaded = true;
-
-				// TODO: Resolve missing category groups keys!
-				if (entityData.SceneInfo->DatArchiveFileName != "")
-				{
-					fs::path relativeDatFile = fs::path{ entityData.SceneInfo->GroupKey } / entityData.SceneInfo->DatArchiveFileName;
-
-					fs::path absoluteDatFile = gDataDir / relativeDatFile;
-
-					std::vector<U8> datBytes = FsUtils::ReadBinary(absoluteDatFile);
-
-					gBlowFish->Decrypt(datBytes);
-
-					entity.Archive->DeSerialize(datBytes);
-
-					entity.Archive->FindArchivesByType("MD", entityData.MdArchives);
-					entity.Archive->FindArchivesByType("DDS", entityData.DdsArchives);
-
-					for (const auto& archive : entityData.MdArchives)
-					{
-						auto& mdGroup = entityData.MdGroups.emplace_back(MdSerializer::FromBytes(archive->GetBytes(), archive->GetSize()));
-
-						mdGroup.Name = archive->GetName();
-					}
-
-					for (const auto& archive : entityData.DdsArchives)
-					{
-						entityData.MdTextures.emplace_back(ImageUtils::ReadDDS(archive->GetBytes(), archive->GetSize()));
-					}
-				}
-			}
-		}
-		*/
-	}
-
-	void LevelScene::AddStaticGeometry()
-	{
-		const auto& models = GetModels();
-		const auto& textures = GetTextures();
-
-		for (const auto& model : models)
+		for (const auto& model : sceneResource->GetModels())
 		{
 			Actor* modelActor = CreateActor<Actor>(model.GetName(), mLevelGeometryActor);
 
@@ -351,7 +162,7 @@ namespace ark
 					std::vector<U32> elements = ElementConverter::ToElementBuffer(subMesh.Vertices);
 
 					U32 textureIndex = subMesh.Header.TextureIndex;
-					U32 texture = (textureIndex < textures.size()) ? textures[textureIndex].GetTexture() : 0;
+					U32 texture = sceneResource->GetTexturesByIndex(textureIndex);
 
 					subMeshRenderable->SetVertexBuffer(vertices);
 					subMeshRenderable->SetElementBuffer(elements);
@@ -363,317 +174,151 @@ namespace ark
 			}
 		}
 
-		/*
-		for (const auto& entity : mTscEntities)
-		{
-			auto& entityData = mTscEntityDataCache[entity.Archive];
-
-			for (const auto& group : entityData.MdGroups)
-			{
-				std::string groupName = group.Name + "_" + std::to_string(entity.Index);
-
-				Actor* groupActor = CreateActor<Actor>(groupName, mEntityGeometryActor);
-
-				for (const auto& model : group.Models)
-				{
-					Actor* modelActor = CreateActor<Actor>("Model_" + std::to_string(model.Index), groupActor);
-
-					Transform* modelTransform = modelActor->GetTransform();
-
-					R32V3 position = R32V3{ entity.Object.Position.x, entity.Object.Position.y, entity.Object.Position.z } * MAGIC_WORLD_SCALE;
-					R32V3 rotation = R32V3{ entity.Object.Rotation.x, entity.Object.Rotation.y, entity.Object.Rotation.z } + R32V3{ MAGIC_ENTITY_TO_LEVEL_PITCH_OFFSET, MAGIC_ENTITY_TO_LEVEL_YAW_OFFSET, MAGIC_ENTITY_TO_LEVEL_ROLL_OFFSET };
-					R32V3 scale = R32V3{ entity.Object.Scale.x, entity.Object.Scale.y, entity.Object.Scale.z } / MAGIC_ENTITY_TO_LEVEL_SCALE_COEFFICIENT;
-
-					modelTransform->SetLocalPosition(position);
-
-					for (const auto& division : model.Entry.Divisions)
-					{
-						Actor* divisonActor = CreateActor<Actor>("Division_" + std::to_string(division.Index), modelActor);
-
-						Transform* divisionTransform = divisonActor->GetComponent<Transform>();
-
-						divisionTransform->SetLocalRotation(rotation);
-						divisionTransform->SetLocalScale(scale);
-
-						Renderable* divisionRenderable = divisonActor->AttachComponent<Renderable>();
-
-						std::vector<DefaultVertex> vertices = VertexConverter::ToVertexBuffer(divisonActor, division.Vertices, division.TextureMaps, division.TextureUvs, division.ColorWeights);
-						std::vector<U32> elements = ElementConverter::ToElementBuffer(division.Vertices);
-
-						U32 textureIndex = division.Header.TextureIndex;
-						U32 texture = (textureIndex < entityData.MdTextures.size()) ? entityData.MdTextures[textureIndex] : 0;
-
-						divisionRenderable->SetVertexBuffer(vertices);
-						divisionRenderable->SetElementBuffer(elements);
-						divisionRenderable->LocalToRemote();
-						divisionRenderable->SetTexture(textureIndex, texture);
-
-						divisonActor->ComputeAABB();
-					}
-				}
-			}
-		}
-
-		for (const auto& entity : mTreEntities)
-		{
-			auto& entityData = mTreEntityDataCache[entity.Archive];
-
-			for (const auto& group : entityData.MdGroups)
-			{
-				std::string groupName = group.Name + "_" + std::to_string(entity.Index);
-
-				Actor* groupActor = CreateActor<Actor>(groupName, mEntityGeometryActor);
-
-				for (const auto& model : group.Models)
-				{
-					Actor* modelActor = CreateActor<Actor>("Model_" + std::to_string(model.Index), groupActor);
-
-					Transform* modelTransform = modelActor->GetTransform();
-
-					R32V3 position = R32V3{ entity.Object.Position.x, entity.Object.Position.y, entity.Object.Position.z } * MAGIC_WORLD_SCALE;
-					R32V3 rotation = R32V3{ entity.Object.Rotation.x, entity.Object.Rotation.y, entity.Object.Rotation.z } + R32V3{ MAGIC_ENTITY_TO_LEVEL_PITCH_OFFSET, MAGIC_ENTITY_TO_LEVEL_YAW_OFFSET, MAGIC_ENTITY_TO_LEVEL_ROLL_OFFSET };
-					R32V3 scale = R32V3{ entity.Object.Scale.x, entity.Object.Scale.y, entity.Object.Scale.z } / MAGIC_ENTITY_TO_LEVEL_SCALE_COEFFICIENT;
-
-					modelTransform->SetLocalPosition(position);
-
-					for (const auto& division : model.Entry.Divisions)
-					{
-						Actor* divisonActor = CreateActor<Actor>("Division_" + std::to_string(division.Index), modelActor);
-
-						Transform* divisionTransform = divisonActor->GetComponent<Transform>();
-
-						divisionTransform->SetLocalRotation(rotation);
-						divisionTransform->SetLocalScale(scale);
-
-						Renderable* divisionRenderable = divisonActor->AttachComponent<Renderable>();
-
-						std::vector<DefaultVertex> vertices = VertexConverter::ToVertexBuffer(divisonActor, division.Vertices, division.TextureMaps, division.TextureUvs, division.ColorWeights);
-						std::vector<U32> elements = ElementConverter::ToElementBuffer(division.Vertices);
-
-						U32 textureIndex = division.Header.TextureIndex;
-						U32 texture = (textureIndex < entityData.MdTextures.size()) ? entityData.MdTextures[textureIndex] : 0;
-
-						divisionRenderable->SetVertexBuffer(vertices);
-						divisionRenderable->SetElementBuffer(elements);
-						divisionRenderable->LocalToRemote();
-						divisionRenderable->SetTexture(textureIndex, texture);
-
-						divisonActor->ComputeAABB();
-					}
-				}
-			}
-		}
-
-		for (const auto& entity : mTatEntities)
-		{
-			auto& entityData = mTatEntityDataCache[entity.Archive];
-
-			for (const auto& group : entityData.MdGroups)
-			{
-				std::string groupName = group.Name + "_" + std::to_string(entity.Index);
-
-				Actor* groupActor = CreateActor<Actor>(groupName, mEntityGeometryActor);
-
-				for (const auto& model : group.Models)
-				{
-					Actor* modelActor = CreateActor<Actor>("Model_" + std::to_string(model.Index), groupActor);
-
-					Transform* modelTransform = modelActor->GetTransform();
-
-					R32V3 position = R32V3{ entity.Object.Position.x, entity.Object.Position.y, entity.Object.Position.z } * MAGIC_WORLD_SCALE;
-					R32V3 rotation = R32V3{ entity.Object.Rotation.x, entity.Object.Rotation.y, entity.Object.Rotation.z } + R32V3{ MAGIC_ENTITY_TO_LEVEL_PITCH_OFFSET, MAGIC_ENTITY_TO_LEVEL_YAW_OFFSET, MAGIC_ENTITY_TO_LEVEL_ROLL_OFFSET };
-					R32V3 scale = R32V3{ entity.Object.Scale.x, entity.Object.Scale.y, entity.Object.Scale.z } / MAGIC_ENTITY_TO_LEVEL_SCALE_COEFFICIENT;
-
-					modelTransform->SetLocalPosition(position);
-
-					for (const auto& division : model.Entry.Divisions)
-					{
-						Actor* divisonActor = CreateActor<Actor>("Division_" + std::to_string(division.Index), modelActor);
-
-						Transform* divisionTransform = divisonActor->GetComponent<Transform>();
-
-						divisionTransform->SetLocalRotation(rotation);
-						divisionTransform->SetLocalScale(scale);
-
-						Renderable* divisionRenderable = divisonActor->AttachComponent<Renderable>();
-
-						std::vector<DefaultVertex> vertices = VertexConverter::ToVertexBuffer(divisonActor, division.Vertices, division.TextureMaps, division.TextureUvs, division.ColorWeights);
-						std::vector<U32> elements = ElementConverter::ToElementBuffer(division.Vertices);
-
-						U32 textureIndex = division.Header.TextureIndex;
-						U32 texture = (textureIndex < entityData.MdTextures.size()) ? entityData.MdTextures[textureIndex] : 0;
-
-						divisionRenderable->SetVertexBuffer(vertices);
-						divisionRenderable->SetElementBuffer(elements);
-						divisionRenderable->LocalToRemote();
-						divisionRenderable->SetTexture(textureIndex, texture);
-
-						divisonActor->ComputeAABB();
-					}
-				}
-			}
-		}
-		*/
+		BuildEntityActors(mTscObjects);
+		BuildEntityActors(mTreObjects);
+		BuildEntityActors(mTatObjects);
 	}
 
-	void LevelScene::PrintSummary()
+	void LevelScene::AddEntityResources(const std::vector<Object>& Objects)
 	{
-		LOG("\n");
-		LOG(" Opening Level Scene \\%s\\%s\n", GetFileContainer()->GetDirectoryId(), GetFileContainer()->GetFileId());
-		LOG("-----------------------------------------------------------------------------------------\n");
-		LOG("\n");
-		LOG("Loading archives:\n");
-		LOG("    %s\n", GetFileContainer()->GetDatFile().GetRelativeFile());
-
-		/*
-		for (const auto& [archiveFileName, archive] : mTscArchiveCache)
+		for (const auto& object : Objects)
 		{
-			LOG("    %s\n", archiveFileName.c_str());
-		}
+			const auto findIt = sDirectoryByCategory.find(object.Category);
 
-		for (const auto& [archiveFileName, archive] : mTreArchiveCache)
-		{
-			LOG("    %s\n", archiveFileName.c_str());
-		}
-
-		for (const auto& [archiveFileName, archive] : mTatArchiveCache)
-		{
-			LOG("    %s\n", archiveFileName.c_str());
-		}
-		*/
-
-		LOG("\n");
-		LOG("Searching files:\n");
-		LOG("    %s\n", GetFileContainer()->GetDatFile().GetRelativeFile());
-		LOG("        Found %u TSC files\n", mTscArchive ? 1 : 0);
-		LOG("        Found %u TRE files\n", mTreArchive ? 1 : 0);
-		LOG("        Found %u TAT files\n", mTatArchive ? 1 : 0);
-		LOG("        Found %u SCR files\n", (U32)mScrArchives.size());
-		LOG("        Found %u DDS files\n", (U32)mDdsArchives.size());
-
-		/*
-		for (const auto& [archiveFileName, archive] : mTscArchiveCache)
-		{
-			LOG("    %s\n", archiveFileName.c_str());
-			LOG("        Found %u MD files\n", (U32)mTscEntityDataCache[archive].MdGroups.size());
-			LOG("        Found %u DDS files\n", (U32)mTscEntityDataCache[archive].MdTextures.size());
-		}
-
-		for (const auto& [archiveFileName, archive] : mTreArchiveCache)
-		{
-			LOG("    %s\n", archiveFileName.c_str());
-			LOG("        Found %u MD files\n", (U32)mTreEntityDataCache[archive].MdGroups.size());
-			LOG("        Found %u DDS files\n", (U32)mTreEntityDataCache[archive].MdTextures.size());
-		}
-
-		for (const auto& [archiveFileName, archive] : mTatArchiveCache)
-		{
-			LOG("    %s\n", archiveFileName.c_str());
-			LOG("        Found %u MD files\n", (U32)mTatEntityDataCache[archive].MdGroups.size());
-			LOG("        Found %u DDS files\n", (U32)mTatEntityDataCache[archive].MdTextures.size());
-		}
-		*/
-
-		LOG("\n");
-		LOG("Loading models:\n");
-
-		LOG("    %s\n", GetFileContainer()->GetDatFile().GetRelativeFile());
-		for (const auto& archive : mScrArchives)
-		{
-			LOG("        %s.%s\n", archive->GetName(), archive->GetType());
-		}
-
-		/*
-		for (const auto& [archiveFileName, cachedArchive] : mTscArchiveCache)
-		{
-			LOG("    %s\n", archiveFileName.c_str());
-			for (const auto& archive : mTscEntityDataCache[cachedArchive].MdArchives)
+			if (findIt == sDirectoryByCategory.end())
 			{
-				LOG("        %s.%s\n", archive->GetName().c_str(), archive->GetType().c_str());
+				//LOG("Cannot find category 0x%02X with id 0x%02X\n", object.Category, object.Id);
+
+				mTmp[object.Category].emplace(object.Id);
+			}
+			else
+			{
+				U32 identifier = (sDirectoryByCategory[object.Category] << 16) | object.Id;
+
+				const FileContainer* fileContainer = FileDatabase::GetFileContainerByIdentifier(identifier);
+
+				if (fileContainer)
+				{
+					Archive* archive = AddResource(fileContainer->GetIdentifier(), fileContainer->GetDatFile());
+				}
 			}
 		}
+	}
 
-		for (const auto& [archiveFileName, cachedArchive] : mTreArchiveCache)
+	void LevelScene::CreateEntityAssets(const std::vector<Object>& Objects)
+	{
+		for (auto& object : Objects)
 		{
-			LOG("    %s\n", archiveFileName.c_str());
-			for (const auto& archive : mTreEntityDataCache[cachedArchive].MdArchives)
+			const auto findIt = sDirectoryByCategory.find(object.Category);
+
+			if (findIt == sDirectoryByCategory.end())
 			{
-				LOG("        %s.%s\n", archive->GetName().c_str(), archive->GetType().c_str());
+				//LOG("Cannot find category 0x%02X with id 0x%02X\n", object.Category, object.Id);
+			}
+			else
+			{
+				U32 identifier = (sDirectoryByCategory[object.Category] << 16) | object.Id;
+
+				SceneResource* sceneResource = GetSceneResourceByIdentifier(identifier);
+
+				if (sceneResource && !sceneResource->IsLoaded())
+				{
+					const auto& mdArchives = sceneResource->GetArchive()->FindArchivesByType("MD");
+					const auto& ddsArchives = sceneResource->GetArchive()->FindArchivesByType("DDS");
+
+					for (const auto& archive : mdArchives)
+					{
+						sceneResource->AddMdModelFromArchive(archive, &object);
+					}
+
+					for (const auto& archive : ddsArchives)
+					{
+						sceneResource->AddTextureFromArchive(archive);
+					}
+
+					sceneResource->SetLoaded(true);
+				}
 			}
 		}
+	}
 
-		for (const auto& [archiveFileName, cachedArchive] : mTatArchiveCache)
+	void LevelScene::BuildEntityActors(const std::vector<Object>& Objects)
+	{
+		for (const auto& object : Objects)
 		{
-			LOG("    %s\n", archiveFileName.c_str());
-			for (const auto& archive : mTatEntityDataCache[cachedArchive].MdArchives)
+			const auto findIt = sDirectoryByCategory.find(object.Category);
+
+			if (findIt == sDirectoryByCategory.end())
 			{
-				LOG("        %s.%s\n", archive->GetName().c_str(), archive->GetType().c_str());
+				//LOG("Cannot find category 0x%02X with id 0x%02X\n", object.Category, object.Id);
+			}
+			else
+			{
+				U32 identifier = (sDirectoryByCategory[object.Category] << 16) | object.Id;
+
+				SceneResource* sceneResource = GetSceneResourceByIdentifier(identifier);
+
+				if (sceneResource && sceneResource->IsLoaded())
+				{
+					for (const auto& model : sceneResource->GetModels())
+					{
+						Actor* modelActor = CreateActor<Actor>(model.GetName(), mEntityGeometryActor);
+
+						for (const auto& mesh : model.GetMdMeshes())
+						{
+							Actor* meshActor = CreateActor<Actor>("Mesh_" + std::to_string(mesh.Index), modelActor);
+
+							Transform* meshTransform = meshActor->GetTransform();
+
+							const MdTransform& transform = mesh.Transform;
+
+							R32V3 position = {};
+							R32V3 rotation = {};
+							R32V3 scale = {};
+
+							if (const Object* object = model.GetObjectRef())
+							{
+								position = R32V3{ object->Position.x, object->Position.y, object->Position.z } *MAGIC_WORLD_SCALE;
+								rotation = R32V3{ object->Rotation.x, object->Rotation.y, object->Rotation.z } + R32V3{ MAGIC_ENTITY_TO_LEVEL_PITCH_OFFSET, MAGIC_ENTITY_TO_LEVEL_YAW_OFFSET, MAGIC_ENTITY_TO_LEVEL_ROLL_OFFSET };
+								scale = R32V3{ object->Scale.x, object->Scale.y, object->Scale.z } / MAGIC_ENTITY_TO_LEVEL_SCALE_COEFFICIENT;
+							}
+							else
+							{
+								R32V3 position = R32V3{ transform.Position.x, transform.Position.y, transform.Position.z } *MAGIC_WORLD_SCALE;
+								R32V3 rotation = glm::degrees(R32V3{ transform.Rotation.x, transform.Rotation.y, transform.Rotation.z } / 360.0F * MAGIC_ROTATION_COEFFICIENT);
+								R32V3 scale = R32V3{ transform.Scale.x, transform.Scale.y, transform.Scale.z } / MAGIC_SCALE_COEFFICIENT * MAGIC_WORLD_SCALE;
+							}
+
+							meshTransform->SetLocalPosition(position);
+
+							for (const auto& subMesh : mesh.SubMeshes)
+							{
+								Actor* subMeshActor = CreateActor<Actor>("SubMesh_" + std::to_string(subMesh.Index), meshActor);
+
+								Transform* subMeshTransform = subMeshActor->GetComponent<Transform>();
+
+								subMeshTransform->SetLocalRotation(rotation);
+								subMeshTransform->SetLocalScale(scale);
+
+								Renderable* subMeshRenderable = subMeshActor->AttachComponent<Renderable>();
+
+								std::vector<DefaultVertex> vertices = VertexConverter::ToVertexBuffer(subMeshActor, subMesh.Vertices, subMesh.TextureMaps, subMesh.TextureUvs, subMesh.ColorWeights);
+								std::vector<U32> elements = ElementConverter::ToElementBuffer(subMesh.Vertices);
+
+								U32 textureIndex = subMesh.Header.TextureIndex;
+								U32 texture = sceneResource->GetTexturesByIndex(textureIndex);
+
+								subMeshRenderable->SetVertexBuffer(vertices);
+								subMeshRenderable->SetElementBuffer(elements);
+								subMeshRenderable->LocalToRemote();
+								subMeshRenderable->SetTexture(textureIndex, texture);
+
+								subMeshActor->ComputeAABB();
+							}
+						}
+					}
+				}
 			}
 		}
-		*/
-
-		LOG("\n");
-		LOG("Loading textures:\n");
-
-		LOG("    %s\n", GetFileContainer()->GetDatFile().GetRelativeFile());
-		for (const auto& archive : mDdsArchives)
-		{
-			LOG("        %s.%s\n", archive->GetName(), archive->GetType());
-		}
-
-		/*
-		for (const auto& [archiveFileName, cachedArchive] : mTscArchiveCache)
-		{
-			LOG("    %s\n", archiveFileName.c_str());
-			for (const auto& archive : mTscEntityDataCache[cachedArchive].DdsArchives)
-			{
-				LOG("        %s.%s\n", archive->GetName().c_str(), archive->GetType().c_str());
-			}
-		}
-
-		for (const auto& [archiveFileName, cachedArchive] : mTreArchiveCache)
-		{
-			LOG("    %s\n", archiveFileName.c_str());
-			for (const auto& archive : mTreEntityDataCache[cachedArchive].DdsArchives)
-			{
-				LOG("        %s.%s\n", archive->GetName().c_str(), archive->GetType().c_str());
-			}
-		}
-
-		for (const auto& [archiveFileName, cachedArchive] : mTatArchiveCache)
-		{
-			LOG("    %s\n", archiveFileName.c_str());
-			for (const auto& archive : mTatEntityDataCache[cachedArchive].DdsArchives)
-			{
-				LOG("        %s.%s\n", archive->GetName().c_str(), archive->GetType().c_str());
-			}
-		}
-		*/
-
-		/*
-		LOG("\n");
-		LOG("Loading TSC objects:\n");
-
-		for (const auto& entity : mTscEntities)
-		{
-			LOG("    Id=0x%02X Category=0x%02X\n", entity.Object.Id, entity.Object.Category);
-		}
-
-		LOG("\n");
-		LOG("Loading TRE objects:\n");
-		for (const auto& entity : mTreEntities)
-		{
-			LOG("    Id=0x%02X Category=0x%02X\n", entity.Object.Id, entity.Object.Category);
-		}
-
-		LOG("\n");
-		LOG("Loading TAT objects:\n");
-		for (const auto& entity : mTatEntities)
-		{
-			LOG("    Id=0x%02X Category=0x%02X\n", entity.Object.Id, entity.Object.Category);
-		}
-		*/
-
-		LOG("\n");
 	}
 }

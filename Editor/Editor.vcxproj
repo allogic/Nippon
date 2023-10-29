@@ -171,8 +171,6 @@
     <ClCompile Include="Converter\VertexConverter.cpp" />
     <ClCompile Include="Databases\AssetDatabase.cpp" />
     <ClCompile Include="Databases\FileDatabase.cpp" />
-    <ClCompile Include="GenericTexture.cpp" />
-    <ClCompile Include="GenericModel.cpp" />
     <ClCompile Include="Databases\ThumbnailDatabase.cpp" />
     <ClCompile Include="Editor.cpp" />
     <ClCompile Include="Event.cpp" />
@@ -203,7 +201,7 @@
     <ClCompile Include="Serializer\ObjectSerializer.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Texture2D.cpp" />
-    <ClCompile Include="Utilities\ImageUtils.cpp" />
+    <ClCompile Include="Utilities\TextureUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h" />
@@ -211,8 +209,7 @@
     <ClInclude Include="Actors\Test.h" />
     <ClInclude Include="Databases\AssetDatabase.h" />
     <ClInclude Include="Databases\FileDatabase.h" />
-    <ClInclude Include="GenericTexture.h" />
-    <ClInclude Include="GenericModel.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="Databases\ThumbnailDatabase.h" />
     <ClInclude Include="Magic.h" />
     <ClInclude Include="Component.h" />
@@ -262,7 +259,7 @@
     <ClInclude Include="Structs\ObjectStructs.h" />
     <ClInclude Include="Structs\ModelStructs.h" />
     <ClInclude Include="Texture2D.h" />
-    <ClInclude Include="Utilities\ImageUtils.h" />
+    <ClInclude Include="Utilities\TextureUtils.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

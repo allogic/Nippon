@@ -183,10 +183,10 @@ namespace ark
 
 						if (ImGui::BeginCombo("Model", selectedTexture.c_str()))
 						{
-							for (const auto& texture : scene->GetTextures())
-							{
-
-							}
+							//for (const auto& texture : scene->GetTextures())
+							//{
+							//
+							//}
 
 							ImGui::EndCombo();
 						}

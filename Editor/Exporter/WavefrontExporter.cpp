@@ -8,6 +8,8 @@
 #include <Editor/Magic.h>
 #include <Editor/Texture2D.h>
 
+#include <Editor/Databases/FileDatabase.h>
+
 #include <Editor/Scenes/LevelScene.h>
 #include <Editor/Scenes/EntityScene.h>
 
@@ -21,7 +23,7 @@
 
 #include <Editor/Glad/glad.h>
 
-#include <Editor/Utilities/ImageUtils.h>
+#include <Editor/Utilities/TextureUtils.h>
 
 namespace ark
 {
@@ -29,7 +31,7 @@ namespace ark
 	{
 		fs::path exportDir = "Exports";
 
-		FsUtils::CreateDirIfNotExist(exportDir / Scene->GetFileContainer()->GetDatFile().GetRelativeFile() / Actor->GetName());
+		FsUtils::CreateDirIfNotExist(exportDir / Scene->GetFileContainer()->GetDatFile()->GetRelativeFile() / Actor->GetName());
 
 		std::ostringstream objectStream = {};
 		std::ostringstream materialStream = {};
@@ -54,12 +56,12 @@ namespace ark
 		LOG("\n");
 		LOG("Creating textures:\n");
 
-		ExportTexturesRecursive(Actor, exportDir / Scene->GetFileContainer()->GetDatFile().GetRelativeFile() / Actor->GetName());
+		ExportTexturesRecursive(Actor, exportDir / Scene->GetFileContainer()->GetDatFile()->GetRelativeFile() / Actor->GetName());
 
 		LOG("\n");
 
-		FsUtils::WriteText(exportDir / Scene->GetFileContainer()->GetDatFile().GetRelativeFile() / Actor->GetName() / "object.obj", objectStream.str());
-		FsUtils::WriteText(exportDir / Scene->GetFileContainer()->GetDatFile().GetRelativeFile() / Actor->GetName() / "object.mtl", materialStream.str());
+		FsUtils::WriteText(exportDir / Scene->GetFileContainer()->GetDatFile()->GetRelativeFile() / Actor->GetName() / "object.obj", objectStream.str());
+		FsUtils::WriteText(exportDir / Scene->GetFileContainer()->GetDatFile()->GetRelativeFile() / Actor->GetName() / "object.mtl", materialStream.str());
 	}
 
 	void WavefrontExporter::ExportObjectsRecursive(Actor* Actor, std::ostringstream& Stream, U32& VertexOffset)
@@ -164,7 +166,7 @@ namespace ark
 
 					if (U32 texture = renderable->GetTexture())
 					{
-						ImageUtils::WritePNG(texture, ExportDir / textureName);
+						TextureUtils::WritePNG(texture, ExportDir / textureName);
 					}
 				}
 			}

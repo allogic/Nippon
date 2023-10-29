@@ -9,10 +9,7 @@
 #include <Common/Types.h>
 
 #include <Editor/Actor.h>
-#include <Editor/GenericModel.h>
-#include <Editor/GenericTexture.h>
-
-#include <Editor/Databases/FileDatabase.h>
+#include <Editor/Model.h>
 
 #include <Editor/Glad/glad.h>
 
@@ -20,9 +17,49 @@ namespace ark
 {
 	namespace fs = std::filesystem;
 
+	class Archive;
 	class Viewport;
 	class Camera;
-	class GenericModel;
+	class FileContainer;
+	class FileInfo;
+
+	class SceneResource
+	{
+	public:
+
+		friend class Scene;
+
+	public:
+
+		inline const auto& IsLoaded() const { return mLoaded; }
+
+		inline const auto& GetArchive() const { return mArchive; }
+		inline const auto& GetModels() const { return mModels; }
+		inline const auto& GetTextures() const { return mTextures; }
+
+	public:
+
+		inline auto GetTexturesByIndex(U32 Index) const { return (Index > mTextures.size()) ? 0 : mTextures[Index]; }
+
+	public:
+
+		inline void SetLoaded(bool Value) { mLoaded = Value; }
+
+	public:
+
+		void AddScrModelFromArchive(Archive* Archive);
+		void AddMdModelFromArchive(Archive* Archive, const Object* Object);
+		void AddTextureFromArchive(Archive* Archive);
+
+	private:
+
+		Archive* mArchive = {};
+
+		bool mLoaded = false;
+
+		std::vector<Model> mModels = {};
+		std::vector<U32> mTextures = {};
+	};
 
 	class Scene
 	{
@@ -42,13 +79,12 @@ namespace ark
 		inline const auto& GetMainCamera() const { return mMainCamera; }
 		inline const auto& GetViewport() const { return mViewport; }
 		inline const auto& GetShouldBeDestroyed() const { return mShouldBeDestroyed; }
-		inline const auto& GetModels() const { return mModels; }
-		inline const auto& GetTextures() const { return mTextures; }
+
+		inline const auto GetSceneResourceByIdentifier(U32 Identifier) { return mSceneResourcesByIdentifier[Identifier]; }
 
 	public:
 
 		inline void SetDirty(bool Value) { mIsDirty = Value; }
-		inline void SetEnableConsole(bool Value) { mEnableConsole = Value; }
 		inline void SetEnableDebug(bool Value) { mEnableDebug = Value; }
 
 	public:
@@ -86,17 +122,23 @@ namespace ark
 
 	protected:
 
-		GenericModel& AddModel();
-		GenericTexture& AddTexture();
+		virtual void AddResources() = 0;
+		virtual void CreateAssets() = 0;
+		virtual void BuildActors() = 0;
 
 	protected:
 
-		bool mEnableConsole = false;
+		Archive* AddResource(U32 Identifier, const FileInfo* FileInfo);
+
+	protected:
+
 		bool mEnableDebug = false;
 
 	private:
 
 		const FileContainer* mFileContainer;
+
+		std::map<U32, SceneResource*> mSceneResourcesByIdentifier = {};
 
 		Viewport* mViewport = nullptr;
 
@@ -114,9 +156,6 @@ namespace ark
 
 		bool mIsDirty = false;
 		bool mShouldBeDestroyed = false;
-
-		std::vector<GenericModel> mModels = {};
-		std::vector<GenericTexture> mTextures = {};
 	};
 }
 

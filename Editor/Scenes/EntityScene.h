@@ -32,30 +32,14 @@ namespace ark
 		virtual void Load() override;
 		virtual void Save() override;
 
-	private:
+	protected:
 
-		void LoadArchives();
-		void LoadAssets();
-
-	private:
-
-		void AddStaticGeometry();
-
-	private:
-
-		void PrintSummary();
+		virtual void AddResources() override;
+		virtual void CreateAssets() override;
+		virtual void BuildActors() override;
 
 	private:
 
 		Actor* mEntityGeometryActor = nullptr;
-
-	private:
-
-		Archive* mDatArchive = nullptr;
-
-	private:
-
-		std::vector<Archive*> mMdArchives;
-		std::vector<Archive*> mDdsArchives;
 	};
 }

@@ -105,7 +105,7 @@
     <ClCompile Include="Texture2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Utilities\ImageUtils.cpp">
+    <ClCompile Include="Utilities\TextureUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Glad\glad.c">
@@ -142,12 +142,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Databases\AssetDatabase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GenericModel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GenericTexture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -263,7 +257,7 @@
     <ClInclude Include="Texture2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Utilities\ImageUtils.h">
+    <ClInclude Include="Utilities\TextureUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Vertex.h">
@@ -320,10 +314,7 @@
     <ClInclude Include="Databases\AssetDatabase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GenericModel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GenericTexture.h">
+    <ClInclude Include="Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

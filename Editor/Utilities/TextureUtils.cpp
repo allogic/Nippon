@@ -1,6 +1,6 @@
 #include <Editor/Texture2D.h>
 
-#include <Editor/Utilities/ImageUtils.h>
+#include <Editor/Utilities/TextureUtils.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <Vendor/StbImage/stb_image.h>
@@ -18,7 +18,7 @@
 
 namespace ark
 {
-	U32 ImageUtils::ReadDDS(const fs::path& File)
+	U32 TextureUtils::ReadDDS(const fs::path& File)
 	{
 		U32 texture = 0;
 
@@ -39,7 +39,7 @@ namespace ark
 		return texture;
 	}
 
-    U32 ImageUtils::ReadDDS(U8* Bytes, U64 Size)
+    U32 TextureUtils::ReadDDS(U8* Bytes, U64 Size)
 	{
 		U32 texture = 0;
 
@@ -60,7 +60,7 @@ namespace ark
 		return texture;
 	}
 
-    U32 ImageUtils::ReadPNG(const fs::path& File)
+    U32 TextureUtils::ReadPNG(const fs::path& File)
 	{
 		U32 texture = 0;
 
@@ -77,7 +77,7 @@ namespace ark
 		return texture;
 	}
 
-	U32 ImageUtils::ReadPNG(U8* Bytes, U64 Size)
+	U32 TextureUtils::ReadPNG(U8* Bytes, U64 Size)
 	{
 		U32 texture = 0;
 
@@ -94,7 +94,7 @@ namespace ark
 		return texture;
 	}
 
-	U32 ImageUtils::ReadJPG(const fs::path& File)
+	U32 TextureUtils::ReadJPG(const fs::path& File)
 	{
 		U32 texture = 0;
 
@@ -111,7 +111,7 @@ namespace ark
 		return texture;
 	}
 
-	U32 ImageUtils::ReadJPG(U8* Bytes, U64 Size)
+	U32 TextureUtils::ReadJPG(U8* Bytes, U64 Size)
 	{
 		U32 texture = 0;
 
@@ -128,7 +128,7 @@ namespace ark
 		return texture;
 	}
 
-	void ImageUtils::WriteJPG(U32 Id, const fs::path& File)
+	void TextureUtils::WriteJPG(U32 Id, const fs::path& File)
 	{
 		U32 width = Texture2D::GetWidth(Id);
 		U32 height = Texture2D::GetHeight(Id);
@@ -140,7 +140,7 @@ namespace ark
 	}
 
 	/*
-	std::vector<U8> ImageUtils::WriteJPG(U32 Id)
+	std::vector<U8> TextureUtils::WriteJPG(U32 Id)
 	{
 		U32 width = Texture2D::GetWidth(Id);
 		U32 height = Texture2D::GetHeight(Id);
@@ -160,7 +160,7 @@ namespace ark
 	}
 	*/
 
-	void ImageUtils::WritePNG(U32 Id, const fs::path& File)
+	void TextureUtils::WritePNG(U32 Id, const fs::path& File)
 	{
 		U32 width = Texture2D::GetWidth(Id);
 		U32 height = Texture2D::GetHeight(Id);
@@ -171,7 +171,7 @@ namespace ark
 		stbi_write_png(File.string().c_str(), width, height, 4, bytes.data(), 0);
 	}
 
-	std::vector<U8> ImageUtils::WritePNG(U32 Id)
+	std::vector<U8> TextureUtils::WritePNG(U32 Id)
 	{
 		U32 width = Texture2D::GetWidth(Id);
 		U32 height = Texture2D::GetHeight(Id);

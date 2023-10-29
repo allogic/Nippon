@@ -13,7 +13,7 @@
 #include <Editor/Databases/FileDatabase.h>
 #include <Editor/Databases/ThumbnailDatabase.h>
 
-#include <Editor/Utilities/ImageUtils.h>
+#include <Editor/Utilities/TextureUtils.h>
 
 #define FILE_DATABASE_NAME "ThumbnailDatabase.db"
 
@@ -38,7 +38,7 @@ namespace ark
 
 		mediator.Write<U32>(entryCount);
 
-		for (const auto& directory : FileDatabase::GetAllDirectories())
+		for (const auto& directory : FileDatabase::GetDirectories())
 		{
 			for (const auto& fileContainer : FileDatabase::GetFileContainersByDirectory(directory))
 			{
@@ -61,7 +61,7 @@ namespace ark
 
 					U32 dummyTexture = 0;
 
-					std::vector<U8> bytes = ImageUtils::WritePNG(colorTexture);
+					std::vector<U8> bytes = TextureUtils::WritePNG(colorTexture);
 
 					mediator.Write<U32>(fileContainer->GetIdentifier());
 					mediator.Write<U32>(fileContainer->GetType());
@@ -81,12 +81,15 @@ namespace ark
 	{
 		for (const auto& [identifier, thumbnailContainer] : sThumbnailsByIdentifier)
 		{
-			if (thumbnailContainer->mTexture)
+			if (thumbnailContainer)
 			{
-				Texture2D::Destroy(thumbnailContainer->mTexture);
-			}
+				if (thumbnailContainer->mTexture)
+				{
+					Texture2D::Destroy(thumbnailContainer->mTexture);
+				}
 
-			delete thumbnailContainer;
+				delete thumbnailContainer;
+			}
 		}
 	}
 
@@ -118,7 +121,7 @@ namespace ark
 				U32 thumbnailSize = mediator.Read<U32>();
 				std::vector<U8> bytes = mediator.ReadByteRange(thumbnailSize);
 
-				thumbnailContainer->mTexture = ImageUtils::ReadPNG(bytes.data(), bytes.size());
+				thumbnailContainer->mTexture = TextureUtils::ReadPNG(bytes.data(), bytes.size());
 			}
 		}
 		else

@@ -9,11 +9,15 @@
 
 #include <Editor/Interface.h>
 
+#include <Editor/Databases/FileDatabase.h>
+
 #include <Editor/ImGui/imgui.h>
 
 namespace ark
 {
 	namespace fs = std::filesystem;
+
+	class FileContainer;
 
 	class MainMenu : public Interface
 	{
@@ -29,8 +33,6 @@ namespace ark
 
 	private:
 
-		void RenderFileMenu();
-		void RenderEditMenu();
 		void RenderSceneMenu();
 		void RenderArchiveMenu();
 		void RenderToolsMenu();
@@ -41,44 +43,23 @@ namespace ark
 
 	private:
 
-		/*
-		static void DebugProcedure(const SceneInfo* SceneInfo);
+		static void OpenSceneProcedure(const FileContainer* FileContainer);
 
-		static void OpenSceneProcedure(const SceneInfo* SceneInfo);
-
-		static void CopyAndDecryptOriginalToScratchProcedure(const SceneInfo* SceneInfo);
-		static void LoadAndSaveFromScratchToScratchProcedure(const SceneInfo* SceneInfo);
-		static void EncryptAndCopyScratchToFinishedProcedure(const SceneInfo* SceneInfo);
-		static void CopyScratchToFinishedProcedure(const SceneInfo* SceneInfo);
-		static void CompareScratchWithFinishedProcedure(const SceneInfo* SceneInfo);
-
-		static void PrintTableOfContentProcedure(const SceneInfo* SceneInfo);
-		static void ExtractToDiskProcedure(const SceneInfo* SceneInfo);
-
-		static void CreateThumbnailProcedure(const SceneInfo* SceneInfo);
-		*/
+		static void PrintTableOfContentProcedure(const FileContainer* FileContainer);
+		static void ExtractToDiskProcedure(const FileContainer* FileContainer);
 
 	private:
 
-		/*
 		template<typename P, typename ... Args>
 		void RenderMenuWithProcedure(P Procedure, Args && ... Arguments)
 		{
 			if (ImGui::Selectable("All"))
 			{
-				for (const auto& groupInfo : SceneInfos::GetLevelGroups())
+				for (const auto& directory : FileDatabase::GetDirectories())
 				{
-					for (const auto& sceneInfo : SceneInfos::GetLevelsByGroup(groupInfo))
+					for (const auto& fileContainer : FileDatabase::GetFileContainersByDirectory(directory))
 					{
-						Procedure(&sceneInfo, std::forward<Args>(Arguments) ...);
-					}
-				}
-
-				for (const auto& groupInfo : SceneInfos::GetEntityGroups())
-				{
-					for (const auto& sceneInfo : SceneInfos::GetEntitiesByGroup(groupInfo))
-					{
-						Procedure(&sceneInfo, std::forward<Args>(Arguments) ...);
+						Procedure(fileContainer, std::forward<Args>(Arguments) ...);
 					}
 				}
 			}
@@ -89,40 +70,40 @@ namespace ark
 			{
 				if (ImGui::Selectable("All"))
 				{
-					for (const auto& groupInfo : SceneInfos::GetLevelGroups())
+					for (const auto& directory : FileDatabase::GetLevelDirectories())
 					{
-						for (const auto& sceneInfo : SceneInfos::GetLevelsByGroup(groupInfo))
+						for (const auto& fileContainer : FileDatabase::GetLevelFileContainersByDirectory(directory))
 						{
-							Procedure(&sceneInfo, std::forward<Args>(Arguments) ...);
+							Procedure(fileContainer, std::forward<Args>(Arguments) ...);
 						}
 					}
 				}
 
 				ImGui::Separator();
 
-				for (const auto& groupInfo : SceneInfos::GetLevelGroups())
+				for (const auto& directory : FileDatabase::GetLevelDirectories())
 				{
-					ImGui::PushID(&groupInfo);
+					ImGui::PushID(directory);
 
-					if (ImGui::BeginMenu(groupInfo.MenuName.c_str()))
+					if (ImGui::BeginMenu(FileDatabase::GetDirectoryNameByDirectory(directory)))
 					{
 						if (ImGui::Selectable("All"))
 						{
-							for (const auto& sceneInfo : SceneInfos::GetLevelsByGroup(groupInfo))
+							for (const auto& fileContainer : FileDatabase::GetLevelFileContainersByDirectory(directory))
 							{
-								Procedure(&sceneInfo, std::forward<Args>(Arguments) ...);
+								Procedure(fileContainer, std::forward<Args>(Arguments) ...);
 							}
 						}
 
 						ImGui::Separator();
 
-						for (const auto& sceneInfo : SceneInfos::GetLevelsByGroup(groupInfo))
+						for (const auto& fileContainer : FileDatabase::GetLevelFileContainersByDirectory(directory))
 						{
-							ImGui::PushID(&sceneInfo);
+							ImGui::PushID(fileContainer);
 
-							if (ImGui::Selectable(sceneInfo.MenuName.c_str()))
+							if (ImGui::Selectable(fileContainer->GetWindowName()))
 							{
-								Procedure(&sceneInfo, std::forward<Args>(Arguments) ...);
+								Procedure(fileContainer, std::forward<Args>(Arguments) ...);
 							}
 
 							ImGui::PopID();
@@ -141,40 +122,40 @@ namespace ark
 			{
 				if (ImGui::Selectable("All"))
 				{
-					for (const auto& groupInfo : SceneInfos::GetEntityGroups())
+					for (const auto& directory : FileDatabase::GetEntityDirectories())
 					{
-						for (const auto& sceneInfo : SceneInfos::GetEntitiesByGroup(groupInfo))
+						for (const auto& fileContainer : FileDatabase::GetEntityFileContainersByDirectory(directory))
 						{
-							Procedure(&sceneInfo, std::forward<Args>(Arguments) ...);
+							Procedure(fileContainer, std::forward<Args>(Arguments) ...);
 						}
 					}
 				}
 
 				ImGui::Separator();
 
-				for (const auto& groupInfo : SceneInfos::GetEntityGroups())
+				for (const auto& directory : FileDatabase::GetEntityDirectories())
 				{
-					ImGui::PushID(&groupInfo);
+					ImGui::PushID(directory);
 
-					if (ImGui::BeginMenu(groupInfo.MenuName.c_str()))
+					if (ImGui::BeginMenu(FileDatabase::GetDirectoryNameByDirectory(directory)))
 					{
 						if (ImGui::Selectable("All"))
 						{
-							for (const auto& sceneInfo : SceneInfos::GetEntitiesByGroup(groupInfo))
+							for (const auto& fileContainer : FileDatabase::GetEntityFileContainersByDirectory(directory))
 							{
-								Procedure(&sceneInfo, std::forward<Args>(Arguments) ...);
+								Procedure(fileContainer, std::forward<Args>(Arguments) ...);
 							}
 						}
 
 						ImGui::Separator();
 
-						for (const auto& sceneInfo : SceneInfos::GetEntitiesByGroup(groupInfo))
+						for (const auto& fileContainer : FileDatabase::GetEntityFileContainersByDirectory(directory))
 						{
-							ImGui::PushID(&sceneInfo);
+							ImGui::PushID(fileContainer);
 
-							if (ImGui::Selectable(sceneInfo.MenuName.c_str()))
+							if (ImGui::Selectable(fileContainer->GetWindowName()))
 							{
-								Procedure(&sceneInfo, std::forward<Args>(Arguments) ...);
+								Procedure(fileContainer, std::forward<Args>(Arguments) ...);
 							}
 
 							ImGui::PopID();
@@ -189,24 +170,5 @@ namespace ark
 				ImGui::EndMenu();
 			}
 		}
-
-		template<typename P, typename ... Args>
-		void ExecuteLevelByGroupKeyProcedure(const std::string GroupKey, P Procedure, Args && ... Arguments)
-		{
-			for (const auto& sceneInfo : SceneInfos::GetLevelsByGroup(*SceneInfos::GetLevelGroupByKey(GroupKey)))
-			{
-				Procedure(&sceneInfo, std::forward<Args>(Arguments) ...);
-			}
-		}
-
-		template<typename P, typename ... Args>
-		void ExecuteEntityByGroupKeyProcedure(const std::string GroupKey, P Procedure, Args && ... Arguments)
-		{
-			for (const auto& sceneInfo : SceneInfos::GetEntitiesByGroup(*SceneInfos::GetEntityGroupByKey(GroupKey)))
-			{
-				Procedure(&sceneInfo, std::forward<Args>(Arguments) ...);
-			}
-		}
-		*/
 	};
 }

@@ -1,3 +1,8 @@
+#include <Common/Archive.h>
+#include <Common/BlowFish.h>
+
+#include <Common/Utilities/FsUtils.h>
+
 #include <Editor/Editor.h>
 #include <Editor/InterfaceManager.h>
 #include <Editor/SceneManager.h>
@@ -6,20 +11,50 @@
 
 #include <Editor/Actors/Player.h>
 
-#include <Editor/Renderer/DebugRenderer.h>
-#include <Editor/Renderer/DefaultRenderer.h>
+#include <Editor/Components/Camera.h>
+#include <Editor/Components/Transform.h>
+#include <Editor/Components/Renderable.h>
+
+#include <Editor/Databases/FileDatabase.h>
 
 #include <Editor/Interface/Viewport.h>
 #include <Editor/Interface/Outline.h>
 
-#include <Editor/Components/Camera.h>
-#include <Editor/Components/Transform.h>
-#include <Editor/Components/Renderable.h>
+#include <Editor/Renderer/DebugRenderer.h>
+#include <Editor/Renderer/DefaultRenderer.h>
+
+#include <Editor/Serializer/ModelSerializer.h>
+
+#include <Editor/Utilities/TextureUtils.h>
 
 #include <Editor/Glad/glad.h>
 
 namespace ark
 {
+	void SceneResource::AddScrModelFromArchive(Archive* Archive)
+	{
+		Model& model = mModels.emplace_back();
+
+		model.SetType(Model::eModelTypeScr);
+		model.SetName(Archive->GetName());
+		model.SetScrMeshes(ModelSerializer::DeSerialize<ScrMesh>(Archive->GetBytes(), Archive->GetSize()));
+	}
+
+	void SceneResource::AddMdModelFromArchive(Archive* Archive, const Object* Object)
+	{
+		Model& model = mModels.emplace_back();
+
+		model.SetType(Model::eModelTypeMd);
+		model.SetName(Archive->GetName());
+		model.SetMdMeshes(ModelSerializer::DeSerialize<MdMesh>(Archive->GetBytes(), Archive->GetSize()));
+		model.SetObjectRef(Object);
+	}
+
+	void SceneResource::AddTextureFromArchive(Archive* Archive)
+	{
+		mTextures.emplace_back(TextureUtils::ReadDDS(Archive->GetBytes(), Archive->GetSize()));
+	}
+
 	Scene::Scene(const FileContainer* FileContainer)
 		: mFileContainer{ FileContainer }
 	{
@@ -32,6 +67,19 @@ namespace ark
 	Scene::~Scene()
 	{
 		DestroyActorRecursive();
+
+		for (const auto& [identifier, sceneResource] : mSceneResourcesByIdentifier)
+		{
+			if (sceneResource)
+			{
+				if (sceneResource->mArchive)
+				{
+					delete sceneResource->mArchive;
+				}
+
+				delete sceneResource;
+			}
+		}
 
 		if (mFrameBuffer)
 		{
@@ -339,13 +387,23 @@ namespace ark
 		}
 	}
 
-	GenericModel& Scene::AddModel()
+	Archive* Scene::AddResource(U32 Identifier, const FileInfo* FileInfo)
 	{
-		return mModels.emplace_back();
-	}
+		auto& sceneResource = mSceneResourcesByIdentifier[Identifier];
 
-	GenericTexture& Scene::AddTexture()
-	{
-		return mTextures.emplace_back();
-	}
+		if (!sceneResource)
+		{
+			sceneResource = new SceneResource;
+
+			sceneResource->mArchive = new Archive;
+
+			std::vector<U8> datBytes = FsUtils::ReadBinary(gDataDir / FileInfo->GetRelativeFile());
+
+			gBlowFish->Decrypt(datBytes);
+
+			sceneResource->mArchive->DeSerialize(datBytes);
+		}
+
+		return sceneResource->mArchive;
+	}	
 }
