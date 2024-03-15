@@ -37,7 +37,7 @@ ArchiveAnalyzer Unfold Input Output [Decrypt]
 ArchiveAnalyzer Extract Input Output [Decrypt]
 ArchiveAnalyzer ToC Input [Decrypt|Offset|Increment]
 
-ArchiveAnalyzer.exe ToC Input="...\Steam\steamapps\common\Okami\data_pc\etc\core.dat" Decrypt
+ArchiveAnalyzer ToC Input="...\Steam\steamapps\common\Okami\data_pc\etc\core.dat" Decrypt
 
  Table Of Content
 -----------------------------------------------------------------------------------------
