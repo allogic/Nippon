@@ -4,13 +4,9 @@ Nippon is a collection of tools designed to interact with the okami PC port. Thi
 <img src="Assets/Editor.png" width="100%"/>
 
 ## Starting The Editor
-The editor requires at least one command line arguments which is the directory where the okami data files are. Supply arguments which contain spaces as strings.
-```
-Editor Help
-Editor DataDir [Width|Height]
+On first start the editor will ask for the okami data directory.
 
-Editor DataDir="...\Steam\steamapps\common\Okami\data_pc" Width=1920 Height=1080
-```
+It should look something along like `C:\Program Files (x86)\Steam\steamapps\common\Okami\data_pc`.
 
 ## Compile The Project
 First clone the repository and execute the setup which should create all missing folders and files.
@@ -19,83 +15,21 @@ git clone --branch main --depth 1 https://github.com/allogic/Nippon
 Setup.ps1
 ```
 Launch the Visual Studio Solution, set the `Editor` as the startup project and build for `Debug` or `Release` bitness `x64`.
-To run or debug the editor one must additionally adjust a few editor properties. Go into `Editor/Properties/Debugging` and set the following parameters for all configurations and platforms:
-```
-Command Arguments = DataDir="...\Steam\steamapps\common\Okami\data_pc"
-Working Directory = $(SolutionDir)$(IntDir)
-```
-
-## Utility Programs
-#### Archive Analyzer
-There are many different files inside the okami data directory but most of em share a common file structure. To list a few of them `DAT`, `BIN`, `IDD`, `AKT`, `CMP`, `DDP`, `EFF`, `PAC`, `SCP`, `TBL`. This programs job is to simplify your everyday work with those files.
-```
-ArchiveAnalyzer Help
-ArchiveAnalyzer Decrypt Input Output
-ArchiveAnalyzer Encrypt Input Output
-ArchiveAnalyzer Compress Input Output [Decrypt|Encrypt] (Experimental)
-ArchiveAnalyzer Unfold Input Output [Decrypt]
-ArchiveAnalyzer Extract Input Output [Decrypt]
-ArchiveAnalyzer ToC Input [Decrypt|Offset|Increment]
-
-ArchiveAnalyzer ToC Input="...\Steam\steamapps\common\Okami\data_pc\etc\core.dat" Decrypt
-
- Table Of Content
------------------------------------------------------------------------------------------
-    0x00000080 # 00000 # kage                 # DDS  # 22.48 KB
-    0x000056C0 # 00001 # fude1                # DDS  # 22.48 KB
-    0x0000AD00 # 00002 # fude2                # DDS  # 349.728 KB
-    0x00060340 # 00003 # coreVtEstTbl         # VET  # 2.944 KB
-    0x00060EE0 # 00004 # coreEff              # EFF  # 25394.304 KB
-    |   0x00000060 # 00000 # coretex              # TBL  # 24742.192 KB
-    |   |   0x00000840 # 00000 # kemuri4              # DDS  # 87.584 KB
-    |   |   0x00015E80 # 00001 # happa_anim           # DDS  # 87.584 KB
-    |   |   0x0002B4C0 # 00002 # hex_withline         # DDS  # 87.584 KB
-... ... ...
-    |   |   0x0004BEB0 # 00143 # pl00_143             # EST  # 0.768 KB
-    |   |   0x0004C1D0 # 00144 # pl00_144             # EST  # 0.768 KB
-    |   |   0x0004C4F0 # 00145 # runofs               # ROF  # 1.168 KB
-    |   0x0004CAA0 # 00002 # pl00                 # EMD  # 0.32 KB
-    |   0x0004CAE0 # 00003 # runofs               # ROF  # 0.32 KB
-    0x0194D9E0 # 00007 # animalSet            # ANC  # 1.88 KB
-    0x0194DE40 # 00008 # runofs               # ROF  # 0.64 KB
-```
-#### Binary Analyzer
-All people have different tools for different tasks, but if there are tons of files that need to be processed in the same way over and over again, then I'm sure you will find a use case for this analyzer.
-```
-BinaryAnalyzer Help
-BinaryAnalyzer Compare LeftInput RightInput [LeftDecrypt|RightDecrypt|ResultCount|Size|Stride|LeadStrideMultiplier]
-BinaryAnalyzer Search Input StringPattern [Decrypt]
-
-BinaryAnalyzer Compare LeftInput="Scratch\r30d.dat" RightInput="Compress\r30d.dat" Stride=8
-
-  0x00000018                                        0x00000018
------------------------------------------------------------------------------------------------------
-  0x00000000 | 0F 00 00 00 A0 00 00 00 | ........ | 0x00000000 | 00 00 00 00 00 00 00 00 | ........
-  0x00000008 | 00 01 00 00 80 01 00 00 | ........ | 0x00000008 | 0F 00 00 00 A0 00 00 00 | ........
-  0x00000010 | C0 01 00 00 A0 0D 00 00 | ........ | 0x00000010 | 00 01 00 00 80 01 00 00 | ........
-> 0x00000018 | 60 15 00 00 60 C0 18 00 | `...`... | 0x00000018 | C0 01 00 00 A0 0D 00 00 | ........
-  0x00000020 | 00 CE 18 00 20 DC 18 00 | .... ... | 0x00000020 | 08 15 00 00 A8 BF 18 00 | ........
-  0x00000028 | E0 2D 19 00 20 2E 19 00 | .-.. ... | 0x00000028 | 28 CD 18 00 48 DB 18 00 | (...H...
-  0x00000030 | 60 2E 19 00 A0 2E 19 00 | `....... | 0x00000030 | 08 2D 19 00 48 2D 19 00 | .-..H-..
-  0x00000038 | 80 2F 19 00 C0 2F 19 00 | ./.../.. | 0x00000038 | 88 2D 19 00 C8 2D 19 00 | .-...-..
-  0x00000040 | 54 53 43 00 54 52 45 00 | TSC.TRE. | 0x00000040 | A8 2E 19 00 E8 2E 19 00 | ........
-  0x00000048 | 54 41 54 00 52 4E 49 00 | TAT.RNI. | 0x00000048 | 54 53 43 00 54 52 45 00 | TSC.TRE.
-  0x00000050 | 41 4B 54 00 53 43 50 00 | AKT.SCP. | 0x00000050 | 54 41 54 00 52 4E 49 00 | TAT.RNI.
-```
 
 ## Troubleshooting
  - If you got build errors, make sure you are using the latest Visual Studio version. (Tested with VS 2022 >= 17.X.X)
  - If for some reason the editor does not start, make sure the latest graphics card drivers are installed on your system.
- - If only black thumbnails appear, then one must first generate them via `MainMenu/Tools/Generate Thumbnails`. They should be visible after editor relaunch.
+ - If only black thumbnails appear, then one must first generate them via `Database/Rebuild Thumbnails`. They should be visible right away.
 
 ## Exporting Assets
-Right click on a random actor that you wish to export and choose `Export as Wavefront` to generate a wavefront object and material file along with all referenced textures. It should be ready to be imported into blender or other 3D software. Be sure to enable backface culling in your external rendering software to view the objects properly, otherwise only the black hull will be visible for most objects.
+Right click on a random actor that you wish to export and choose `Export as Wavefront` to generate a wavefront object and material file along with all referenced textures. It should be ready to be imported into blender or any other 3D modeling software. Be sure to enable backface culling in your external rendering software to view the objects properly, otherwise only the black hull will be visible for most objects.
 
 <img src="Assets/Oki.jpg" width="33%"/><img src="Assets/Crow.jpg" width="33%"/><img src="Assets/Rao.jpg" width="33%"/>
 
 ## Editor Scene Controls
 - `WASD` to move
 - `L-SHIFT` for lightspeed
+- `F` reset camera
 
 ## Issues / Pull Requests
 If bugs are being found, please don't hesitate to open an issue or pull request!
