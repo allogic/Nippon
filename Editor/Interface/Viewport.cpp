@@ -1,34 +1,44 @@
-#include <Editor/Event.h>
-#include <Editor/Scene.h>
-#include <Editor/Texture2D.h>
-#include <Editor/SceneManager.h>
-#include <Editor/InterfaceManager.h>
-#include <Editor/FrameBuffer.h>
+#include <Event.h>
 
-#include <Editor/Databases/FileDatabase.h>
+#include <Ecs/Registry.h>
 
-#include <Editor/Interface/Viewport.h>
-#include <Editor/Interface/Outline.h>
+#include <Font/MaterialDesignIcons.h>
 
-#include <Editor/ImGui/imgui.h>
+#include <Interface/Viewport.h>
+#include <Interface/Outline.h>
 
-namespace ark
+#include <ImGui/imgui.h>
+
+#include <OpenGl/FrameBuffer.h>
+
+#include <Scene/Scene.h>
+#include <Scene/SceneManager.h>
+
+namespace Nippon
 {
 	Viewport::Viewport(Scene* Scene)
-		: mScene{ Scene }
+	{
+		mScene = Scene;
+	}
+
+	Viewport::~Viewport()
 	{
 
 	}
 
 	void Viewport::Reset()
 	{
-		mIsOpen = true;
+		
 	}
 
 	void Viewport::Render()
 	{
+		static std::string windowNameBuffer = "";
+
+		windowNameBuffer = std::string{ ICON_MDI_VIEW_QUILT " " } + mScene->GetWindowName();
+
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0F, 0.0F });
-		ImGui::Begin(mScene->GetFileContainer()->GetWindowName(), &mIsOpen);
+		ImGui::Begin(windowNameBuffer.data(), &mIsOpen);
 
 		if (mIsOpen)
 		{
@@ -40,14 +50,14 @@ namespace ark
 
 			if (HasGainedFocus())
 			{
-				SceneManager::SetActiveScene(mScene);
+				SceneManager::SetCurrentScene(mScene);
 
 				mScene->Invalidate();
 			}
 
 			if (HasFocus())
 			{
-				HandleActorSelection();
+				HandleEntitySelection();
 
 				mScene->Render();
 			}
@@ -57,11 +67,11 @@ namespace ark
 
 			}
 
-			ImGui::Image((void*)(U64)FrameBuffer::GetColorTexture(mScene->GetFrameBuffer(), 0), ImVec2{ (R32)mWidth, (R32)mHeight }, ImVec2{ 0.0F, 1.0F }, ImVec2{ 1.0F, 0.0F });
+			ImGui::Image((ImTextureID)(U64)FrameBuffer::GetColorTexture(mScene->GetFrameBuffer(), 0), ImVec2{ (R32)mWidth, (R32)mHeight }, ImVec2{ 0.0F, 1.0F }, ImVec2{ 1.0F, 0.0F });
 		}
 		else
 		{
-			mScene->MakeShouldBeDestroyed(true);
+			mScene->SetShouldBeDestroyed();
 		}
 
 		ImGui::End();
@@ -70,7 +80,7 @@ namespace ark
 
 	void Viewport::SetFocused()
 	{
-		ImGui::SetWindowFocus(mScene->GetFileContainer()->GetWindowName());
+		ImGui::SetWindowFocus(mScene->GetWindowName().data());
 	}
 
 	bool Viewport::HasResized()
@@ -108,7 +118,7 @@ namespace ark
 		return mIsFocused && !ImGui::IsWindowFocused();
 	}
 
-	void Viewport::HandleActorSelection()
+	void Viewport::HandleEntitySelection()
 	{
 		if (!Event::MouseHeld(eMouseCodeRight))
 		{
@@ -122,7 +132,7 @@ namespace ark
 
 				U32 frameBuffer = mScene->GetFrameBuffer();
 
-				I32 windowWidth =  FrameBuffer::GetWidth(frameBuffer);
+				I32 windowWidth = FrameBuffer::GetWidth(frameBuffer);
 				I32 windowHeight = FrameBuffer::GetHeight(frameBuffer);
 
 				windowPosition.y += ImGui::GetFontSize() + style.FramePadding.y * 2;
@@ -141,9 +151,10 @@ namespace ark
 
 				if (actorId > 0)
 				{
-					Actor* actor = mScene->FindActorByIdRecursive(actorId);
+					Registry* registry = mScene->GetRegistry();
+					Entity* entity = registry->FindEntityByUniqueId(actorId, nullptr, true);
 
-					InterfaceManager::GetOutline()->SetSelectedActor(actor);
+					Outline::SetSelectedEntity(entity);
 				}
 			}
 		}

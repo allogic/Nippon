@@ -1,35 +1,28 @@
 #pragma once
 
-#include <Common/Types.h>
+#include <Forward.h>
+#include <Standard.h>
+#include <Types.h>
 
-#include <Editor/Interface.h>
-
-namespace ark
+namespace Nippon
 {
-	class Scene;
-	class Actor;
-
-	class Outline : public Interface
+	class Outline
 	{
 	public:
 
-		virtual void Reset() override;
-		virtual void Render() override;
+		static void Reset();
+		static void Render();
 
 	public:
 
-		const auto GetSelectedActor() const { return mSelectedActor; }
+		static Entity* GetSelectedEntity();
 
 	public:
 
-		void SetSelectedActor(Actor* Actor);
+		static void SetSelectedEntity(Entity* Entity);
 
 	private:
 
-		void DrawActorRecursive(Scene* Scene, Actor* Actor);
-
-	private:
-
-		Actor* mSelectedActor = nullptr;
+		static bool DrawEntityTreeRecursive(Scene* Scene, Entity* Entity);
 	};
 }

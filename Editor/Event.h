@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Common/Types.h>
+#include <Types.h>
 
 struct GLFWwindow;
 
-namespace ark
+namespace Nippon
 {
 	enum KeyCode : U32
 	{
@@ -59,55 +59,31 @@ namespace ark
 
 	class Event
 	{
-	private:
-
-		enum EventState : U32
-		{
-			eEventStateNone,
-			eEventStateDown,
-			eEventStateHeld,
-			eEventStateUp,
-		};
-
-		struct EventRecord
-		{
-			EventState Curr;
-			EventState Prev;
-		};
-
 	public:
 
 		static void Poll(GLFWwindow* Context);
 
 	public:
 
-		static inline U32 KeyDown(U32 Key) { return sKeyboardKeys[Key].Curr == eEventStateDown; }
-		static inline U32 KeyHeld(U32 Key) { return sKeyboardKeys[Key].Curr == eEventStateHeld; }
-		static inline U32 KeyUp(U32 Key) { return sKeyboardKeys[Key].Curr == eEventStateUp; }
+		static U32 KeyDown(U32 Key);
+		static U32 KeyHeld(U32 Key);
+		static U32 KeyUp(U32 Key);
 
 	public:
 
-		static inline U32 MouseDown(U32 Key) { return sMouseKeys[Key].Curr == eEventStateDown; }
-		static inline U32 MouseHeld(U32 Key) { return sMouseKeys[Key].Curr == eEventStateHeld; }
-		static inline U32 MouseUp(U32 Key) { return sMouseKeys[Key].Curr == eEventStateUp; }
+		static U32 MouseDown(U32 Key);
+		static U32 MouseHeld(U32 Key);
+		static U32 MouseUp(U32 Key);
 
 	public:
 
-		static inline R32 GetMouseX() { return sMouseX; }
-		static inline R32 GetMouseY() { return sMouseY; }
-		static inline R32V2 GetMousePosition() { return { sMouseX, sMouseY }; }
+		static R32 GetMouseX();
+		static R32 GetMouseY();
+		static R32V2 GetMousePosition();
 
 	public:
 
-		static inline void SetMouseX(R32 X) { sMouseX = X; }
-		static inline void SetMouseY(R32 Y) { sMouseY = Y; }
-
-	private:
-
-		static inline EventRecord sKeyboardKeys[348] = {};
-		static inline EventRecord sMouseKeys[7] = {};
-
-		static inline R32 sMouseX = 0.0F;
-		static inline R32 sMouseY = 0.0F;
+		static void SetMouseX(R32 X);
+		static void SetMouseY(R32 Y);
 	};
 }

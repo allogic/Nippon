@@ -1,18 +1,16 @@
 #pragma once
 
-#include <limits>
+#include <Forward.h>
+#include <Standard.h>
+#include <Types.h>
 
-#include <Common/Types.h>
-
-#include <Editor/Interface.h>
-
-namespace ark
+namespace Nippon
 {
-	class Inspector : public Interface
+	class Inspector
 	{
 	public:
 
-		virtual void Reset() override;
-		virtual void Render() override;
+		static void Reset();
+		static void Render();
 	};
 }

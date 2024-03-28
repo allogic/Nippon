@@ -1,66 +1,62 @@
-#include <Common/Macros.h>
-#include <Common/Archive.h>
-#include <Common/BlowFish.h>
+#include <Archive/Archive.h>
 
-#include <Common/Utilities/DiffUtils.h>
-#include <Common/Utilities/FsUtils.h>
+#include <Font/MaterialDesignIcons.h>
 
-#include <Editor/Editor.h>
-#include <Editor/Scene.h>
-#include <Editor/SceneManager.h>
+#include <Interface/MainMenu.h>
 
-#include <Editor/Databases/FileDatabase.h>
-#include <Editor/Databases/ThumbnailDatabase.h>
+#include <Scene/Scene.h>
+#include <Scene/SceneManager.h>
 
-#include <Editor/Interface/MainMenu.h>
+#include <Utility/FileUtility.h>
 
-namespace ark
+namespace Nippon
 {
-	MainMenu::MainMenu()
-	{
-
-	}
-
-	MainMenu::~MainMenu()
-	{
-
-	}
+	static char const* sConfigurationPopupName = "Editor Configuration";
+	static ImGuiID sConfigurationPopupId = 0;
 
 	void MainMenu::Reset()
 	{
-
+		sConfigurationPopupId = ImHashStr(sConfigurationPopupName);
 	}
 
 	void MainMenu::Render()
 	{
 		ImGui::BeginMainMenuBar();
 
-		RenderSceneMenu();
 		RenderArchiveMenu();
-		RenderToolsMenu();
+		RenderDatabaseMenu();
+		RenderToolMenu();
+		RenderSettingsMenu();
 
 		ImGui::EndMainMenuBar();
+
+		static bool initialized = false;
+
+		if (!initialized && !Database::IsFound())
+		{
+			initialized = true;
+
+			ImGui::PushOverrideID(sConfigurationPopupId);
+			ImGui::OpenPopup(sConfigurationPopupName);
+			ImGui::PopID();
+		}
+
+		RenderConfigurationPopupDialog();
 	}
 
-	void MainMenu::RenderSceneMenu()
+	void MainMenu::RenderArchiveMenu()
 	{
-		if (ImGui::BeginMenu("Scene"))
+		if (ImGui::BeginMenu(ICON_MDI_ARCHIVE " Archive", Database::IsReady()))
 		{
-			if (ImGui::BeginMenu("Open"))
+			if (ImGui::BeginMenu("Open Read Only"))
 			{
 				RenderMenuWithProcedure(OpenSceneProcedure);
 
 				ImGui::EndMenu();
 			}
 
-			ImGui::EndMenu();
-		}
-	}
+			ImGui::Separator();
 
-	void MainMenu::RenderArchiveMenu()
-	{
-		if (ImGui::BeginMenu("Archive"))
-		{
 			if (ImGui::BeginMenu("Table Of Content"))
 			{
 				RenderMenuWithProcedure(PrintTableOfContentProcedure);
@@ -79,121 +75,143 @@ namespace ark
 		}
 	}
 
-	void MainMenu::RenderToolsMenu()
+	void MainMenu::RenderDatabaseMenu()
 	{
-		if (ImGui::BeginMenu("Tools"))
+		if (ImGui::BeginMenu(ICON_MDI_DATABASE " Database"))
 		{
-			if (ImGui::Selectable("Generate File Database"))
+			if (ImGui::MenuItem("Rebuild Full", "", nullptr, !Database::IsBusy()))
 			{
-				FileDatabase::Generate();
-			}
-
-			if (ImGui::Selectable("Generate Thumbnail Database"))
-			{
-				ThumbnailDatabase::Generate();
+				Database::RebuildFull();
 			}
 
 			ImGui::Separator();
 
-			if (ImGui::Selectable("Generate ImGui Config"))
+			if (ImGui::MenuItem("Rebuild Archives", "", nullptr, !Database::IsBusy()))
 			{
-				GenerateImGuiConfig();
+				Database::RebuildArchives();
+			}
+
+			if (ImGui::MenuItem("Rebuild Thumbnails", "", nullptr, !Database::IsBusy() && Database::IsReady()))
+			{
+				Database::RebuildThumbnails();
+			}
+
+			if (ImGui::MenuItem("Cancel Rebuild", "", nullptr, Database::IsBusy()))
+			{
+				Database::SetCancelJob();
 			}
 
 			ImGui::EndMenu();
 		}
 	}
 
-	void MainMenu::GenerateImGuiConfig()
+	void MainMenu::RenderToolMenu()
 	{
-		std::ostringstream oss = {};
-
-		for (const auto& directory : FileDatabase::GetDirectories())
+		if (ImGui::BeginMenu(ICON_MDI_TOOLS " Tool", Database::IsReady()))
 		{
-			for (const auto& fileContainer : FileDatabase::GetFileContainersByDirectory(directory))
+			if (ImGui::MenuItem("Generate ImGui Ini", "", nullptr))
 			{
-				oss << "[Window][" << fileContainer->GetWindowName() << "]\n";
-				oss << "Pos=308,28\n";
-				oss << "Size=1044,1052\n";
-				oss << "Collapsed=0\n";
-				oss << "DockId=0x00000002,0\n";
-				oss << "\n";
+				Database::GenerateImGuiIni();
 			}
-		}
 
-		FsUtils::WriteText("imgui_viewports.ini", oss.str().c_str());
+			ImGui::EndMenu();
+		}
 	}
 
-	void MainMenu::OpenSceneProcedure(const FileContainer* FileContainer)
+	void MainMenu::RenderSettingsMenu()
 	{
-		if (Scene* scene = SceneManager::CreateScene(FileContainer))
+		if (ImGui::BeginMenu(ICON_MDI_COG " Settings"))
 		{
-			scene->SetEnableDebug(true);
+			if (ImGui::MenuItem("Editor Configuration", "", nullptr))
+			{
+				ImGui::PushOverrideID(sConfigurationPopupId);
+				ImGui::OpenPopup(sConfigurationPopupName);
+				ImGui::PopID();
+			}
 
+			ImGui::EndMenu();
+		}
+	}
+
+	void MainMenu::RenderConfigurationPopupDialog()
+	{
+		static bool initialized = false;
+		static char dataDir[1024] = "";
+		static Configuration configuration = {};
+
+		U32 flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
+
+		ImGui::PushOverrideID(sConfigurationPopupId);
+		if (ImGui::BeginPopupModal(sConfigurationPopupName, nullptr, flags))
+		{
+			if (!initialized)
+			{
+				initialized = true;
+
+				configuration = Database::GetConfiguration();
+
+				std::memcpy(dataDir, configuration.DataDir.string().data(), glm::min(configuration.DataDir.string().size(), sizeof(dataDir)));
+			}
+
+			ImGui::InputText("Data Directory", dataDir, sizeof(dataDir));
+
+			if (ImGui::Button("Save"))
+			{
+				initialized = false;
+
+				configuration.DataDir = dataDir;
+
+				Database::SetConfiguration(configuration);
+
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("Close"))
+			{
+				initialized = false;
+
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
+		}
+		ImGui::PopID();
+	}
+
+	void MainMenu::OpenSceneProcedure(ArchiveInfo const& ArchiveInfo)
+	{
+		if (Scene* scene = SceneManager::CreateScene(ArchiveInfo))
+		{
 			scene->CreateViewport();
+			scene->SetDebugEnabled();
 			scene->Load();
 			scene->Invalidate();
 		}
 	}
 
-	void MainMenu::PrintTableOfContentProcedure(const FileContainer* FileContainer)
+	void MainMenu::PrintTableOfContentProcedure(ArchiveInfo const& ArchiveInfo)
 	{
-		fs::path inputDatFile = gDataDir / FileContainer->GetDatFile()->GetRelativeFile();
-		fs::path inputBinFile = gDataDir / FileContainer->GetBinFile()->GetRelativeFile();
-
-		std::vector<U8> datBytes = FsUtils::ReadBinary(inputDatFile);
-
-		gBlowFish->Decrypt(datBytes);
-
-		Archive datArchive = {};
-
-		datArchive.DeSerialize(datBytes);
-		datArchive.PrintTableOfContent();
-
-		if (fs::exists(inputBinFile) && fs::is_regular_file(inputBinFile))
-		{
-			std::vector<U8> binBytes = FsUtils::ReadBinary(inputBinFile);
-
-			gBlowFish->Decrypt(binBytes);
-
-			Archive binArchive = {};
-
-			binArchive.DeSerialize(binBytes);
-			binArchive.PrintTableOfContent();
-		}
+		std::vector<U8> archiveData = Database::GetArchiveDataByUniqueId(ArchiveInfo.UniqueId);
+		
+		Archive archive = {};
+		
+		archive.DeSerialize(archiveData);
+		archive.PrintTableOfContent();
 	}
 
-	void MainMenu::ExtractToDiskProcedure(const FileContainer* FileContainer)
+	void MainMenu::ExtractToDiskProcedure(ArchiveInfo const& ArchiveInfo)
 	{
-		fs::path inputDatFile = gDataDir / FileContainer->GetDatFile()->GetRelativeFile();
-		fs::path inputBinFile = gDataDir / FileContainer->GetBinFile()->GetRelativeFile();
+		std::vector<U8> archiveData = Database::GetArchiveDataByUniqueId(ArchiveInfo.UniqueId);
 
-		fs::path outputDatFile = fs::path{ "Extracted" } / FileContainer->GetDatFile()->GetRelativeFile();
-		fs::path outputBinFile = fs::path{ "Extracted" } / FileContainer->GetBinFile()->GetRelativeFile();
+		fs::path outputFile = fs::path{ "Extracted" } / ArchiveInfo.FolderId / ArchiveInfo.ArchiveId;
 
-		FsUtils::CreateDirIfNotExist(outputDatFile, true);
+		FileUtility::CreateDirIfNotExist(outputFile);
 
-		std::vector<U8> datBytes = FsUtils::ReadBinary(inputDatFile);
+		Archive archive = {};
 
-		gBlowFish->Decrypt(datBytes);
-
-		Archive datArchive = {};
-
-		datArchive.DeSerialize(datBytes);
-		datArchive.ExtractToDisk(outputDatFile);
-
-		if (fs::exists(inputBinFile) && fs::is_regular_file(inputBinFile))
-		{
-			FsUtils::CreateDirIfNotExist(outputBinFile, true);
-
-			std::vector<U8> binBytes = FsUtils::ReadBinary(inputBinFile);
-
-			gBlowFish->Decrypt(binBytes);
-
-			Archive binArchive = {};
-
-			binArchive.DeSerialize(binBytes);
-			binArchive.ExtractToDisk(outputBinFile);
-		}
+		archive.DeSerialize(archiveData);
+		archive.ExtractToDisk(outputFile);
 	}
 }

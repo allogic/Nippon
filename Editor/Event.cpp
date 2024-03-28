@@ -1,9 +1,29 @@
-#include <Editor/Event.h>
+#include <Event.h>
 
-#include <Vendor/GLFW/glfw3.h>
+#include <Glfw/glfw3.h>
 
-namespace ark
+namespace Nippon
 {
+	enum EventState : U32
+	{
+		eEventStateNone,
+		eEventStateDown,
+		eEventStateHeld,
+		eEventStateUp,
+	};
+
+	struct EventRecord
+	{
+		EventState Curr;
+		EventState Prev;
+	};
+
+	static EventRecord sKeyboardKeys[348] = {};
+	static EventRecord sMouseKeys[7] = {};
+
+	static R32 sMouseX = 0.0F;
+	static R32 sMouseY = 0.0F;
+
 	void Event::Poll(GLFWwindow* Context)
 	{
 		glfwPollEvents();
@@ -69,5 +89,60 @@ namespace ark
 				}
 			}
 		}
+	}
+
+	U32 Event::KeyDown(U32 Key)
+	{
+		return sKeyboardKeys[Key].Curr == eEventStateDown;
+	}
+
+	U32 Event::KeyHeld(U32 Key)
+	{
+		return sKeyboardKeys[Key].Curr == eEventStateHeld;
+	}
+
+	U32 Event::KeyUp(U32 Key)
+	{
+		return sKeyboardKeys[Key].Curr == eEventStateUp;
+	}
+
+	U32 Event::MouseDown(U32 Key)
+	{
+		return sMouseKeys[Key].Curr == eEventStateDown;
+	}
+
+	U32 Event::MouseHeld(U32 Key)
+	{
+		return sMouseKeys[Key].Curr == eEventStateHeld;
+	}
+
+	U32 Event::MouseUp(U32 Key)
+	{
+		return sMouseKeys[Key].Curr == eEventStateUp;
+	}
+
+	R32 Event::GetMouseX()
+	{
+		return sMouseX;
+	}
+
+	R32 Event::GetMouseY()
+	{
+		return sMouseY;
+	}
+
+	R32V2 Event::GetMousePosition()
+	{
+		return { sMouseX, sMouseY };
+	}
+
+	void Event::SetMouseX(R32 X)
+	{
+		sMouseX = X;
+	}
+
+	void Event::SetMouseY(R32 Y)
+	{
+		sMouseY = Y;
 	}
 }

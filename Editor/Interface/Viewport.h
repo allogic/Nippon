@@ -1,27 +1,26 @@
 #pragma once
 
-#include <Common/Types.h>
+#include <Forward.h>
+#include <Standard.h>
+#include <Types.h>
 
-#include <Editor/Interface.h>
-
-namespace ark
+namespace Nippon
 {
-	class Scene;
-
-	class Viewport : public Interface
+	class Viewport
 	{
 	public:
 
 		Viewport(Scene* Scene);
+		virtual ~Viewport();
 
 	public:
 
-		inline const auto& IsFocused() const { return mIsFocused; }
+		inline auto const& IsFocused() const { return mIsFocused; }
 
 	public:
 
-		virtual void Reset() override;
-		virtual void Render() override;
+		void Reset();
+		void Render();
 
 	public:
 
@@ -30,23 +29,22 @@ namespace ark
 	private:
 
 		bool HasResized();
-
 		bool HasGainedFocus();
 		bool HasFocus();
 		bool HasLostFocus();
 
 	private:
 
-		void HandleActorSelection();
+		void HandleEntitySelection();
 
 	private:
 
-		Scene* mScene;
+		Scene* mScene = nullptr;
+
+		bool mIsOpen = true;
+		bool mIsFocused = false;
 
 		U32 mWidth = 0;
 		U32 mHeight = 0;
-
-		bool mIsFocused = false;
-		bool mIsOpen = true;
 	};
 }

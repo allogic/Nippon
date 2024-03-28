@@ -1,174 +1,158 @@
 #pragma once
 
-#include <vector>
-#include <filesystem>
-#include <utility>
-#include <sstream>
+#include <Forward.h>
+#include <Standard.h>
+#include <Types.h>
 
-#include <Common/Types.h>
+#include <Database/Database.h>
 
-#include <Editor/Interface.h>
+#include <ImGui/imgui.h>
+#include <ImGui/imgui_internal.h>
 
-#include <Editor/Databases/FileDatabase.h>
-
-#include <Editor/ImGui/imgui.h>
-
-namespace ark
+namespace Nippon
 {
-	namespace fs = std::filesystem;
-
-	class FileContainer;
-
-	class MainMenu : public Interface
+	class MainMenu
 	{
 	public:
 
-		MainMenu();
-		virtual ~MainMenu();
-
-	public:
-
-		virtual void Reset() override;
-		virtual void Render() override;
+		static void Reset();
+		static void Render();
 
 	private:
 
-		void RenderSceneMenu();
-		void RenderArchiveMenu();
-		void RenderToolsMenu();
+		static void RenderArchiveMenu();
+		static void RenderDatabaseMenu();
+		static void RenderToolMenu();
+		static void RenderSettingsMenu();
 
 	private:
 
-		static void GenerateImGuiConfig();
+		static void RenderConfigurationPopupDialog();
 
 	private:
 
-		static void OpenSceneProcedure(const FileContainer* FileContainer);
-
-		static void PrintTableOfContentProcedure(const FileContainer* FileContainer);
-		static void ExtractToDiskProcedure(const FileContainer* FileContainer);
+		static void OpenSceneProcedure(ArchiveInfo const& ArchiveInfo);
+		static void PrintTableOfContentProcedure(ArchiveInfo const& ArchiveInfo);
+		static void ExtractToDiskProcedure(ArchiveInfo const& ArchiveInfo);
 
 	private:
 
 		template<typename P, typename ... Args>
-		void RenderMenuWithProcedure(P Procedure, Args && ... Arguments)
+		static void RenderMenuWithProcedure(P Procedure, Args&& ... Arguments);
+	};
+}
+
+namespace Nippon
+{
+	template<typename P, typename ... Args>
+	void MainMenu::RenderMenuWithProcedure(P Procedure, Args&& ... Arguments)
+	{
+		if (ImGui::MenuItem("All", "", nullptr))
 		{
-			if (ImGui::Selectable("All"))
+			for (auto const& archiveInfo : Database::GetAllArchiveInfos())
 			{
-				for (const auto& directory : FileDatabase::GetDirectories())
-				{
-					for (const auto& fileContainer : FileDatabase::GetFileContainersByDirectory(directory))
-					{
-						Procedure(fileContainer, std::forward<Args>(Arguments) ...);
-					}
-				}
-			}
-
-			ImGui::Separator();
-
-			if (ImGui::BeginMenu("Levels"))
-			{
-				if (ImGui::Selectable("All"))
-				{
-					for (const auto& directory : FileDatabase::GetLevelDirectories())
-					{
-						for (const auto& fileContainer : FileDatabase::GetLevelFileContainersByDirectory(directory))
-						{
-							Procedure(fileContainer, std::forward<Args>(Arguments) ...);
-						}
-					}
-				}
-
-				ImGui::Separator();
-
-				for (const auto& directory : FileDatabase::GetLevelDirectories())
-				{
-					ImGui::PushID(directory);
-
-					if (ImGui::BeginMenu(FileDatabase::GetDirectoryNameByDirectory(directory)))
-					{
-						if (ImGui::Selectable("All"))
-						{
-							for (const auto& fileContainer : FileDatabase::GetLevelFileContainersByDirectory(directory))
-							{
-								Procedure(fileContainer, std::forward<Args>(Arguments) ...);
-							}
-						}
-
-						ImGui::Separator();
-
-						for (const auto& fileContainer : FileDatabase::GetLevelFileContainersByDirectory(directory))
-						{
-							ImGui::PushID(fileContainer);
-
-							if (ImGui::Selectable(fileContainer->GetWindowName()))
-							{
-								Procedure(fileContainer, std::forward<Args>(Arguments) ...);
-							}
-
-							ImGui::PopID();
-						}
-
-						ImGui::EndMenu();
-					}
-
-					ImGui::PopID();
-				}
-
-				ImGui::EndMenu();
-			}
-
-			if (ImGui::BeginMenu("Entities"))
-			{
-				if (ImGui::Selectable("All"))
-				{
-					for (const auto& directory : FileDatabase::GetEntityDirectories())
-					{
-						for (const auto& fileContainer : FileDatabase::GetEntityFileContainersByDirectory(directory))
-						{
-							Procedure(fileContainer, std::forward<Args>(Arguments) ...);
-						}
-					}
-				}
-
-				ImGui::Separator();
-
-				for (const auto& directory : FileDatabase::GetEntityDirectories())
-				{
-					ImGui::PushID(directory);
-
-					if (ImGui::BeginMenu(FileDatabase::GetDirectoryNameByDirectory(directory)))
-					{
-						if (ImGui::Selectable("All"))
-						{
-							for (const auto& fileContainer : FileDatabase::GetEntityFileContainersByDirectory(directory))
-							{
-								Procedure(fileContainer, std::forward<Args>(Arguments) ...);
-							}
-						}
-
-						ImGui::Separator();
-
-						for (const auto& fileContainer : FileDatabase::GetEntityFileContainersByDirectory(directory))
-						{
-							ImGui::PushID(fileContainer);
-
-							if (ImGui::Selectable(fileContainer->GetWindowName()))
-							{
-								Procedure(fileContainer, std::forward<Args>(Arguments) ...);
-							}
-
-							ImGui::PopID();
-						}
-
-						ImGui::EndMenu();
-					}
-
-					ImGui::PopID();
-				}
-
-				ImGui::EndMenu();
+				Procedure(archiveInfo, std::forward<Args>(Arguments) ...);
 			}
 		}
-	};
+		
+		ImGui::Separator();
+		
+		if (ImGui::BeginMenu("Levels"))
+		{
+			if (ImGui::MenuItem("All", "", nullptr))
+			{
+				for (auto const& archiveInfo : Database::GetLevelArchiveInfos())
+				{
+					Procedure(archiveInfo, std::forward<Args>(Arguments) ...);
+				}
+			}
+		
+			ImGui::Separator();
+		
+			for (auto const& folderInfo : Database::GetLevelFolderInfos())
+			{
+				ImGui::PushID(&folderInfo);
+		
+				if (ImGui::BeginMenu(folderInfo.GetFolderName().data()))
+				{
+					if (ImGui::MenuItem("All", "", nullptr))
+					{
+						for (auto const& archiveInfo : Database::GetArchiveInfosByFolderId(folderInfo.FolderId))
+						{
+							Procedure(archiveInfo, std::forward<Args>(Arguments) ...);
+						}
+					}
+		
+					ImGui::Separator();
+		
+					for (auto const& archiveInfo : Database::GetArchiveInfosByFolderId(folderInfo.FolderId))
+					{
+						ImGui::PushID(&archiveInfo);
+					
+						if (ImGui::MenuItem(archiveInfo.GetArchiveName().data(), "", nullptr))
+						{
+							Procedure(archiveInfo, std::forward<Args>(Arguments) ...);
+						}
+					
+						ImGui::PopID();
+					}
+		
+					ImGui::EndMenu();
+				}
+		
+				ImGui::PopID();
+			}
+		
+			ImGui::EndMenu();
+		}
+		
+		if (ImGui::BeginMenu("Entities"))
+		{
+			if (ImGui::MenuItem("All", "", nullptr))
+			{
+				for (auto const& archiveInfo : Database::GetEntityArchiveInfos())
+				{
+					Procedure(archiveInfo, std::forward<Args>(Arguments) ...);
+				}
+			}
+		
+			ImGui::Separator();
+		
+			for (auto const& folderInfo : Database::GetEntityFolderInfos())
+			{
+				ImGui::PushID(&folderInfo);
+		
+				if (ImGui::BeginMenu(folderInfo.GetFolderName().data()))
+				{
+					if (ImGui::MenuItem("All", "", nullptr))
+					{
+						for (auto const& archiveInfo : Database::GetArchiveInfosByFolderId(folderInfo.FolderId))
+						{
+							Procedure(archiveInfo, std::forward<Args>(Arguments) ...);
+						}
+					}
+		
+					ImGui::Separator();
+		
+					for (auto const& archiveInfo : Database::GetArchiveInfosByFolderId(folderInfo.FolderId))
+					{
+						ImGui::PushID(&archiveInfo);
+					
+						if (ImGui::MenuItem(archiveInfo.GetArchiveName().data(), "", nullptr))
+						{
+							Procedure(archiveInfo, std::forward<Args>(Arguments) ...);
+						}
+					
+						ImGui::PopID();
+					}
+		
+					ImGui::EndMenu();
+				}
+		
+				ImGui::PopID();
+			}
+		
+			ImGui::EndMenu();
+		}
+	}
 }

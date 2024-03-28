@@ -1,99 +1,152 @@
-#include <Common/Macros.h>
+#include <Ecs/Registry.h>
+#include <Ecs/Entity.h>
 
-#include <Editor/Actor.h>
-#include <Editor/Scene.h>
-#include <Editor/SceneManager.h>
+#include <Export/WavefrontExporter.h>
 
-#include <Editor/Components/Transform.h>
+#include <Font/MaterialDesignIcons.h>
 
-#include <Editor/Exporter/WavefrontExporter.h>
+#include <Interface/Outline.h>
 
-#include <Editor/Interface/Outline.h>
+#include <ImGui/imgui.h>
 
-#include <Editor/ImGui/imgui.h>
+#include <Scene/Scene.h>
+#include <Scene/SceneManager.h>
 
-namespace ark
+namespace Nippon
 {
+	static Entity* sSelectedEntity = nullptr;
+
 	void Outline::Reset()
 	{
-		mSelectedActor = nullptr;
+		sSelectedEntity = nullptr;
 	}
 
 	void Outline::Render()
 	{
-		ImGui::Begin("Outline");
+		ImGui::Begin(ICON_MDI_FILE_TREE " Outline");
 
-		if (Scene* scene = SceneManager::GetActiveScene())
+		if (Scene* scene = SceneManager::GetCurrentScene())
 		{
-			if (Actor* actor = scene->GetRootActor())
+			if (Registry* registry = scene->GetRegistry())
 			{
-				DrawActorRecursive(scene, actor);
+				if (Entity* entity = registry->GetRootEntity())
+
+				DrawEntityTreeRecursive(scene, entity);
 			}
 		}
 
 		ImGui::End();
 	}
 
-	void Outline::SetSelectedActor(Actor* Actor)
+	Entity* Outline::GetSelectedEntity()
 	{
-		if (Actor)
-		{
-			Actor->MakeOpenedRecursiveUp(true);
-		}
-
-		mSelectedActor = Actor;
+		return sSelectedEntity;
 	}
 
-	void Outline::DrawActorRecursive(Scene* Scene, Actor* Actor)
+	void Outline::SetSelectedEntity(Entity* Entity)
 	{
-		ImGui::PushID(Actor);
+		if (Entity)
+		{
+			Entity->SetOpenedUp(true);
+		}
+
+		sSelectedEntity = Entity;
+	}
+
+	bool Outline::DrawEntityTreeRecursive(Scene* Scene, Entity* Entity)
+	{
+		bool dirty = false;
+
+		ImGui::PushID(Entity);
 
 		U32 flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding;
 
-		if (Actor == mSelectedActor) flags |= ImGuiTreeNodeFlags_Selected;
-		if (Actor->IsOpened()) flags |= ImGuiTreeNodeFlags_DefaultOpen;
-		if (Actor->IsChild()) flags |= ImGuiTreeNodeFlags_Leaf;
+		if (Entity == sSelectedEntity) flags |= ImGuiTreeNodeFlags_Selected;
+		if (Entity->IsOpened())        flags |= ImGuiTreeNodeFlags_DefaultOpen;
+		if (Entity->IsChild())         flags |= ImGuiTreeNodeFlags_Leaf;
 
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5.0F, 5.0F));
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 5.0F, 5.0F });
 
-		if (Actor->IsActive()) ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_Text]);
-		else                   ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
+		if (Entity->IsActive()) ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_Text]);
+		else                    ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
 
-		U32 opened = ImGui::TreeNodeEx(Actor->GetName().c_str(), flags);
+		U32 opened = ImGui::TreeNodeEx(Entity->GetName().data(), flags);
 
-		if (ImGui::IsItemClicked(0))
+		if (ImGui::IsItemClicked(0) || ImGui::IsItemClicked(1))
 		{
-			mSelectedActor = Actor;
+			sSelectedEntity = Entity;
 
 			Scene->Invalidate();
 		}
 
 		if (ImGui::BeginPopupContextItem("Outline Context Menu"))
 		{
-			if (ImGui::MenuItem("Export as Wavefront"))
+			if (ImGui::MenuItem(ICON_MDI_PLUS " Add"))
 			{
-				WavefrontExporter::Export(mSelectedActor, Scene);
+				if (Registry* registry = Scene->GetRegistry())
+				{
+					registry->CreateEntity("", sSelectedEntity);
+
+					dirty = true;
+				}
 			}
-		
+
+			if (ImGui::MenuItem(ICON_MDI_MINUS " Remove"))
+			{
+				if (sSelectedEntity)
+				{
+					sSelectedEntity->SetShouldBeDestroyed();
+
+					Scene->Invalidate();
+
+					dirty = true;
+				}
+			}
+
+			if (ImGui::MenuItem(ICON_MDI_MINUS " Remove Recursive"))
+			{
+				if (sSelectedEntity)
+				{
+					sSelectedEntity->SetShouldBeDestroyedDown();
+
+					Scene->Invalidate();
+
+					dirty = true;
+				}
+			}
+
+			ImGui::Separator();
+
+			if (ImGui::MenuItem(ICON_MDI_RENAME " Rename"))
+			{
+				// TODO
+			}
+
+			ImGui::Separator();
+
+			if (ImGui::MenuItem(ICON_MDI_EXPORT " Export as Wavefront"))
+			{
+				if (sSelectedEntity)
+				{
+					WavefrontExporter::Export(sSelectedEntity, Scene);
+				}
+			}
+
 			ImGui::EndPopup();
 		}
 
 		ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 25.0F);
-		if (ImGui::Button("x", ImVec2{ 25.0F, 0.0F }))
+		if (ImGui::Button(ICON_MDI_CLOSE_THICK, ImVec2{ 25.0F, 0.0F }))
 		{
-			if (Actor == mSelectedActor)
-			{
-				mSelectedActor = nullptr;
-			}
-
-			Actor->MakeShouldBeDestroyedRecursiveDown(true);
+			Entity->SetShouldBeDestroyedDown();
 
 			Scene->Invalidate();
+			
 		}
 		ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 50.0F);
-		if (ImGui::Button("-", ImVec2{ 25.0F, 0.0F }))
+		if (ImGui::Button(Entity->IsActive() ? ICON_MDI_EYE_OUTLINE : ICON_MDI_EYE_OFF_OUTLINE, ImVec2{ 25.0F, 0.0F }))
 		{
-			Actor->MakeActiveRecursiveDown(!Actor->IsActive());
+			Entity->SetActiveDown(!Entity->IsActive());
 
 			Scene->Invalidate();
 		}
@@ -102,20 +155,30 @@ namespace ark
 
 		if (opened)
 		{
-			for (auto& child : Actor->GetChildren())
+			if (!dirty)
 			{
-				DrawActorRecursive(Scene, child);
+				for (auto& child : Entity->GetChildren())
+				{
+					dirty = DrawEntityTreeRecursive(Scene, child);
+
+					if (dirty)
+					{
+						break;
+					}
+				}
 			}
 
 			ImGui::TreePop();
 		}
 		else
 		{
-			Actor->MakeOpenedRecursiveDown(false); // TODO
+			//Entity->SetOpenedDown(false); // TODO
 		}
 
 		ImGui::PopStyleVar();
 
 		ImGui::PopID();
+
+		return dirty;
 	}
 }

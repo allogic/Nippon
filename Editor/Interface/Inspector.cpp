@@ -1,20 +1,24 @@
-#include <Editor/Texture2D.h>
-#include <Editor/Actor.h>
-#include <Editor/Scene.h>
-#include <Editor/SceneManager.h>
-#include <Editor/InterfaceManager.h>
+#include <Font/MaterialDesignIcons.h>
 
-#include <Editor/Components/Camera.h>
-#include <Editor/Components/CameraController.h>
-#include <Editor/Components/Transform.h>
-#include <Editor/Components/Renderable.h>
+#include <Interface/Inspector.h>
 
-#include <Editor/Interface/Inspector.h>
-#include <Editor/Interface/Outline.h>
+#include <Ecs/Entity.h>
 
-#include <Editor/ImGui/imgui.h>
+#include <Ecs/Components/Camera.h>
+#include <Ecs/Components/CameraController.h>
+#include <Ecs/Components/Renderable.h>
+#include <Ecs/Components/Transform.h>
 
-namespace ark
+#include <Interface/Outline.h>
+
+#include <ImGui/imgui.h>
+
+#include <OpenGl/StaticMesh.h>
+
+#include <Scene/Scene.h>
+#include <Scene/SceneManager.h>
+
+namespace Nippon
 {
 	void Inspector::Reset()
 	{
@@ -23,13 +27,13 @@ namespace ark
 
 	void Inspector::Render()
 	{
-		ImGui::Begin("Inspector");
+		ImGui::Begin(ICON_MDI_PLAYLIST_EDIT " Inspector");
 
-		if (Scene* scene = SceneManager::GetActiveScene())
-		{		
-			if (Actor* actor = InterfaceManager::GetOutline()->GetSelectedActor())
+		if (Scene* scene = SceneManager::GetCurrentScene())
+		{
+			if (Entity* entity = Outline::GetSelectedEntity())
 			{
-				if (Transform* transform = actor->GetComponent<Transform>())
+				if (Transform* transform = entity->GetComponent<Transform>())
 				{
 					ImGui::PushID(transform);
 					if (ImGui::TreeNodeEx("Transform", ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_FramePadding))
@@ -37,33 +41,34 @@ namespace ark
 						ImGui::PushItemWidth(ImGui::GetWindowWidth() - ImGui::GetTreeNodeToLabelSpacing() - 100);
 
 						R32 r32Max = std::numeric_limits<R32>::max();
+						R32 r32Min = std::numeric_limits<R32>::min();
 
 						R32V3 localPosition = transform->GetLocalPosition();
-						if (ImGui::DragFloat3("Position", &localPosition[0], 0.1F, -r32Max, r32Max, "%.3F", 0))
+						if (ImGui::DragFloat3("Position", &localPosition[0], 0.1F, r32Min, r32Max, "%.3F", 0))
 						{
-							transform->SetLocalPosition(localPosition);
+							transform->SetPosition(localPosition);
 
-							actor->ComputeAABB();
+							entity->ComputeAABB();
 
 							scene->Invalidate();
 						}
 
 						R32V3 eulerAngles = transform->GetLocalEulerAngles();
-						if (ImGui::DragFloat3("Rotation", &eulerAngles[0], 0.1F, -r32Max, r32Max, "%.3F", 0))
+						if (ImGui::DragFloat3("Rotation", &eulerAngles[0], 0.1F, r32Min, r32Max, "%.3F", 0))
 						{
-							transform->SetLocalRotation(eulerAngles);
+							transform->SetRotation(eulerAngles);
 
-							actor->ComputeAABB();
+							entity->ComputeAABB();
 
 							scene->Invalidate();
 						}
 
 						R32V3 localScale = transform->GetLocalScale();
-						if (ImGui::DragFloat3("Scale", &localScale[0], 0.1F, -r32Max, r32Max, "%.3F", 0))
+						if (ImGui::DragFloat3("Scale", &localScale[0], 0.1F, r32Min, r32Max, "%.3F", 0))
 						{
-							transform->SetLocalScale(localScale);
+							transform->SetScale(localScale);
 
-							actor->ComputeAABB();
+							entity->ComputeAABB();
 
 							scene->Invalidate();
 						}
@@ -73,8 +78,8 @@ namespace ark
 					}
 					ImGui::PopID();
 				}
-		
-				if (Camera* camera = actor->GetComponent<Camera>())
+
+				if (Camera* camera = entity->GetComponent<Camera>())
 				{
 					ImGui::PushID(camera);
 					if (ImGui::TreeNodeEx("Camera", ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_FramePadding))
@@ -111,7 +116,7 @@ namespace ark
 					ImGui::PopID();
 				}
 
-				if (CameraController* cameraController = actor->GetComponent<CameraController>())
+				if (CameraController* cameraController = entity->GetComponent<CameraController>())
 				{
 					ImGui::PushID(cameraController);
 					if (ImGui::TreeNodeEx("CameraController", ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_FramePadding))
@@ -160,16 +165,20 @@ namespace ark
 					ImGui::PopID();
 				}
 
-				if (Renderable* renderable = actor->GetComponent<Renderable>())
+				if (Renderable* renderable = entity->GetComponent<Renderable>())
 				{
 					ImGui::PushID(renderable);
 					if (ImGui::TreeNodeEx("Renderable", ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_FramePadding))
 					{
 						ImGui::PushItemWidth(ImGui::GetWindowWidth() - ImGui::GetTreeNodeToLabelSpacing() - 100);
 
-						ImGui::Text("Vertices: %u", (U32)renderable->GetVertexBuffer().size());
-						ImGui::Text("Indices: %u", (U32)renderable->GetElementBuffer().size());
+						StaticMesh* staticMesh = renderable->GetStaticMesh();
+
+						ImGui::Text("Vertices: %llu", staticMesh->GetVertexBufferCount());
+						ImGui::Text("Indices: %llu", staticMesh->GetIndexBufferCount());
 						ImGui::Text("Texture Index: %u", renderable->GetTextureIndex());
+
+						// TODO
 
 						U32 currModel = 0;
 						U32 currTexture = 0;
@@ -181,7 +190,7 @@ namespace ark
 
 						std::string selectedTexture = std::to_string(renderable->GetTexture());
 
-						if (ImGui::BeginCombo("Model", selectedTexture.c_str()))
+						if (ImGui::BeginCombo("Model", selectedTexture.data()))
 						{
 							//for (const auto& texture : scene->GetTextures())
 							//{
