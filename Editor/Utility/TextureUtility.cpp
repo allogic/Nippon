@@ -33,7 +33,7 @@ namespace Nippon
 
 		switch (image.GetMetadata().format)
 		{
-		case DXGI_FORMAT_BC1_UNORM: /*texture = Texture2D::Create((U32)mip->width, (U32)mip->height, 1, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_RGBA, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL_UNSIGNED_BYTE, mip->pixels, true);*/ break; // TODO
+			case DXGI_FORMAT_BC1_UNORM: /*texture = Texture2D::Create((U32)mip->width, (U32)mip->height, 1, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_RGBA, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL_UNSIGNED_BYTE, mip->pixels, true);*/ break; // TODO
 			case DXGI_FORMAT_BC7_UNORM:	texture = Texture2D::Create((U32)mip->width, (U32)mip->height, 4, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_RGBA, GL_COMPRESSED_RGBA_BPTC_UNORM_ARB, GL_UNSIGNED_BYTE, mip->pixels, true); break;
 			default:
 			{
