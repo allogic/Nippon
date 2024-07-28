@@ -1,22 +1,22 @@
-#include <Memory.h>
+#include <Common/Memory.h>
 
-#include <Ecs/Registry.h>
+#include <Common/Math/AABB.h>
 
-#include <Ecs/Components/Camera.h>
-#include <Ecs/Components/Renderable.h>
-#include <Ecs/Components/Transform.h>
+#include <Editor/Ecs/Registry.h>
 
-#include <OpenGl/MeshTypes.h>
-#include <OpenGl/StaticMesh.h>
-#include <OpenGl/Shader.h>
-#include <OpenGl/Texture2D.h>
+#include <Editor/Ecs/Components/Camera.h>
+#include <Editor/Ecs/Components/Renderable.h>
+#include <Editor/Ecs/Components/Transform.h>
 
-#include <Math/AABB.h>
+#include <Editor/OpenGl/MeshTypes.h>
+#include <Editor/OpenGl/StaticMesh.h>
+#include <Editor/OpenGl/Shader.h>
+#include <Editor/OpenGl/Texture2D.h>
 
-#include <Renderer/Renderer.h>
-#include <Renderer/RenderModes.h>
+#include <Editor/Renderer/Renderer.h>
+#include <Editor/Renderer/RenderModes.h>
 
-#include <Scene/Scene.h>
+#include <Editor/Scene/Scene.h>
 
 #define DEBUG_VERTEX_BUFFER_SIZE 131070
 #define DEBUG_INDEX_BUFFER_SIZE (DEBUG_VERTEX_BUFFER_SIZE * 2)

@@ -1,6 +1,8 @@
 #pragma once
 
-#include <Ecs/Component.h>
+#include <Editor/Forward.h>
+
+#include <Editor/Ecs/Component.h>
 
 namespace Nippon
 {

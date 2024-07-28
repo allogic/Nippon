@@ -1,12 +1,13 @@
 #pragma once
 
-#include <Forward.h>
-#include <Standard.h>
-#include <Types.h>
+#include <Common/Forward.h>
+#include <Common/Standard.h>
+#include <Common/Types.h>
+#include <Common/VertexTypes.h>
 
-#include <Math/AABB.h>
+#include <Common/Math/AABB.h>
 
-#include <OpenGl/VertexTypes.h>
+#include <Editor/Forward.h>
 
 namespace Nippon
 {

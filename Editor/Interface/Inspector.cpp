@@ -1,22 +1,22 @@
-#include <Font/MaterialDesignIcons.h>
+#include <Editor/Font/MaterialDesignIcons.h>
 
-#include <Interface/Inspector.h>
+#include <Editor/Interface/Inspector.h>
 
-#include <Ecs/Entity.h>
+#include <Editor/Ecs/Entity.h>
 
-#include <Ecs/Components/Camera.h>
-#include <Ecs/Components/CameraController.h>
-#include <Ecs/Components/Renderable.h>
-#include <Ecs/Components/Transform.h>
+#include <Editor/Ecs/Components/Camera.h>
+#include <Editor/Ecs/Components/CameraController.h>
+#include <Editor/Ecs/Components/Renderable.h>
+#include <Editor/Ecs/Components/Transform.h>
 
-#include <Interface/Outline.h>
+#include <Editor/Interface/Outline.h>
 
-#include <ImGui/imgui.h>
+#include <Editor/ImGui/imgui.h>
 
-#include <OpenGl/StaticMesh.h>
+#include <Editor/OpenGl/StaticMesh.h>
 
-#include <Scene/Scene.h>
-#include <Scene/SceneManager.h>
+#include <Editor/Scene/Scene.h>
+#include <Editor/Scene/SceneManager.h>
 
 namespace Nippon
 {

@@ -1,13 +1,14 @@
-#include <Archive/Archive.h>
+#include <Common/Archive/Archive.h>
 
-#include <Font/MaterialDesignIcons.h>
+#include <Common/Utility/FileUtility.h>
 
-#include <Interface/MainMenu.h>
+#include <Editor/Font/MaterialDesignIcons.h>
 
-#include <Scene/Scene.h>
-#include <Scene/SceneManager.h>
+#include <Editor/Interface/MainMenu.h>
+#include <Editor/Interface/Log.h>
 
-#include <Utility/FileUtility.h>
+#include <Editor/Scene/Scene.h>
+#include <Editor/Scene/SceneManager.h>
 
 namespace Nippon
 {
@@ -197,8 +198,8 @@ namespace Nippon
 		
 		Archive archive = {};
 		
-		archive.DeSerialize(archiveData);
-		archive.PrintTableOfContent();
+		archive.Deserialize(archiveData);
+		archive.PrintTableOfContent([](char const* Message) { Log::Add(Message); });
 	}
 
 	void MainMenu::ExtractToDiskProcedure(ArchiveInfo const& ArchiveInfo)
@@ -211,7 +212,7 @@ namespace Nippon
 
 		Archive archive = {};
 
-		archive.DeSerialize(archiveData);
+		archive.Deserialize(archiveData);
 		archive.ExtractToDisk(outputFile);
 	}
 }

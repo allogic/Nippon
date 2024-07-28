@@ -1,22 +1,22 @@
-#include <Magic.h>
+#include <Common/Magic.h>
+#include <Common/VertexTypes.h>
 
-#include <Archive/Archive.h>
-#include <Archive/Model.h>
+#include <Common/Archive/Archive.h>
+#include <Common/Archive/Model.h>
 
-#include <Archive/Converter/VertexConverter.h>
-#include <Archive/Converter/IndexConverter.h>
+#include <Common/Archive/Converter/VertexConverter.h>
+#include <Common/Archive/Converter/IndexConverter.h>
 
-#include <Ecs/Registry.h>
-#include <Ecs/Entity.h>
+#include <Editor/Ecs/Registry.h>
+#include <Editor/Ecs/Entity.h>
 
-#include <Ecs/Components/Transform.h>
-#include <Ecs/Components/Renderable.h>
+#include <Editor/Ecs/Components/Transform.h>
+#include <Editor/Ecs/Components/Renderable.h>
 
-#include <OpenGl/VertexTypes.h>
-#include <OpenGl/StaticMesh.h>
+#include <Editor/OpenGl/StaticMesh.h>
 
-#include <Scene/EntityScene.h>
-#include <Scene/SceneAssets.h>
+#include <Editor/Scene/EntityScene.h>
+#include <Editor/Scene/SceneAssets.h>
 
 namespace Nippon
 {
@@ -106,7 +106,7 @@ namespace Nippon
 					Renderable* subMeshRenderable = subMeshEntity->AttachComponent<Renderable>();
 					StaticMesh* subMeshStaticMesh = subMeshRenderable->GetStaticMesh();
 
-					std::vector<DefaultVertex> vertices = VertexConverter::MdToDefault(subMeshEntity, subMesh.Vertices, subMesh.TextureMaps, subMesh.TextureUvs, subMesh.ColorWeights);
+					std::vector<DefaultVertex> vertices = VertexConverter::MdToDefault(subMeshEntity->GetUniqueId(), subMesh.Vertices, subMesh.TextureMaps, subMesh.TextureUvs, subMesh.ColorWeights);
 					std::vector<U32> indices = IndexConverter::MdToU32(subMesh.Vertices);
 		
 					U32 textureIndex = subMesh.Header.TextureIndex;

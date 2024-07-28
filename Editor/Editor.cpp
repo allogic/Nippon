@@ -1,31 +1,32 @@
-#include <Editor.h>
-#include <Event.h>
-#include <Memory.h>
+#include <Common/Memory.h>
 
-#include <Common/CommandLine.h>
-#include <Common/BlowFish.h>
+#include <Common/Misc/CommandLine.h>
+#include <Common/Misc/BlowFish.h>
 
-#include <Database/Database.h>
+#include <Editor/Editor.h>
+#include <Editor/Event.h>
 
-#include <Font/MaterialDesignIcons.h>
+#include <Editor/Database/Database.h>
 
-#include <Glad/glad.h>
+#include <Editor/Font/MaterialDesignIcons.h>
 
-#include <Glfw/glFw3.h>
+#include <Editor/Glad/glad.h>
 
-#include <Interface/ArchiveBrowser.h>
-#include <Interface/Inspector.h>
-#include <Interface/Log.h>
-#include <Interface/MainMenu.h>
-#include <Interface/Outline.h>
+#include <Editor/Glfw/glFw3.h>
 
-#include <ImGui/imgui.h>
-#include <ImGui/imgui_impl_glfw.h>
-#include <ImGui/imgui_impl_opengl3.h>
+#include <Editor/Interface/ArchiveBrowser.h>
+#include <Editor/Interface/Inspector.h>
+#include <Editor/Interface/Log.h>
+#include <Editor/Interface/MainMenu.h>
+#include <Editor/Interface/Outline.h>
 
-#include <Renderer/Renderer.h>
+#include <Editor/ImGui/imgui.h>
+#include <Editor/ImGui/imgui_impl_glfw.h>
+#include <Editor/ImGui/imgui_impl_opengl3.h>
 
-#include <Scene/SceneManager.h>
+#include <Editor/Renderer/Renderer.h>
+
+#include <Editor/Scene/SceneManager.h>
 
 #define UPDATE_FPS (/*1.0F / 120.0F*/ 0.0F)
 #define RENDER_FPS (/*1.0F / 120.0F*/ 0.0F)

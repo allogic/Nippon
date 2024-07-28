@@ -1,13 +1,15 @@
 #pragma once
 
-#include <Forward.h>
-#include <Standard.h>
-#include <Types.h>
+#include <Common/Forward.h>
+#include <Common/Standard.h>
+#include <Common/Types.h>
 
-#include <Database/Database.h>
+#include <Editor/Forward.h>
 
-#include <ImGui/imgui.h>
-#include <ImGui/imgui_internal.h>
+#include <Editor/Database/Database.h>
+
+#include <Editor/ImGui/imgui.h>
+#include <Editor/ImGui/imgui_internal.h>
 
 namespace Nippon
 {

@@ -1,16 +1,16 @@
-#include <Memory.h>
+#include <Common/Memory.h>
 
-#include <Archive/Archive.h>
-#include <Archive/Model.h>
-#include <Archive/ModelTypes.h>
+#include <Common/Archive/Archive.h>
+#include <Common/Archive/Model.h>
+#include <Common/Archive/ModelTypes.h>
 
-#include <Archive/Serializer/MeshSerializer.h>
+#include <Common/Archive/Serializer/MeshSerializer.h>
 
-#include <OpenGl/Texture2D.h>
+#include <Editor/OpenGl/Texture2D.h>
 
-#include <Scene/SceneAssets.h>
+#include <Editor/Scene/SceneAssets.h>
 
-#include <Utility/TextureUtility.h>
+#include <Editor/Utility/TextureUtility.h>
 
 namespace Nippon
 {

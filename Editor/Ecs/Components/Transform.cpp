@@ -1,10 +1,10 @@
-#include <Ecs/Entity.h>
-
-#include <Ecs/Components/Transform.h>
-
 #define GLM_ENABLE_EXPERIMENTAL
-#include <Glm/gtc/matrix_transform.hpp>
-#include <Glm/gtx/euler_angles.hpp>
+#include <Common/Glm/gtc/matrix_transform.hpp>
+#include <Common/Glm/gtx/euler_angles.hpp>
+
+#include <Editor/Ecs/Entity.h>
+
+#include <Editor/Ecs/Components/Transform.h>
 
 namespace Nippon
 {

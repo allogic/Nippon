@@ -1,9 +1,9 @@
-#include <Ecs/Entity.h>
+#include <Editor/Ecs/Entity.h>
 
-#include <Ecs/Components/Camera.h>
-#include <Ecs/Components/Transform.h>
+#include <Editor/Ecs/Components/Camera.h>
+#include <Editor/Ecs/Components/Transform.h>
 
-#include <Scene/Scene.h>
+#include <Editor/Scene/Scene.h>
 
 namespace Nippon
 {

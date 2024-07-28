@@ -1,16 +1,16 @@
-#include <Ecs/Registry.h>
-#include <Ecs/Entity.h>
+#include <Editor/Ecs/Registry.h>
+#include <Editor/Ecs/Entity.h>
 
-#include <Export/WavefrontExporter.h>
+#include <Editor/Export/WavefrontExporter.h>
 
-#include <Font/MaterialDesignIcons.h>
+#include <Editor/Font/MaterialDesignIcons.h>
 
-#include <Interface/Outline.h>
+#include <Editor/Interface/Outline.h>
 
-#include <ImGui/imgui.h>
+#include <Editor/ImGui/imgui.h>
 
-#include <Scene/Scene.h>
-#include <Scene/SceneManager.h>
+#include <Editor/Scene/Scene.h>
+#include <Editor/Scene/SceneManager.h>
 
 namespace Nippon
 {

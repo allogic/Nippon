@@ -1,9 +1,9 @@
-#include <Memory.h>
+#include <Common/Memory.h>
 
-#include <Ecs/Components/Renderable.h>
+#include <Editor/Ecs/Components/Renderable.h>
 
-#include <OpenGl/StaticMesh.h>
-#include <OpenGl/MeshTypes.h>
+#include <Editor/OpenGl/StaticMesh.h>
+#include <Editor/OpenGl/MeshTypes.h>
 
 namespace Nippon
 {

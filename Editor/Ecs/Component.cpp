@@ -1,4 +1,4 @@
-#include <Ecs/Component.h>
+#include <Editor/Ecs/Component.h>
 
 namespace Nippon
 {

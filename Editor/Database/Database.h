@@ -1,7 +1,10 @@
 #pragma once
 
-#include <Standard.h>
-#include <Types.h>
+#include <Common/Forward.h>
+#include <Common/Standard.h>
+#include <Common/Types.h>
+
+#include <Editor/Forward.h>
 
 #define ARCHIVE_THUMBNAIL_SIZE 128
 

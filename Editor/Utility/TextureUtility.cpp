@@ -1,23 +1,25 @@
-#include <DirectDrawSurface/DirectXTex.h>
+#include <Editor/DirectDrawSurface/DirectXTex.h>
 
-#include <Glad/glad.h>
+#include <Editor/Glad/glad.h>
 
-#include <Interface/Log.h>
+#include <Editor/Interface/Log.h>
 
-#include <OpenGl/Texture2D.h>
+#include <Editor/OpenGl/Texture2D.h>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include <StbImage/stb_image.h>
+#include <Editor/StbImage/stb_image.h>
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <StbImage/stb_image_write.h>
+#include <Editor/StbImage/stb_image_write.h>
 
-#include <Utility/TextureUtility.h>
+#include <Editor/Utility/TextureUtility.h>
 
-#define GL_COMPRESSED_RGB_S3TC_DXT1_EXT 0x83F0
-#define GL_COMPRESSED_RGBA_S3TC_DXT1_EXT 0x83F1
-
-#define GL_COMPRESSED_RGBA_BPTC_UNORM_ARB 0x8E8C
+/*
+* OpenGL Extensions:
+* ------------------
+*  - GL_ARB_texture_compression_bptc
+*  - GL_EXT_texture_compression_s3tc
+*/
 
 namespace Nippon
 {
@@ -33,8 +35,8 @@ namespace Nippon
 
 		switch (image.GetMetadata().format)
 		{
-			case DXGI_FORMAT_BC1_UNORM: /*texture = Texture2D::Create((U32)mip->width, (U32)mip->height, 1, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_RGBA, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL_UNSIGNED_BYTE, mip->pixels, true);*/ break; // TODO
-			case DXGI_FORMAT_BC7_UNORM: texture = Texture2D::Create((U32)mip->width, (U32)mip->height, 4, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_RGBA, GL_COMPRESSED_RGBA_BPTC_UNORM_ARB, GL_UNSIGNED_BYTE, mip->pixels, true); break;
+			case DXGI_FORMAT_BC1_UNORM: texture = Texture2D::Create((U32)mip->width, (U32)mip->height, 1, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_RGBA, GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM_ARB, GL_UNSIGNED_BYTE, mip->pixels, true); break;
+			case DXGI_FORMAT_BC7_UNORM: texture = Texture2D::Create((U32)mip->width, (U32)mip->height, 1, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_RGBA, GL_COMPRESSED_RGBA_BPTC_UNORM_ARB, GL_UNSIGNED_BYTE, mip->pixels, true); break;
 			default:
 			{
 				Log::Add("Unsupported texture format 0x%X found\n", image.GetMetadata().format);
@@ -56,7 +58,7 @@ namespace Nippon
 
 		switch (image.GetMetadata().format)
 		{
-			case DXGI_FORMAT_BC1_UNORM: /*texture = Texture2D::Create((U32)mip->width, (U32)mip->height, 1, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_RGBA, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL_UNSIGNED_BYTE, mip->pixels, true);*/ break; // TODO
+			case DXGI_FORMAT_BC1_UNORM: texture = Texture2D::Create((U32)mip->width, (U32)mip->height, 1, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_RGB, GL_COMPRESSED_RGB_S3TC_DXT1_EXT, GL_UNSIGNED_BYTE, mip->pixels, true); break;
 			case DXGI_FORMAT_BC7_UNORM: texture = Texture2D::Create((U32)mip->width, (U32)mip->height, 1, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_RGBA, GL_COMPRESSED_RGBA_BPTC_UNORM_ARB, GL_UNSIGNED_BYTE, mip->pixels, true); break;
 			default:
 			{

@@ -4,9 +4,6 @@ struct GLFWwindow;
 
 namespace Nippon
 {
-	class Archive;
-	class BinaryMediator;
-
 	class Player;
 
 	class Camera;

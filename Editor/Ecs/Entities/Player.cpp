@@ -1,16 +1,16 @@
-#include <Editor.h>
-#include <Event.h>
+#include <Editor/Editor.h>
+#include <Editor/Event.h>
 
-#include <Ecs/Components/Camera.h>
-#include <Ecs/Components/CameraController.h>
-#include <Ecs/Components/Transform.h>
+#include <Editor/Ecs/Components/Camera.h>
+#include <Editor/Ecs/Components/CameraController.h>
+#include <Editor/Ecs/Components/Transform.h>
 
-#include <Ecs/Entities/Player.h>
+#include <Editor/Ecs/Entities/Player.h>
 
-#include <Interface/Viewport.h>
-#include <Interface/Outline.h>
+#include <Editor/Interface/Viewport.h>
+#include <Editor/Interface/Outline.h>
 
-#include <Scene/Scene.h>
+#include <Editor/Scene/Scene.h>
 
 namespace Nippon
 {

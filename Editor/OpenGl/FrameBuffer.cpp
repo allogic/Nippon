@@ -1,7 +1,7 @@
-#include <Glad/glad.h>
+#include <Editor/Glad/glad.h>
 
-#include <OpenGl/FrameBuffer.h>
-#include <OpenGl/Texture2D.h>
+#include <Editor/OpenGl/FrameBuffer.h>
+#include <Editor/OpenGl/Texture2D.h>
 
 namespace Nippon
 {

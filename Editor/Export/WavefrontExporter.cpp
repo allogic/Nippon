@@ -1,22 +1,23 @@
-#include <Magic.h>
+#include <Common/Magic.h>
+#include <Common/VertexTypes.h>
 
-#include <Ecs/Entity.h>
-#include <Ecs/Registry.h>
+#include <Common/Utility/FileUtility.h>
 
-#include <Ecs/Components/Transform.h>
-#include <Ecs/Components/Renderable.h>
+#include <Editor/Ecs/Entity.h>
+#include <Editor/Ecs/Registry.h>
 
-#include <Export/WavefrontExporter.h>
+#include <Editor/Ecs/Components/Transform.h>
+#include <Editor/Ecs/Components/Renderable.h>
 
-#include <Interface/Log.h>
+#include <Editor/Export/WavefrontExporter.h>
 
-#include <OpenGl/StaticMesh.h>
-#include <OpenGl/VertexTypes.h>
+#include <Editor/Interface/Log.h>
 
-#include <Scene/Scene.h>
+#include <Editor/OpenGl/StaticMesh.h>
 
-#include <Utility/FileUtility.h>
-#include <Utility/TextureUtility.h>
+#include <Editor/Scene/Scene.h>
+
+#include <Editor/Utility/TextureUtility.h>
 
 namespace Nippon
 {

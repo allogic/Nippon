@@ -1,15 +1,16 @@
-#include <Memory.h>
+#include <Common/Memory.h>
 
-#include <Ecs/Entity.h>
-#include <Ecs/Component.h>
+#include <Common/VertexTypes.h>
 
-#include <Ecs/Components/Transform.h>
-#include <Ecs/Components/Renderable.h>
+#include <Editor/Ecs/Entity.h>
+#include <Editor/Ecs/Component.h>
 
-#include <OpenGl/StaticMesh.h>
-#include <OpenGl/VertexTypes.h>
+#include <Editor/Ecs/Components/Transform.h>
+#include <Editor/Ecs/Components/Renderable.h>
 
-#include <Scene/Scene.h>
+#include <Editor/OpenGl/StaticMesh.h>
+
+#include <Editor/Scene/Scene.h>
 
 namespace Nippon
 {

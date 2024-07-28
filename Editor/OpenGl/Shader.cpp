@@ -1,10 +1,10 @@
-#include <Glad/glad.h>
+#include <Common/Utility/FileUtility.h>
 
-#include <Interface/Log.h>
+#include <Editor/Glad/glad.h>
 
-#include <OpenGl/Shader.h>
+#include <Editor/Interface/Log.h>
 
-#include <Utility/FileUtility.h>
+#include <Editor/OpenGl/Shader.h>
 
 namespace Nippon
 {

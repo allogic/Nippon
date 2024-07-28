@@ -1,13 +1,13 @@
-#include <Database/Database.h>
+#include <Editor/Database/Database.h>
 
-#include <Font/MaterialDesignIcons.h>
+#include <Editor/Font/MaterialDesignIcons.h>
 
-#include <Interface/ArchiveBrowser.h>
+#include <Editor/Interface/ArchiveBrowser.h>
 
-#include <ImGui/imgui.h>
+#include <Editor/ImGui/imgui.h>
 
-#include <Scene/Scene.h>
-#include <Scene/SceneManager.h>
+#include <Editor/Scene/Scene.h>
+#include <Editor/Scene/SceneManager.h>
 
 namespace Nippon
 {

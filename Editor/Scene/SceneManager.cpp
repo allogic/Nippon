@@ -1,12 +1,12 @@
-#include <Memory.h>
+#include <Common/Memory.h>
 
-#include <Interface/Viewport.h>
-#include <Interface/Outline.h>
+#include <Editor/Interface/Viewport.h>
+#include <Editor/Interface/Outline.h>
 
-#include <Scene/Scene.h>
-#include <Scene/SceneManager.h>
-#include <Scene/LevelScene.h>
-#include <Scene/EntityScene.h>
+#include <Editor/Scene/Scene.h>
+#include <Editor/Scene/SceneManager.h>
+#include <Editor/Scene/LevelScene.h>
+#include <Editor/Scene/EntityScene.h>
 
 namespace Nippon
 {

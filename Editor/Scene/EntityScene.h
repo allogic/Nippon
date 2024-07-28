@@ -1,6 +1,8 @@
 #pragma once
 
-#include <Scene/Scene.h>
+#include <Editor/Forward.h>
+
+#include <Editor/Scene/Scene.h>
 
 namespace Nippon
 {

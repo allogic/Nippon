@@ -1,13 +1,15 @@
 #pragma once
 
-#include <Forward.h>
-#include <Standard.h>
-#include <Types.h>
+#include <Common/Forward.h>
+#include <Common/Standard.h>
+#include <Common/Types.h>
 
-#include <Archive/Model.h>
+#include <Common/Archive/Model.h>
 
-#include <Archive/Structs/MeshStructs.h>
-#include <Archive/Structs/PlacementStructs.h>
+#include <Common/Archive/Structs/MeshStructs.h>
+#include <Common/Archive/Structs/PlacementStructs.h>
+
+#include <Editor/Forward.h>
 
 namespace Nippon
 {

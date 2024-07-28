@@ -1,11 +1,13 @@
 #pragma once
 
-#include <Forward.h>
-#include <Memory.h>
-#include <Standard.h>
-#include <Types.h>
+#include <Common/Forward.h>
+#include <Common/Memory.h>
+#include <Common/Standard.h>
+#include <Common/Types.h>
 
-#include <Math/AABB.h>
+#include <Common/Math/AABB.h>
+
+#include <Editor/Forward.h>
 
 namespace Nippon
 {

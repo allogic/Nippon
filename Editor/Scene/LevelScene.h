@@ -1,8 +1,10 @@
 #pragma once
 
-#include <Archive/Structs/PlacementStructs.h>
+#include <Common/Archive/Structs/PlacementStructs.h>
 
-#include <Scene/Scene.h>
+#include <Editor/Forward.h>
+
+#include <Editor/Scene/Scene.h>
 
 namespace Nippon
 {

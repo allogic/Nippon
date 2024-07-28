@@ -1,35 +1,36 @@
-#include <Editor.h>
+#include <Editor/Editor.h>
 
-#include <Common/BlowFish.h>
-#include <Common/Crc32.h>
+#include <Common/Misc/BlowFish.h>
+#include <Common/Misc/Crc32.h>
 
-#include <Database/Database.h>
+#include <Common/Utility/FileUtility.h>
+#include <Common/Utility/StringUtility.h>
 
-#include <Ecs/Entity.h>
-#include <Ecs/Registry.h>
+#include <Editor/Database/Database.h>
 
-#include <Ecs/Components/Camera.h>
-#include <Ecs/Components/Transform.h>
+#include <Editor/Ecs/Entity.h>
+#include <Editor/Ecs/Registry.h>
 
-#include <Glad/glad.h>
+#include <Editor/Ecs/Components/Camera.h>
+#include <Editor/Ecs/Components/Transform.h>
 
-#include <Glfw/glfw3.h>
+#include <Editor/Glad/glad.h>
 
-#include <Interface/Log.h>
+#include <Editor/Glfw/glfw3.h>
 
-#include <OpenGl/FrameBuffer.h>
-#include <OpenGl/Texture2D.h>
+#include <Editor/Interface/Log.h>
 
-#include <Scene/Scene.h>
-#include <Scene/SceneManager.h>
-#include <Scene/EntityScene.h>
-#include <Scene/LevelScene.h>
+#include <Editor/OpenGl/FrameBuffer.h>
+#include <Editor/OpenGl/Texture2D.h>
 
-#include <Sqlite/sqlite3.h>
+#include <Editor/Scene/Scene.h>
+#include <Editor/Scene/SceneManager.h>
+#include <Editor/Scene/EntityScene.h>
+#include <Editor/Scene/LevelScene.h>
 
-#include <Utility/FileUtility.h>
-#include <Utility/StringUtility.h>
-#include <Utility/TextureUtility.h>
+#include <Editor/Sqlite/sqlite3.h>
+
+#include <Editor/Utility/TextureUtility.h>
 
 #ifdef _DEBUG
 	#define SQL_CHECK(EXPRESSION, STATUS) \

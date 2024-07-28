@@ -1,15 +1,15 @@
-#include <Ecs/Registry.h>
-#include <Ecs/Entity.h>
+#include <Editor/Ecs/Registry.h>
+#include <Editor/Ecs/Entity.h>
 
-#include <Ecs/Components/Camera.h>
-#include <Ecs/Components/Transform.h>
-#include <Ecs/Components/Renderable.h>
+#include <Editor/Ecs/Components/Camera.h>
+#include <Editor/Ecs/Components/Transform.h>
+#include <Editor/Ecs/Components/Renderable.h>
 
-#include <Ecs/Entities/Player.h>
+#include <Editor/Ecs/Entities/Player.h>
 
-#include <Interface/Outline.h>
+#include <Editor/Interface/Outline.h>
 
-#include <Renderer/Renderer.h>
+#include <Editor/Renderer/Renderer.h>
 
 namespace Nippon
 {

@@ -1,6 +1,6 @@
-#include <Event.h>
+#include <Editor/Event.h>
 
-#include <Glfw/glfw3.h>
+#include <Editor/Glfw/glfw3.h>
 
 namespace Nippon
 {

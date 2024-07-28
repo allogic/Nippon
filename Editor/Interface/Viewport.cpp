@@ -1,18 +1,18 @@
-#include <Event.h>
+#include <Editor/Event.h>
 
-#include <Ecs/Registry.h>
+#include <Editor/Ecs/Registry.h>
 
-#include <Font/MaterialDesignIcons.h>
+#include <Editor/Font/MaterialDesignIcons.h>
 
-#include <Interface/Viewport.h>
-#include <Interface/Outline.h>
+#include <Editor/Interface/Viewport.h>
+#include <Editor/Interface/Outline.h>
 
-#include <ImGui/imgui.h>
+#include <Editor/ImGui/imgui.h>
 
-#include <OpenGl/FrameBuffer.h>
+#include <Editor/OpenGl/FrameBuffer.h>
 
-#include <Scene/Scene.h>
-#include <Scene/SceneManager.h>
+#include <Editor/Scene/Scene.h>
+#include <Editor/Scene/SceneManager.h>
 
 namespace Nippon
 {

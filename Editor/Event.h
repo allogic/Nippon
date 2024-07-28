@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Types.h>
+#include <Common/Types.h>
 
-struct GLFWwindow;
+#include <Editor/Forward.h>
 
 namespace Nippon
 {

@@ -1,12 +1,14 @@
 #pragma once
 
-#include <Standard.h>
-#include <Types.h>
+#include <Common/Standard.h>
+#include <Common/Types.h>
+#include <Common/VertexTypes.h>
 
-#include <OpenGl/MeshTypes.h>
-#include <OpenGl/VertexTypes.h>
+#include <Editor/Forward.h>
 
-#include <Renderer/RenderModes.h>
+#include <Editor/OpenGl/MeshTypes.h>
+
+#include <Editor/Renderer/RenderModes.h>
 
 namespace Nippon
 {

@@ -1,4 +1,4 @@
-#include <Ecs/Components/CameraController.h>
+#include <Editor/Ecs/Components/CameraController.h>
 
 namespace Nippon
 {

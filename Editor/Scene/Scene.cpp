@@ -1,26 +1,26 @@
-#include <Memory.h>
+#include <Common/Memory.h>
 
-#include <Archive/Archive.h>
+#include <Common/Archive/Archive.h>
 
-#include <Common/BlowFish.h>
+#include <Common/Misc/BlowFish.h>
 
-#include <Database/Database.h>
+#include <Editor/Database/Database.h>
 
-#include <Ecs/Registry.h>
+#include <Editor/Ecs/Registry.h>
 
-#include <Glad/glad.h>
+#include <Editor/Glad/glad.h>
 
-#include <Interface/Log.h>
-#include <Interface/Viewport.h>
-#include <Interface/Outline.h>
+#include <Editor/Interface/Log.h>
+#include <Editor/Interface/Viewport.h>
+#include <Editor/Interface/Outline.h>
 
-#include <OpenGl/FrameBuffer.h>
+#include <Editor/OpenGl/FrameBuffer.h>
 
-#include <Renderer/Renderer.h>
+#include <Editor/Renderer/Renderer.h>
 
-#include <Scene/Scene.h>
-#include <Scene/SceneAssets.h>
-#include <Scene/SceneManager.h>
+#include <Editor/Scene/Scene.h>
+#include <Editor/Scene/SceneAssets.h>
+#include <Editor/Scene/SceneManager.h>
 
 namespace Nippon
 {
@@ -98,7 +98,7 @@ namespace Nippon
 
 			std::vector<U8> archiveData = Database::GetArchiveDataByUniqueId(UniqueId);
 
-			archive->DeSerialize(archiveData);
+			archive->Deserialize(archiveData);
 
 			sceneAssets->SetArchive(archive);
 

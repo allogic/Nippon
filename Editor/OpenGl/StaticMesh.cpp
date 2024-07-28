@@ -1,6 +1,6 @@
-#include <Glad/glad.h>
+#include <Editor/Glad/glad.h>
 
-#include <OpenGl/StaticMesh.h>
+#include <Editor/OpenGl/StaticMesh.h>
 
 namespace Nippon
 {

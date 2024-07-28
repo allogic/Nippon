@@ -1,10 +1,11 @@
 #pragma once
 
-#include <Forward.h>
+#include <Common/Forward.h>
+#include <Common/VertexTypes.h>
 
-#include <Ecs/Component.h>
+#include <Editor/Forward.h>
 
-#include <OpenGl/VertexTypes.h>
+#include <Editor/Ecs/Component.h>
 
 namespace Nippon
 {
