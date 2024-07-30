@@ -9,8 +9,6 @@
 
 namespace Nippon
 {
-	using PrintCallback = std::function<void(char const*)>;
-
 	class Archive
 	{
 	public:
@@ -42,8 +40,8 @@ namespace Nippon
 
 		void ExtractToDisk(fs::path const& File);
 		void UnfoldToDisk(fs::path const& File);
-		void PrintTableOfContent(PrintCallback Callback, U32 Offset = 0, U32 Indent = 0, U32 Increment = 2);
-		void PrintOfType(PrintCallback Callback, std::string const& Type);
+		void PrintTableOfContent(std::function<void(char const*)> Callback, U32 Offset = 0, U32 Indent = 0, U32 Increment = 2);
+		void PrintOfType(std::function<void(char const*)> Callback, std::string const& Type);
 		Archive* FindArchiveByType(std::string const& Type);
 		Archive* FindArchiveByName(std::string const& Name);
 		Archive* FindArchiveByTypeAndName(std::string const& Type, std::string const& Name);
@@ -57,8 +55,8 @@ namespace Nippon
 
 		void ExtractToDiskRecursive(fs::path File);
 		void UnfoldToDiskRecursive(fs::path File);
-		void PrintTableOfContentRecursive(PrintCallback Callback, U32 Offset, U32 Indent, U32 Increment);
-		void PrintOfTypeRecursive(PrintCallback Callback, std::string const& Type);
+		void PrintTableOfContentRecursive(std::function<void(char const*)> Callback, U32 Offset, U32 Indent, U32 Increment);
+		void PrintOfTypeRecursive(std::function<void(char const*)> Callback, std::string const& Type);
 		void FindArchiveByTypeRecursive(std::string const& Type, Archive** Result);
 		void FindArchiveByNameRecursive(std::string const& Name, Archive** Result);
 		void FindArchiveByTypeAndNameRecursive(std::string const& Type, std::string const& Name, Archive** Result);

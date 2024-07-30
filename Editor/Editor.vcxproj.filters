@@ -350,10 +350,10 @@
     <ClInclude Include="StbImage\stb_image_write.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Export\WavefrontExporter.h">
+    <ClInclude Include="Forward.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Forward.h">
+    <ClInclude Include="Export\WavefrontExporter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

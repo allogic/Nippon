@@ -1,10 +1,7 @@
 #include <Common/Memory.h>
 
 #include <Common/Archive/Archive.h>
-#include <Common/Archive/Model.h>
-#include <Common/Archive/ModelTypes.h>
-
-#include <Common/Archive/Serializer/MeshSerializer.h>
+#include <Common/Model/Model.h>
 
 #include <Editor/OpenGl/Texture2D.h>
 
@@ -28,6 +25,13 @@ namespace Nippon
 			Memory::Free(mArchive);
 		}
 
+		for (auto const& model : mModels)
+		{
+			model->~Model();
+
+			Memory::Free(model);
+		}
+
 		for (auto const& texture : mTextures)
 		{
 			Texture2D::Destroy(texture);
@@ -36,21 +40,27 @@ namespace Nippon
 
 	void SceneAssets::AddScrModelFromArchive(Archive* Archive)
 	{
-		Model& model = mModels.emplace_back();
+		Model* model = new (Memory::Alloc(sizeof(Model))) Model;
 
-		model.SetType(ModelType::eModelTypeScr);
-		model.SetName(Archive->GetName());
-		model.SetScrMeshes(MeshSerializer::ScrMeshesFromBytes(Archive->GetBytes(), Archive->GetSize()));
+		mModels.emplace_back(model);
+
+		std::vector<U8> bytes = { Archive->GetBytes(), Archive->GetBytes() + Archive->GetSize() };
+
+		model->Deserialize(bytes);
+		model->SetName(Archive->GetName());
 	}
 
 	void SceneAssets::AddMdModelFromArchive(Archive* Archive, Object const* Object)
 	{
-		Model& model = mModels.emplace_back();
+		Model* model = new (Memory::Alloc(sizeof(Model))) Model;
 
-		model.SetType(ModelType::eModelTypeMd);
-		model.SetName(Archive->GetName());
-		model.SetMdMeshes(MeshSerializer::MdMeshesFromBytes(Archive->GetBytes(), Archive->GetSize()));
-		model.SetObjectRef(Object);
+		mModels.emplace_back(model);
+
+		std::vector<U8> bytes = { Archive->GetBytes(), Archive->GetBytes() + Archive->GetSize() };
+
+		model->Deserialize(bytes);
+		model->SetName(Archive->GetName());
+		model->SetObjectRef(Object);
 	}
 
 	void SceneAssets::AddTextureFromArchive(Archive* Archive)

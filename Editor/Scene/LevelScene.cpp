@@ -2,12 +2,13 @@
 #include <Common/VertexTypes.h>
 
 #include <Common/Archive/Archive.h>
-#include <Common/Archive/Model.h>
 
-#include <Common/Archive/Converter/VertexConverter.h>
-#include <Common/Archive/Converter/IndexConverter.h>
+#include <Common/Model/Model.h>
 
-#include <Common/Archive/Serializer/PlacementSerializer.h>
+#include <Common/Converter/VertexConverter.h>
+#include <Common/Converter/IndexConverter.h>
+
+#include <Common/Serializer/PlacementSerializer.h>
 
 #include <Common/Utility/StringUtility.h>
 
@@ -132,9 +133,9 @@ namespace Nippon
 
 		for (auto const& model : sceneAssets->GetModels())
 		{
-			Entity* modelEntity = registry->CreateEntity(model.GetName(), mStaticGeometryEntity);
+			Entity* modelEntity = registry->CreateEntity(model->GetName(), mStaticGeometryEntity);
 
-			for (auto const& mesh : model.GetScrMeshes())
+			for (auto const& mesh : model->GetScrMeshes())
 			{
 				Entity* meshEntity = registry->CreateEntity("Mesh_" + std::to_string(mesh.Index), modelEntity);
 
@@ -258,9 +259,9 @@ namespace Nippon
 
 				for (auto const& model : sceneAssets->GetModels())
 				{
-					Entity* modelEntity = registry->CreateEntity(model.GetName(), mStaticGeometryEntity);
+					Entity* modelEntity = registry->CreateEntity(model->GetName(), mStaticGeometryEntity);
 
-					for (auto const& mesh : model.GetMdMeshes())
+					for (auto const& mesh : model->GetMdMeshes())
 					{
 						Entity* meshEntity = registry->CreateEntity("Mesh_" + std::to_string(mesh.Index), modelEntity);
 
@@ -272,7 +273,7 @@ namespace Nippon
 						R32V3 rotation = {};
 						R32V3 scale = {};
 
-						if (Object const* object = model.GetObjectRef())
+						if (Object const* object = model->GetObjectRef())
 						{
 							position = R32V3{ object->Position.x, object->Position.y, object->Position.z } * MAGIC_WORLD_SCALE;
 							rotation = R32V3{ object->Rotation.x, object->Rotation.y, object->Rotation.z } + R32V3{ MAGIC_ENTITY_TO_LEVEL_PITCH_OFFSET, MAGIC_ENTITY_TO_LEVEL_YAW_OFFSET, MAGIC_ENTITY_TO_LEVEL_ROLL_OFFSET };

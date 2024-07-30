@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Common/Archive/Structs/PlacementStructs.h>
+#include <Common/Structs/PlacementStructs.h>
 
 #include <Editor/Forward.h>
 

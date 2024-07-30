@@ -237,7 +237,7 @@ I32 main(I32 Argc, char** Argv)
 			Outline::Reset();
 
 			Log::Add("Nippon - Okami HD Editor (C) Made by 0x616c\n");
-			Log::Add("  - Version 1.0.1\n");
+			Log::Add("  - Version 1.0.2\n");
 			Log::Add("  - https://github.com/allogic/Nippon\n");
 			Log::Add("\n");
 
@@ -314,8 +314,6 @@ I32 main(I32 Argc, char** Argv)
 	{
 		std::printf("Failed initializing GLFW\n");
 	}
-
-	Memory::CheckForLeaks();
 
 	return 0;
 }

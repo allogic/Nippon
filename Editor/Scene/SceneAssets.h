@@ -4,10 +4,10 @@
 #include <Common/Standard.h>
 #include <Common/Types.h>
 
-#include <Common/Archive/Model.h>
+#include <Common/Model/Model.h>
 
-#include <Common/Archive/Structs/MeshStructs.h>
-#include <Common/Archive/Structs/PlacementStructs.h>
+#include <Common/Structs/ModelStructs.h>
+#include <Common/Structs/PlacementStructs.h>
 
 #include <Editor/Forward.h>
 
@@ -45,7 +45,7 @@ namespace Nippon
 
 		Archive* mArchive = nullptr;
 
-		std::vector<Model> mModels = {};
+		std::vector<Model*> mModels = {};
 		std::vector<U32> mTextures = {};
 
 		bool mIsLoaded = false;

@@ -7,6 +7,10 @@
 #include <Common/Utility/FileUtility.h>
 #include <Common/Utility/StringUtility.h>
 
+#define PRINT(FMT, ...) \
+	snprintf(buffer, sizeof(buffer), FMT, __VA_ARGS__); \
+	Callback(buffer)
+
 namespace Nippon
 {
 	static std::set<std::string> sKnownDirectoryTypes =
@@ -100,20 +104,24 @@ namespace Nippon
 
 	void Archive::ExtractToDisk(fs::path const& File)
 	{
+		FileUtility::CreateDirIfNotExist(File);
+
 		ExtractToDiskRecursive(File);
 	}
 
 	void Archive::UnfoldToDisk(fs::path const& File)
 	{
+		FileUtility::CreateDirIfNotExist(File);
+
 		UnfoldToDiskRecursive(File);
 	}
 
-	void Archive::PrintTableOfContent(PrintCallback Callback, U32 Offset, U32 Indent, U32 Increment)
+	void Archive::PrintTableOfContent(std::function<void(char const*)> Callback, U32 Offset, U32 Indent, U32 Increment)
 	{
 		PrintTableOfContentRecursive(Callback, Offset, Indent, Increment);
 	}
 
-	void Archive::PrintOfType(PrintCallback Callback, std::string const& Type)
+	void Archive::PrintOfType(std::function<void(char const*)> Callback, std::string const& Type)
 	{
 		PrintOfTypeRecursive(Callback, Type);
 	}
@@ -318,7 +326,7 @@ namespace Nippon
 		}
 	}
 
-	void Archive::PrintTableOfContentRecursive(PrintCallback Callback, U32 Offset, U32 Indent, U32 Increment)
+	void Archive::PrintTableOfContentRecursive(std::function<void(char const*)> Callback, U32 Offset, U32 Indent, U32 Increment)
 	{
 		static char buffer[1024] = {};
 
@@ -326,24 +334,18 @@ namespace Nippon
 		{
 			for (U32 i = 0; i < Offset; i++)
 			{
-				snprintf(buffer, sizeof(buffer), " ");
-
-				Callback(buffer);
+				PRINT(" ");
 			}
 
 			for (U32 i = 0; i < Indent; i++)
 			{
-				snprintf(buffer, sizeof(buffer), "%c", ((i % Increment == 0) && (i >= Increment)) ? '|' : ' ');
-
-				Callback(buffer);
+				PRINT("%c", ((i % Increment == 0) && (i >= Increment)) ? '|' : ' ');
 			}
 
 			U64 kiloByteInteger = mSize / 1000;
 			U64 kiloByteFraction = mSize % 1000;
 
-			snprintf(buffer, sizeof(buffer), "0x%08X # %05u # %-20s # %-4s # %llu.%llu KB\n", mParentOffset, mParentIndex, mName, mType, kiloByteInteger, kiloByteFraction);
-
-			Callback(buffer);
+			PRINT("0x%08X # %05u # %-20s # %-4s # %llu.%llu KB\n", mParentOffset, mParentIndex, mName, mType, kiloByteInteger, kiloByteFraction);
 		}
 
 		if (mIsDirectory)
@@ -355,7 +357,7 @@ namespace Nippon
 		}
 	}
 
-	void Archive::PrintOfTypeRecursive(PrintCallback Callback, std::string const& Type)
+	void Archive::PrintOfTypeRecursive(std::function<void(char const*)> Callback, std::string const& Type)
 	{
 		static char buffer[1024] = {};
 
@@ -695,16 +697,25 @@ namespace Nippon
 
 	void Archive::UpdateByteArraysRecursive()
 	{
-		if (mBytes && (mSize != mSizePrev))
+		if (mBytes)
 		{
-			U8* bytes = (U8*)Memory::Alloc(mSize);
+			if (mSize != mSizePrev)
+			{
+				U8* bytes = (U8*)Memory::Alloc(mSize);
 
-			std::memset(bytes, 0, mSize);
-			std::memcpy(bytes, mBytes, std::min(mSize, mSizePrev));
+				std::memset(bytes, 0, mSize);
+				std::memcpy(bytes, mBytes, std::min(mSize, mSizePrev));
 
-			Memory::Free(mBytes);
+				Memory::Free(mBytes);
 
-			mBytes = bytes;
+				mBytes = bytes;
+			}
+		}
+		else
+		{
+			mBytes = (U8*)Memory::Alloc(mSize);
+
+			std::memset(mBytes, 0, mSize);
 		}
 
 		if (mIsDirectory)

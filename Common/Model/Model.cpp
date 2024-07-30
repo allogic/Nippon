@@ -1,0 +1,1295 @@
+#include <Common/Macros.h>
+#include <Common/Memory.h>
+
+#include <Common/Assimp/Importer.hpp>
+#include <Common/Assimp/Exporter.hpp>
+#include <Common/Assimp/postprocess.h>
+#include <Common/Assimp/scene.h>
+
+#include <Common/Model/Model.h>
+
+#include <Common/Misc/BinaryMediator.h>
+
+#include <Common/Utility/AssimpUtility.h>
+
+#define PRINT(FMT, ...) \
+	snprintf(buffer, sizeof(buffer), FMT, __VA_ARGS__); \
+	Callback(buffer)
+
+namespace Nippon
+{
+	Model::Model()
+	{
+		
+	}
+
+	Model::~Model()
+	{
+		Memory::Free(mBytes);
+	}
+
+	void Model::SetData(U8 const* Bytes, U64 Size)
+	{
+		Memory::Free(mBytes);
+
+		mBytes = (U8*)Memory::Alloc(Size);
+		mSizePrev = mSize;
+		mSize = Size;
+
+		std::memcpy(mBytes, Bytes, Size);
+	}
+
+	std::vector<U8> Model::Serialize()
+	{
+		UpdateSize();
+		UpdateByteArray();
+
+		SerializeModel();
+
+		return { mBytes, mBytes + mSize };
+	}
+
+	void Model::Deserialize(std::vector<U8> const& Bytes)
+	{
+		mBytes = (U8*)Memory::Alloc(Bytes.size(), Bytes.data());
+		mSize = Bytes.size();
+
+		DeserializeModel();
+
+		UpdateSize();
+		UpdateByteArray();
+	}
+
+	void Model::PrintTableOfContent(std::function<void(char const*)> Callback)
+	{
+		static char buffer[1024] = {};
+
+		PRINT("  ScrHeader:\n");
+		PRINT("  | ScrId: %08X\n", mScrHeader.ScrId);
+		PRINT("  | FileType: %u\n", mScrHeader.FileType);
+		PRINT("  | MeshCount: %u\n", mScrHeader.MeshCount);
+
+		switch (mScrHeader.FileType)
+		{
+			case 0: // MD mesh
+			{
+				for (U32 i = 0; i < mScrHeader.MeshCount; i++)
+				{
+					auto const& mesh = mMdMeshes[i];
+
+					PRINT("  | MdbHeader %u:\n", i);
+					PRINT("  | | MdbId: 0x%08X\n", mesh.Header.MdbId);
+					PRINT("  | | MeshType: 0x%08X\n", mesh.Header.MeshType);
+					PRINT("  | | MeshId: %u\n", mesh.Header.MeshId);
+					PRINT("  | | SubMeshCount: %u\n", mesh.Header.SubMeshCount);
+					PRINT("  | | Transform:\n");
+					PRINT("  | | | Position: [%.3f, %.3f, %.3f]\n", mesh.Transform.Position.x, mesh.Transform.Position.y, mesh.Transform.Position.z);
+					PRINT("  | | | Rotation: [%.3f, %.3f, %.3f]\n", mesh.Transform.Rotation.x, mesh.Transform.Rotation.y, mesh.Transform.Rotation.z);
+					PRINT("  | | | Scale: [%.3f, %.3f, %.3f]\n", mesh.Transform.Scale.x, mesh.Transform.Scale.y, mesh.Transform.Scale.z);
+
+					for (U16 j = 0; j < mesh.Header.SubMeshCount; j++)
+					{
+						auto& subMesh = mesh.SubMeshes[j];
+
+						U64 vertexStart = mMdStart + subMesh.Header.VertexOffset;
+						U64 TextureMapStart = mMdStart + subMesh.Header.TextureMapOffset;
+						U64 TextureUvStart = mMdStart + subMesh.Header.TextureUvOffset;
+						U64 ColorWeightStart = mMdStart + subMesh.Header.ColorWeightOffset;
+
+						U64 vertexEnd = mMdStart + subMesh.Header.VertexOffset + sizeof(MdVertex) * subMesh.Header.VertexCount;
+						U64 TextureMapEnd = mMdStart + subMesh.Header.TextureMapOffset + sizeof(TextureMap) * subMesh.Header.VertexCount;
+						U64 TextureUvEnd = mMdStart + subMesh.Header.TextureUvOffset + sizeof(MdUv) * subMesh.Header.VertexCount;
+						U64 ColorWeightEnd = mMdStart + subMesh.Header.ColorWeightOffset + sizeof(ColorWeight) * subMesh.Header.VertexCount;
+
+						U64 vertexSize = vertexEnd - vertexStart;
+						U64 TextureMapSize = TextureMapEnd - TextureMapStart;
+						U64 TextureUvSize = TextureUvEnd - TextureUvStart;
+						U64 ColorWeightSize = ColorWeightEnd - ColorWeightEnd;
+
+						PRINT("  | | MdHeader %u:\n", j);
+						PRINT("  | | | VertexCount: %u\n", subMesh.Header.VertexCount);
+						PRINT("  | | | TextureIndex: %u\n", subMesh.Header.TextureIndex);
+						PRINT("  | | | VertexOffset: 0x%016llX - 0x%016llX - %llu\n", vertexStart, vertexEnd, vertexSize);
+						PRINT("  | | | TextureMapOffset: 0x%016llX - 0x%016llX - %llu\n", TextureMapStart, TextureMapEnd, TextureMapSize);
+						PRINT("  | | | TextureUvOffset: 0x%016llX - 0x%016llX - %llu\n", TextureUvStart, TextureUvEnd, TextureUvSize);
+						PRINT("  | | | ColorWeightOffset: 0x%016llX - 0x%016llX - %llu\n", ColorWeightStart, ColorWeightEnd, ColorWeightSize);
+					}
+				}
+
+				break;
+			}
+			case 1: // SCR mesh
+			{
+				for (U32 i = 0; i < mScrHeader.MeshCount; i++)
+				{
+					auto const& mesh = mScrMeshes[i];
+
+					PRINT("  | MdbHeader %u:\n", i);
+					PRINT("  | | MdbId: 0x%08X\n", mesh.Header.MdbId);
+					PRINT("  | | MeshType: 0x%08X\n", mesh.Header.MeshType);
+					PRINT("  | | MeshId: %u\n", mesh.Header.MeshId);
+					PRINT("  | | SubMeshCount: %u\n", mesh.Header.SubMeshCount);
+					PRINT("  | | Transform:\n");
+					PRINT("  | | | Position: [%d, %d, %d]\n", mesh.Transform.Position.x, mesh.Transform.Position.y, mesh.Transform.Position.z);
+					PRINT("  | | | Rotation: [%d, %d, %d]\n", mesh.Transform.Rotation.x, mesh.Transform.Rotation.y, mesh.Transform.Rotation.z);
+					PRINT("  | | | Scale: [%u, %u, %u]\n", mesh.Transform.Scale.x, mesh.Transform.Scale.y, mesh.Transform.Scale.z);
+
+					for (U16 j = 0; j < mesh.Header.SubMeshCount; j++)
+					{
+						auto& subMesh = mesh.SubMeshes[j];
+
+						U64 vertexStart = mMdStart + subMesh.Header.VertexOffset;
+						U64 TextureMapStart = mMdStart + subMesh.Header.TextureMapOffset;
+						U64 TextureUvStart = mMdStart + subMesh.Header.TextureUvOffset;
+						U64 ColorWeightStart = mMdStart + subMesh.Header.ColorWeightOffset;
+
+						U64 vertexEnd = mMdStart + subMesh.Header.VertexOffset + sizeof(ScrVertex) * subMesh.Header.VertexCount;
+						U64 TextureMapEnd = mMdStart + subMesh.Header.TextureMapOffset + sizeof(TextureMap) * subMesh.Header.VertexCount;
+						U64 TextureUvEnd = mMdStart + subMesh.Header.TextureUvOffset + sizeof(ScrUv) * subMesh.Header.VertexCount;
+						U64 ColorWeightEnd = mMdStart + subMesh.Header.ColorWeightOffset + sizeof(ColorWeight) * subMesh.Header.VertexCount;
+
+						U64 vertexSize = vertexEnd - vertexStart;
+						U64 TextureMapSize = TextureMapEnd - TextureMapStart;
+						U64 TextureUvSize = TextureUvEnd - TextureUvStart;
+						U64 ColorWeightSize = ColorWeightEnd - ColorWeightEnd;
+
+						PRINT("  | | MdHeader %u:\n", j);
+						PRINT("  | | | VertexCount: %u\n", subMesh.Header.VertexCount);
+						PRINT("  | | | TextureIndex: %u\n", subMesh.Header.TextureIndex);
+						PRINT("  | | | VertexOffset: 0x%016llX - 0x%016llX - %llu\n", vertexStart, vertexEnd, vertexSize);
+						PRINT("  | | | TextureMapOffset: 0x%016llX - 0x%016llX - %llu\n", TextureMapStart, TextureMapEnd, TextureMapSize);
+						PRINT("  | | | TextureUvOffset: 0x%016llX - 0x%016llX - %llu\n", TextureUvStart, TextureUvEnd, TextureUvSize);
+						PRINT("  | | | ColorWeightOffset: 0x%016llX - 0x%016llX - %llu\n", ColorWeightStart, ColorWeightEnd, ColorWeightSize);
+					}
+				}
+
+				break;
+			}
+		}
+	}
+
+	bool Model::ConvertIntoProprietaryFormat(fs::path const& FilePath)
+	{
+		Assimp::Importer importer = {};
+
+		U32 importFlags = aiProcess_ValidateDataStructure | aiProcess_GenSmoothNormals | aiProcess_LimitBoneWeights | aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices | aiProcess_PopulateArmatureData;
+
+		aiScene const* scene = importer.ReadFile(FilePath.string(), importFlags);
+
+		if (scene && (scene->mFlags & ~(AI_SCENE_FLAGS_INCOMPLETE)) && scene->mRootNode)
+		{
+			return ConvertRoot(scene, 1); // TODO
+		}
+
+		return false;
+	}
+
+	void Model::SerializeModel()
+	{
+		BinaryMediator mediator = { mBytes, mSize };
+
+		mediator.Write<ScrHeader>(mScrHeader);
+
+		WriteTransformOffsets(&mediator);
+
+		switch (mScrHeader.FileType)
+		{
+			case 0: // MD mesh
+			{
+				for (U32 i = 0; i < mScrHeader.MeshCount; i++)
+				{
+					auto const& mesh = mMdMeshes[i];
+
+					mediator.Write<MdbHeader>(mesh.Header);
+
+					WriteMdSubMeshOffsets(&mediator, &mesh);
+
+					for (U16 j = 0; j < mesh.Header.SubMeshCount; j++)
+					{
+						auto const& subMesh = mesh.SubMeshes[j];
+
+						WriteMdSubMesh(&mediator, &subMesh);
+					}
+				}
+
+				WriteMdTransforms(&mediator);
+
+				break;
+			}
+			case 1: // SCR mesh
+			{
+				for (U32 i = 0; i < mScrHeader.MeshCount; i++)
+				{
+					auto const& mesh = mScrMeshes[i];
+
+					mediator.Write<MdbHeader>(mesh.Header);
+
+					WriteScrSubMeshOffsets(&mediator, &mesh);
+
+					for (U16 j = 0; j < mesh.Header.SubMeshCount; j++)
+					{
+						auto const& subMesh = mesh.SubMeshes[j];
+
+						WriteScrSubMesh(&mediator, &subMesh);
+					}
+				}
+
+				WriteScrTransforms(&mediator);
+
+				break;
+			}
+		}
+	}
+
+	// TODO: Completely rewrite this function!
+
+	void Model::DeserializeModel()
+	{
+		BinaryMediator mediator = { mBytes, mSize };
+
+		mScrHeader = mediator.Read<ScrHeader>();
+
+		if (mScrHeader.ScrId == SCR_HEADER_ID)
+		{
+			std::vector<U32> transformOffsets = mediator.Read<U32>(mScrHeader.MeshCount);
+
+			mediator.AlignUp(16);
+
+			switch (mScrHeader.FileType)
+			{
+				case 0: // MD mesh
+				{
+					mMdMeshes.resize(mScrHeader.MeshCount);
+
+					for (U32 i = 0; i < mScrHeader.MeshCount; i++)
+					{
+						mMdbStart = mediator.GetPosition();
+
+						auto& mesh = mMdMeshes[i];
+
+						mesh.Index = i;
+						mesh.Header = mediator.Read<MdbHeader>();
+
+						if (mesh.Header.MdbId == MDB_HEADER_ID)
+						{
+							mesh.SubMeshes.resize(mesh.Header.SubMeshCount);
+
+							std::vector<U32> subMeshOffsets = mediator.Read<U32>(mesh.Header.SubMeshCount);
+
+							for (U16 j = 0; j < mesh.Header.SubMeshCount; j++)
+							{
+								mediator.SeekAbs(mMdbStart + subMeshOffsets[j]);
+
+								mMdStart = mediator.GetPosition();
+
+								auto& subMesh = mesh.SubMeshes[j];
+
+								subMesh.Index = j;
+								subMesh.Header = mediator.Read<MdHeader>();
+
+								if (subMesh.Header.VertexOffset)
+								{
+									mediator.SeekAbs(mMdStart + subMesh.Header.VertexOffset);
+									mediator.Read<MdVertex>(subMesh.Vertices, subMesh.Header.VertexCount);
+								}
+
+								if (subMesh.Header.TextureMapOffset)
+								{
+									mediator.SeekAbs(mMdStart + subMesh.Header.TextureMapOffset);
+									mediator.Read<TextureMap>(subMesh.TextureMaps, subMesh.Header.VertexCount);
+								}
+
+								if (subMesh.Header.TextureUvOffset)
+								{
+									mediator.SeekAbs(mMdStart + subMesh.Header.TextureUvOffset);
+									mediator.Read<MdUv>(subMesh.TextureUvs, subMesh.Header.VertexCount);
+								}
+
+								if (subMesh.Header.ColorWeightOffset)
+								{
+									mediator.SeekAbs(mMdStart + subMesh.Header.ColorWeightOffset);
+									mediator.Read<ColorWeight>(subMesh.ColorWeights, subMesh.Header.VertexCount);
+								}
+							}
+						}
+						else
+						{
+							//__debugbreak(); // TODO
+
+							mesh.Header = {};
+
+							mScrHeader.MeshCount--;
+						}
+
+						mediator.AlignUp(16);
+					}
+
+					for (U32 i = 0; i < mScrHeader.MeshCount; i++)
+					{
+						mediator.SeekAbs(transformOffsets[i]);
+
+						auto& mesh = mMdMeshes[i];
+
+						mesh.Transform = mediator.Read<MdTransform>();
+					}
+
+					break;
+				}
+				case 1: // SCR mesh
+				{
+					mScrMeshes.resize(mScrHeader.MeshCount);
+
+					for (U32 i = 0; i < mScrHeader.MeshCount; i++)
+					{
+						mMdbStart = mediator.GetPosition();
+
+						auto& mesh = mScrMeshes[i];
+
+						mesh.Index = i;
+						mesh.Header = mediator.Read<MdbHeader>();
+
+						if (mesh.Header.MdbId == MDB_HEADER_ID)
+						{
+							mesh.SubMeshes.resize(mesh.Header.SubMeshCount);
+
+							std::vector<U32> subMeshOffsets = mediator.Read<U32>(mesh.Header.SubMeshCount);
+
+							for (U16 j = 0; j < mesh.Header.SubMeshCount; j++)
+							{
+								mediator.SeekAbs(mMdbStart + subMeshOffsets[j]);
+
+								mMdStart = mediator.GetPosition();
+
+								auto& subMesh = mesh.SubMeshes[j];
+
+								subMesh.Index = j;
+								subMesh.Header = mediator.Read<MdHeader>();
+
+								if (subMesh.Header.VertexOffset)
+								{
+									mediator.SeekAbs(mMdStart + subMesh.Header.VertexOffset);
+									mediator.Read<ScrVertex>(subMesh.Vertices, subMesh.Header.VertexCount);
+								}
+
+								if (subMesh.Header.TextureMapOffset)
+								{
+									mediator.SeekAbs(mMdStart + subMesh.Header.TextureMapOffset);
+									mediator.Read<TextureMap>(subMesh.TextureMaps, subMesh.Header.VertexCount);
+								}
+
+								if (subMesh.Header.TextureUvOffset)
+								{
+									mediator.SeekAbs(mMdStart + subMesh.Header.TextureUvOffset);
+									mediator.Read<ScrUv>(subMesh.TextureUvs, subMesh.Header.VertexCount);
+								}
+
+								if (subMesh.Header.ColorWeightOffset)
+								{
+									mediator.SeekAbs(mMdStart + subMesh.Header.ColorWeightOffset);
+									mediator.Read<ColorWeight>(subMesh.ColorWeights, subMesh.Header.VertexCount);
+								}
+							}
+						}
+						else
+						{
+							//__debugbreak(); // TODO
+
+							mesh.Header = {};
+
+							mScrHeader.MeshCount--;
+						}
+
+						mediator.AlignUp(16);
+					}
+
+					for (U32 i = 0; i < mScrHeader.MeshCount; i++)
+					{
+						mediator.SeekAbs(transformOffsets[i]);
+
+						auto& mesh = mScrMeshes[i];
+
+						mesh.Transform = mediator.Read<ScrTransform>();
+					}
+
+					break;
+				}
+			}
+		}
+	}
+
+	bool Model::ConvertRoot(aiScene const* Scene, U32 FileType)
+	{
+		aiNode const* rootNode = Scene->mRootNode;
+
+		U32 meshCount = rootNode->mNumChildren;
+
+		if (meshCount == 0)
+		{
+			return false;
+		}
+
+		mScrHeader.ScrId = SCR_HEADER_ID;
+		mScrHeader.FileType = FileType;
+		mScrHeader.MeshCount = meshCount;
+
+		switch (mScrHeader.FileType)
+		{
+			case 0: // MD mesh
+			{
+				mMdMeshes.resize(meshCount);
+
+				break;
+			}
+			case 1: // SCR mesh
+			{
+				mScrMeshes.resize(meshCount);
+
+				break;
+			}
+		}
+
+		for (U32 i = 0; i < meshCount; i++)
+		{
+			aiNode const* childNode = rootNode->mChildren[i];
+
+			switch (mScrHeader.FileType)
+			{
+				case 0: // MD mesh
+				{
+					if (ConvertMdMesh(Scene, childNode, i, 0x10, 0)) // TODO
+					{
+						return false;
+					}
+
+					break;
+				}
+				case 1: // SCR mesh
+				{
+					if (ConvertScrMesh(Scene, childNode, i, 0x10, 0)) // TODO
+					{
+						return false;
+					}
+
+					break;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	bool Model::ConvertMdMesh(aiScene const* Scene, aiNode const* Node, U32 Index, U32 MeshType, U16 MeshId)
+	{
+		U32 subMeshCount = Node->mNumChildren;
+
+		if (subMeshCount == 0)
+		{
+			return false;
+		}
+
+		aiVector3D scale = {};
+		aiQuaternion rotation = {};
+		aiVector3D position = {};
+
+		Node->mTransformation.Decompose(scale, rotation, position); // TODO
+
+		auto& mesh = mMdMeshes[Index];
+
+		mesh.Index = Index;
+
+		mesh.Header.MdbId = MDB_HEADER_ID;
+		mesh.Header.MeshType = MeshType;
+		mesh.Header.MeshId = MeshId;
+		mesh.Header.SubMeshCount = (U16)subMeshCount;
+
+		mesh.SubMeshes.resize(subMeshCount);
+
+		mesh.Transform.Scale = R32V3{ 1.0F, 1.0F, 1.0F }; // TODO
+		mesh.Transform.Rotation = R32V3{ 0.0F, 0.0F, 0.0F }; // TODO
+		mesh.Transform.Position = R32V3{ 0.0F, 0.0F, 0.0F }; // TODO
+
+		for (U32 i = 0; i < subMeshCount; i++)
+		{
+			aiNode const* childNode = Node->mChildren[i];
+
+			if (ConvertMdSubMesh(Scene, childNode, mesh, i))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	bool Model::ConvertScrMesh(aiScene const* Scene, aiNode const* Node, U32 Index, U32 MeshType, U16 MeshId)
+	{
+		U32 subMeshCount = Node->mNumChildren;
+
+		if (subMeshCount == 0)
+		{
+			return false;
+		}
+
+		aiVector3D scale = {};
+		aiQuaternion rotation = {};
+		aiVector3D position = {};
+
+		Node->mTransformation.Decompose(scale, rotation, position); // TODO
+
+		auto& mesh = mScrMeshes[Index];
+
+		mesh.Index = Index;
+
+		mesh.Header.MdbId = MDB_HEADER_ID;
+		mesh.Header.MeshType = MeshType;
+		mesh.Header.MeshId = MeshId;
+		mesh.Header.SubMeshCount = (U16)subMeshCount;
+
+		mesh.SubMeshes.resize(subMeshCount);
+
+		mesh.Transform.Scale = I16V3{ 4096, 4096, 4096 }; // TODO
+		mesh.Transform.Rotation = I16V3{ 0, 0, 0 }; // TODO
+		mesh.Transform.Position = I16V3{ 0, 0, 0 }; // TODO
+
+		for (U32 i = 0; i < subMeshCount; i++)
+		{
+			aiNode const* childNode = Node->mChildren[i];
+
+			if (ConvertScrSubMesh(Scene, childNode, mesh, i))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	bool Model::ConvertMdSubMesh(aiScene const* Scene, aiNode const* Node, MdMesh& Mesh, U32 Index)
+	{
+		aiMesh const* assimpMesh = Scene->mMeshes[Node->mMeshes[Index]];
+
+		if (!assimpMesh->HasPositions())
+		{
+			return false;
+		}
+
+		if (!assimpMesh->HasFaces())
+		{
+			return false;
+		}
+
+		U32 faceCount = assimpMesh->mNumFaces;
+		U32 vertexCount = assimpMesh->mNumFaces * 3;
+
+		auto& subMesh = Mesh.SubMeshes[Index];
+
+		subMesh.Index = Index;
+
+		subMesh.Header.VertexOffset = (U32)assimpMesh->HasPositions(); // TODO
+		subMesh.Header.TextureMapOffset = (U32)assimpMesh->HasTextureCoords(0); // TODO;
+		subMesh.Header.TextureUvOffset = (U32)assimpMesh->HasTextureCoords(0); // TODO;
+		subMesh.Header.ColorWeightOffset = (U32)assimpMesh->HasVertexColors(0); // TODO;
+		subMesh.Header.VertexCount = (U16)vertexCount;
+		subMesh.Header.TextureIndex = 0; // TODO;
+
+		subMesh.Vertices.resize(vertexCount);
+		subMesh.TextureMaps.resize(vertexCount);
+		subMesh.TextureUvs.resize(vertexCount);
+		subMesh.ColorWeights.resize(vertexCount);
+
+		for (U32 j = 0, k = 0; j < faceCount; j++, k += 3)
+		{
+			aiFace assimpFace = assimpMesh->mFaces[j];
+
+			U32 i0 = assimpFace.mIndices[0];
+			U32 i1 = assimpFace.mIndices[1];
+			U32 i2 = assimpFace.mIndices[2];
+
+			if (assimpMesh->HasPositions())
+			{
+				aiVector3D v0 = assimpMesh->mVertices[i0];
+				aiVector3D v1 = assimpMesh->mVertices[i1];
+				aiVector3D v2 = assimpMesh->mVertices[i2];
+
+				subMesh.Vertices[k + 0].X = (R32)v0.x;
+				subMesh.Vertices[k + 0].Y = (R32)v0.y;
+				subMesh.Vertices[k + 0].Z = (R32)v0.z;
+				subMesh.Vertices[k + 0].Connection = 0; // TODO
+
+				subMesh.Vertices[k + 1].X = (R32)v1.x;
+				subMesh.Vertices[k + 1].Y = (R32)v1.y;
+				subMesh.Vertices[k + 1].Z = (R32)v1.z;
+				subMesh.Vertices[k + 1].Connection = 0; // TODO
+
+				subMesh.Vertices[k + 2].X = (R32)v2.x;
+				subMesh.Vertices[k + 2].Y = (R32)v2.y;
+				subMesh.Vertices[k + 2].Z = (R32)v2.z;
+				subMesh.Vertices[k + 2].Connection = 1; // TODO
+			}
+
+			if (assimpMesh->HasTextureCoords(0))
+			{
+				aiVector3D t0 = assimpMesh->mTextureCoords[0][i0];
+				aiVector3D t1 = assimpMesh->mTextureCoords[0][i1];
+				aiVector3D t2 = assimpMesh->mTextureCoords[0][i2];
+
+				subMesh.TextureMaps[k + 0].U = 0; // TODO
+				subMesh.TextureMaps[k + 0].V = 0; // TODO
+
+				subMesh.TextureMaps[k + 1].U = 0; // TODO
+				subMesh.TextureMaps[k + 1].V = 0; // TODO
+
+				subMesh.TextureMaps[k + 2].U = 0; // TODO
+				subMesh.TextureMaps[k + 2].V = 0; // TODO
+
+				subMesh.TextureUvs[k + 0].U = (U16)t0.x; // TODO
+				subMesh.TextureUvs[k + 0].V = (U16)t0.y; // TODO
+
+				subMesh.TextureUvs[k + 1].U = (U16)t1.x; // TODO
+				subMesh.TextureUvs[k + 1].V = (U16)t1.y; // TODO
+
+				subMesh.TextureUvs[k + 2].U = (U16)t2.x; // TODO
+				subMesh.TextureUvs[k + 2].V = (U16)t2.y; // TODO
+			}
+
+			if (assimpMesh->HasVertexColors(0))
+			{
+				aiColor4D c0 = assimpMesh->mColors[0][i0];
+				aiColor4D c1 = assimpMesh->mColors[0][i1];
+				aiColor4D c2 = assimpMesh->mColors[0][i2];
+
+				subMesh.ColorWeights[k + 0].R = (U8)(c0.r * 255);
+				subMesh.ColorWeights[k + 0].G = (U8)(c0.g * 255);
+				subMesh.ColorWeights[k + 0].B = (U8)(c0.b * 255);
+				subMesh.ColorWeights[k + 0].A = (U8)(c0.a * 255);
+
+				subMesh.ColorWeights[k + 1].R = (U8)(c1.r * 255);
+				subMesh.ColorWeights[k + 1].G = (U8)(c1.g * 255);
+				subMesh.ColorWeights[k + 1].B = (U8)(c1.b * 255);
+				subMesh.ColorWeights[k + 1].A = (U8)(c1.a * 255);
+
+				subMesh.ColorWeights[k + 2].R = (U8)(c2.r * 255);
+				subMesh.ColorWeights[k + 2].G = (U8)(c2.g * 255);
+				subMesh.ColorWeights[k + 2].B = (U8)(c2.b * 255);
+				subMesh.ColorWeights[k + 2].A = (U8)(c2.a * 255);
+			}
+		}
+
+		return true;
+	}
+
+	bool Model::ConvertScrSubMesh(aiScene const* Scene, aiNode const* Node, ScrMesh& Mesh, U32 Index)
+	{
+		aiMesh const* assimpMesh = Scene->mMeshes[Node->mMeshes[Index]];
+
+		if (!assimpMesh->HasPositions())
+		{
+			return false;
+		}
+
+		if (!assimpMesh->HasFaces())
+		{
+			return false;
+		}
+
+		U32 faceCount = assimpMesh->mNumFaces;
+		U32 vertexCount = assimpMesh->mNumFaces * 3;
+
+		auto& subMesh = Mesh.SubMeshes[Index];
+
+		subMesh.Index = Index;
+
+		subMesh.Header.VertexOffset = (U32)assimpMesh->HasPositions(); // TODO
+		subMesh.Header.TextureMapOffset = (U32)assimpMesh->HasTextureCoords(0); // TODO;
+		subMesh.Header.TextureUvOffset = (U32)assimpMesh->HasTextureCoords(0); // TODO;
+		subMesh.Header.ColorWeightOffset = (U32)assimpMesh->HasVertexColors(0); // TODO;
+		subMesh.Header.VertexCount = (U16)vertexCount;
+		subMesh.Header.TextureIndex = 0; // TODO;
+
+		subMesh.Vertices.resize(vertexCount);
+		subMesh.TextureMaps.resize(vertexCount);
+		subMesh.TextureUvs.resize(vertexCount);
+		subMesh.ColorWeights.resize(vertexCount);
+
+		for (U32 j = 0, k = 0; j < faceCount; j++, k += 3)
+		{
+			aiFace assimpFace = assimpMesh->mFaces[j];
+
+			U32 i0 = assimpFace.mIndices[0];
+			U32 i1 = assimpFace.mIndices[1];
+			U32 i2 = assimpFace.mIndices[2];
+
+			if (assimpMesh->HasPositions())
+			{
+				aiVector3D v0 = assimpMesh->mVertices[i0];
+				aiVector3D v1 = assimpMesh->mVertices[i1];
+				aiVector3D v2 = assimpMesh->mVertices[i2];
+
+				subMesh.Vertices[k + 0].X = (I16)v0.x;
+				subMesh.Vertices[k + 0].Y = (I16)v0.y;
+				subMesh.Vertices[k + 0].Z = (I16)v0.z;
+				subMesh.Vertices[k + 0].Connection = 0; // TODO
+
+				subMesh.Vertices[k + 1].X = (I16)v1.x;
+				subMesh.Vertices[k + 1].Y = (I16)v1.y;
+				subMesh.Vertices[k + 1].Z = (I16)v1.z;
+				subMesh.Vertices[k + 1].Connection = 0; // TODO
+
+				subMesh.Vertices[k + 2].X = (I16)v2.x;
+				subMesh.Vertices[k + 2].Y = (I16)v2.y;
+				subMesh.Vertices[k + 2].Z = (I16)v2.z;
+				subMesh.Vertices[k + 2].Connection = 1; // TODO
+			}
+
+			if (assimpMesh->HasTextureCoords(0))
+			{
+				aiVector3D t0 = assimpMesh->mTextureCoords[0][i0];
+				aiVector3D t1 = assimpMesh->mTextureCoords[0][i1];
+				aiVector3D t2 = assimpMesh->mTextureCoords[0][i2];
+
+				subMesh.TextureMaps[k + 0].U = 0; // TODO
+				subMesh.TextureMaps[k + 0].V = 0; // TODO
+
+				subMesh.TextureMaps[k + 1].U = 0; // TODO
+				subMesh.TextureMaps[k + 1].V = 0; // TODO
+
+				subMesh.TextureMaps[k + 2].U = 0; // TODO
+				subMesh.TextureMaps[k + 2].V = 0; // TODO
+
+				subMesh.TextureUvs[k + 0].U = (U16)t0.x; // TODO
+				subMesh.TextureUvs[k + 0].V = (U16)t0.y; // TODO
+
+				subMesh.TextureUvs[k + 1].U = (U16)t1.x; // TODO
+				subMesh.TextureUvs[k + 1].V = (U16)t1.y; // TODO
+
+				subMesh.TextureUvs[k + 2].U = (U16)t2.x; // TODO
+				subMesh.TextureUvs[k + 2].V = (U16)t2.y; // TODO
+			}
+
+			if (assimpMesh->HasVertexColors(0))
+			{
+				aiColor4D c0 = assimpMesh->mColors[0][i0];
+				aiColor4D c1 = assimpMesh->mColors[0][i1];
+				aiColor4D c2 = assimpMesh->mColors[0][i2];
+
+				subMesh.ColorWeights[k + 0].R = (U8)(c0.r * 255);
+				subMesh.ColorWeights[k + 0].G = (U8)(c0.g * 255);
+				subMesh.ColorWeights[k + 0].B = (U8)(c0.b * 255);
+				subMesh.ColorWeights[k + 0].A = (U8)(c0.a * 255);
+
+				subMesh.ColorWeights[k + 1].R = (U8)(c1.r * 255);
+				subMesh.ColorWeights[k + 1].G = (U8)(c1.g * 255);
+				subMesh.ColorWeights[k + 1].B = (U8)(c1.b * 255);
+				subMesh.ColorWeights[k + 1].A = (U8)(c1.a * 255);
+
+				subMesh.ColorWeights[k + 2].R = (U8)(c2.r * 255);
+				subMesh.ColorWeights[k + 2].G = (U8)(c2.g * 255);
+				subMesh.ColorWeights[k + 2].B = (U8)(c2.b * 255);
+				subMesh.ColorWeights[k + 2].A = (U8)(c2.a * 255);
+			}
+		}
+
+		return true;
+	}
+
+	void Model::WriteTransformOffsets(BinaryMediator* Mediator)
+	{
+		U64 transformOffset = GetFirstTransformOffset();
+
+		for (U32 i = 0; i < mScrHeader.MeshCount; i++)
+		{
+			Mediator->Write<U32>((U32)transformOffset);
+
+			switch (mScrHeader.FileType)
+			{
+				case 0: // MD mesh
+				{
+					transformOffset += sizeof(MdTransform);
+
+					break;
+				}
+				case 1: // SCR mesh
+				{
+					transformOffset += sizeof(ScrTransform);
+
+					break;
+				}
+			}
+		}
+
+		Mediator->AlignUp(16);
+	}
+
+	void Model::WriteMdSubMeshOffsets(BinaryMediator* Mediator, MdMesh const* Mesh)
+	{
+		U16 subMeshCount = (U16)Mesh->SubMeshes.size();
+		U64 subMeshOffset = sizeof(MdbHeader);
+
+		subMeshOffset += subMeshCount * 4;
+		subMeshOffset = ALIGN_UP_BY(subMeshOffset, 16);
+
+		for (U16 i = 0; i < subMeshCount; i++)
+		{
+			auto const& subMesh = Mesh->SubMeshes[i];
+
+			Mediator->Write<U32>((U32)subMeshOffset);
+
+			subMeshOffset += GetMdSubMeshSize(&subMesh);
+		}
+
+		Mediator->AlignUp(16);
+	}
+
+	void Model::WriteScrSubMeshOffsets(BinaryMediator* Mediator, ScrMesh const* Mesh)
+	{
+		U16 subMeshCount = (U16)Mesh->SubMeshes.size();
+		U64 subMeshOffset = sizeof(MdbHeader);
+
+		subMeshOffset += subMeshCount * 4;
+		subMeshOffset = ALIGN_UP_BY(subMeshOffset, 16);
+
+		for (U16 i = 0; i < subMeshCount; i++)
+		{
+			auto const& subMesh = Mesh->SubMeshes[i];
+
+			Mediator->Write<U32>((U32)subMeshOffset);
+
+			subMeshOffset += GetScrSubMeshSize(&subMesh);
+		}
+
+		Mediator->AlignUp(16);
+	}
+
+	void Model::WriteMdSubMesh(BinaryMediator* Mediator, MdSubMesh const* SubMesh)
+	{
+		Mediator->Write<MdHeader>(SubMesh->Header);
+
+		Mediator->AlignUp(16);
+
+		if (SubMesh->Header.VertexOffset)
+		{
+			Mediator->Write<MdVertex>(SubMesh->Vertices);
+			Mediator->AlignUp(16);
+		}
+
+		if (SubMesh->Header.TextureMapOffset)
+		{
+			Mediator->Write<TextureMap>(SubMesh->TextureMaps);
+			Mediator->AlignUp(16);
+		}
+
+		if (SubMesh->Header.TextureUvOffset)
+		{
+			Mediator->Write<MdUv>(SubMesh->TextureUvs);
+			Mediator->AlignUp(16);
+		}
+
+		if (SubMesh->Header.ColorWeightOffset)
+		{
+			Mediator->Write<ColorWeight>(SubMesh->ColorWeights);
+			Mediator->AlignUp(16);
+		}
+	}
+
+	void Model::WriteScrSubMesh(BinaryMediator* Mediator, ScrSubMesh const* SubMesh)
+	{
+		Mediator->Write<MdHeader>(SubMesh->Header);
+
+		Mediator->AlignUp(16);
+
+		if (SubMesh->Header.VertexOffset)
+		{
+			Mediator->Write<ScrVertex>(SubMesh->Vertices);
+			Mediator->AlignUp(16);
+		}
+
+		if (SubMesh->Header.TextureMapOffset)
+		{
+			Mediator->Write<TextureMap>(SubMesh->TextureMaps);
+			Mediator->AlignUp(16);
+		}
+
+		if (SubMesh->Header.TextureUvOffset)
+		{
+			Mediator->Write<ScrUv>(SubMesh->TextureUvs);
+			Mediator->AlignUp(16);
+		}
+
+		if (SubMesh->Header.ColorWeightOffset)
+		{
+			Mediator->Write<ColorWeight>(SubMesh->ColorWeights);
+			Mediator->AlignUp(16);
+		}
+	}
+
+	void Model::WriteMdTransforms(BinaryMediator* Mediator)
+	{
+		for (U32 i = 0; i < mScrHeader.MeshCount; i++)
+		{
+			auto const& mesh = mMdMeshes[i];
+
+			Mediator->Write<MdTransform>(mesh.Transform);
+		}
+	}
+
+	void Model::WriteScrTransforms(BinaryMediator* Mediator)
+	{
+		for (U32 i = 0; i < mScrHeader.MeshCount; i++)
+		{
+			auto const& mesh = mScrMeshes[i];
+
+			Mediator->Write<ScrTransform>(mesh.Transform);
+		}
+	}
+
+	U64 Model::GetFirstTransformOffset()
+	{
+		U64 acc = 0;
+
+		acc += sizeof(ScrHeader);
+
+		for (U32 i = 0; i < mScrHeader.MeshCount; i++)
+		{
+			acc += sizeof(U32);
+		}
+
+		acc = ALIGN_UP_BY(acc, 16);
+
+		switch (mScrHeader.FileType)
+		{
+			case 0: // MD mesh
+			{
+				for (U32 i = 0; i < mScrHeader.MeshCount; i++)
+				{
+					auto& mesh = mMdMeshes[i];
+
+					acc += sizeof(MdbHeader);
+
+					for (U32 j = 0; j < mesh.Header.SubMeshCount; j++)
+					{
+						acc += sizeof(U32);
+					}
+
+					acc = ALIGN_UP_BY(acc, 16);
+
+					for (U16 j = 0; j < mesh.Header.SubMeshCount; j++)
+					{
+						auto& subMesh = mesh.SubMeshes[j];
+
+						acc += sizeof(MdHeader);
+
+						acc = ALIGN_UP_BY(acc, 16);
+
+						if (subMesh.Header.VertexOffset)
+						{
+							acc += sizeof(MdVertex) * subMesh.Header.VertexCount;
+							acc = ALIGN_UP_BY(acc, 16);
+						}
+
+						if (subMesh.Header.TextureMapOffset)
+						{
+							acc += sizeof(TextureMap) * subMesh.Header.VertexCount;
+							acc = ALIGN_UP_BY(acc, 16);
+						}
+
+						if (subMesh.Header.TextureUvOffset)
+						{
+							acc += sizeof(MdUv) * subMesh.Header.VertexCount;
+							acc = ALIGN_UP_BY(acc, 16);
+						}
+
+						if (subMesh.Header.ColorWeightOffset)
+						{
+							acc += sizeof(ColorWeight) * subMesh.Header.VertexCount;
+							acc = ALIGN_UP_BY(acc, 16);
+						}
+
+						acc = ALIGN_UP_BY(acc, 16);
+					}
+				}
+
+				break;
+			}
+			case 1: // SCR mesh
+			{
+				for (U32 i = 0; i < mScrHeader.MeshCount; i++)
+				{
+					auto& mesh = mScrMeshes[i];
+
+					acc += sizeof(MdbHeader);
+
+					for (U32 j = 0; j < mesh.Header.SubMeshCount; j++)
+					{
+						acc += sizeof(U32);
+					}
+
+					acc = ALIGN_UP_BY(acc, 16);
+
+					for (U16 j = 0; j < mesh.Header.SubMeshCount; j++)
+					{
+						auto& subMesh = mesh.SubMeshes[j];
+
+						acc += sizeof(MdHeader);
+
+						acc = ALIGN_UP_BY(acc, 16);
+
+						if (subMesh.Header.VertexOffset)
+						{
+							acc += sizeof(ScrVertex) * subMesh.Header.VertexCount;
+							acc = ALIGN_UP_BY(acc, 16);
+						}
+
+						if (subMesh.Header.TextureMapOffset)
+						{
+							acc += sizeof(TextureMap) * subMesh.Header.VertexCount;
+							acc = ALIGN_UP_BY(acc, 16);
+						}
+
+						if (subMesh.Header.TextureUvOffset)
+						{
+							acc += sizeof(ScrUv) * subMesh.Header.VertexCount;
+							acc = ALIGN_UP_BY(acc, 16);
+						}
+
+						if (subMesh.Header.ColorWeightOffset)
+						{
+							acc += sizeof(ColorWeight) * subMesh.Header.VertexCount;
+							acc = ALIGN_UP_BY(acc, 16);
+						}
+
+						acc = ALIGN_UP_BY(acc, 16);
+					}
+				}
+
+				break;
+			}
+		}
+
+		return acc;
+	}
+
+	U64 Model::GetMdSubMeshSize(MdSubMesh const* SubMesh)
+	{
+		U64 acc = 0;
+
+		acc += sizeof(MdHeader);
+		acc = ALIGN_UP_BY(acc, 16);
+
+		if (SubMesh->Header.VertexOffset)
+		{
+			acc += sizeof(MdVertex) * SubMesh->Header.VertexCount;
+			acc = ALIGN_UP_BY(acc, 16);
+		}
+
+		if (SubMesh->Header.TextureMapOffset)
+		{
+			acc += sizeof(TextureMap) * SubMesh->Header.VertexCount;
+			acc = ALIGN_UP_BY(acc, 16);
+		}
+
+		if (SubMesh->Header.TextureUvOffset)
+		{
+			acc += sizeof(MdUv) * SubMesh->Header.VertexCount;
+			acc = ALIGN_UP_BY(acc, 16);
+		}
+
+		if (SubMesh->Header.ColorWeightOffset)
+		{
+			acc += sizeof(ColorWeight) * SubMesh->Header.VertexCount;
+			acc = ALIGN_UP_BY(acc, 16);
+		}
+
+		return acc;
+	}
+
+	U64 Model::GetScrSubMeshSize(ScrSubMesh const* SubMesh)
+	{
+		U64 acc = 0;
+
+		acc += sizeof(MdHeader);
+		acc = ALIGN_UP_BY(acc, 16);
+
+		if (SubMesh->Header.VertexOffset)
+		{
+			acc += sizeof(ScrVertex) * SubMesh->Header.VertexCount;
+			acc = ALIGN_UP_BY(acc, 16);
+		}
+
+		if (SubMesh->Header.TextureMapOffset)
+		{
+			acc += sizeof(TextureMap) * SubMesh->Header.VertexCount;
+			acc = ALIGN_UP_BY(acc, 16);
+		}
+
+		if (SubMesh->Header.TextureUvOffset)
+		{
+			acc += sizeof(ScrUv) * SubMesh->Header.VertexCount;
+			acc = ALIGN_UP_BY(acc, 16);
+		}
+
+		if (SubMesh->Header.ColorWeightOffset)
+		{
+			acc += sizeof(ColorWeight) * SubMesh->Header.VertexCount;
+			acc = ALIGN_UP_BY(acc, 16);
+		}
+
+		return acc;
+	}
+
+	void Model::UpdateSize()
+	{
+		U64 acc = 0;
+
+		acc += sizeof(ScrHeader);
+
+		for (U32 i = 0; i < mScrHeader.MeshCount; i++)
+		{
+			acc += sizeof(U32);
+		}
+
+		acc = ALIGN_UP_BY(acc, 16);
+
+		switch (mScrHeader.FileType)
+		{
+			case 0: // MD mesh
+			{
+				for (U32 i = 0; i < mScrHeader.MeshCount; i++)
+				{
+					auto& mesh = mMdMeshes[i];
+
+					acc += sizeof(MdbHeader);
+
+					for (U32 j = 0; j < mesh.Header.SubMeshCount; j++)
+					{
+						acc += sizeof(U32);
+					}
+
+					acc = ALIGN_UP_BY(acc, 16);
+
+					for (U16 j = 0; j < mesh.Header.SubMeshCount; j++)
+					{
+						auto& subMesh = mesh.SubMeshes[j];
+
+						acc += sizeof(MdHeader);
+
+						acc = ALIGN_UP_BY(acc, 16);
+
+						if (subMesh.Header.VertexOffset)
+						{
+							acc += sizeof(MdVertex) * subMesh.Header.VertexCount;
+							acc = ALIGN_UP_BY(acc, 16);
+						}
+
+						if (subMesh.Header.TextureMapOffset)
+						{
+							acc += sizeof(TextureMap) * subMesh.Header.VertexCount;
+							acc = ALIGN_UP_BY(acc, 16);
+						}
+
+						if (subMesh.Header.TextureUvOffset)
+						{
+							acc += sizeof(MdUv) * subMesh.Header.VertexCount;
+							acc = ALIGN_UP_BY(acc, 16);
+						}
+
+						if (subMesh.Header.ColorWeightOffset)
+						{
+							acc += sizeof(ColorWeight) * subMesh.Header.VertexCount;
+							acc = ALIGN_UP_BY(acc, 16);
+						}
+
+						acc = ALIGN_UP_BY(acc, 16);
+					}
+				}
+
+				acc += sizeof(MdTransform) * mScrHeader.MeshCount;
+
+				break;
+			}
+			case 1: // SCR mesh
+			{
+				for (U32 i = 0; i < mScrHeader.MeshCount; i++)
+				{
+					auto& mesh = mScrMeshes[i];
+
+					acc += sizeof(MdbHeader);
+
+					for (U32 j = 0; j < mesh.Header.SubMeshCount; j++)
+					{
+						acc += sizeof(U32);
+					}
+
+					acc = ALIGN_UP_BY(acc, 16);
+
+					for (U16 j = 0; j < mesh.Header.SubMeshCount; j++)
+					{
+						auto& subMesh = mesh.SubMeshes[j];
+
+						acc += sizeof(MdHeader);
+
+						acc = ALIGN_UP_BY(acc, 16);
+
+						if (subMesh.Header.VertexOffset)
+						{
+							acc += sizeof(ScrVertex) * subMesh.Header.VertexCount;
+							acc = ALIGN_UP_BY(acc, 16);
+						}
+
+						if (subMesh.Header.TextureMapOffset)
+						{
+							acc += sizeof(TextureMap) * subMesh.Header.VertexCount;
+							acc = ALIGN_UP_BY(acc, 16);
+						}
+
+						if (subMesh.Header.TextureUvOffset)
+						{
+							acc += sizeof(ScrUv) * subMesh.Header.VertexCount;
+							acc = ALIGN_UP_BY(acc, 16);
+						}
+
+						if (subMesh.Header.ColorWeightOffset)
+						{
+							acc += sizeof(ColorWeight) * subMesh.Header.VertexCount;
+							acc = ALIGN_UP_BY(acc, 16);
+						}
+
+						acc = ALIGN_UP_BY(acc, 16);
+					}
+				}
+
+				acc += sizeof(ScrTransform) * mScrHeader.MeshCount;
+
+				break;
+			}
+		}
+
+		acc = ALIGN_UP_BY(acc, 256);
+
+		mSizePrev = mSize;
+		mSize = acc;
+	}
+
+	void Model::UpdateByteArray()
+	{
+		if (mBytes)
+		{
+			if (mSize != mSizePrev)
+			{
+				U8* bytes = (U8*)Memory::Alloc(mSize);
+
+				std::memset(bytes, 0, mSize);
+				std::memcpy(bytes, mBytes, std::min(mSize, mSizePrev));
+
+				Memory::Free(mBytes);
+
+				mBytes = bytes;
+			}
+		}
+		else
+		{
+			mBytes = (U8*)Memory::Alloc(mSize);
+
+			std::memset(mBytes, 0, mSize);
+		}
+	}
+}

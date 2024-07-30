@@ -2,10 +2,11 @@
 #include <Common/VertexTypes.h>
 
 #include <Common/Archive/Archive.h>
-#include <Common/Archive/Model.h>
 
-#include <Common/Archive/Converter/VertexConverter.h>
-#include <Common/Archive/Converter/IndexConverter.h>
+#include <Common/Model/Model.h>
+
+#include <Common/Converter/VertexConverter.h>
+#include <Common/Converter/IndexConverter.h>
 
 #include <Editor/Ecs/Registry.h>
 #include <Editor/Ecs/Entity.h>
@@ -78,9 +79,9 @@ namespace Nippon
 		
 		for (auto const& model : sceneAssets->GetModels())
 		{
-			Entity* modelEntity = registry->CreateEntity(model.GetName(), mStaticGeometryEntity);
+			Entity* modelEntity = registry->CreateEntity(model->GetName(), mStaticGeometryEntity);
 		
-			for (auto const& mesh : model.GetMdMeshes())
+			for (auto const& mesh : model->GetMdMeshes())
 			{
 				Entity* meshEntity = registry->CreateEntity("Mesh_" + std::to_string(mesh.Index), modelEntity);
 		

@@ -14,11 +14,11 @@ namespace Nippon
 			sAllocated += size;
 			*block = size;
 			block += 1;
-		}
 
-		if (Data)
-		{
-			std::memcpy(block, Data, Size);
+			if (Data)
+			{
+				std::memcpy(block, Data, Size);
+			}
 		}
 
 		return block;
