@@ -19,17 +19,42 @@ Launch the Visual Studio Solution, set the `Editor` as the startup project and b
 ## Troubleshooting
  - If you got build errors, make sure you are using the latest Visual Studio version. (Tested with VS 2022 >= 17.X.X)
  - If for some reason the editor does not start, make sure the latest graphics card drivers are installed on your system.
- - If only black thumbnails appear, then one must first generate them via `Database/Rebuild Thumbnails`. They should be visible right away.
+
+## Archive Utility
+There is now a standalone archive utility which can be utilized to quickly inspect or change archives.
+```
+Usage:
+ Archive [Command] [Arguments]
+
+Commands:
+ PrintToC            [Archive(Str)]                                     Print the table of content
+ PrintOfType         [Archive(Str)] [Type(Str)]                         Print all entries of type
+ Extract             [Archive(Str)] [Folder(Str)]                       Extract an archive to disk
+ Unfold              [Archive(Str)] [Folder(Str)]                       Unfold an archive to disk
+ ModifyByType        [Archive(Str)] [Type(Str)] [File(Str)]             Modify all archives of type with the content of a file
+ ModifyByName        [Archive(Str)] [Name(Str)] [File(Str)]             Modify an archive entry by name with the content of a file
+ ModifyByTypeAndName [Archive(Str)] [Type(Str)] [Name(Str)] [File(Str)] Modify an archive entry by type and name with the content of a file
+ Help                                                                   Print this help message
+
+Examples:
+ Archive PrintToC "r301.dat"
+ Archive PrintOfType "r301.dat" "DDS"
+ Archive Extract "r301.dat" "r301"
+ Archive Unfold "r301.dat" "r301"
+ Archive ModifyByType "r301.dat" "DDS" "example.dds"
+ Archive ModifyByName "r301.dat" "hyouzan" "example.dds"
+ Archive ModifyByTypeAndName "r301.dat" "DDS" "hyouzan" "example.dds"
+```
 
 ## Exporting Assets
-Right click on a random actor that you wish to export and choose `Export as Wavefront` to generate a wavefront object and material file along with all referenced textures. It should be ready to be imported into blender or any other 3D modeling software. Be sure to enable backface culling in your external rendering software to view the objects properly, otherwise only the black hull will be visible for most objects.
+Right click on a random entity that you wish to export and choose `Export as Wavefront` to generate a wavefront object and material file along with all referenced textures. It should be ready to be imported into blender or any other 3D modeling software. Be sure to enable backface culling in your external rendering software to view the objects properly, otherwise only the black hull will be visible for most objects.
 
 <img src="Assets/Oki.jpg" width="33%"/><img src="Assets/Crow.jpg" width="33%"/><img src="Assets/Rao.jpg" width="33%"/>
 
 ## Editor Scene Controls
 - `WASD` to move
 - `L-SHIFT` for lightspeed
-- `F` reset camera
+- `F` reset position
 
 ## Issues / Pull Requests
 If bugs are being found, please don't hesitate to open an issue or pull request!
