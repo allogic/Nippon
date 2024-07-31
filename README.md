@@ -21,7 +21,7 @@ Launch the Visual Studio Solution, set the `Editor` as the startup project and b
  - If for some reason the editor does not start, make sure the latest graphics card drivers are installed on your system.
 
 ## How do I modify archives?
-There is now a standalone archive utility which can be utilized to quickly inspect or change archives.
+There is a standalone archive utility which can be utilized to quickly inspect or change archives.
 ```
 Usage:
 
@@ -49,6 +49,7 @@ Examples:
 ```
 
 ## How do I modify models?
+There is a standalone model utility which can be utilized to quickly inspect or change models.
 This utility is still under construction! (IT IS NOT WORKING CURRENTLY)
 ```
 Usage:
