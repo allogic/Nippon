@@ -16,14 +16,15 @@ Setup.ps1
 ```
 Launch the Visual Studio Solution, set the `Editor` as the startup project and build for `Debug` or `Release` bitness `x64`.
 
-## Troubleshooting
+#### Troubleshooting
  - If you got build errors, make sure you are using the latest Visual Studio version. (Tested with VS 2022 >= 17.X.X)
  - If for some reason the editor does not start, make sure the latest graphics card drivers are installed on your system.
 
-## Archive Utility
+## How do I modify archives?
 There is now a standalone archive utility which can be utilized to quickly inspect or change archives.
 ```
 Usage:
+
  Archive [Command] [Arguments]
 
 Commands:
@@ -46,6 +47,24 @@ Examples:
  Archive ModifyByTypeAndName "r301.dat" "DDS" "hyouzan" "example.dds"
 ```
 
+## How do I modify models?
+This utility is still under construction!
+```
+Usage:
+
+ ModelUtility [Command] [Arguments]
+
+Commands:
+ PrintToC                     [Model(Str)]                          Print the table of content for SCR/MD files
+ ConvertIntoProprietaryFormat [File(Str)] [Rules(Str)] [Model(Str)] Convert a standardized 3D file into the internal proprietary format
+ Version                                                            Print the current version
+ Help                                                               Print this help message
+
+Examples:
+ PrintToC "minka.SCR"
+ ConvertIntoProprietaryFormat "monkey.FBX" "monkeyRules.JSON" "monkey.SCR"
+```
+
 ## Exporting Assets
 Right click on a random entity that you wish to export and choose `Export as Wavefront` to generate a wavefront object and material file along with all referenced textures. It should be ready to be imported into blender or any other 3D modeling software. Be sure to enable backface culling in your external rendering software to view the objects properly, otherwise only the black hull will be visible for most objects.
 
@@ -60,15 +79,19 @@ Right click on a random entity that you wish to export and choose `Export as Wav
 If bugs are being found, please don't hesitate to open an issue or pull request!
 
 ## Resources
+
 #### Links
 - Wiki https://okami.speedruns.wiki
 - Discord https://discord.gg/fbJdaeb
+
 #### Repositories
 - https://github.com/Shintensu/OkamiHD-Reverse-Engineering
 - https://github.com/whataboutclyde/okami-utils
+
 #### Tools
 - https://github.com/WerWolv/ImHex
 - https://github.com/rizinorg/cutter
+
 #### Old File Extension List
 ```
 AFD - unknown purpose but are small and contain no multimedia.
