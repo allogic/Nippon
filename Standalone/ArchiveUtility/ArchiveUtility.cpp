@@ -166,7 +166,7 @@ I32 main(I32 Argc, char** Argv)
 		std::vector<U8> targetData = {};
 
 		FileUtility::ReadBinary(Argv[2], archiveData);
-		FileUtility::ReadBinary(Argv[4], targetData);
+		FileUtility::ReadBinary(Argv[5], targetData);
 
 		BlowFish::Create(OKAMI_CIPHER_KEY);
 		BlowFish::Decrypt(archiveData);

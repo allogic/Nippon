@@ -559,7 +559,7 @@ namespace Nippon
 			{
 				case 0: // MD mesh
 				{
-					if (ConvertMdMesh(Scene, childNode, i, meshRule))
+					if (!ConvertMdMesh(Scene, childNode, i, meshRule))
 					{
 						return false;
 					}
@@ -568,7 +568,7 @@ namespace Nippon
 				}
 				case 1: // SCR mesh
 				{
-					if (ConvertScrMesh(Scene, childNode, i, meshRule))
+					if (!ConvertScrMesh(Scene, childNode, i, meshRule))
 					{
 						return false;
 					}
@@ -586,6 +586,11 @@ namespace Nippon
 		U32 subMeshCount = Node->mNumChildren;
 
 		if (subMeshCount == 0)
+		{
+			return false;
+		}
+
+		if (subMeshCount != Rule.SubMeshRules.size())
 		{
 			return false;
 		}
@@ -617,7 +622,7 @@ namespace Nippon
 
 			SubMeshRule const& subMeshRule = Rule.SubMeshRules[i];
 
-			if (ConvertMdSubMesh(Scene, childNode, mesh, i, subMeshRule))
+			if (!ConvertMdSubMesh(Scene, childNode, mesh, i, subMeshRule))
 			{
 				return false;
 			}
@@ -631,6 +636,11 @@ namespace Nippon
 		U32 subMeshCount = Node->mNumChildren;
 
 		if (subMeshCount == 0)
+		{
+			return false;
+		}
+
+		if (subMeshCount != Rule.SubMeshRules.size())
 		{
 			return false;
 		}
@@ -662,7 +672,7 @@ namespace Nippon
 
 			SubMeshRule const& subMeshRule = Rule.SubMeshRules[i];
 
-			if (ConvertScrSubMesh(Scene, childNode, mesh, i, subMeshRule))
+			if (!ConvertScrSubMesh(Scene, childNode, mesh, i, subMeshRule))
 			{
 				return false;
 			}
@@ -673,7 +683,7 @@ namespace Nippon
 
 	bool Model::ConvertMdSubMesh(aiScene const* Scene, aiNode const* Node, MdMesh& Mesh, U32 Index, SubMeshRule const& Rule)
 	{
-		aiMesh const* assimpMesh = Scene->mMeshes[Node->mMeshes[Index]];
+		aiMesh const* assimpMesh = Scene->mMeshes[Node->mMeshes[0]];
 
 		if (!assimpMesh->HasPositions())
 		{
@@ -725,10 +735,21 @@ namespace Nippon
 		subMesh.Header.VertexCount = (U16)vertexCount;
 		subMesh.Header.TextureIndex = Rule.TextureIndex;
 
-		subMesh.Vertices.resize(vertexCount);
-		subMesh.TextureMaps.resize(vertexCount);
-		subMesh.TextureUvs.resize(vertexCount);
-		subMesh.ColorWeights.resize(vertexCount);
+		if (assimpMesh->HasPositions())
+		{
+			subMesh.Vertices.resize(vertexCount);
+		}
+
+		if (assimpMesh->HasTextureCoords(0))
+		{
+			subMesh.TextureMaps.resize(vertexCount);
+			subMesh.TextureUvs.resize(vertexCount);
+		}
+
+		if (assimpMesh->HasVertexColors(0))
+		{
+			subMesh.ColorWeights.resize(vertexCount);
+		}
 
 		for (U32 j = 0, k = 0; j < faceCount; j++, k += 3)
 		{
@@ -865,10 +886,21 @@ namespace Nippon
 		subMesh.Header.VertexCount = (U16)vertexCount;
 		subMesh.Header.TextureIndex = Rule.TextureIndex;
 
-		subMesh.Vertices.resize(vertexCount);
-		subMesh.TextureMaps.resize(vertexCount);
-		subMesh.TextureUvs.resize(vertexCount);
-		subMesh.ColorWeights.resize(vertexCount);
+		if (assimpMesh->HasPositions())
+		{
+			subMesh.Vertices.resize(vertexCount);
+		}
+
+		if (assimpMesh->HasTextureCoords(0))
+		{
+			subMesh.TextureMaps.resize(vertexCount);
+			subMesh.TextureUvs.resize(vertexCount);
+		}
+
+		if (assimpMesh->HasVertexColors(0))
+		{
+			subMesh.ColorWeights.resize(vertexCount);
+		}
 
 		for (U32 j = 0, k = 0; j < faceCount; j++, k += 3)
 		{
