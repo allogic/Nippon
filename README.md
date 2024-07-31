@@ -50,6 +50,7 @@ Examples:
 
 ## How do I modify models?
 There is a standalone model utility which can be utilized to quickly inspect or change models.
+
 This utility is still under construction! (IT IS NOT WORKING CURRENTLY)
 ```
 Usage:
@@ -139,6 +140,7 @@ Make sure that your model has the same parent-child relationships. Also make sur
  - TextureMapOffset <=> UV's
  - TextureUvOffset <=> UV's
  - ColorWeightOffset <=> Vertex Colors
+
 Finally, we can start the conversion process!
 ```
 ModelUtility ConvertIntoProprietaryFormat "Tree.fbx" "TreeRules.json" "Tree.MD"
