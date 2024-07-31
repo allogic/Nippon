@@ -68,6 +68,49 @@ Examples:
 To change an existing model, you must first examine its properties. To do this, we first print out the ToC of an SCR/MD file.
 ```
 ModelUtility PrintToC "vt17.MD"
+  ScrHeader:
+  | ScrId: 0x00726373
+  | FileType: 0
+  | MeshCount: 2
+  | MdbHeader 0:
+  | | MdbId: 0x0062646D
+  | | MeshType: 0x00000030
+  | | MeshId: 2
+  | | SubMeshCount: 3
+  | | Transform:
+  | | | Position: [0.000, 0.000, 0.000]
+  | | | Rotation: [0.000, 0.000, 0.000]
+  | | | Scale: [1.000, 1.000, 1.000]
+  | | MdHeader 0:
+  | | | VertexCount: 182
+  | | | TextureIndex: 1
+  | | | VertexOffset: [0x0000000000000020 .. 0x0000000000000B80] / 2912 / 0xB60
+  | | | TextureMapOffset: [0x0000000000000B80 .. 0x0000000000000E58] / 728 / 0x2D8
+  | | | TextureUvOffset: [0x0000000000001140 .. 0x00000000000016F0] / 1456 / 0x5B0
+  | | | ColorWeightOffset: [0x0000000000000E60 .. 0x0000000000001138] / 728 / 0x2D8
+  | | MdHeader 1:
+  | | | VertexCount: 20
+  | | | TextureIndex: 0
+  | | | VertexOffset: [0x0000000000000020 .. 0x0000000000000160] / 320 / 0x140
+  | | | TextureMapOffset: [0x0000000000000160 .. 0x00000000000001B0] / 80 / 0x50
+  | | | TextureUvOffset: [0x0000000000000200 .. 0x00000000000002A0] / 160 / 0xA0
+  | | | ColorWeightOffset: [0x00000000000001B0 .. 0x0000000000000200] / 80 / 0x50
+  | | MdHeader 2:
+  | | | VertexCount: 188
+  | | | TextureIndex: 3
+  | | | VertexOffset: [0x0000000000000020 .. 0x0000000000000BE0] / 3008 / 0xBC0
+  | | | TextureMapOffset: [0x0000000000000BE0 .. 0x0000000000000ED0] / 752 / 0x2F0
+  | | | TextureUvOffset: [0x00000000000011C0 .. 0x00000000000017A0] / 1504 / 0x5E0
+  | | | ColorWeightOffset: [0x0000000000000ED0 .. 0x00000000000011C0] / 752 / 0x2F0
+  | MdbHeader 1:
+  | | MdbId: 0x00000100
+  | | MeshType: 0x000000FF
+  | | MeshId: 256
+  | | SubMeshCount: 0
+  | | Transform:
+  | | | Position: [0.000, 0.000, 0.000]
+  | | | Rotation: [0.000, 0.000, 0.000]
+  | | | Scale: [1.000, 1.000, 1.000]
 ```
 Next, we need to construct a JSON conversion rule that has the same values as we just saw in the ToC.
 ```
@@ -82,11 +125,20 @@ Next, we need to construct a JSON conversion rule that has the same values as we
         { "TextureIndex": 0 },
         { "TextureIndex": 3 }
       ]
+    }, {
+      "MeshType": 255,
+      "MeshId": 256,
+      "SubMeshRules": []
     }
   ]
 }
 ```
-Finally we can start the conversion process!
+Make sure that your model has the same parent-child relationships. Also make sure that your custom model has the same vertex attributes as the source model.
+ - VertexOffset <=> Vertex Position Strip
+ - TextureMapOffset <=> UV's
+ - TextureUvOffset <=> UV's
+ - ColorWeightOffset <=> Vertex Colors
+Finally, we can start the conversion process!
 ```
 ModelUtility ConvertIntoProprietaryFormat "Tree.fbx" "TreeRules.json" "Tree.MD"
 ```
