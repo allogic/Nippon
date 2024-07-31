@@ -25,26 +25,27 @@ There is now a standalone archive utility which can be utilized to quickly inspe
 ```
 Usage:
 
- Archive [Command] [Arguments]
+ ArchiveUtility [Command] [Arguments]
 
 Commands:
- PrintToC            [Archive(Str)]                                     Print the table of content
+ PrintToC            [Archive(Str)]                                     Print the table of content for AKT/BIN/CMP/DAT/DDP/EFF/IDD/PAC/SCP/TBL files
  PrintOfType         [Archive(Str)] [Type(Str)]                         Print all entries of type
  Extract             [Archive(Str)] [Folder(Str)]                       Extract an archive to disk
  Unfold              [Archive(Str)] [Folder(Str)]                       Unfold an archive to disk
  ModifyByType        [Archive(Str)] [Type(Str)] [File(Str)]             Modify all archives of type with the content of a file
  ModifyByName        [Archive(Str)] [Name(Str)] [File(Str)]             Modify an archive entry by name with the content of a file
  ModifyByTypeAndName [Archive(Str)] [Type(Str)] [Name(Str)] [File(Str)] Modify an archive entry by type and name with the content of a file
+ Version                                                                Print the current version
  Help                                                                   Print this help message
 
 Examples:
- Archive PrintToC "r301.dat"
- Archive PrintOfType "r301.dat" "DDS"
- Archive Extract "r301.dat" "r301"
- Archive Unfold "r301.dat" "r301"
- Archive ModifyByType "r301.dat" "DDS" "example.dds"
- Archive ModifyByName "r301.dat" "hyouzan" "example.dds"
- Archive ModifyByTypeAndName "r301.dat" "DDS" "hyouzan" "example.dds"
+ PrintToC "r301.dat"
+ PrintOfType "r301.dat" "DDS"
+ Extract "r301.dat" "r301"
+ Unfold "r301.dat" "r301"
+ ModifyByType "r301.dat" "DDS" "example.dds"
+ ModifyByName "r301.dat" "hyouzan" "example.dds"
+ ModifyByTypeAndName "r301.dat" "DDS" "hyouzan" "example.dds"
 ```
 
 ## How do I modify models?
