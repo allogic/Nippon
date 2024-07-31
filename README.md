@@ -49,7 +49,7 @@ Examples:
 ```
 
 ## How do I modify models?
-This utility is still under construction!
+This utility is still under construction! (IT IS NOT WORKING CURRENTLY)
 ```
 Usage:
 
@@ -64,6 +64,31 @@ Commands:
 Examples:
  PrintToC "minka.SCR"
  ConvertIntoProprietaryFormat "monkey.FBX" "monkeyRules.JSON" "monkey.SCR"
+```
+To change an existing model, you must first examine its properties. To do this, we first print out the ToC of an SCR/MD file.
+```
+ModelUtility PrintToC "vt17.MD"
+```
+Next, we need to construct a JSON conversion rule that has the same values as we just saw in the ToC.
+```
+{
+  "FileType": 0,
+  "MeshRules": [
+    {
+      "MeshType": 48,
+      "MeshId": 2,
+      "SubMeshRules": [
+        { "TextureIndex": 1 },
+        { "TextureIndex": 0 },
+        { "TextureIndex": 3 }
+      ]
+    }
+  ]
+}
+```
+Finally we can start the conversion process!
+```
+ModelUtility ConvertIntoProprietaryFormat "Tree.fbx" "TreeRules.json" "Tree.MD"
 ```
 
 ## Exporting Assets
