@@ -36,7 +36,11 @@ namespace Nippon
 	public:
 
 		std::vector<U8> Serialize();
+
+		void Deserialize(U8 const* Bytes, U64 Size);
 		void Deserialize(std::vector<U8> const& Bytes);
+
+	public:
 
 		void ExtractToDisk(fs::path const& File);
 		void UnfoldToDisk(fs::path const& File);
@@ -52,6 +56,8 @@ namespace Nippon
 
 		void SerializeRecursive();
 		void DeserializeRecursive();
+
+	public:
 
 		void ExtractToDiskRecursive(fs::path File);
 		void UnfoldToDiskRecursive(fs::path File);

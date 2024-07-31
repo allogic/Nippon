@@ -240,6 +240,8 @@
     <ClInclude Include="Assimp\XMLTools.h" />
     <ClInclude Include="Assimp\ZipArchiveIOSystem.h" />
     <ClInclude Include="Model\Model.h" />
+    <ClInclude Include="Nlohmann\json.hpp" />
+    <ClInclude Include="Nlohmann\json_fwd.hpp" />
     <ClInclude Include="Serializer\ItsSerializer.h" />
     <ClInclude Include="Serializer\PlacementSerializer.h" />
     <ClInclude Include="Structs\Fi2Structs.h" />
@@ -549,6 +551,7 @@
     <ClInclude Include="Utility\AssimpUtility.h" />
     <ClInclude Include="Utility\FileUtility.h" />
     <ClInclude Include="Utility\StringUtility.h" />
+    <ClInclude Include="Version.h" />
     <ClInclude Include="VertexTypes.h" />
   </ItemGroup>
   <ItemGroup>

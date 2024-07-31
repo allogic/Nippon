@@ -44,9 +44,7 @@ namespace Nippon
 
 		mModels.emplace_back(model);
 
-		std::vector<U8> bytes = { Archive->GetBytes(), Archive->GetBytes() + Archive->GetSize() };
-
-		model->Deserialize(bytes);
+		model->Deserialize(Archive->GetBytes(), Archive->GetSize());
 		model->SetName(Archive->GetName());
 	}
 
@@ -56,9 +54,7 @@ namespace Nippon
 
 		mModels.emplace_back(model);
 
-		std::vector<U8> bytes = { Archive->GetBytes(), Archive->GetBytes() + Archive->GetSize() };
-
-		model->Deserialize(bytes);
+		model->Deserialize(Archive->GetBytes(), Archive->GetSize());
 		model->SetName(Archive->GetName());
 		model->SetObjectRef(Object);
 	}

@@ -7,8 +7,32 @@
 #include <Common/Structs/ModelStructs.h>
 #include <Common/Structs/PlacementStructs.h>
 
+#include <Common/Nlohmann/json_fwd.hpp>
+
 namespace Nippon
 {
+	struct SubMeshRule
+	{
+		U16 TextureIndex;
+	};
+
+	struct MeshRule
+	{
+		U32 MeshType;
+		U32 MeshId;
+		std::vector<SubMeshRule> SubMeshRules;
+	};
+
+	struct ConversionRules
+	{
+		U32 FileType;
+		std::vector<MeshRule> MeshRules;
+	};
+
+	void from_json(nlohmann::json const& Json, SubMeshRule& Rule);
+	void from_json(nlohmann::json const& Json, MeshRule& Rule);
+	void from_json(nlohmann::json const& Json, ConversionRules& Rules);
+
 	class Model
 	{
 	public:
@@ -36,21 +60,27 @@ namespace Nippon
 	public:
 
 		std::vector<U8> Serialize();
+
+		void Deserialize(U8 const* Bytes, U64 Size);
 		void Deserialize(std::vector<U8> const& Bytes);
 
+	public:
+
 		void PrintTableOfContent(std::function<void(char const*)> Callback);
-		bool ConvertIntoProprietaryFormat(fs::path const& FilePath);
+		bool ConvertIntoProprietaryFormat(fs::path const& FilePath, fs::path const& RulesPath);
 
 	private:
 
 		void SerializeModel();
 		void DeserializeModel();
 
-		bool ConvertRoot(aiScene const* Scene, U32 FileType);
-		bool ConvertMdMesh(aiScene const* Scene, aiNode const* Node, U32 Index, U32 MeshType, U16 MeshId);
-		bool ConvertScrMesh(aiScene const* Scene, aiNode const* Node, U32 Index, U32 MeshType, U16 MeshId);
-		bool ConvertMdSubMesh(aiScene const* Scene, aiNode const* Node, MdMesh& Mesh, U32 Index);
-		bool ConvertScrSubMesh(aiScene const* Scene, aiNode const* Node, ScrMesh& Mesh, U32 Index);
+	private:
+
+		bool ConvertRoot(aiScene const* Scene, ConversionRules const& Rules);
+		bool ConvertMdMesh(aiScene const* Scene, aiNode const* Node, U32 Index, MeshRule const& Rule);
+		bool ConvertScrMesh(aiScene const* Scene, aiNode const* Node, U32 Index, MeshRule const& Rule);
+		bool ConvertMdSubMesh(aiScene const* Scene, aiNode const* Node, MdMesh& Mesh, U32 Index, SubMeshRule const& Rule);
+		bool ConvertScrSubMesh(aiScene const* Scene, aiNode const* Node, ScrMesh& Mesh, U32 Index, SubMeshRule const& Rule);
 
 	private:
 
@@ -67,6 +97,7 @@ namespace Nippon
 		U64 GetFirstTransformOffset();
 		U64 GetMdSubMeshSize(MdSubMesh const* SubMesh);
 		U64 GetScrSubMeshSize(ScrSubMesh const* SubMesh);
+		U64 GetSubMeshStructDataOffset(bool IncludeHeader, bool HasData, U64 PrevOffset, U64 StructSize, U64 VertexCount);
 
 	private:
 
@@ -84,10 +115,6 @@ namespace Nippon
 		std::vector<MdMesh> mMdMeshes = {};
 
 		ScrHeader mScrHeader = {};
-
-		// TODO
-		U64 mMdbStart = 0;
-		U64 mMdStart = 0;
 
 		// TODO
 		std::string mName = "";

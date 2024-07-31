@@ -10,7 +10,10 @@
 
 #include <Common/Misc/BinaryMediator.h>
 
+#include <Common/Nlohmann/json.hpp>
+
 #include <Common/Utility/AssimpUtility.h>
+#include <Common/Utility/FileUtility.h>
 
 #define PRINT(FMT, ...) \
 	snprintf(buffer, sizeof(buffer), FMT, __VA_ARGS__); \
@@ -18,6 +21,24 @@
 
 namespace Nippon
 {
+	void from_json(nlohmann::json const& Json, SubMeshRule& Rule)
+	{
+		Json.at("TextureIndex").get_to(Rule.TextureIndex);
+	}
+
+	void from_json(nlohmann::json const& Json, MeshRule& Rule)
+	{
+		Json.at("MeshType").get_to(Rule.MeshType);
+		Json.at("MeshId").get_to(Rule.MeshId);
+		Json.at("SubMeshRules").get_to(Rule.SubMeshRules);
+	}
+
+	void from_json(nlohmann::json const& Json, ConversionRules& Rules)
+	{
+		Json.at("FileType").get_to(Rules.FileType);
+		Json.at("MeshRules").get_to(Rules.MeshRules);
+	}
+
 	Model::Model()
 	{
 		
@@ -49,8 +70,29 @@ namespace Nippon
 		return { mBytes, mBytes + mSize };
 	}
 
+	void Model::Deserialize(U8 const* Bytes, U64 Size)
+	{
+		if (mBytes)
+		{
+			Memory::Free(mBytes);
+		}
+
+		mBytes = (U8*)Memory::Alloc(Size, Bytes);
+		mSize = Size;
+
+		DeserializeModel();
+
+		UpdateSize();
+		UpdateByteArray();
+	}
+
 	void Model::Deserialize(std::vector<U8> const& Bytes)
 	{
+		if (mBytes)
+		{
+			Memory::Free(mBytes);
+		}
+
 		mBytes = (U8*)Memory::Alloc(Bytes.size(), Bytes.data());
 		mSize = Bytes.size();
 
@@ -65,7 +107,7 @@ namespace Nippon
 		static char buffer[1024] = {};
 
 		PRINT("  ScrHeader:\n");
-		PRINT("  | ScrId: %08X\n", mScrHeader.ScrId);
+		PRINT("  | ScrId: 0x%08X\n", mScrHeader.ScrId);
 		PRINT("  | FileType: %u\n", mScrHeader.FileType);
 		PRINT("  | MeshCount: %u\n", mScrHeader.MeshCount);
 
@@ -91,28 +133,52 @@ namespace Nippon
 					{
 						auto& subMesh = mesh.SubMeshes[j];
 
-						U64 vertexStart = mMdStart + subMesh.Header.VertexOffset;
-						U64 TextureMapStart = mMdStart + subMesh.Header.TextureMapOffset;
-						U64 TextureUvStart = mMdStart + subMesh.Header.TextureUvOffset;
-						U64 ColorWeightStart = mMdStart + subMesh.Header.ColorWeightOffset;
+						U64 vertexStart = subMesh.Header.VertexOffset;
+						U64 textureMapStart = subMesh.Header.TextureMapOffset;
+						U64 textureUvStart = subMesh.Header.TextureUvOffset;
+						U64 colorWeightStart = subMesh.Header.ColorWeightOffset;
 
-						U64 vertexEnd = mMdStart + subMesh.Header.VertexOffset + sizeof(MdVertex) * subMesh.Header.VertexCount;
-						U64 TextureMapEnd = mMdStart + subMesh.Header.TextureMapOffset + sizeof(TextureMap) * subMesh.Header.VertexCount;
-						U64 TextureUvEnd = mMdStart + subMesh.Header.TextureUvOffset + sizeof(MdUv) * subMesh.Header.VertexCount;
-						U64 ColorWeightEnd = mMdStart + subMesh.Header.ColorWeightOffset + sizeof(ColorWeight) * subMesh.Header.VertexCount;
+						U64 vertexEnd = vertexStart + sizeof(MdVertex) * subMesh.Header.VertexCount;
+						U64 textureMapEnd = textureMapStart + sizeof(TextureMap) * subMesh.Header.VertexCount;
+						U64 textureUvEnd = textureUvStart + sizeof(MdUv) * subMesh.Header.VertexCount;
+						U64 colorWeightEnd = colorWeightStart + sizeof(ColorWeight) * subMesh.Header.VertexCount;
 
 						U64 vertexSize = vertexEnd - vertexStart;
-						U64 TextureMapSize = TextureMapEnd - TextureMapStart;
-						U64 TextureUvSize = TextureUvEnd - TextureUvStart;
-						U64 ColorWeightSize = ColorWeightEnd - ColorWeightEnd;
+						U64 textureMapSize = textureMapEnd - textureMapStart;
+						U64 textureUvSize = textureUvEnd - textureUvStart;
+						U64 colorWeightSize = colorWeightEnd - colorWeightStart;
+
+						if (vertexStart == 0)
+						{
+							vertexEnd = 0;
+							vertexSize = 0;
+						}
+
+						if (textureMapStart == 0)
+						{
+							textureMapEnd = 0;
+							textureMapSize = 0;
+						}
+
+						if (textureUvStart == 0)
+						{
+							textureUvEnd = 0;
+							textureUvSize = 0;
+						}
+
+						if (colorWeightStart == 0)
+						{
+							colorWeightEnd = 0;
+							colorWeightSize = 0;
+						}
 
 						PRINT("  | | MdHeader %u:\n", j);
 						PRINT("  | | | VertexCount: %u\n", subMesh.Header.VertexCount);
 						PRINT("  | | | TextureIndex: %u\n", subMesh.Header.TextureIndex);
-						PRINT("  | | | VertexOffset: 0x%016llX - 0x%016llX - %llu\n", vertexStart, vertexEnd, vertexSize);
-						PRINT("  | | | TextureMapOffset: 0x%016llX - 0x%016llX - %llu\n", TextureMapStart, TextureMapEnd, TextureMapSize);
-						PRINT("  | | | TextureUvOffset: 0x%016llX - 0x%016llX - %llu\n", TextureUvStart, TextureUvEnd, TextureUvSize);
-						PRINT("  | | | ColorWeightOffset: 0x%016llX - 0x%016llX - %llu\n", ColorWeightStart, ColorWeightEnd, ColorWeightSize);
+						PRINT("  | | | VertexOffset: [0x%016llX .. 0x%016llX] / %llu / 0x%llX\n", vertexStart, vertexEnd, vertexSize, vertexSize);
+						PRINT("  | | | TextureMapOffset: [0x%016llX .. 0x%016llX] / %llu / 0x%llX\n", textureMapStart, textureMapEnd, textureMapSize, textureMapSize);
+						PRINT("  | | | TextureUvOffset: [0x%016llX .. 0x%016llX] / %llu / 0x%llX\n", textureUvStart, textureUvEnd, textureUvSize, textureUvSize);
+						PRINT("  | | | ColorWeightOffset: [0x%016llX .. 0x%016llX] / %llu / 0x%llX\n", colorWeightStart, colorWeightEnd, colorWeightSize, colorWeightSize);
 					}
 				}
 
@@ -138,28 +204,52 @@ namespace Nippon
 					{
 						auto& subMesh = mesh.SubMeshes[j];
 
-						U64 vertexStart = mMdStart + subMesh.Header.VertexOffset;
-						U64 TextureMapStart = mMdStart + subMesh.Header.TextureMapOffset;
-						U64 TextureUvStart = mMdStart + subMesh.Header.TextureUvOffset;
-						U64 ColorWeightStart = mMdStart + subMesh.Header.ColorWeightOffset;
+						U64 vertexStart = subMesh.Header.VertexOffset;
+						U64 textureMapStart = subMesh.Header.TextureMapOffset;
+						U64 textureUvStart = subMesh.Header.TextureUvOffset;
+						U64 colorWeightStart = subMesh.Header.ColorWeightOffset;
 
-						U64 vertexEnd = mMdStart + subMesh.Header.VertexOffset + sizeof(ScrVertex) * subMesh.Header.VertexCount;
-						U64 TextureMapEnd = mMdStart + subMesh.Header.TextureMapOffset + sizeof(TextureMap) * subMesh.Header.VertexCount;
-						U64 TextureUvEnd = mMdStart + subMesh.Header.TextureUvOffset + sizeof(ScrUv) * subMesh.Header.VertexCount;
-						U64 ColorWeightEnd = mMdStart + subMesh.Header.ColorWeightOffset + sizeof(ColorWeight) * subMesh.Header.VertexCount;
+						U64 vertexEnd = vertexStart + sizeof(ScrVertex) * subMesh.Header.VertexCount;
+						U64 textureMapEnd = textureMapStart + sizeof(TextureMap) * subMesh.Header.VertexCount;
+						U64 textureUvEnd = textureUvStart + sizeof(ScrUv) * subMesh.Header.VertexCount;
+						U64 colorWeightEnd = colorWeightStart + sizeof(ColorWeight) * subMesh.Header.VertexCount;
 
 						U64 vertexSize = vertexEnd - vertexStart;
-						U64 TextureMapSize = TextureMapEnd - TextureMapStart;
-						U64 TextureUvSize = TextureUvEnd - TextureUvStart;
-						U64 ColorWeightSize = ColorWeightEnd - ColorWeightEnd;
+						U64 textureMapSize = textureMapEnd - textureMapStart;
+						U64 textureUvSize = textureUvEnd - textureUvStart;
+						U64 colorWeightSize = colorWeightEnd - colorWeightStart;
+
+						if (vertexStart == 0)
+						{
+							vertexEnd = 0;
+							vertexSize = 0;
+						}
+
+						if (textureMapStart == 0)
+						{
+							textureMapEnd = 0;
+							textureMapSize = 0;
+						}
+
+						if (textureUvStart == 0)
+						{
+							textureUvEnd = 0;
+							textureUvSize = 0;
+						}
+
+						if (colorWeightStart == 0)
+						{
+							colorWeightEnd = 0;
+							colorWeightSize = 0;
+						}
 
 						PRINT("  | | MdHeader %u:\n", j);
 						PRINT("  | | | VertexCount: %u\n", subMesh.Header.VertexCount);
 						PRINT("  | | | TextureIndex: %u\n", subMesh.Header.TextureIndex);
-						PRINT("  | | | VertexOffset: 0x%016llX - 0x%016llX - %llu\n", vertexStart, vertexEnd, vertexSize);
-						PRINT("  | | | TextureMapOffset: 0x%016llX - 0x%016llX - %llu\n", TextureMapStart, TextureMapEnd, TextureMapSize);
-						PRINT("  | | | TextureUvOffset: 0x%016llX - 0x%016llX - %llu\n", TextureUvStart, TextureUvEnd, TextureUvSize);
-						PRINT("  | | | ColorWeightOffset: 0x%016llX - 0x%016llX - %llu\n", ColorWeightStart, ColorWeightEnd, ColorWeightSize);
+						PRINT("  | | | VertexOffset: [0x%016llX .. 0x%016llX] / %llu / 0x%llX\n", vertexStart, vertexEnd, vertexSize, vertexSize);
+						PRINT("  | | | TextureMapOffset: [0x%016llX .. 0x%016llX] / %llu / 0x%llX\n", textureMapStart, textureMapEnd, textureMapSize, textureMapSize);
+						PRINT("  | | | TextureUvOffset: [0x%016llX .. 0x%016llX] / %llu / 0x%llX\n", textureUvStart, textureUvEnd, textureUvSize, textureUvSize);
+						PRINT("  | | | ColorWeightOffset: [0x%016llX .. 0x%016llX] / %llu / 0x%llX\n", colorWeightStart, colorWeightEnd, colorWeightSize, colorWeightSize);
 					}
 				}
 
@@ -168,8 +258,16 @@ namespace Nippon
 		}
 	}
 
-	bool Model::ConvertIntoProprietaryFormat(fs::path const& FilePath)
+	bool Model::ConvertIntoProprietaryFormat(fs::path const& FilePath, fs::path const& RulesPath)
 	{
+		std::string rulesText = "";
+
+		FileUtility::ReadText(RulesPath, rulesText);
+
+		nlohmann::json json = nlohmann::json::parse(rulesText);
+
+		ConversionRules rules = json.get<ConversionRules>();
+
 		Assimp::Importer importer = {};
 
 		U32 importFlags = aiProcess_ValidateDataStructure | aiProcess_GenSmoothNormals | aiProcess_LimitBoneWeights | aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices | aiProcess_PopulateArmatureData;
@@ -178,7 +276,7 @@ namespace Nippon
 
 		if (scene && (scene->mFlags & ~(AI_SCENE_FLAGS_INCOMPLETE)) && scene->mRootNode)
 		{
-			return ConvertRoot(scene, 1); // TODO
+			return ConvertRoot(scene, rules);
 		}
 
 		return false;
@@ -241,8 +339,6 @@ namespace Nippon
 		}
 	}
 
-	// TODO: Completely rewrite this function!
-
 	void Model::DeserializeModel()
 	{
 		BinaryMediator mediator = { mBytes, mSize };
@@ -263,7 +359,7 @@ namespace Nippon
 
 					for (U32 i = 0; i < mScrHeader.MeshCount; i++)
 					{
-						mMdbStart = mediator.GetPosition();
+						U64 mdbStart = mediator.GetPosition();
 
 						auto& mesh = mMdMeshes[i];
 
@@ -278,9 +374,9 @@ namespace Nippon
 
 							for (U16 j = 0; j < mesh.Header.SubMeshCount; j++)
 							{
-								mediator.SeekAbs(mMdbStart + subMeshOffsets[j]);
+								mediator.SeekAbs(mdbStart + subMeshOffsets[j]);
 
-								mMdStart = mediator.GetPosition();
+								U64 mdStart = mediator.GetPosition();
 
 								auto& subMesh = mesh.SubMeshes[j];
 
@@ -289,25 +385,25 @@ namespace Nippon
 
 								if (subMesh.Header.VertexOffset)
 								{
-									mediator.SeekAbs(mMdStart + subMesh.Header.VertexOffset);
+									mediator.SeekAbs(mdStart + subMesh.Header.VertexOffset);
 									mediator.Read<MdVertex>(subMesh.Vertices, subMesh.Header.VertexCount);
 								}
 
 								if (subMesh.Header.TextureMapOffset)
 								{
-									mediator.SeekAbs(mMdStart + subMesh.Header.TextureMapOffset);
+									mediator.SeekAbs(mdStart + subMesh.Header.TextureMapOffset);
 									mediator.Read<TextureMap>(subMesh.TextureMaps, subMesh.Header.VertexCount);
 								}
 
 								if (subMesh.Header.TextureUvOffset)
 								{
-									mediator.SeekAbs(mMdStart + subMesh.Header.TextureUvOffset);
+									mediator.SeekAbs(mdStart + subMesh.Header.TextureUvOffset);
 									mediator.Read<MdUv>(subMesh.TextureUvs, subMesh.Header.VertexCount);
 								}
 
 								if (subMesh.Header.ColorWeightOffset)
 								{
-									mediator.SeekAbs(mMdStart + subMesh.Header.ColorWeightOffset);
+									mediator.SeekAbs(mdStart + subMesh.Header.ColorWeightOffset);
 									mediator.Read<ColorWeight>(subMesh.ColorWeights, subMesh.Header.VertexCount);
 								}
 							}
@@ -341,7 +437,7 @@ namespace Nippon
 
 					for (U32 i = 0; i < mScrHeader.MeshCount; i++)
 					{
-						mMdbStart = mediator.GetPosition();
+						U64 mdbStart = mediator.GetPosition();
 
 						auto& mesh = mScrMeshes[i];
 
@@ -356,9 +452,9 @@ namespace Nippon
 
 							for (U16 j = 0; j < mesh.Header.SubMeshCount; j++)
 							{
-								mediator.SeekAbs(mMdbStart + subMeshOffsets[j]);
+								mediator.SeekAbs(mdbStart + subMeshOffsets[j]);
 
-								mMdStart = mediator.GetPosition();
+								U64 mdStart = mediator.GetPosition();
 
 								auto& subMesh = mesh.SubMeshes[j];
 
@@ -367,25 +463,25 @@ namespace Nippon
 
 								if (subMesh.Header.VertexOffset)
 								{
-									mediator.SeekAbs(mMdStart + subMesh.Header.VertexOffset);
+									mediator.SeekAbs(mdStart + subMesh.Header.VertexOffset);
 									mediator.Read<ScrVertex>(subMesh.Vertices, subMesh.Header.VertexCount);
 								}
 
 								if (subMesh.Header.TextureMapOffset)
 								{
-									mediator.SeekAbs(mMdStart + subMesh.Header.TextureMapOffset);
+									mediator.SeekAbs(mdStart + subMesh.Header.TextureMapOffset);
 									mediator.Read<TextureMap>(subMesh.TextureMaps, subMesh.Header.VertexCount);
 								}
 
 								if (subMesh.Header.TextureUvOffset)
 								{
-									mediator.SeekAbs(mMdStart + subMesh.Header.TextureUvOffset);
+									mediator.SeekAbs(mdStart + subMesh.Header.TextureUvOffset);
 									mediator.Read<ScrUv>(subMesh.TextureUvs, subMesh.Header.VertexCount);
 								}
 
 								if (subMesh.Header.ColorWeightOffset)
 								{
-									mediator.SeekAbs(mMdStart + subMesh.Header.ColorWeightOffset);
+									mediator.SeekAbs(mdStart + subMesh.Header.ColorWeightOffset);
 									mediator.Read<ColorWeight>(subMesh.ColorWeights, subMesh.Header.VertexCount);
 								}
 							}
@@ -417,7 +513,7 @@ namespace Nippon
 		}
 	}
 
-	bool Model::ConvertRoot(aiScene const* Scene, U32 FileType)
+	bool Model::ConvertRoot(aiScene const* Scene, ConversionRules const& Rules)
 	{
 		aiNode const* rootNode = Scene->mRootNode;
 
@@ -428,8 +524,13 @@ namespace Nippon
 			return false;
 		}
 
+		if (meshCount != Rules.MeshRules.size())
+		{
+			return false;
+		}
+
 		mScrHeader.ScrId = SCR_HEADER_ID;
-		mScrHeader.FileType = FileType;
+		mScrHeader.FileType = Rules.FileType;
 		mScrHeader.MeshCount = meshCount;
 
 		switch (mScrHeader.FileType)
@@ -452,11 +553,13 @@ namespace Nippon
 		{
 			aiNode const* childNode = rootNode->mChildren[i];
 
+			MeshRule const& meshRule = Rules.MeshRules[i];
+
 			switch (mScrHeader.FileType)
 			{
 				case 0: // MD mesh
 				{
-					if (ConvertMdMesh(Scene, childNode, i, 0x10, 0)) // TODO
+					if (ConvertMdMesh(Scene, childNode, i, meshRule))
 					{
 						return false;
 					}
@@ -465,7 +568,7 @@ namespace Nippon
 				}
 				case 1: // SCR mesh
 				{
-					if (ConvertScrMesh(Scene, childNode, i, 0x10, 0)) // TODO
+					if (ConvertScrMesh(Scene, childNode, i, meshRule))
 					{
 						return false;
 					}
@@ -478,7 +581,7 @@ namespace Nippon
 		return true;
 	}
 
-	bool Model::ConvertMdMesh(aiScene const* Scene, aiNode const* Node, U32 Index, U32 MeshType, U16 MeshId)
+	bool Model::ConvertMdMesh(aiScene const* Scene, aiNode const* Node, U32 Index, MeshRule const& Rule)
 	{
 		U32 subMeshCount = Node->mNumChildren;
 
@@ -498,8 +601,8 @@ namespace Nippon
 		mesh.Index = Index;
 
 		mesh.Header.MdbId = MDB_HEADER_ID;
-		mesh.Header.MeshType = MeshType;
-		mesh.Header.MeshId = MeshId;
+		mesh.Header.MeshType = Rule.MeshType;
+		mesh.Header.MeshId = Rule.MeshId;
 		mesh.Header.SubMeshCount = (U16)subMeshCount;
 
 		mesh.SubMeshes.resize(subMeshCount);
@@ -512,7 +615,9 @@ namespace Nippon
 		{
 			aiNode const* childNode = Node->mChildren[i];
 
-			if (ConvertMdSubMesh(Scene, childNode, mesh, i))
+			SubMeshRule const& subMeshRule = Rule.SubMeshRules[i];
+
+			if (ConvertMdSubMesh(Scene, childNode, mesh, i, subMeshRule))
 			{
 				return false;
 			}
@@ -521,7 +626,7 @@ namespace Nippon
 		return true;
 	}
 
-	bool Model::ConvertScrMesh(aiScene const* Scene, aiNode const* Node, U32 Index, U32 MeshType, U16 MeshId)
+	bool Model::ConvertScrMesh(aiScene const* Scene, aiNode const* Node, U32 Index, MeshRule const& Rule)
 	{
 		U32 subMeshCount = Node->mNumChildren;
 
@@ -541,8 +646,8 @@ namespace Nippon
 		mesh.Index = Index;
 
 		mesh.Header.MdbId = MDB_HEADER_ID;
-		mesh.Header.MeshType = MeshType;
-		mesh.Header.MeshId = MeshId;
+		mesh.Header.MeshType = Rule.MeshType;
+		mesh.Header.MeshId = Rule.MeshId;
 		mesh.Header.SubMeshCount = (U16)subMeshCount;
 
 		mesh.SubMeshes.resize(subMeshCount);
@@ -555,7 +660,9 @@ namespace Nippon
 		{
 			aiNode const* childNode = Node->mChildren[i];
 
-			if (ConvertScrSubMesh(Scene, childNode, mesh, i))
+			SubMeshRule const& subMeshRule = Rule.SubMeshRules[i];
+
+			if (ConvertScrSubMesh(Scene, childNode, mesh, i, subMeshRule))
 			{
 				return false;
 			}
@@ -564,7 +671,7 @@ namespace Nippon
 		return true;
 	}
 
-	bool Model::ConvertMdSubMesh(aiScene const* Scene, aiNode const* Node, MdMesh& Mesh, U32 Index)
+	bool Model::ConvertMdSubMesh(aiScene const* Scene, aiNode const* Node, MdMesh& Mesh, U32 Index, SubMeshRule const& Rule)
 	{
 		aiMesh const* assimpMesh = Scene->mMeshes[Node->mMeshes[Index]];
 
@@ -585,12 +692,38 @@ namespace Nippon
 
 		subMesh.Index = Index;
 
-		subMesh.Header.VertexOffset = (U32)assimpMesh->HasPositions(); // TODO
-		subMesh.Header.TextureMapOffset = (U32)assimpMesh->HasTextureCoords(0); // TODO;
-		subMesh.Header.TextureUvOffset = (U32)assimpMesh->HasTextureCoords(0); // TODO;
-		subMesh.Header.ColorWeightOffset = (U32)assimpMesh->HasVertexColors(0); // TODO;
+		U64 mdStart = 0;
+		U64 offset = 0;
+
+		mdStart += sizeof(MdHeader);
+		mdStart = ALIGN_UP_BY(mdStart, 16);
+
+		if (assimpMesh->HasPositions())
+		{
+			subMesh.Header.VertexOffset = (U32)(mdStart + offset);
+			offset += sizeof(MdVertex) * vertexCount;
+		}
+
+		if (assimpMesh->HasTextureCoords(0))
+		{
+			subMesh.Header.TextureMapOffset = (U32)(mdStart + offset);
+			offset += sizeof(TextureMap) * vertexCount;
+		}
+
+		if (assimpMesh->HasTextureCoords(0))
+		{
+			subMesh.Header.TextureUvOffset = (U32)(mdStart + offset);
+			offset += sizeof(MdUv) * vertexCount;
+		}
+
+		if (assimpMesh->HasVertexColors(0))
+		{
+			subMesh.Header.ColorWeightOffset = (U32)(mdStart + offset);
+			offset += sizeof(ColorWeight) * vertexCount;
+		}
+
 		subMesh.Header.VertexCount = (U16)vertexCount;
-		subMesh.Header.TextureIndex = 0; // TODO;
+		subMesh.Header.TextureIndex = Rule.TextureIndex;
 
 		subMesh.Vertices.resize(vertexCount);
 		subMesh.TextureMaps.resize(vertexCount);
@@ -678,7 +811,7 @@ namespace Nippon
 		return true;
 	}
 
-	bool Model::ConvertScrSubMesh(aiScene const* Scene, aiNode const* Node, ScrMesh& Mesh, U32 Index)
+	bool Model::ConvertScrSubMesh(aiScene const* Scene, aiNode const* Node, ScrMesh& Mesh, U32 Index, SubMeshRule const& Rule)
 	{
 		aiMesh const* assimpMesh = Scene->mMeshes[Node->mMeshes[Index]];
 
@@ -699,12 +832,38 @@ namespace Nippon
 
 		subMesh.Index = Index;
 
-		subMesh.Header.VertexOffset = (U32)assimpMesh->HasPositions(); // TODO
-		subMesh.Header.TextureMapOffset = (U32)assimpMesh->HasTextureCoords(0); // TODO;
-		subMesh.Header.TextureUvOffset = (U32)assimpMesh->HasTextureCoords(0); // TODO;
-		subMesh.Header.ColorWeightOffset = (U32)assimpMesh->HasVertexColors(0); // TODO;
+		U64 mdStart = 0;
+		U64 offset = 0;
+
+		mdStart += sizeof(MdHeader);
+		mdStart = ALIGN_UP_BY(mdStart, 16);
+
+		if (assimpMesh->HasPositions())
+		{
+			subMesh.Header.VertexOffset = (U32)(mdStart + offset);
+			offset += sizeof(ScrVertex) * vertexCount;
+		}
+
+		if (assimpMesh->HasTextureCoords(0))
+		{
+			subMesh.Header.TextureMapOffset = (U32)(mdStart + offset);
+			offset += sizeof(TextureMap) * vertexCount;
+		}
+
+		if (assimpMesh->HasTextureCoords(0))
+		{
+			subMesh.Header.TextureUvOffset = (U32)(mdStart + offset);
+			offset += sizeof(ScrUv) * vertexCount;
+		}
+
+		if (assimpMesh->HasVertexColors(0))
+		{
+			subMesh.Header.ColorWeightOffset = (U32)(mdStart + offset);
+			offset += sizeof(ColorWeight) * vertexCount;
+		}
+
 		subMesh.Header.VertexCount = (U16)vertexCount;
-		subMesh.Header.TextureIndex = 0; // TODO;
+		subMesh.Header.TextureIndex = Rule.TextureIndex;
 
 		subMesh.Vertices.resize(vertexCount);
 		subMesh.TextureMaps.resize(vertexCount);
@@ -1130,6 +1289,24 @@ namespace Nippon
 		if (SubMesh->Header.ColorWeightOffset)
 		{
 			acc += sizeof(ColorWeight) * SubMesh->Header.VertexCount;
+			acc = ALIGN_UP_BY(acc, 16);
+		}
+
+		return acc;
+	}
+
+	U64 Model::GetSubMeshStructDataOffset(bool IncludeHeader, bool HasData, U64 PrevOffset, U64 StructSize, U64 VertexCount)
+	{
+		U64 acc = PrevOffset;
+
+		if (IncludeHeader)
+		{
+			
+		}
+
+		if (HasData)
+		{
+			acc += StructSize * VertexCount;
 			acc = ALIGN_UP_BY(acc, 16);
 		}
 

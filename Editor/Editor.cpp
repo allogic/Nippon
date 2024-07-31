@@ -1,3 +1,4 @@
+#include <Common/Version.h>
 #include <Common/Memory.h>
 
 #include <Common/Misc/CommandLine.h>
@@ -237,7 +238,7 @@ I32 main(I32 Argc, char** Argv)
 			Outline::Reset();
 
 			Log::Add("Nippon - Okami HD Editor (C) Made by 0x616c\n");
-			Log::Add("  - Version 1.0.2\n");
+			Log::Add("  - Version %s\n", NIPPON_VERSION_STR);
 			Log::Add("  - https://github.com/allogic/Nippon\n");
 			Log::Add("\n");
 

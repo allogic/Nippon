@@ -1140,7 +1140,10 @@ namespace Nippon
 				std::string archiveName = GetArchiveNameForFolderIdAndArchiveId(folderId, archiveId);
 				std::string windowName = "/" + folderId + "/" + archiveId + " - " + archiveName;
 
-				std::vector<U8> fileData = FileUtility::ReadBinary(file.string());
+				std::vector<U8> fileData = {};
+
+				FileUtility::ReadBinary(file.string(), fileData);
+
 				U32 fileSize = (U32)fileData.size();
 
 				U32 crc32 = Crc32::FromRange(fileData.data(), fileData.size());
@@ -1215,7 +1218,10 @@ namespace Nippon
 				std::string archiveName = GetArchiveNameForFolderIdAndArchiveId(folderId, archiveId);
 				std::string windowName = "/" + folderId + "/" + archiveId + " - " + archiveName;
 
-				std::vector<U8> fileData = FileUtility::ReadBinary(file.string());
+				std::vector<U8> fileData = {};
+
+				FileUtility::ReadBinary(file.string(), fileData);
+
 				U32 fileSize = (U32)fileData.size();
 
 				U32 crc32 = Crc32::FromRange(fileData.data(), fileData.size());

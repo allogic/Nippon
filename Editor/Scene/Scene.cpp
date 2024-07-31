@@ -96,7 +96,7 @@ namespace Nippon
 			Archive* archive = new (Memory::Alloc(sizeof(Archive))) Archive;
 			SceneAssets* sceneAssets = new (Memory::Alloc(sizeof(SceneAssets))) SceneAssets;
 
-			std::vector<U8> archiveData = Database::GetArchiveDataByUniqueId(UniqueId);
+			std::vector<U8> const& archiveData = Database::GetArchiveDataByUniqueId(UniqueId);
 
 			archive->Deserialize(archiveData);
 

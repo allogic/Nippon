@@ -2,9 +2,8 @@
 
 namespace Nippon
 {
-	std::vector<U8> FileUtility::ReadBinary(fs::path const& FilePath, U64 Size)
+	void FileUtility::ReadBinary(fs::path const& FilePath, std::vector<U8>& Bytes, U64 Size)
 	{
-		std::vector<U8> bytes = {};
 		std::ifstream stream = std::ifstream{ FilePath, std::ios::ate | std::ios::binary };
 
 		if (stream.is_open())
@@ -18,24 +17,21 @@ namespace Nippon
 				Size = std::min(Size, (U64)stream.tellg());
 			}
 
-			bytes.resize(Size);
+			Bytes.resize(Size);
 
 			stream.seekg(std::ios::beg);
 
 			if (Size)
 			{
-				stream.read((char*)bytes.data(), Size);
+				stream.read((char*)Bytes.data(), Size);
 			}
 
 			stream.close();
 		}
-
-		return bytes;
 	}
 
-	std::string FileUtility::ReadText(fs::path const& FilePath, U64 Size)
+	void FileUtility::ReadText(fs::path const& FilePath, std::string& Text, U64 Size)
 	{
-		std::string text = "";
 		std::ifstream stream = std::ifstream{ FilePath, std::ios::ate };
 
 		if (stream.is_open())
@@ -49,19 +45,17 @@ namespace Nippon
 				Size = std::min(Size, (U64)stream.tellg());
 			}
 
-			text.resize(Size);
+			Text.resize(Size);
 
 			stream.seekg(std::ios::beg);
 
 			if (Size)
 			{
-				stream.read(text.data(), Size);
+				stream.read(Text.data(), Size);
 			}
 
 			stream.close();
 		}
-
-		return text;
 	}
 
 	void FileUtility::WriteBinary(fs::path const& FilePath, std::vector<U8> const& Bytes, U64 Size)

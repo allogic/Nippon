@@ -1,3 +1,4 @@
+#include <Common/Version.h>
 #include <Common/Memory.h>
 #include <Common/Standard.h>
 #include <Common/Types.h>
@@ -12,8 +13,11 @@ I32 main(I32 Argc, char** Argv)
 {
 	if (std::strcmp("Compare", Argv[1]) == 0)
 	{
-		std::vector<U8> leftData = FileUtility::ReadBinary(Argv[2]);
-		std::vector<U8> rightData = FileUtility::ReadBinary(Argv[3]);
+		std::vector<U8> leftData = {};
+		std::vector<U8> rightData = {};
+
+		FileUtility::ReadBinary(Argv[2], leftData);
+		FileUtility::ReadBinary(Argv[3], rightData);
 
 		U64 size = std::min(leftData.size(), rightData.size());
 		U64 position = 0;
@@ -45,6 +49,13 @@ I32 main(I32 Argc, char** Argv)
 		}
 	}
 
+	if (std::strcmp("Version", Argv[1]) == 0)
+	{
+		std::printf("\n");
+		std::printf("Version %s\n", NIPPON_VERSION_STR);
+		std::printf("\n");
+	}
+
 	if (std::strcmp("Help", Argv[1]) == 0)
 	{
 		std::printf("\n");
@@ -54,6 +65,7 @@ I32 main(I32 Argc, char** Argv)
 		std::printf("\n");
 		std::printf("Commands:\n");
 		std::printf(" Compare [Left(Str)] [Right(Str)] Compare two files and output the exact position at which they separate\n");
+		std::printf(" Version                          Print the current version\n");
 		std::printf(" Help                             Print this help message\n");
 		std::printf("\n");
 		std::printf("Examples:\n");

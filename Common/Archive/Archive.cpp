@@ -91,8 +91,29 @@ namespace Nippon
 		return { mBytes, mBytes + mSize };
 	}
 
+	void Archive::Deserialize(U8 const* Bytes, U64 Size)
+	{
+		if (mBytes)
+		{
+			Memory::Free(mBytes);
+		}
+
+		mBytes = (U8*)Memory::Alloc(Size, Bytes);
+		mSize = Size;
+
+		DeserializeRecursive();
+
+		UpdateSizesRecursive();
+		UpdateByteArraysRecursive();
+	}
+
 	void Archive::Deserialize(std::vector<U8> const& Bytes)
 	{
+		if (mBytes)
+		{
+			Memory::Free(mBytes);
+		}
+
 		mBytes = (U8*)Memory::Alloc(Bytes.size(), Bytes.data());
 		mSize = Bytes.size();
 

@@ -1,3 +1,4 @@
+#include <Common/Version.h>
 #include <Common/Memory.h>
 #include <Common/Standard.h>
 #include <Common/Types.h>
@@ -14,7 +15,9 @@ I32 main(I32 Argc, char** Argv)
 {
 	if (std::strcmp("PrintToC", Argv[1]) == 0)
 	{
-		std::vector<U8> archiveData = FileUtility::ReadBinary(Argv[2]);
+		std::vector<U8> archiveData = {};
+
+		FileUtility::ReadBinary(Argv[2], archiveData);
 
 		BlowFish::Create(OKAMI_CIPHER_KEY);
 		BlowFish::Decrypt(archiveData);
@@ -27,7 +30,9 @@ I32 main(I32 Argc, char** Argv)
 
 	if (std::strcmp("PrintOfType", Argv[1]) == 0)
 	{
-		std::vector<U8> archiveData = FileUtility::ReadBinary(Argv[2]);
+		std::vector<U8> archiveData = {};
+
+		FileUtility::ReadBinary(Argv[2], archiveData);
 
 		BlowFish::Create(OKAMI_CIPHER_KEY);
 		BlowFish::Decrypt(archiveData);
@@ -40,7 +45,9 @@ I32 main(I32 Argc, char** Argv)
 
 	if (std::strcmp("Extract", Argv[1]) == 0)
 	{
-		std::vector<U8> archiveData = FileUtility::ReadBinary(Argv[2]);
+		std::vector<U8> archiveData = {};
+
+		FileUtility::ReadBinary(Argv[2], archiveData);
 
 		BlowFish::Create(OKAMI_CIPHER_KEY);
 		BlowFish::Decrypt(archiveData);
@@ -57,7 +64,9 @@ I32 main(I32 Argc, char** Argv)
 
 	if (std::strcmp("Unfold", Argv[1]) == 0)
 	{
-		std::vector<U8> archiveData = FileUtility::ReadBinary(Argv[2]);
+		std::vector<U8> archiveData = {};
+
+		FileUtility::ReadBinary(Argv[2], archiveData);
 
 		BlowFish::Create(OKAMI_CIPHER_KEY);
 		BlowFish::Decrypt(archiveData);
@@ -74,8 +83,11 @@ I32 main(I32 Argc, char** Argv)
 
 	if (std::strcmp("ModifyByType", Argv[1]) == 0)
 	{
-		std::vector<U8> archiveData = FileUtility::ReadBinary(Argv[2]);
-		std::vector<U8> targetData = FileUtility::ReadBinary(Argv[4]);
+		std::vector<U8> archiveData = {};
+		std::vector<U8> targetData = {};
+
+		FileUtility::ReadBinary(Argv[2], archiveData);
+		FileUtility::ReadBinary(Argv[4], targetData);
 
 		BlowFish::Create(OKAMI_CIPHER_KEY);
 		BlowFish::Decrypt(archiveData);
@@ -113,8 +125,11 @@ I32 main(I32 Argc, char** Argv)
 
 	if (std::strcmp("ModifyByName", Argv[1]) == 0)
 	{
-		std::vector<U8> archiveData = FileUtility::ReadBinary(Argv[2]);
-		std::vector<U8> targetData = FileUtility::ReadBinary(Argv[4]);
+		std::vector<U8> archiveData = {};
+		std::vector<U8> targetData = {};
+
+		FileUtility::ReadBinary(Argv[2], archiveData);
+		FileUtility::ReadBinary(Argv[4], targetData);
 
 		BlowFish::Create(OKAMI_CIPHER_KEY);
 		BlowFish::Decrypt(archiveData);
@@ -147,8 +162,11 @@ I32 main(I32 Argc, char** Argv)
 
 	if (std::strcmp("ModifyByTypeAndName", Argv[1]) == 0)
 	{
-		std::vector<U8> archiveData = FileUtility::ReadBinary(Argv[2]);
-		std::vector<U8> targetData = FileUtility::ReadBinary(Argv[4]);
+		std::vector<U8> archiveData = {};
+		std::vector<U8> targetData = {};
+
+		FileUtility::ReadBinary(Argv[2], archiveData);
+		FileUtility::ReadBinary(Argv[4], targetData);
 
 		BlowFish::Create(OKAMI_CIPHER_KEY);
 		BlowFish::Decrypt(archiveData);
@@ -179,6 +197,13 @@ I32 main(I32 Argc, char** Argv)
 		}
 	}
 
+	if (std::strcmp("Version", Argv[1]) == 0)
+	{
+		std::printf("\n");
+		std::printf("Version %s\n", NIPPON_VERSION_STR);
+		std::printf("\n");
+	}
+
 	if (std::strcmp("Help", Argv[1]) == 0)
 	{
 		std::printf("\n");
@@ -194,6 +219,7 @@ I32 main(I32 Argc, char** Argv)
 		std::printf(" ModifyByType        [Archive(Str)] [Type(Str)] [File(Str)]             Modify all archives of type with the content of a file\n");
 		std::printf(" ModifyByName        [Archive(Str)] [Name(Str)] [File(Str)]             Modify an archive entry by name with the content of a file\n");
 		std::printf(" ModifyByTypeAndName [Archive(Str)] [Type(Str)] [Name(Str)] [File(Str)] Modify an archive entry by type and name with the content of a file\n");
+		std::printf(" Version                                                                Print the current version\n");
 		std::printf(" Help                                                                   Print this help message\n");
 		std::printf("\n");
 		std::printf("Examples:\n");

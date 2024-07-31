@@ -10,8 +10,8 @@ namespace Nippon
 	{
 	public:
 
-		static std::vector<U8> ReadBinary(fs::path const& FilePath, U64 Size = 0);
-		static std::string ReadText(fs::path const& FilePath, U64 Size = 0);
+		static void ReadBinary(fs::path const& FilePath, std::vector<U8>& Bytes, U64 Size = 0);
+		static void ReadText(fs::path const& FilePath, std::string& Text, U64 Size = 0);
 
 		static void WriteBinary(fs::path const& FilePath, std::vector<U8> const& Bytes, U64 Size = 0);
 		static void WriteBinary(fs::path const& FilePath, U8 const* Bytes, U64 Size);

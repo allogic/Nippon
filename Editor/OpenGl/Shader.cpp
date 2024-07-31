@@ -10,8 +10,11 @@ namespace Nippon
 {
 	Shader::Shader(fs::path const& VertexFile, fs::path const& FragmentFile)
 	{
-		std::string vertexShaderSrc = FileUtility::ReadText(VertexFile);
-		std::string fragmentShaderSrc = FileUtility::ReadText(FragmentFile);
+		std::string vertexShaderSrc = "";
+		std::string fragmentShaderSrc = "";;
+
+		FileUtility::ReadText(VertexFile, vertexShaderSrc);
+		FileUtility::ReadText(FragmentFile, fragmentShaderSrc);
 
 		mProgram = glCreateProgram();
 

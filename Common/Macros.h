@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Common/Types.h>
-
 #define ALIGN_DOWN_BY(VALUE, ALIGNMENT) (((U64)VALUE) & ~(((U64)ALIGNMENT) - 1))
 #define ALIGN_UP_BY(VALUE, ALIGNMENT) ((((U64)VALUE) + (((U64)ALIGNMENT) - 1)) & ~(((U64)ALIGNMENT) - 1))
 

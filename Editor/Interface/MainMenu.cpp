@@ -194,7 +194,7 @@ namespace Nippon
 
 	void MainMenu::PrintTableOfContentProcedure(ArchiveInfo const& ArchiveInfo)
 	{
-		std::vector<U8> archiveData = Database::GetArchiveDataByUniqueId(ArchiveInfo.UniqueId);
+		std::vector<U8> const& archiveData = Database::GetArchiveDataByUniqueId(ArchiveInfo.UniqueId);
 		
 		Archive archive = {};
 		
@@ -204,7 +204,7 @@ namespace Nippon
 
 	void MainMenu::ExtractToDiskProcedure(ArchiveInfo const& ArchiveInfo)
 	{
-		std::vector<U8> archiveData = Database::GetArchiveDataByUniqueId(ArchiveInfo.UniqueId);
+		std::vector<U8> const& archiveData = Database::GetArchiveDataByUniqueId(ArchiveInfo.UniqueId);
 
 		fs::path outputFile = fs::path{ "Extracted" } / ArchiveInfo.FolderId / ArchiveInfo.ArchiveId;
 

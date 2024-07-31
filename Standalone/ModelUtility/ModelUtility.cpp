@@ -1,3 +1,4 @@
+#include <Common/Version.h>
 #include <Common/Memory.h>
 #include <Common/Standard.h>
 #include <Common/Types.h>
@@ -8,16 +9,13 @@
 
 using namespace Nippon;
 
-// TODO
-// PrintToC "C:\Users\mialb\Downloads\Nippon\x64\Debug\r301\r301.SCP\14_minka1_house_scr.SCR"
-// ConvertIntoProprietaryFormat "C:\Users\mialb\Downloads\Nippon\x64\Debug\Monkey.fbx" "C:\Users\mialb\Downloads\Nippon\x64\Debug\Monkey.SCR"
-// Test "C:\Users\mialb\Downloads\Nippon\x64\Debug\r301\r301.SCP\14_minka1_house_scr.SCR" "C:\Users\mialb\Downloads\Nippon\x64\Debug\Minka.SCR"
-
 I32 main(I32 Argc, char** Argv)
 {
 	if (std::strcmp("PrintToC", Argv[1]) == 0)
 	{
-		std::vector<U8> modelData = FileUtility::ReadBinary(Argv[2]);
+		std::vector<U8> modelData = {};
+
+		FileUtility::ReadBinary(Argv[2], modelData);
 
 		Model model;
 
@@ -29,13 +27,13 @@ I32 main(I32 Argc, char** Argv)
 	{
 		Model model;
 
-		bool converted = model.ConvertIntoProprietaryFormat(Argv[2]);
+		bool converted = model.ConvertIntoProprietaryFormat(Argv[2], Argv[3]);
 
 		if (converted)
 		{
 			std::vector<U8> modelData = model.Serialize();
 
-			FileUtility::WriteBinary(Argv[3], modelData);
+			FileUtility::WriteBinary(Argv[4], modelData);
 
 			std::printf("\n");
 			std::printf("Done\n");
@@ -49,9 +47,12 @@ I32 main(I32 Argc, char** Argv)
 		}
 	}
 
+	// TODO
 	if (std::strcmp("Test", Argv[1]) == 0)
 	{
-		std::vector<U8> modelData = FileUtility::ReadBinary(Argv[2]);
+		std::vector<U8> modelData = {};
+
+		FileUtility::ReadBinary(Argv[2], modelData);
 
 		Model model;
 
@@ -62,6 +63,13 @@ I32 main(I32 Argc, char** Argv)
 		FileUtility::WriteBinary(Argv[3], modelData);
 	}
 
+	if (std::strcmp("Version", Argv[1]) == 0)
+	{
+		std::printf("\n");
+		std::printf("Version %s\n", NIPPON_VERSION_STR);
+		std::printf("\n");
+	}
+
 	if (std::strcmp("Help", Argv[1]) == 0)
 	{
 		std::printf("\n");
@@ -70,13 +78,14 @@ I32 main(I32 Argc, char** Argv)
 		std::printf(" ModelUtility [Command] [Arguments]\n");
 		std::printf("\n");
 		std::printf("Commands:\n");
-		std::printf(" PrintToC                     [Model(Str)]             Print the table of content for SCP/MD files\n");
-		std::printf(" ConvertIntoProprietaryFormat [File(Str)] [Model(Str)] Convert a standardized 3D file into the internal proprietary format\n");
-		std::printf(" Help                                                  Print this help message\n");
+		std::printf(" PrintToC                     [Model(Str)]                          Print the table of content for SCR/MD files\n");
+		std::printf(" ConvertIntoProprietaryFormat [File(Str)] [Rules(Str)] [Model(Str)] Convert a standardized 3D file into the internal proprietary format\n");
+		std::printf(" Version                                                            Print the current version\n");
+		std::printf(" Help                                                               Print this help message\n");
 		std::printf("\n");
 		std::printf("Examples:\n");
 		std::printf(" PrintToC \"minka.SCR\"\n");
-		std::printf(" ConvertIntoProprietaryFormat \"monkey.FBX\" \"monkey.SCR\"\n");
+		std::printf(" ConvertIntoProprietaryFormat \"monkey.FBX\" \"monkeyRules.JSON\" \"monkey.SCR\"\n");
 		std::printf("\n");
 	}
 
