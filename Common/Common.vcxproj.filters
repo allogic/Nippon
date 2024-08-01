@@ -1265,6 +1265,9 @@
     <ClInclude Include="Nlohmann\json_fwd.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Model\ModelInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Glm\detail\func_common.inl">

@@ -4,9 +4,6 @@
 #include <Common/Standard.h>
 #include <Common/Types.h>
 
-#define SCR_HEADER_ID 0x00726373
-#define MDB_HEADER_ID 0x0062646D
-
 namespace Nippon
 {
 #pragma pack(push, 1)

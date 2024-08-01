@@ -81,13 +81,11 @@ I32 main(I32 Argc, char** Argv)
 		std::printf("\n");
 	}
 
-	if (std::strcmp("ModifyByType", Argv[1]) == 0)
+	if (std::strcmp("GetByTypeAndName", Argv[1]) == 0)
 	{
 		std::vector<U8> archiveData = {};
-		std::vector<U8> targetData = {};
 
 		FileUtility::ReadBinary(Argv[2], archiveData);
-		FileUtility::ReadBinary(Argv[4], targetData);
 
 		BlowFish::Create(OKAMI_CIPHER_KEY);
 		BlowFish::Decrypt(archiveData);
@@ -96,57 +94,9 @@ I32 main(I32 Argc, char** Argv)
 
 		archive.Deserialize(archiveData);
 
-		std::vector<Archive*> targetArchives = archive.FindArchivesByType(Argv[3]);
-
-		if (targetArchives.size())
+		if (Archive* targetArchive = archive.FindArchiveByTypeAndName(Argv[3], Argv[4]))
 		{
-			for (Archive* targetArchive : targetArchives)
-			{
-				targetArchive->SetData(targetData.data(), targetData.size());
-
-				archiveData = archive.Serialize();
-
-				BlowFish::Encrypt(archiveData);
-
-				FileUtility::WriteBinary(Argv[2], archiveData);
-			}
-
-			std::printf("\n");
-			std::printf("Done\n");
-			std::printf("\n");
-		}
-		else
-		{
-			std::printf("\n");
-			std::printf("Cannot find archives\n");
-			std::printf("\n");
-		}
-	}
-
-	if (std::strcmp("ModifyByName", Argv[1]) == 0)
-	{
-		std::vector<U8> archiveData = {};
-		std::vector<U8> targetData = {};
-
-		FileUtility::ReadBinary(Argv[2], archiveData);
-		FileUtility::ReadBinary(Argv[4], targetData);
-
-		BlowFish::Create(OKAMI_CIPHER_KEY);
-		BlowFish::Decrypt(archiveData);
-
-		Archive archive;
-
-		archive.Deserialize(archiveData);
-
-		if (Archive* targetArchive = archive.FindArchiveByName(Argv[3]))
-		{
-			targetArchive->SetData(targetData.data(), targetData.size());
-
-			archiveData = archive.Serialize();
-
-			BlowFish::Encrypt(archiveData);
-
-			FileUtility::WriteBinary(Argv[2], archiveData);
+			FileUtility::WriteBinary(Argv[5], targetArchive->GetBytes(), targetArchive->GetSize());
 
 			std::printf("\n");
 			std::printf("Done\n");
@@ -160,7 +110,7 @@ I32 main(I32 Argc, char** Argv)
 		}
 	}
 
-	if (std::strcmp("ModifyByTypeAndName", Argv[1]) == 0)
+	if (std::strcmp("SetByTypeAndName", Argv[1]) == 0)
 	{
 		std::vector<U8> archiveData = {};
 		std::vector<U8> targetData = {};
@@ -212,24 +162,22 @@ I32 main(I32 Argc, char** Argv)
 		std::printf(" ArchiveUtility [Command] [Arguments]\n");
 		std::printf("\n");
 		std::printf("Commands:\n");
-		std::printf(" PrintToC            [Archive(Str)]                                     Print the table of content for AKT/BIN/CMP/DAT/DDP/EFF/IDD/PAC/SCP/TBL files\n");
-		std::printf(" PrintOfType         [Archive(Str)] [Type(Str)]                         Print all entries of type\n");
-		std::printf(" Extract             [Archive(Str)] [Folder(Str)]                       Extract an archive to disk\n");
-		std::printf(" Unfold              [Archive(Str)] [Folder(Str)]                       Unfold an archive to disk\n");
-		std::printf(" ModifyByType        [Archive(Str)] [Type(Str)] [File(Str)]             Modify all archives of type with the content of a file\n");
-		std::printf(" ModifyByName        [Archive(Str)] [Name(Str)] [File(Str)]             Modify an archive entry by name with the content of a file\n");
-		std::printf(" ModifyByTypeAndName [Archive(Str)] [Type(Str)] [Name(Str)] [File(Str)] Modify an archive entry by type and name with the content of a file\n");
-		std::printf(" Version                                                                Print the current version\n");
-		std::printf(" Help                                                                   Print this help message\n");
+		std::printf(" PrintToC         [Archive(Str)]                                     Print the table of content for AKT/BIN/CMP/DAT/DDP/EFF/IDD/PAC/SCP/TBL files\n");
+		std::printf(" PrintOfType      [Archive(Str)] [Type(Str)]                         Print all entries of type\n");
+		std::printf(" Extract          [Archive(Str)] [Folder(Str)]                       Extract an archive to disk\n");
+		std::printf(" Unfold           [Archive(Str)] [Folder(Str)]                       Unfold an archive to disk\n");
+		std::printf(" GetByTypeAndName [Archive(Str)] [Type(Str)] [Name(Str)] [File(Str)] Get an archive entry identified by type and name into a file\n");
+		std::printf(" SetByTypeAndName [Archive(Str)] [Type(Str)] [Name(Str)] [File(Str)] Set an archive entry identified by type and name from a file\n");
+		std::printf(" Version                                                             Print the current version\n");
+		std::printf(" Help                                                                Print this help message\n");
 		std::printf("\n");
 		std::printf("Examples:\n");
 		std::printf(" PrintToC \"r301.dat\"\n");
 		std::printf(" PrintOfType \"r301.dat\" \"DDS\"\n");
 		std::printf(" Extract \"r301.dat\" \"r301\"\n");
 		std::printf(" Unfold \"r301.dat\" \"r301\"\n");
-		std::printf(" ModifyByType \"r301.dat\" \"DDS\" \"example.dds\"\n");
-		std::printf(" ModifyByName \"r301.dat\" \"hyouzan\" \"example.dds\"\n");
-		std::printf(" ModifyByTypeAndName \"r301.dat\" \"DDS\" \"hyouzan\" \"example.dds\"\n");
+		std::printf(" GetByTypeAndName \"r301.dat\" \"DDS\" \"hyouzan\" \"hyouzan.dds\"\n");
+		std::printf(" SetByTypeAndName \"r301.dat\" \"DDS\" \"hyouzan\" \"hyouzan.dds\"\n");
 		std::printf("\n");
 	}
 

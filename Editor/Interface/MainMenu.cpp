@@ -110,9 +110,14 @@ namespace Nippon
 	{
 		if (ImGui::BeginMenu(ICON_MDI_TOOLS " Tool", Database::IsReady()))
 		{
-			if (ImGui::MenuItem("Generate ImGui Ini", "", nullptr))
+			if (ImGui::MenuItem("Generate imgui.ini", "", nullptr))
 			{
 				Database::GenerateImGuiIni();
+			}
+
+			if (ImGui::MenuItem("Generate ModelInfo.h", "", nullptr))
+			{
+				Database::GenerateModelInfoHeader();
 			}
 
 			ImGui::EndMenu();

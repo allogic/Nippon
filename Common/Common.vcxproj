@@ -240,6 +240,7 @@
     <ClInclude Include="Assimp\XMLTools.h" />
     <ClInclude Include="Assimp\ZipArchiveIOSystem.h" />
     <ClInclude Include="Model\Model.h" />
+    <ClInclude Include="Model\ModelInfo.h" />
     <ClInclude Include="Nlohmann\json.hpp" />
     <ClInclude Include="Nlohmann\json_fwd.hpp" />
     <ClInclude Include="Serializer\ItsSerializer.h" />

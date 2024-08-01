@@ -23,6 +23,18 @@ I32 main(I32 Argc, char** Argv)
 		model.PrintTableOfContent([](char const* Message) { std::printf(Message); });
 	}
 
+	if (std::strcmp("PrintContent", Argv[1]) == 0)
+	{
+		std::vector<U8> modelData = {};
+
+		FileUtility::ReadBinary(Argv[2], modelData);
+
+		Model model;
+
+		model.Deserialize(modelData);
+		model.PrintContent([](char const* Message) { std::printf(Message); });
+	}
+
 	if (std::strcmp("ConvertIntoProprietaryFormat", Argv[1]) == 0)
 	{
 		Model model;
@@ -79,12 +91,14 @@ I32 main(I32 Argc, char** Argv)
 		std::printf("\n");
 		std::printf("Commands:\n");
 		std::printf(" PrintToC                     [Model(Str)]                          Print the table of content for SCR/MD files\n");
+		std::printf(" PrintContent                 [Model(Str)]                          Print the content of SCR/MD files\n");
 		std::printf(" ConvertIntoProprietaryFormat [File(Str)] [Rules(Str)] [Model(Str)] Convert a standardized 3D file into the internal proprietary format\n");
 		std::printf(" Version                                                            Print the current version\n");
 		std::printf(" Help                                                               Print this help message\n");
 		std::printf("\n");
 		std::printf("Examples:\n");
 		std::printf(" PrintToC \"minka.SCR\"\n");
+		std::printf(" PrintContent \"minka.SCR\"\n");
 		std::printf(" ConvertIntoProprietaryFormat \"monkey.FBX\" \"monkeyRules.JSON\" \"monkey.SCR\"\n");
 		std::printf("\n");
 	}

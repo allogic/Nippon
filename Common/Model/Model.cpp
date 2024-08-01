@@ -7,6 +7,7 @@
 #include <Common/Assimp/scene.h>
 
 #include <Common/Model/Model.h>
+#include <Common/Model/ModelInfo.h>
 
 #include <Common/Misc/BinaryMediator.h>
 
@@ -28,6 +29,7 @@ namespace Nippon
 
 	void from_json(nlohmann::json const& Json, MeshRule& Rule)
 	{
+		Json.at("MdbId").get_to(Rule.MdbId);
 		Json.at("MeshType").get_to(Rule.MeshType);
 		Json.at("MeshId").get_to(Rule.MeshId);
 		Json.at("SubMeshRules").get_to(Rule.SubMeshRules);
@@ -35,6 +37,7 @@ namespace Nippon
 
 	void from_json(nlohmann::json const& Json, ConversionRules& Rules)
 	{
+		Json.at("ScrId").get_to(Rules.ScrId);
 		Json.at("FileType").get_to(Rules.FileType);
 		Json.at("MeshRules").get_to(Rules.MeshRules);
 	}
@@ -102,13 +105,45 @@ namespace Nippon
 		UpdateByteArray();
 	}
 
+	void Model::CollectUniqueNonSerializableInfos(U8 const* Bytes, U64 Size, UniqueNonSerializableInfos& UniqueNonSerializableInfos)
+	{
+		if (mBytes)
+		{
+			Memory::Free(mBytes);
+		}
+
+		mBytes = (U8*)Memory::Alloc(Size, Bytes);
+		mSize = Size;
+
+		DeserializeModelAndCollectUniqueNonSerializableInfos(UniqueNonSerializableInfos);
+
+		UpdateSize();
+		UpdateByteArray();
+	}
+
+	void Model::CollectUniqueNonSerializableInfos(std::vector<U8> const& Bytes, UniqueNonSerializableInfos& UniqueNonSerializableInfos)
+	{
+		if (mBytes)
+		{
+			Memory::Free(mBytes);
+		}
+
+		mBytes = (U8*)Memory::Alloc(Bytes.size(), Bytes.data());
+		mSize = Bytes.size();
+
+		DeserializeModelAndCollectUniqueNonSerializableInfos(UniqueNonSerializableInfos);
+
+		UpdateSize();
+		UpdateByteArray();
+	}
+
 	void Model::PrintTableOfContent(std::function<void(char const*)> Callback)
 	{
 		static char buffer[1024] = {};
 
 		PRINT("  ScrHeader:\n");
 		PRINT("  | ScrId: 0x%08X\n", mScrHeader.ScrId);
-		PRINT("  | FileType: %u\n", mScrHeader.FileType);
+		PRINT("  | FileType: 0x%08X\n", mScrHeader.FileType);
 		PRINT("  | MeshCount: %u\n", mScrHeader.MeshCount);
 
 		switch (mScrHeader.FileType)
@@ -122,7 +157,7 @@ namespace Nippon
 					PRINT("  | MdbHeader %u:\n", i);
 					PRINT("  | | MdbId: 0x%08X\n", mesh.Header.MdbId);
 					PRINT("  | | MeshType: 0x%08X\n", mesh.Header.MeshType);
-					PRINT("  | | MeshId: %u\n", mesh.Header.MeshId);
+					PRINT("  | | MeshId: 0x%04X\n", mesh.Header.MeshId);
 					PRINT("  | | SubMeshCount: %u\n", mesh.Header.SubMeshCount);
 					PRINT("  | | Transform:\n");
 					PRINT("  | | | Position: [%.3f, %.3f, %.3f]\n", mesh.Transform.Position.x, mesh.Transform.Position.y, mesh.Transform.Position.z);
@@ -193,7 +228,7 @@ namespace Nippon
 					PRINT("  | MdbHeader %u:\n", i);
 					PRINT("  | | MdbId: 0x%08X\n", mesh.Header.MdbId);
 					PRINT("  | | MeshType: 0x%08X\n", mesh.Header.MeshType);
-					PRINT("  | | MeshId: %u\n", mesh.Header.MeshId);
+					PRINT("  | | MeshId: 0x%04X\n", mesh.Header.MeshId);
 					PRINT("  | | SubMeshCount: %u\n", mesh.Header.SubMeshCount);
 					PRINT("  | | Transform:\n");
 					PRINT("  | | | Position: [%d, %d, %d]\n", mesh.Transform.Position.x, mesh.Transform.Position.y, mesh.Transform.Position.z);
@@ -251,6 +286,189 @@ namespace Nippon
 						PRINT("  | | | TextureUvOffset: [0x%016llX .. 0x%016llX] / %llu / 0x%llX\n", textureUvStart, textureUvEnd, textureUvSize, textureUvSize);
 						PRINT("  | | | ColorWeightOffset: [0x%016llX .. 0x%016llX] / %llu / 0x%llX\n", colorWeightStart, colorWeightEnd, colorWeightSize, colorWeightSize);
 					}
+				}
+
+				break;
+			}
+		}
+	}
+
+	void Model::PrintContent(std::function<void(char const*)> Callback)
+	{
+		static char buffer[1024] = {};
+
+		switch (mScrHeader.FileType)
+		{
+			case 0: // MD mesh
+			{
+				if (mScrHeader.MeshCount)
+				{
+					for (U32 i = 0; i < mScrHeader.MeshCount; i++)
+					{
+						auto const& mesh = mMdMeshes[i];
+
+						PRINT("  Mesh %u:\n", i);
+
+						if (mesh.Header.SubMeshCount)
+						{
+							for (U16 j = 0; j < mesh.Header.SubMeshCount; j++)
+							{
+								auto& subMesh = mesh.SubMeshes[j];
+
+								PRINT("  | SubMesh %u:\n", j);
+								PRINT("  | | Vertices %llu:\n", subMesh.Vertices.size());
+
+								if (subMesh.Vertices.size())
+								{
+									for (auto const& vertex : subMesh.Vertices)
+									{
+										PRINT("  | | | [%.3f %.3f %.3f]\n", vertex.X, vertex.Y, vertex.Z);
+									}
+								}
+								else
+								{
+									PRINT("  | | | Invalid or empty\n");
+								}
+
+								PRINT("  | | TextureMaps %llu:\n", subMesh.TextureMaps.size());
+
+								if (subMesh.TextureMaps.size())
+								{
+									for (auto const& textureMap : subMesh.TextureMaps)
+									{
+										PRINT("  | | | [%u %u]\n", textureMap.U, textureMap.V);
+									}
+								}
+								else
+								{
+									PRINT("  | | | Invalid or empty\n");
+								}
+
+								PRINT("  | | TextureUVs %llu:\n", subMesh.TextureUvs.size());
+
+								if (subMesh.TextureUvs.size())
+								{
+									for (auto const& textureUv : subMesh.TextureUvs)
+									{
+										PRINT("  | | | [%u %u]\n", textureUv.U, textureUv.V);
+									}
+								}
+								else
+								{
+									PRINT("  | | | Invalid or empty\n");
+								}
+
+								PRINT("  | | ColorWeights %llu:\n", subMesh.ColorWeights.size());
+
+								if (subMesh.ColorWeights.size())
+								{
+									for (auto const& colorWeight : subMesh.ColorWeights)
+									{
+										PRINT("  | | | [%u %u %u %u]\n", colorWeight.R, colorWeight.G, colorWeight.B, colorWeight.A);
+									}
+								}
+								else
+								{
+									PRINT("  | | | Invalid or empty\n");
+								}
+							}
+						}
+						else
+						{
+							PRINT("  | Invalid or empty\n");
+						}
+					}
+				}
+				else
+				{
+					PRINT("  Invalid or empty\n");
+				}
+
+				break;
+			}
+			case 1: // SCR mesh
+			{
+				if (mScrHeader.MeshCount)
+				{
+					for (U32 i = 0; i < mScrHeader.MeshCount; i++)
+					{
+						auto const& mesh = mScrMeshes[i];
+
+						PRINT("  Mesh %u:\n", i);
+
+						if (mesh.Header.SubMeshCount)
+						{
+							for (U16 j = 0; j < mesh.Header.SubMeshCount; j++)
+							{
+								auto& subMesh = mesh.SubMeshes[j];
+
+								PRINT("  | SubMesh %u:\n", j);
+								PRINT("  | | Vertices %llu:\n", subMesh.Vertices.size());
+
+								if (subMesh.Vertices.size())
+								{
+									for (auto const& vertex : subMesh.Vertices)
+									{
+										PRINT("  | | | [%d %d %d]\n", vertex.X, vertex.Y, vertex.Z);
+									}
+								}
+								else
+								{
+									PRINT("  | | | Invalid or empty\n");
+								}
+
+								PRINT("  | | TextureMaps %llu:\n", subMesh.TextureMaps.size());
+
+								if (subMesh.TextureMaps.size())
+								{
+									for (auto const& textureMap : subMesh.TextureMaps)
+									{
+										PRINT("  | | | [%u %u]\n", textureMap.U, textureMap.V);
+									}
+								}
+								else
+								{
+									PRINT("  | | | Invalid or empty\n");
+								}
+
+								PRINT("  | | TextureUVs %llu:\n", subMesh.TextureUvs.size());
+
+								if (subMesh.TextureUvs.size())
+								{
+									for (auto const& textureUv : subMesh.TextureUvs)
+									{
+										PRINT("  | | | [%u %u]\n", textureUv.U, textureUv.V);
+									}
+								}
+								else
+								{
+									PRINT("  | | | Invalid or empty\n");
+								}
+
+								PRINT("  | | ColorWeights %llu:\n", subMesh.ColorWeights.size());
+
+								if (subMesh.ColorWeights.size())
+								{
+									for (auto const& colorWeight : subMesh.ColorWeights)
+									{
+										PRINT("  | | | [%u %u %u %u]\n", colorWeight.R, colorWeight.G, colorWeight.B, colorWeight.A);
+									}
+								}
+								else
+								{
+									PRINT("  | | | Invalid or empty\n");
+								}
+							}
+						}
+						else
+						{
+							PRINT("  | Invalid or empty\n");
+						}
+					}
+				}
+				else
+				{
+					PRINT("  Invalid or empty\n");
 				}
 
 				break;
@@ -345,7 +563,7 @@ namespace Nippon
 
 		mScrHeader = mediator.Read<ScrHeader>();
 
-		if (mScrHeader.ScrId == SCR_HEADER_ID)
+		if (mScrHeader.ScrId == SCR_ID_00726373)
 		{
 			std::vector<U32> transformOffsets = mediator.Read<U32>(mScrHeader.MeshCount);
 
@@ -366,55 +584,25 @@ namespace Nippon
 						mesh.Index = i;
 						mesh.Header = mediator.Read<MdbHeader>();
 
-						if (mesh.Header.MdbId == MDB_HEADER_ID)
+						switch (mesh.Header.MdbId)
 						{
-							mesh.SubMeshes.resize(mesh.Header.SubMeshCount);
-
-							std::vector<U32> subMeshOffsets = mediator.Read<U32>(mesh.Header.SubMeshCount);
-
-							for (U16 j = 0; j < mesh.Header.SubMeshCount; j++)
+							case MDB_ID_0062646D:
 							{
-								mediator.SeekAbs(mdbStart + subMeshOffsets[j]);
+								ReadMdSubMesh(&mediator, mesh, mdbStart);
 
-								U64 mdStart = mediator.GetPosition();
-
-								auto& subMesh = mesh.SubMeshes[j];
-
-								subMesh.Index = j;
-								subMesh.Header = mediator.Read<MdHeader>();
-
-								if (subMesh.Header.VertexOffset)
-								{
-									mediator.SeekAbs(mdStart + subMesh.Header.VertexOffset);
-									mediator.Read<MdVertex>(subMesh.Vertices, subMesh.Header.VertexCount);
-								}
-
-								if (subMesh.Header.TextureMapOffset)
-								{
-									mediator.SeekAbs(mdStart + subMesh.Header.TextureMapOffset);
-									mediator.Read<TextureMap>(subMesh.TextureMaps, subMesh.Header.VertexCount);
-								}
-
-								if (subMesh.Header.TextureUvOffset)
-								{
-									mediator.SeekAbs(mdStart + subMesh.Header.TextureUvOffset);
-									mediator.Read<MdUv>(subMesh.TextureUvs, subMesh.Header.VertexCount);
-								}
-
-								if (subMesh.Header.ColorWeightOffset)
-								{
-									mediator.SeekAbs(mdStart + subMesh.Header.ColorWeightOffset);
-									mediator.Read<ColorWeight>(subMesh.ColorWeights, subMesh.Header.VertexCount);
-								}
+								break;
 							}
-						}
-						else
-						{
-							//__debugbreak(); // TODO
+							default:
+							{
+								if (mesh.Header.SubMeshCount > 0)
+								{
+									mesh.Header.SubMeshCount = 0;
+								}
 
-							mesh.Header = {};
+								//__debugbreak(); // TODO
 
-							mScrHeader.MeshCount--;
+								break;
+							}
 						}
 
 						mediator.AlignUp(16);
@@ -444,55 +632,25 @@ namespace Nippon
 						mesh.Index = i;
 						mesh.Header = mediator.Read<MdbHeader>();
 
-						if (mesh.Header.MdbId == MDB_HEADER_ID)
+						switch (mesh.Header.MdbId)
 						{
-							mesh.SubMeshes.resize(mesh.Header.SubMeshCount);
-
-							std::vector<U32> subMeshOffsets = mediator.Read<U32>(mesh.Header.SubMeshCount);
-
-							for (U16 j = 0; j < mesh.Header.SubMeshCount; j++)
+							case MDB_ID_0062646D:
 							{
-								mediator.SeekAbs(mdbStart + subMeshOffsets[j]);
+								ReadScrSubMesh(&mediator, mesh, mdbStart);
 
-								U64 mdStart = mediator.GetPosition();
-
-								auto& subMesh = mesh.SubMeshes[j];
-
-								subMesh.Index = j;
-								subMesh.Header = mediator.Read<MdHeader>();
-
-								if (subMesh.Header.VertexOffset)
-								{
-									mediator.SeekAbs(mdStart + subMesh.Header.VertexOffset);
-									mediator.Read<ScrVertex>(subMesh.Vertices, subMesh.Header.VertexCount);
-								}
-
-								if (subMesh.Header.TextureMapOffset)
-								{
-									mediator.SeekAbs(mdStart + subMesh.Header.TextureMapOffset);
-									mediator.Read<TextureMap>(subMesh.TextureMaps, subMesh.Header.VertexCount);
-								}
-
-								if (subMesh.Header.TextureUvOffset)
-								{
-									mediator.SeekAbs(mdStart + subMesh.Header.TextureUvOffset);
-									mediator.Read<ScrUv>(subMesh.TextureUvs, subMesh.Header.VertexCount);
-								}
-
-								if (subMesh.Header.ColorWeightOffset)
-								{
-									mediator.SeekAbs(mdStart + subMesh.Header.ColorWeightOffset);
-									mediator.Read<ColorWeight>(subMesh.ColorWeights, subMesh.Header.VertexCount);
-								}
+								break;
 							}
-						}
-						else
-						{
-							//__debugbreak(); // TODO
+							default:
+							{
+								if (mesh.Header.SubMeshCount > 0)
+								{
+									mesh.Header.SubMeshCount = 0;
+								}
 
-							mesh.Header = {};
+								//__debugbreak(); // TODO
 
-							mScrHeader.MeshCount--;
+								break;
+							}
 						}
 
 						mediator.AlignUp(16);
@@ -513,23 +671,121 @@ namespace Nippon
 		}
 	}
 
+	void Model::DeserializeModelAndCollectUniqueNonSerializableInfos(UniqueNonSerializableInfos& UniqueNonSerializableInfos)
+	{
+		BinaryMediator mediator = { mBytes, mSize };
+
+		mScrHeader = mediator.Read<ScrHeader>();
+
+		UniqueNonSerializableInfos.UniqueScrIds.emplace(mScrHeader.ScrId);
+		UniqueNonSerializableInfos.UniqueScrFileTypes.emplace(mScrHeader.FileType);
+
+		if (mScrHeader.ScrId == SCR_ID_00726373)
+		{
+			std::vector<U32> transformOffsets = mediator.Read<U32>(mScrHeader.MeshCount);
+
+			mediator.AlignUp(16);
+
+			switch (mScrHeader.FileType)
+			{
+				case 0: // MD mesh
+				{
+					mMdMeshes.resize(mScrHeader.MeshCount);
+
+					for (U32 i = 0; i < mScrHeader.MeshCount; i++)
+					{
+						U64 mdbStart = mediator.GetPosition();
+
+						auto& mesh = mMdMeshes[i];
+
+						mesh.Index = i;
+						mesh.Header = mediator.Read<MdbHeader>();
+
+						UniqueNonSerializableInfos.UniqueMdbIds.emplace(mesh.Header.MdbId);
+						UniqueNonSerializableInfos.UniqueMdbMeshTypes.emplace(mesh.Header.MeshType);
+						UniqueNonSerializableInfos.UniqueMdbMeshIds.emplace(mesh.Header.MeshId);
+
+						switch (mesh.Header.MdbId)
+						{
+							case MDB_ID_0062646D:
+							{
+								ReadMdSubMesh(&mediator, mesh, mdbStart);
+
+								break;
+							}
+							default:
+							{
+								if (mesh.Header.SubMeshCount > 0)
+								{
+									mesh.Header.SubMeshCount = 0;
+								}
+
+								break;
+							}
+						}
+
+						mediator.AlignUp(16);
+					}
+
+					break;
+				}
+				case 1: // SCR mesh
+				{
+					mScrMeshes.resize(mScrHeader.MeshCount);
+
+					for (U32 i = 0; i < mScrHeader.MeshCount; i++)
+					{
+						U64 mdbStart = mediator.GetPosition();
+
+						auto& mesh = mScrMeshes[i];
+
+						mesh.Index = i;
+						mesh.Header = mediator.Read<MdbHeader>();
+
+						UniqueNonSerializableInfos.UniqueMdbIds.emplace(mesh.Header.MdbId);
+						UniqueNonSerializableInfos.UniqueMdbMeshTypes.emplace(mesh.Header.MeshType);
+						UniqueNonSerializableInfos.UniqueMdbMeshIds.emplace(mesh.Header.MeshId);
+
+						switch (mesh.Header.MdbId)
+						{
+							case MDB_ID_0062646D:
+							{
+								ReadScrSubMesh(&mediator, mesh, mdbStart);
+
+								break;
+							}
+							default:
+							{
+								if (mesh.Header.SubMeshCount > 0)
+								{
+									mesh.Header.SubMeshCount = 0;
+								}
+
+								break;
+							}
+						}
+
+						mediator.AlignUp(16);
+					}
+
+					break;
+				}
+			}
+		}
+	}
+
 	bool Model::ConvertRoot(aiScene const* Scene, ConversionRules const& Rules)
 	{
 		aiNode const* rootNode = Scene->mRootNode;
 
 		U32 meshCount = rootNode->mNumChildren;
 
-		if (meshCount == 0)
-		{
-			return false;
-		}
-
 		if (meshCount != Rules.MeshRules.size())
 		{
 			return false;
 		}
 
-		mScrHeader.ScrId = SCR_HEADER_ID;
+		mScrHeader.ScrId = Rules.ScrId;
 		mScrHeader.FileType = Rules.FileType;
 		mScrHeader.MeshCount = meshCount;
 
@@ -585,11 +841,6 @@ namespace Nippon
 	{
 		U32 subMeshCount = Node->mNumChildren;
 
-		if (subMeshCount == 0)
-		{
-			return false;
-		}
-
 		if (subMeshCount != Rule.SubMeshRules.size())
 		{
 			return false;
@@ -605,7 +856,7 @@ namespace Nippon
 
 		mesh.Index = Index;
 
-		mesh.Header.MdbId = MDB_HEADER_ID;
+		mesh.Header.MdbId = Rule.MdbId;
 		mesh.Header.MeshType = Rule.MeshType;
 		mesh.Header.MeshId = Rule.MeshId;
 		mesh.Header.SubMeshCount = (U16)subMeshCount;
@@ -635,11 +886,6 @@ namespace Nippon
 	{
 		U32 subMeshCount = Node->mNumChildren;
 
-		if (subMeshCount == 0)
-		{
-			return false;
-		}
-
 		if (subMeshCount != Rule.SubMeshRules.size())
 		{
 			return false;
@@ -655,7 +901,7 @@ namespace Nippon
 
 		mesh.Index = Index;
 
-		mesh.Header.MdbId = MDB_HEADER_ID;
+		mesh.Header.MdbId = Rule.MdbId;
 		mesh.Header.MeshType = Rule.MeshType;
 		mesh.Header.MeshId = Rule.MeshId;
 		mesh.Header.SubMeshCount = (U16)subMeshCount;
@@ -983,6 +1229,92 @@ namespace Nippon
 		return true;
 	}
 
+	void Model::ReadMdSubMesh(BinaryMediator* Mediator, MdMesh& Mesh, U64 MdbStart)
+	{
+		Mesh.SubMeshes.resize(Mesh.Header.SubMeshCount);
+
+		std::vector<U32> subMeshOffsets = Mediator->Read<U32>(Mesh.Header.SubMeshCount);
+
+		for (U16 j = 0; j < Mesh.Header.SubMeshCount; j++)
+		{
+			Mediator->SeekAbs(MdbStart + subMeshOffsets[j]);
+
+			U64 mdStart = Mediator->GetPosition();
+
+			auto& subMesh = Mesh.SubMeshes[j];
+
+			subMesh.Index = j;
+			subMesh.Header = Mediator->Read<MdHeader>();
+
+			if (subMesh.Header.VertexOffset)
+			{
+				Mediator->SeekAbs(mdStart + subMesh.Header.VertexOffset);
+				Mediator->Read<MdVertex>(subMesh.Vertices, subMesh.Header.VertexCount);
+			}
+
+			if (subMesh.Header.TextureMapOffset)
+			{
+				Mediator->SeekAbs(mdStart + subMesh.Header.TextureMapOffset);
+				Mediator->Read<TextureMap>(subMesh.TextureMaps, subMesh.Header.VertexCount);
+			}
+
+			if (subMesh.Header.TextureUvOffset)
+			{
+				Mediator->SeekAbs(mdStart + subMesh.Header.TextureUvOffset);
+				Mediator->Read<MdUv>(subMesh.TextureUvs, subMesh.Header.VertexCount);
+			}
+
+			if (subMesh.Header.ColorWeightOffset)
+			{
+				Mediator->SeekAbs(mdStart + subMesh.Header.ColorWeightOffset);
+				Mediator->Read<ColorWeight>(subMesh.ColorWeights, subMesh.Header.VertexCount);
+			}
+		}
+	}
+
+	void Model::ReadScrSubMesh(BinaryMediator* Mediator, ScrMesh& Mesh, U64 MdbStart)
+	{
+		Mesh.SubMeshes.resize(Mesh.Header.SubMeshCount);
+
+		std::vector<U32> subMeshOffsets = Mediator->Read<U32>(Mesh.Header.SubMeshCount);
+
+		for (U16 j = 0; j < Mesh.Header.SubMeshCount; j++)
+		{
+			Mediator->SeekAbs(MdbStart + subMeshOffsets[j]);
+
+			U64 mdStart = Mediator->GetPosition();
+
+			auto& subMesh = Mesh.SubMeshes[j];
+
+			subMesh.Index = j;
+			subMesh.Header = Mediator->Read<MdHeader>();
+
+			if (subMesh.Header.VertexOffset)
+			{
+				Mediator->SeekAbs(mdStart + subMesh.Header.VertexOffset);
+				Mediator->Read<ScrVertex>(subMesh.Vertices, subMesh.Header.VertexCount);
+			}
+
+			if (subMesh.Header.TextureMapOffset)
+			{
+				Mediator->SeekAbs(mdStart + subMesh.Header.TextureMapOffset);
+				Mediator->Read<TextureMap>(subMesh.TextureMaps, subMesh.Header.VertexCount);
+			}
+
+			if (subMesh.Header.TextureUvOffset)
+			{
+				Mediator->SeekAbs(mdStart + subMesh.Header.TextureUvOffset);
+				Mediator->Read<ScrUv>(subMesh.TextureUvs, subMesh.Header.VertexCount);
+			}
+
+			if (subMesh.Header.ColorWeightOffset)
+			{
+				Mediator->SeekAbs(mdStart + subMesh.Header.ColorWeightOffset);
+				Mediator->Read<ColorWeight>(subMesh.ColorWeights, subMesh.Header.VertexCount);
+			}
+		}
+	}
+
 	void Model::WriteTransformOffsets(BinaryMediator* Mediator)
 	{
 		U64 transformOffset = GetFirstTransformOffset();
@@ -1290,6 +1622,8 @@ namespace Nippon
 			acc = ALIGN_UP_BY(acc, 16);
 		}
 
+		acc = ALIGN_UP_BY(acc, 16);
+
 		return acc;
 	}
 
@@ -1323,6 +1657,8 @@ namespace Nippon
 			acc += sizeof(ColorWeight) * SubMesh->Header.VertexCount;
 			acc = ALIGN_UP_BY(acc, 16);
 		}
+
+		acc = ALIGN_UP_BY(acc, 16);
 
 		return acc;
 	}

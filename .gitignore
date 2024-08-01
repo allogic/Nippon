@@ -396,3 +396,10 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Nippon
+*.exe
+*.md
+*.scr
+*.dat
+*.blend1

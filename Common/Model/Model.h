@@ -11,6 +11,16 @@
 
 namespace Nippon
 {
+	struct UniqueNonSerializableInfos
+	{
+		std::set<U32> UniqueScrIds;
+		std::set<U32> UniqueScrFileTypes;
+
+		std::set<U32> UniqueMdbIds;
+		std::set<U32> UniqueMdbMeshTypes;
+		std::set<U16> UniqueMdbMeshIds;
+	};
+
 	struct SubMeshRule
 	{
 		U16 TextureIndex;
@@ -18,6 +28,7 @@ namespace Nippon
 
 	struct MeshRule
 	{
+		U32 MdbId;
 		U32 MeshType;
 		U32 MeshId;
 		std::vector<SubMeshRule> SubMeshRules;
@@ -25,6 +36,7 @@ namespace Nippon
 
 	struct ConversionRules
 	{
+		U32 ScrId;
 		U32 FileType;
 		std::vector<MeshRule> MeshRules;
 	};
@@ -66,13 +78,21 @@ namespace Nippon
 
 	public:
 
+		void CollectUniqueNonSerializableInfos(U8 const* Bytes, U64 Size, UniqueNonSerializableInfos& UniqueNonSerializableInfos); // TODO
+		void CollectUniqueNonSerializableInfos(std::vector<U8> const& Bytes, UniqueNonSerializableInfos& UniqueNonSerializableInfos); // TODO
+
+	public:
+
 		void PrintTableOfContent(std::function<void(char const*)> Callback);
+		void PrintContent(std::function<void(char const*)> Callback);
 		bool ConvertIntoProprietaryFormat(fs::path const& FilePath, fs::path const& RulesPath);
 
 	private:
 
 		void SerializeModel();
 		void DeserializeModel();
+
+		void DeserializeModelAndCollectUniqueNonSerializableInfos(UniqueNonSerializableInfos& UniqueNonSerializableInfos); // TODO
 
 	private:
 
@@ -81,6 +101,11 @@ namespace Nippon
 		bool ConvertScrMesh(aiScene const* Scene, aiNode const* Node, U32 Index, MeshRule const& Rule);
 		bool ConvertMdSubMesh(aiScene const* Scene, aiNode const* Node, MdMesh& Mesh, U32 Index, SubMeshRule const& Rule);
 		bool ConvertScrSubMesh(aiScene const* Scene, aiNode const* Node, ScrMesh& Mesh, U32 Index, SubMeshRule const& Rule);
+
+	private:
+
+		void ReadMdSubMesh(BinaryMediator* Mediator, MdMesh& Mesh, U64 MdbStart);
+		void ReadScrSubMesh(BinaryMediator* Mediator, ScrMesh& Mesh, U64 MdbStart);
 
 	private:
 
@@ -116,10 +141,8 @@ namespace Nippon
 
 		ScrHeader mScrHeader = {};
 
-		// TODO
-		std::string mName = "";
+		std::string mName = ""; // TODO
 
-		// TODO
-		Object const* mObjectRef = nullptr;
+		Object const* mObjectRef = nullptr; // TODO
 	};
 }

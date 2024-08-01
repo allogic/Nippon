@@ -4,8 +4,8 @@
 #include <Common/Standard.h>
 #include <Common/Types.h>
 
-#define FILE_ALIGNMENT 256
-#define FILE_HEADER_SIZE 32
+#define FILE_ALIGNMENT 0x100
+#define FILE_HEADER_SIZE 0x20
 
 namespace Nippon
 {
@@ -57,7 +57,7 @@ namespace Nippon
 		void SerializeRecursive();
 		void DeserializeRecursive();
 
-	public:
+	private:
 
 		void ExtractToDiskRecursive(fs::path File);
 		void UnfoldToDiskRecursive(fs::path File);

@@ -1,0 +1,21 @@
+{
+	"ScrId": 7496563,
+	"FileType": 0,
+	"MeshRules": [
+		{
+			"MdbId": 6448237,
+			"MeshType": 48,
+			"MeshId": 2,
+			"SubMeshRules": [
+				{ "TextureIndex": 1 },
+				{ "TextureIndex": 0 },
+				{ "TextureIndex": 3 }
+			]
+		}, {
+			"MdbId": 256,
+			"MeshType": 255,
+			"MeshId": 256,
+			"SubMeshRules": []
+		}
+	]
+}

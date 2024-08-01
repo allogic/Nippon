@@ -1,5 +1,9 @@
 #include <Editor/Editor.h>
 
+#include <Common/Archive/Archive.h>
+
+#include <Common/Model/Model.h>
+
 #include <Common/Misc/BlowFish.h>
 #include <Common/Misc/Crc32.h>
 
@@ -1113,6 +1117,94 @@ namespace Nippon
 		ss << "    DockNode          ID=0x00000008 Parent=0x0000000A SizeRef=600,1051 Selected=0xC26E4521\n";
 
 		FileUtility::WriteText("imgui.ini", ss.str());
+	}
+
+	void Database::GenerateModelInfoHeader()
+	{
+		std::stringstream ss = {};
+
+		ss << "#pragma once\n";
+		ss << "\n";
+
+		UniqueNonSerializableInfos uniqueNonSerializableInfos = {};
+
+		for (auto const& levelArchiveInfo : GetLevelArchiveInfos())
+		{
+			std::vector<U8> const& levelArchiveData = GetArchiveDataByUniqueId(levelArchiveInfo.UniqueId);
+
+			Archive levelArchive;
+
+			levelArchive.Deserialize(levelArchiveData);
+
+			std::vector<Archive*> scrArchives = levelArchive.FindArchivesByType("SCR");
+
+			for (auto const& scrArchive : scrArchives)
+			{
+				Model scrModel;
+				
+				scrModel.CollectUniqueNonSerializableInfos(scrArchive->GetBytes(), scrArchive->GetSize(), uniqueNonSerializableInfos);
+			}
+		}
+
+		for (auto const& entityArchiveInfo : GetEntityArchiveInfos())
+		{
+			std::vector<U8> const& entityArchiveData = GetArchiveDataByUniqueId(entityArchiveInfo.UniqueId);
+
+			Archive entityArchive;
+
+			entityArchive.Deserialize(entityArchiveData);
+
+			std::vector<Archive*> mdArchives = entityArchive.FindArchivesByType("MD");
+
+			for (auto const& mdArchive : mdArchives)
+			{
+				Model mdModel;
+
+				mdModel.CollectUniqueNonSerializableInfos(mdArchive->GetBytes(), mdArchive->GetSize(), uniqueNonSerializableInfos);
+			}
+		}
+
+		static char buffer[0xFF];
+
+		for (auto const& uniqueScrId : uniqueNonSerializableInfos.UniqueScrIds)
+		{
+			snprintf(buffer, sizeof(buffer), "#define SCR_ID_%08X 0x%08X\n", uniqueScrId, uniqueScrId);
+			ss << buffer;
+		}
+
+		ss << "\n";
+
+		for (auto const& uniqueFileType : uniqueNonSerializableInfos.UniqueScrFileTypes)
+		{
+			snprintf(buffer, sizeof(buffer), "#define SCR_FILE_TYPE_%08X 0x%08X\n", uniqueFileType, uniqueFileType);
+			ss << buffer;
+		}
+
+		ss << "\n";
+
+		for (auto const& uniqueMdbId : uniqueNonSerializableInfos.UniqueMdbIds)
+		{
+			snprintf(buffer, sizeof(buffer), "#define MDB_ID_%08X 0x%08X\n", uniqueMdbId, uniqueMdbId);
+			ss << buffer;
+		}
+
+		ss << "\n";
+
+		for (auto const& uniqueMeshType : uniqueNonSerializableInfos.UniqueMdbMeshTypes)
+		{
+			snprintf(buffer, sizeof(buffer), "#define MDB_MESH_TYPE_%08X 0x%08X\n", uniqueMeshType, uniqueMeshType);
+			ss << buffer;
+		}
+
+		ss << "\n";
+
+		for (auto const& uniqueMeshId : uniqueNonSerializableInfos.UniqueMdbMeshIds)
+		{
+			snprintf(buffer, sizeof(buffer), "#define MDB_MESH_ID_%04X 0x%04X\n", uniqueMeshId, uniqueMeshId);
+			ss << buffer;
+		}
+
+		FileUtility::WriteText("ModelInfo.h", ss.str());
 	}
 
 	bool Database::InsertLevelForPath(fs::path const& DirPath)

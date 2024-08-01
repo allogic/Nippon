@@ -119,6 +119,7 @@ namespace Nippon
 	public:
 
 		static void GenerateImGuiIni();
+		static void GenerateModelInfoHeader();
 
 	private:
 
