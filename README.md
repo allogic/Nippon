@@ -8,6 +8,11 @@ On first start the editor will ask for the okami data directory.
 
 It should look something along like `C:\Program Files (x86)\Steam\steamapps\common\Okami\data_pc`.
 
+#### Editor Scene Controls
+- `WASD` to move
+- `L-SHIFT` for lightspeed
+- `F` reset position
+
 ## Compile The Project
 First clone the repository and execute the setup which should create all missing folders and files.
 ```
@@ -147,14 +152,11 @@ ModelUtility ConvertIntoProprietaryFormat "Tree.fbx" "TreeRules.json" "Tree.MD"
 ```
 
 ## Exporting Assets
+This service will soon be reworked!
+
 Right click on a random entity that you wish to export and choose `Export as Wavefront` to generate a wavefront object and material file along with all referenced textures. It should be ready to be imported into blender or any other 3D modeling software. Be sure to enable backface culling in your external rendering software to view the objects properly, otherwise only the black hull will be visible for most objects.
 
 <img src="Assets/Oki.jpg" width="33%"/><img src="Assets/Crow.jpg" width="33%"/><img src="Assets/Rao.jpg" width="33%"/>
-
-## Editor Scene Controls
-- `WASD` to move
-- `L-SHIFT` for lightspeed
-- `F` reset position
 
 ## Issues / Pull Requests
 If bugs are being found, please don't hesitate to open an issue or pull request!
