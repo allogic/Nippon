@@ -3,6 +3,7 @@
 #include <Common/Forward.h>
 #include <Common/Standard.h>
 #include <Common/Types.h>
+#include <Common/VertexTypes.h>
 
 #include <Common/Structs/ModelStructs.h>
 #include <Common/Structs/PlacementStructs.h>
@@ -86,6 +87,14 @@ namespace Nippon
 		void PrintTableOfContent(std::function<void(char const*)> Callback);
 		void PrintContent(std::function<void(char const*)> Callback);
 		bool ConvertIntoProprietaryFormat(fs::path const& FilePath, fs::path const& RulesPath);
+
+	public:
+
+		static void ConvertMdVertices(U32 EntityId, std::vector<MdVertex> const& MdVertices, std::vector<TextureMap> const& TextureMaps, std::vector<MdUv> const& TextureUvs, std::vector<ColorWeight> const& ColorWeights, std::vector<DefaultVertex>& Vertices);
+		static void ConvertScrVertices(U32 EntityId, std::vector<ScrVertex> const& ScrVertices, std::vector<TextureMap> const& TextureMaps, std::vector<ScrUv> const& TextureUvs, std::vector<ColorWeight> const& ColorWeights, std::vector<DefaultVertex>& Vertices);
+
+		static void TriangulateMdVertices(std::vector<MdVertex> const& Vertices, std::vector<U32>& Indices);
+		static void TriangulateScrVertices(std::vector<ScrVertex> const& Vertices, std::vector<U32>& Indices);
 
 	private:
 

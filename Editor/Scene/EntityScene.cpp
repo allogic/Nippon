@@ -5,9 +5,6 @@
 
 #include <Common/Model/Model.h>
 
-#include <Common/Converter/VertexConverter.h>
-#include <Common/Converter/IndexConverter.h>
-
 #include <Editor/Ecs/Registry.h>
 #include <Editor/Ecs/Entity.h>
 
@@ -107,9 +104,12 @@ namespace Nippon
 					Renderable* subMeshRenderable = subMeshEntity->AttachComponent<Renderable>();
 					StaticMesh* subMeshStaticMesh = subMeshRenderable->GetStaticMesh();
 
-					std::vector<DefaultVertex> vertices = VertexConverter::MdToDefault(subMeshEntity->GetUniqueId(), subMesh.Vertices, subMesh.TextureMaps, subMesh.TextureUvs, subMesh.ColorWeights);
-					std::vector<U32> indices = IndexConverter::MdToU32(subMesh.Vertices);
+					std::vector<DefaultVertex> vertices = {};
+					std::vector<U32> indices = {};
 		
+					Model::ConvertMdVertices(subMeshEntity->GetUniqueId(), subMesh.Vertices, subMesh.TextureMaps, subMesh.TextureUvs, subMesh.ColorWeights, vertices);
+					Model::TriangulateMdVertices(subMesh.Vertices, indices);
+
 					U32 textureIndex = subMesh.Header.TextureIndex;
 					U32 texture = sceneAssets->GetTextureByIndex(textureIndex);
 		

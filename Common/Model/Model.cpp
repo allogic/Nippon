@@ -1,5 +1,6 @@
 #include <Common/Macros.h>
 #include <Common/Memory.h>
+#include <Common/Magic.h>
 
 #include <Common/Assimp/Importer.hpp>
 #include <Common/Assimp/Exporter.hpp>
@@ -322,7 +323,7 @@ namespace Nippon
 								{
 									for (auto const& vertex : subMesh.Vertices)
 									{
-										PRINT("  | | | [%.3f %.3f %.3f]\n", vertex.X, vertex.Y, vertex.Z);
+										PRINT("  | | | [%.3f %.3f %.3f] 0x%04X\n", vertex.X, vertex.Y, vertex.Z, vertex.Connection);
 									}
 								}
 								else
@@ -409,7 +410,7 @@ namespace Nippon
 								{
 									for (auto const& vertex : subMesh.Vertices)
 									{
-										PRINT("  | | | [%d %d %d]\n", vertex.X, vertex.Y, vertex.Z);
+										PRINT("  | | | [%d %d %d] 0x%04X\n", vertex.X, vertex.Y, vertex.Z, vertex.Connection);
 									}
 								}
 								else
@@ -498,6 +499,116 @@ namespace Nippon
 		}
 
 		return false;
+	}
+
+	void Model::ConvertMdVertices(U32 EntityId, std::vector<MdVertex> const& MdVertices, std::vector<TextureMap> const& TextureMaps, std::vector<MdUv> const& TextureUvs, std::vector<ColorWeight> const& ColorWeights, std::vector<DefaultVertex>& Vertices)
+	{
+		U16 vertexCount = (U16)MdVertices.size();
+
+		Vertices.resize(vertexCount);
+
+		for (U16 i = 0; i < vertexCount; i++)
+		{
+			R32 U = (R32)TextureMaps[i].U;
+			R32 V = (R32)TextureMaps[i].V;
+
+			if (U < 32767.5F) U += 65535.0F;
+			if (V < 32767.5F) V += 65535.0F;
+
+			U /= 65535.0F;
+			V /= 65535.0F;
+
+			U *= MAGIC_UV_COEFFICIENT;
+			V *= MAGIC_UV_COEFFICIENT;
+
+			R32V3 position = (vertexCount == MdVertices.size()) ? R32V3{ MdVertices[i].X, MdVertices[i].Y, MdVertices[i].Z } : R32V3{};
+			R32V2 textureMap = (vertexCount == TextureMaps.size()) ? R32V2{ U, V } : R32V2{};
+			R32V2 textureUv = (vertexCount == TextureUvs.size()) ? R32V2{ TextureUvs[i].U, TextureUvs[i].V } : R32V2{};
+			R32V4 colorWeight = (vertexCount == ColorWeights.size()) ? R32V4{ ColorWeights[i].R, ColorWeights[i].G, ColorWeights[i].B, ColorWeights[i].A } / 255.0F : R32V4{};
+
+			Vertices[i] = DefaultVertex{ position, textureMap, textureUv, colorWeight, EntityId };
+		}
+	}
+
+	void Model::ConvertScrVertices(U32 EntityId, std::vector<ScrVertex> const& ScrVertices, std::vector<TextureMap> const& TextureMaps, std::vector<ScrUv> const& TextureUvs, std::vector<ColorWeight> const& ColorWeights, std::vector<DefaultVertex>& Vertices)
+	{
+		U16 vertexCount = (U16)ScrVertices.size();
+
+		Vertices.resize(vertexCount);
+
+		for (U16 i = 0; i < vertexCount; i++)
+		{
+			R32 U = (R32)TextureMaps[i].U;
+			R32 V = (R32)TextureMaps[i].V;
+
+			if (U < 32767.5F) U += 65535.0F;
+			if (V < 32767.5F) V += 65535.0F;
+
+			U /= 65535.0F;
+			V /= 65535.0F;
+
+			U *= MAGIC_UV_COEFFICIENT;
+			V *= MAGIC_UV_COEFFICIENT;
+
+			R32V3 position = (vertexCount == ScrVertices.size()) ? R32V3{ ScrVertices[i].X, ScrVertices[i].Y, ScrVertices[i].Z } : R32V3{};
+			R32V2 textureMap = (vertexCount == TextureMaps.size()) ? R32V2{ U, V } : R32V2{};
+			R32V2 textureUv = (vertexCount == TextureUvs.size()) ? R32V2{ TextureUvs[i].U, TextureUvs[i].V } : R32V2{};
+			R32V4 colorWeight = (vertexCount == ColorWeights.size()) ? R32V4{ ColorWeights[i].R, ColorWeights[i].G, ColorWeights[i].B, ColorWeights[i].A } / 255.0F : R32V4{};
+
+			Vertices[i] = DefaultVertex{ position, textureMap, textureUv, colorWeight, EntityId };
+		}
+	}
+
+	void Model::TriangulateMdVertices(std::vector<MdVertex> const& Vertices, std::vector<U32>& Indices)
+	{
+		U16 vertexCount = (U16)Vertices.size();
+
+		for (U16 i = 0; i < vertexCount; i++)
+		{
+			if (Vertices[i].Connection == 0x8000)
+			{
+				continue;
+			}
+
+			if (Vertices[i].Connection)
+			{
+				Indices.emplace_back(i - 2);
+				Indices.emplace_back(i - 1);
+				Indices.emplace_back(i - 0);
+			}
+			else
+			{
+				Indices.emplace_back(i - 1);
+				Indices.emplace_back(i - 2);
+				Indices.emplace_back(i - 0);
+			}
+		}
+	}
+
+	void Model::TriangulateScrVertices(std::vector<ScrVertex> const& Vertices, std::vector<U32>& Indices)
+	{
+		U16 vertexCount = (U16)Vertices.size();
+
+		for (U16 i = 0; i < vertexCount; i++)
+		{
+			if (Vertices[i].Connection == 0x8000)
+			{
+				continue;
+			}
+
+			if (Vertices[i].Connection)
+			{
+				Indices.emplace_back(i - 2);
+				Indices.emplace_back(i - 1);
+				Indices.emplace_back(i - 0);
+			}
+			else
+			{
+				Indices.emplace_back(i - 1);
+				Indices.emplace_back(i - 2);
+				Indices.emplace_back(i - 0);
+			}
+		}
 	}
 
 	void Model::SerializeModel()
@@ -1014,17 +1125,17 @@ namespace Nippon
 				subMesh.Vertices[k + 0].X = (R32)v0.x;
 				subMesh.Vertices[k + 0].Y = (R32)v0.y;
 				subMesh.Vertices[k + 0].Z = (R32)v0.z;
-				subMesh.Vertices[k + 0].Connection = 0; // TODO
+				subMesh.Vertices[k + 0].Connection = 0x8000; // TODO
 
 				subMesh.Vertices[k + 1].X = (R32)v1.x;
 				subMesh.Vertices[k + 1].Y = (R32)v1.y;
 				subMesh.Vertices[k + 1].Z = (R32)v1.z;
-				subMesh.Vertices[k + 1].Connection = 0; // TODO
+				subMesh.Vertices[k + 1].Connection = 0x8000; // TODO
 
 				subMesh.Vertices[k + 2].X = (R32)v2.x;
 				subMesh.Vertices[k + 2].Y = (R32)v2.y;
 				subMesh.Vertices[k + 2].Z = (R32)v2.z;
-				subMesh.Vertices[k + 2].Connection = 1; // TODO
+				subMesh.Vertices[k + 2].Connection = 0; // TODO
 			}
 
 			if (assimpMesh->HasTextureCoords(0))
@@ -1165,17 +1276,17 @@ namespace Nippon
 				subMesh.Vertices[k + 0].X = (I16)v0.x;
 				subMesh.Vertices[k + 0].Y = (I16)v0.y;
 				subMesh.Vertices[k + 0].Z = (I16)v0.z;
-				subMesh.Vertices[k + 0].Connection = 0; // TODO
+				subMesh.Vertices[k + 0].Connection = 0x8000; // TODO
 
 				subMesh.Vertices[k + 1].X = (I16)v1.x;
 				subMesh.Vertices[k + 1].Y = (I16)v1.y;
 				subMesh.Vertices[k + 1].Z = (I16)v1.z;
-				subMesh.Vertices[k + 1].Connection = 0; // TODO
+				subMesh.Vertices[k + 1].Connection = 0x8000; // TODO
 
 				subMesh.Vertices[k + 2].X = (I16)v2.x;
 				subMesh.Vertices[k + 2].Y = (I16)v2.y;
 				subMesh.Vertices[k + 2].Z = (I16)v2.z;
-				subMesh.Vertices[k + 2].Connection = 1; // TODO
+				subMesh.Vertices[k + 2].Connection = 0; // TODO
 			}
 
 			if (assimpMesh->HasTextureCoords(0))

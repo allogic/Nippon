@@ -402,4 +402,5 @@ FodyWeavers.xsd
 *.md
 *.scr
 *.dat
+*.bin
 *.blend1

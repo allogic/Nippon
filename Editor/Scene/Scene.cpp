@@ -179,12 +179,21 @@ namespace Nippon
 			glClearColor(0.125F, 0.125F, 0.125F, 1.0F);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+			glEnable(GL_CULL_FACE);
 			glEnable(GL_DEPTH_TEST);
 			glEnable(GL_BLEND);
 
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glDepthFunc(GL_LESS);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+			glCullFace(GL_BACK);
+
+			// Render only back faces
+			//glFrontFace(GL_CCW);
+			//mRenderer->RenderDefault();
+
+			// Render only front faces
+			glFrontFace(GL_CW);
 			mRenderer->RenderDefault();
 
 			if (mDebugEnabled)
@@ -194,6 +203,7 @@ namespace Nippon
 
 			glDisable(GL_BLEND);
 			glDisable(GL_DEPTH_TEST);
+			glDisable(GL_CULL_FACE);
 
 			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 		}

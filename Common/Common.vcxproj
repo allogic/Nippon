@@ -136,8 +136,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Archive\Archive.cpp" />
-    <ClCompile Include="Converter\IndexConverter.cpp" />
-    <ClCompile Include="Converter\VertexConverter.cpp" />
     <ClCompile Include="Model\Model.cpp" />
     <ClCompile Include="Serializer\ItsSerializer.cpp" />
     <ClCompile Include="Serializer\PlacementSerializer.cpp" />
@@ -154,8 +152,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Archive\Archive.h" />
-    <ClInclude Include="Converter\IndexConverter.h" />
-    <ClInclude Include="Converter\VertexConverter.h" />
     <ClInclude Include="Assimp\aabb.h" />
     <ClInclude Include="Assimp\ai_assert.h" />
     <ClInclude Include="Assimp\anim.h" />
