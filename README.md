@@ -72,7 +72,7 @@ Examples:
 ```
 To change an existing model, you must first examine its properties. To do this, we first print out the ToC of an SCR/MD file. Next, we need to construct a JSON conversion rule that has the same values as we just saw in the ToC.
 
-Make sure that your model has the same parent-child relationships. Also make sure that your custom model has the same vertex attributes as the source model.
+Make sure that your custom model has the same parent-child relationships. Also make sure that your custom model has the same vertex attributes as the source model.
  - VertexOffset <=> Vertex Position Strip
  - TextureMapOffset <=> UV's
  - TextureUvOffset <=> UV's
