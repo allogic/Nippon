@@ -22,7 +22,7 @@ Setup.ps1
 Launch the Visual Studio Solution, set the `Editor` as the startup project and build for `Debug` or `Release` bitness `x64`.
 
 #### Troubleshooting
- - If you got build errors, make sure you are using the latest Visual Studio version. (Tested with VS 2022 >= 17.X.X)
+ - If you got build errors, make sure you have the latest Visual Studio platform toolset v143 installed on your system.
  - If for some reason the editor does not start, make sure the latest graphics card drivers are installed on your system.
 
 ## How do I modify archives?
