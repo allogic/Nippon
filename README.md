@@ -26,37 +26,33 @@ Launch the Visual Studio Solution, set the `Editor` as the startup project and b
  - If for some reason the editor does not start, make sure the latest graphics card drivers are installed on your system.
 
 ## How do I modify archives?
-There is a standalone archive utility which can be utilized to quickly inspect or change archives.
+There is a standalone archive utility which can be utilized to quickly inspect or change archives. Make sure that you do not inadvertently overwrite existing game files.
 ```
 Usage:
 
  ArchiveUtility [Command] [Arguments]
 
 Commands:
- PrintToC            [Archive(Str)]                                     Print the table of content for AKT/BIN/CMP/DAT/DDP/EFF/IDD/PAC/SCP/TBL files
- PrintOfType         [Archive(Str)] [Type(Str)]                         Print all entries of type
- Extract             [Archive(Str)] [Folder(Str)]                       Extract an archive to disk
- Unfold              [Archive(Str)] [Folder(Str)]                       Unfold an archive to disk
- ModifyByType        [Archive(Str)] [Type(Str)] [File(Str)]             Modify all archives of type with the content of a file
- ModifyByName        [Archive(Str)] [Name(Str)] [File(Str)]             Modify an archive entry by name with the content of a file
- ModifyByTypeAndName [Archive(Str)] [Type(Str)] [Name(Str)] [File(Str)] Modify an archive entry by type and name with the content of a file
- Version                                                                Print the current version
- Help                                                                   Print this help message
+ PrintToC         [Archive(Str)]                                     Print the table of content for AKT/BIN/CMP/DAT/DDP/EFF/IDD/PAC/SCP/TBL files
+ PrintOfType      [Archive(Str)] [Type(Str)]                         Print all entries of type
+ Extract          [Archive(Str)] [Folder(Str)]                       Extract an archive to disk
+ Unfold           [Archive(Str)] [Folder(Str)]                       Unfold an archive to disk
+ GetByTypeAndName [Archive(Str)] [Type(Str)] [Name(Str)] [File(Str)] Get an archive entry identified by type and name into a file
+ SetByTypeAndName [Archive(Str)] [Type(Str)] [Name(Str)] [File(Str)] Set an archive entry identified by type and name from a file
+ Version                                                             Print the current version
+ Help                                                                Print this help message
 
 Examples:
  PrintToC "r301.dat"
  PrintOfType "r301.dat" "DDS"
  Extract "r301.dat" "r301"
  Unfold "r301.dat" "r301"
- ModifyByType "r301.dat" "DDS" "example.dds"
- ModifyByName "r301.dat" "hyouzan" "example.dds"
- ModifyByTypeAndName "r301.dat" "DDS" "hyouzan" "example.dds"
+ GetByTypeAndName "r301.dat" "DDS" "hyouzan" "hyouzan.dds"
+ SetByTypeAndName "r301.dat" "DDS" "hyouzan" "hyouzan.dds"
 ```
 
 ## How do I modify models?
-There is a standalone model utility which can be utilized to quickly inspect or change models.
-
-This utility is still under construction! (IT IS NOT WORKING CURRENTLY)
+There is a standalone model utility which can be utilized to quickly inspect or change models. Have a look at the `Patches` folder to see a view examples.
 ```
 Usage:
 
@@ -64,96 +60,27 @@ Usage:
 
 Commands:
  PrintToC                     [Model(Str)]                          Print the table of content for SCR/MD files
+ PrintContent                 [Model(Str)]                          Print the content of SCR/MD files
  ConvertIntoProprietaryFormat [File(Str)] [Rules(Str)] [Model(Str)] Convert a standardized 3D file into the internal proprietary format
  Version                                                            Print the current version
  Help                                                               Print this help message
 
 Examples:
  PrintToC "minka.SCR"
+ PrintContent "minka.SCR"
  ConvertIntoProprietaryFormat "monkey.FBX" "monkeyRules.JSON" "monkey.SCR"
 ```
-To change an existing model, you must first examine its properties. To do this, we first print out the ToC of an SCR/MD file.
-```
-ModelUtility PrintToC "vt17.MD"
-  ScrHeader:
-  | ScrId: 0x00726373
-  | FileType: 0
-  | MeshCount: 2
-  | MdbHeader 0:
-  | | MdbId: 0x0062646D
-  | | MeshType: 0x00000030
-  | | MeshId: 2
-  | | SubMeshCount: 3
-  | | Transform:
-  | | | Position: [0.000, 0.000, 0.000]
-  | | | Rotation: [0.000, 0.000, 0.000]
-  | | | Scale: [1.000, 1.000, 1.000]
-  | | MdHeader 0:
-  | | | VertexCount: 182
-  | | | TextureIndex: 1
-  | | | VertexOffset: [0x0000000000000020 .. 0x0000000000000B80] / 2912 / 0xB60
-  | | | TextureMapOffset: [0x0000000000000B80 .. 0x0000000000000E58] / 728 / 0x2D8
-  | | | TextureUvOffset: [0x0000000000001140 .. 0x00000000000016F0] / 1456 / 0x5B0
-  | | | ColorWeightOffset: [0x0000000000000E60 .. 0x0000000000001138] / 728 / 0x2D8
-  | | MdHeader 1:
-  | | | VertexCount: 20
-  | | | TextureIndex: 0
-  | | | VertexOffset: [0x0000000000000020 .. 0x0000000000000160] / 320 / 0x140
-  | | | TextureMapOffset: [0x0000000000000160 .. 0x00000000000001B0] / 80 / 0x50
-  | | | TextureUvOffset: [0x0000000000000200 .. 0x00000000000002A0] / 160 / 0xA0
-  | | | ColorWeightOffset: [0x00000000000001B0 .. 0x0000000000000200] / 80 / 0x50
-  | | MdHeader 2:
-  | | | VertexCount: 188
-  | | | TextureIndex: 3
-  | | | VertexOffset: [0x0000000000000020 .. 0x0000000000000BE0] / 3008 / 0xBC0
-  | | | TextureMapOffset: [0x0000000000000BE0 .. 0x0000000000000ED0] / 752 / 0x2F0
-  | | | TextureUvOffset: [0x00000000000011C0 .. 0x00000000000017A0] / 1504 / 0x5E0
-  | | | ColorWeightOffset: [0x0000000000000ED0 .. 0x00000000000011C0] / 752 / 0x2F0
-  | MdbHeader 1:
-  | | MdbId: 0x00000100
-  | | MeshType: 0x000000FF
-  | | MeshId: 256
-  | | SubMeshCount: 0
-  | | Transform:
-  | | | Position: [0.000, 0.000, 0.000]
-  | | | Rotation: [0.000, 0.000, 0.000]
-  | | | Scale: [1.000, 1.000, 1.000]
-```
-Next, we need to construct a JSON conversion rule that has the same values as we just saw in the ToC.
-```
-{
-  "FileType": 0,
-  "MeshRules": [
-    {
-      "MeshType": 48,
-      "MeshId": 2,
-      "SubMeshRules": [
-        { "TextureIndex": 1 },
-        { "TextureIndex": 0 },
-        { "TextureIndex": 3 }
-      ]
-    }, {
-      "MeshType": 255,
-      "MeshId": 256,
-      "SubMeshRules": []
-    }
-  ]
-}
-```
-Make sure that your model has the same parent-child relationships. Also make sure that your custom model has the same vertex attributes as the source model.
+To change an existing model, you must first examine its properties. To do this, we first print out the ToC of an SCR/MD file. Next, we need to construct a JSON conversion rule that has the same values as we just saw in the ToC.
+
+Make sure that your custom model has the same parent-child relationships. Also make sure that your custom model has the same vertex attributes as the source model.
  - VertexOffset <=> Vertex Position Strip
  - TextureMapOffset <=> UV's
  - TextureUvOffset <=> UV's
  - ColorWeightOffset <=> Vertex Colors
 
 Finally, we can start the conversion process!
-```
-ModelUtility ConvertIntoProprietaryFormat "Tree.fbx" "TreeRules.json" "Tree.MD"
-```
 
 ## Exporting Assets
-This service will soon be reworked!
-
 Right click on a random entity that you wish to export and choose `Export as Wavefront` to generate a wavefront object and material file along with all referenced textures. It should be ready to be imported into blender or any other 3D modeling software. Be sure to enable backface culling in your external rendering software to view the objects properly, otherwise only the black hull will be visible for most objects.
 
 <img src="Assets/Oki.jpg" width="33%"/><img src="Assets/Crow.jpg" width="33%"/><img src="Assets/Rao.jpg" width="33%"/>
