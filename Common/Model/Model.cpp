@@ -43,6 +43,35 @@ namespace Nippon
 		Json.at("MeshRules").get_to(Rules.MeshRules);
 	}
 
+	void to_json(nlohmann::json& Json, SubMeshRule const& Rule)
+	{
+		Json =
+		{
+			{ "TextureIndex", Rule.TextureIndex },
+		};
+	}
+
+	void to_json(nlohmann::json& Json, MeshRule const& Rule)
+	{
+		Json =
+		{
+			{ "MdbId", Rule.MdbId },
+			{ "MeshType", Rule.MeshType },
+			{ "MeshId", Rule.MeshId },
+			{ "SubMeshRules", Rule.SubMeshRules },
+		};
+	}
+
+	void to_json(nlohmann::json& Json, ConversionRules const& Rules)
+	{
+		Json =
+		{
+			{ "ScrId", Rules.ScrId },
+			{ "FileType", Rules.FileType },
+			{ "MeshRules", Rules.MeshRules },
+		};
+	}
+
 	Model::Model()
 	{
 		
@@ -149,7 +178,7 @@ namespace Nippon
 
 		switch (mScrHeader.FileType)
 		{
-			case 0: // MD mesh
+			case eModelTypeEntity:
 			{
 				for (U32 i = 0; i < mScrHeader.MeshCount; i++)
 				{
@@ -220,7 +249,7 @@ namespace Nippon
 
 				break;
 			}
-			case 1: // SCR mesh
+			case eModelTypeLevel:
 			{
 				for (U32 i = 0; i < mScrHeader.MeshCount; i++)
 				{
@@ -300,7 +329,7 @@ namespace Nippon
 
 		switch (mScrHeader.FileType)
 		{
-			case 0: // MD mesh
+			case eModelTypeEntity:
 			{
 				if (mScrHeader.MeshCount)
 				{
@@ -387,7 +416,7 @@ namespace Nippon
 
 				break;
 			}
-			case 1: // SCR mesh
+			case eModelTypeLevel:
 			{
 				if (mScrHeader.MeshCount)
 				{
@@ -621,7 +650,7 @@ namespace Nippon
 
 		switch (mScrHeader.FileType)
 		{
-			case 0: // MD mesh
+			case eModelTypeEntity:
 			{
 				for (U32 i = 0; i < mScrHeader.MeshCount; i++)
 				{
@@ -643,7 +672,7 @@ namespace Nippon
 
 				break;
 			}
-			case 1: // SCR mesh
+			case eModelTypeLevel:
 			{
 				for (U32 i = 0; i < mScrHeader.MeshCount; i++)
 				{
@@ -682,7 +711,7 @@ namespace Nippon
 
 			switch (mScrHeader.FileType)
 			{
-				case 0: // MD mesh
+				case eModelTypeEntity:
 				{
 					mMdMeshes.resize(mScrHeader.MeshCount);
 
@@ -730,7 +759,7 @@ namespace Nippon
 
 					break;
 				}
-				case 1: // SCR mesh
+				case eModelTypeLevel:
 				{
 					mScrMeshes.resize(mScrHeader.MeshCount);
 
@@ -799,7 +828,7 @@ namespace Nippon
 
 			switch (mScrHeader.FileType)
 			{
-				case 0: // MD mesh
+				case eModelTypeEntity:
 				{
 					mMdMeshes.resize(mScrHeader.MeshCount);
 
@@ -840,7 +869,7 @@ namespace Nippon
 
 					break;
 				}
-				case 1: // SCR mesh
+				case eModelTypeLevel:
 				{
 					mScrMeshes.resize(mScrHeader.MeshCount);
 
@@ -902,13 +931,13 @@ namespace Nippon
 
 		switch (mScrHeader.FileType)
 		{
-			case 0: // MD mesh
+			case eModelTypeEntity:
 			{
 				mMdMeshes.resize(meshCount);
 
 				break;
 			}
-			case 1: // SCR mesh
+			case eModelTypeLevel:
 			{
 				mScrMeshes.resize(meshCount);
 
@@ -924,7 +953,7 @@ namespace Nippon
 
 			switch (mScrHeader.FileType)
 			{
-				case 0: // MD mesh
+				case eModelTypeEntity:
 				{
 					if (!ConvertMdMesh(Scene, childNode, i, meshRule))
 					{
@@ -933,7 +962,7 @@ namespace Nippon
 
 					break;
 				}
-				case 1: // SCR mesh
+				case eModelTypeLevel:
 				{
 					if (!ConvertScrMesh(Scene, childNode, i, meshRule))
 					{
@@ -1436,13 +1465,13 @@ namespace Nippon
 
 			switch (mScrHeader.FileType)
 			{
-				case 0: // MD mesh
+				case eModelTypeEntity:
 				{
 					transformOffset += sizeof(MdTransform);
 
 					break;
 				}
-				case 1: // SCR mesh
+				case eModelTypeLevel:
 				{
 					transformOffset += sizeof(ScrTransform);
 
@@ -1591,7 +1620,7 @@ namespace Nippon
 
 		switch (mScrHeader.FileType)
 		{
-			case 0: // MD mesh
+			case eModelTypeEntity:
 			{
 				for (U32 i = 0; i < mScrHeader.MeshCount; i++)
 				{
@@ -1644,7 +1673,7 @@ namespace Nippon
 
 				break;
 			}
-			case 1: // SCR mesh
+			case eModelTypeLevel:
 			{
 				for (U32 i = 0; i < mScrHeader.MeshCount; i++)
 				{
@@ -1807,7 +1836,7 @@ namespace Nippon
 
 		switch (mScrHeader.FileType)
 		{
-			case 0: // MD mesh
+			case eModelTypeEntity:
 			{
 				for (U32 i = 0; i < mScrHeader.MeshCount; i++)
 				{
@@ -1862,7 +1891,7 @@ namespace Nippon
 
 				break;
 			}
-			case 1: // SCR mesh
+			case eModelTypeLevel:
 			{
 				for (U32 i = 0; i < mScrHeader.MeshCount; i++)
 				{

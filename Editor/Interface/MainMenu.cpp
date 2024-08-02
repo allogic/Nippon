@@ -4,6 +4,8 @@
 
 #include <Editor/Font/MaterialDesignIcons.h>
 
+#include <Editor/ImGui/FileDialog/ImGuiFileDialog.h>
+
 #include <Editor/Interface/MainMenu.h>
 #include <Editor/Interface/Log.h>
 
@@ -24,6 +26,7 @@ namespace Nippon
 	{
 		ImGui::BeginMainMenuBar();
 
+		RenderFileMenu();
 		RenderArchiveMenu();
 		RenderDatabaseMenu();
 		RenderToolMenu();
@@ -43,6 +46,35 @@ namespace Nippon
 		}
 
 		RenderConfigurationPopupDialog();
+		RenderFileDialog();
+	}
+
+	void MainMenu::RenderFileMenu()
+	{
+		if (ImGui::BeginMenu(ICON_MDI_FILE " File", Database::IsReady()))
+		{
+			if (ImGui::MenuItem("Open Level Archive", "", nullptr))
+			{
+				IGFD::FileDialogConfig config = {};
+
+				config.path = ".";
+				config.flags = 0;
+
+				ImGuiFileDialog::Instance()->OpenDialog("OpenLevelArchiveFileDlg", "Choose Archive", ".dat", config);
+			}
+
+			if (ImGui::MenuItem("Open Entity Archive", "", nullptr))
+			{
+				IGFD::FileDialogConfig config = {};
+
+				config.path = ".";
+				config.flags = 0;
+
+				ImGuiFileDialog::Instance()->OpenDialog("OpenEntityArchiveFileDlg", "Choose Archive", ".dat", config);
+			}
+
+			ImGui::EndMenu();
+		}
 	}
 
 	void MainMenu::RenderArchiveMenu()
@@ -186,9 +218,52 @@ namespace Nippon
 		ImGui::PopID();
 	}
 
+	void MainMenu::RenderFileDialog()
+	{
+		if (ImGuiFileDialog::Instance()->Display("OpenLevelArchiveFileDlg"))
+		{
+			if (ImGuiFileDialog::Instance()->IsOk())
+			{
+				fs::path filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
+
+				filePath /= ImGuiFileDialog::Instance()->GetCurrentFileName();
+
+				if (Scene* scene = SceneManager::CreateSceneFromFile(filePath, eArchiveTypeLevel))
+				{
+					scene->CreateViewport();
+					scene->SetDebugEnabled();
+					scene->Load();
+					scene->Invalidate();
+				}
+			}
+
+			ImGuiFileDialog::Instance()->Close();
+		}
+
+		if (ImGuiFileDialog::Instance()->Display("OpenEntityArchiveFileDlg"))
+		{
+			if (ImGuiFileDialog::Instance()->IsOk())
+			{
+				fs::path filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
+
+				filePath /= ImGuiFileDialog::Instance()->GetCurrentFileName();
+
+				if (Scene* scene = SceneManager::CreateSceneFromFile(filePath, eArchiveTypeEntity))
+				{
+					scene->CreateViewport();
+					scene->SetDebugEnabled();
+					scene->Load();
+					scene->Invalidate();
+				}
+			}
+
+			ImGuiFileDialog::Instance()->Close();
+		}
+	}
+
 	void MainMenu::OpenSceneProcedure(ArchiveInfo const& ArchiveInfo)
 	{
-		if (Scene* scene = SceneManager::CreateScene(ArchiveInfo))
+		if (Scene* scene = SceneManager::CreateSceneFromDatabase(ArchiveInfo))
 		{
 			scene->CreateViewport();
 			scene->SetDebugEnabled();

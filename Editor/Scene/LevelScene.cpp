@@ -46,7 +46,7 @@ namespace Nippon
 		{ 0x0F, "us" },
 	};
 
-	LevelScene::LevelScene(ArchiveInfo const& ArchiveInfo) : Scene(ArchiveInfo)
+	LevelScene::LevelScene(ArchiveInfo const& ArchiveInfo, bool LoadFromFilePath) : Scene(ArchiveInfo, LoadFromFilePath)
 	{
 		mStaticGeometryEntity = GetRegistry()->CreateEntity("Static Geometry", nullptr);
 	}
@@ -70,9 +70,20 @@ namespace Nippon
 
 	void LevelScene::AddResources()
 	{
-		AddArchiveByUniqueId(GetUniqueId());
+		U32 uniqueId = GetUniqueId();
 
-		SceneAssets* sceneAssets = GetSceneAssetsByUniqueId(GetUniqueId());
+		if (LoadFromFilePath())
+		{
+			fs::path filePath = GetFilePath();
+
+			AddArchiveByUniqueIdFromFilePath(uniqueId, filePath);
+		}
+		else
+		{
+			AddArchiveByUniqueId(uniqueId);
+		}
+
+		SceneAssets* sceneAssets = GetSceneAssetsByUniqueId(uniqueId);
 		Archive* levelArchive = sceneAssets->GetArchive();
 
 		if (Archive* tscArchive = levelArchive->FindArchiveByType("TSC"))
@@ -90,14 +101,19 @@ namespace Nippon
 			mTatObjects = PlacementSerializer::ObjectsFromBytes(tatArchive->GetBytes(), tatArchive->GetSize());
 		}
 
-		AddEntityResources(mTscObjects);
-		AddEntityResources(mTreObjects);
-		AddEntityResources(mTatObjects);
+		if (LoadFromFilePath())
+		{
+			AddEntityResources(mTscObjects);
+			AddEntityResources(mTreObjects);
+			AddEntityResources(mTatObjects);
+		}
 	}
 
 	void LevelScene::CreateAssets()
 	{
-		SceneAssets* sceneAssets = GetSceneAssetsByUniqueId(GetUniqueId());
+		U32 uniqueId = GetUniqueId();
+
+		SceneAssets* sceneAssets = GetSceneAssetsByUniqueId(uniqueId);
 		Archive* levelArchive = sceneAssets->GetArchive();
 
 		if (!sceneAssets->IsLoaded())
@@ -118,9 +134,12 @@ namespace Nippon
 			}
 		}
 
-		CreateEntityAssets(mTscObjects);
-		CreateEntityAssets(mTreObjects);
-		CreateEntityAssets(mTatObjects);
+		if (LoadFromFilePath())
+		{
+			CreateEntityAssets(mTscObjects);
+			CreateEntityAssets(mTreObjects);
+			CreateEntityAssets(mTatObjects);
+		}
 	}
 
 	void LevelScene::BuildEntities()
@@ -179,9 +198,12 @@ namespace Nippon
 			}
 		}
 
-		BuildEntityEntities(mTscObjects);
-		BuildEntityEntities(mTreObjects);
-		BuildEntityEntities(mTatObjects);
+		if (LoadFromFilePath())
+		{
+			BuildEntityEntities(mTscObjects);
+			BuildEntityEntities(mTreObjects);
+			BuildEntityEntities(mTatObjects);
+		}
 	}
 
 	void LevelScene::AddEntityResources(std::vector<Object> const& Objects)

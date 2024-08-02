@@ -12,7 +12,7 @@ namespace Nippon
 	{
 	public:
 
-		LevelScene(ArchiveInfo const& ArchiveInfo);
+		LevelScene(ArchiveInfo const& ArchiveInfo, bool LoadFromFilePath);
 		virtual ~LevelScene();
 
 	public:

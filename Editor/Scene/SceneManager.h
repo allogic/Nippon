@@ -39,7 +39,9 @@ namespace Nippon
 
 	public:
 
-		static Scene* CreateScene(ArchiveInfo const& ArchiveInfo, bool SkipSceneEmplacement = false);
+		static Scene* CreateSceneFromFile(fs::path const& FilePath, ArchiveType ArchiveType, bool SkipSceneEmplacement = false);
+		static Scene* CreateSceneFromDatabase(ArchiveInfo const& ArchiveInfo, bool SkipSceneEmplacement = false);
+
 		static void DestroyScene(Scene* Scene, bool DestroyImmediately = false);
 	};
 }

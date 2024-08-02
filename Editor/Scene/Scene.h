@@ -14,7 +14,7 @@ namespace Nippon
 	{
 	public:
 
-		Scene(ArchiveInfo const& ArchiveInfo);
+		Scene(ArchiveInfo const& ArchiveInfo, bool LoadFromFilePath);
 		virtual ~Scene();
 
 	public:
@@ -27,6 +27,8 @@ namespace Nippon
 		inline auto const& GetSceneName() const { return mArchiveInfo.ArchiveName; }
 		inline auto const& GetWindowName() const { return mArchiveInfo.WindowName; }
 		inline auto const& GetFilePath() const { return mArchiveInfo.FilePath; }
+
+		inline auto const& LoadFromFilePath() const { return mLoadFromFilePath; }
 
 		inline auto const& GetRegistry() const { return mRegistry; }
 		inline auto const& GetViewport() const { return mViewport; }
@@ -55,7 +57,9 @@ namespace Nippon
 		void DestroyViewport();
 		void DestroyRenderer();
 
+		void AddArchiveByUniqueIdFromFilePath(U32 UniqueId, fs::path const& FilePath);
 		void AddArchiveByUniqueId(U32 UniqueId);
+
 		void DestroySceneAssets();
 
 	public:
@@ -76,6 +80,8 @@ namespace Nippon
 	private:
 
 		ArchiveInfo mArchiveInfo = {};
+
+		bool mLoadFromFilePath = false;
 
 		Registry* mRegistry = nullptr;
 		Viewport* mViewport = nullptr;

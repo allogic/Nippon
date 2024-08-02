@@ -22,6 +22,7 @@ namespace Nippon
 
 	private:
 
+		static void RenderFileMenu();
 		static void RenderArchiveMenu();
 		static void RenderDatabaseMenu();
 		static void RenderToolMenu();
@@ -30,6 +31,7 @@ namespace Nippon
 	private:
 
 		static void RenderConfigurationPopupDialog();
+		static void RenderFileDialog();
 
 	private:
 

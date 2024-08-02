@@ -176,8 +176,8 @@ I32 main(I32 Argc, char** Argv)
 		std::printf(" PrintOfType \"r301.dat\" \"DDS\"\n");
 		std::printf(" Extract \"r301.dat\" \"r301\"\n");
 		std::printf(" Unfold \"r301.dat\" \"r301\"\n");
-		std::printf(" GetByTypeAndName \"r301.dat\" \"DDS\" \"hyouzan\" \"hyouzan.dds\"\n");
-		std::printf(" SetByTypeAndName \"r301.dat\" \"DDS\" \"hyouzan\" \"hyouzan.dds\"\n");
+		std::printf(" GetByTypeAndName \"r301.dat\" \"DDS\" \"hyouzan\" \"hyouzan.DDS\"\n");
+		std::printf(" SetByTypeAndName \"r301.dat\" \"DDS\" \"hyouzan\" \"hyouzan.DDS\"\n");
 		std::printf("\n");
 	}
 

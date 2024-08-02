@@ -18,7 +18,7 @@
 
 namespace Nippon
 {
-	EntityScene::EntityScene(ArchiveInfo const& ArchiveInfo) : Scene(ArchiveInfo)
+	EntityScene::EntityScene(ArchiveInfo const& ArchiveInfo, bool LoadFromFilePath) : Scene(ArchiveInfo, LoadFromFilePath)
 	{
 		mStaticGeometryEntity = GetRegistry()->CreateEntity("Static Geometry", nullptr);
 	}
@@ -42,12 +42,25 @@ namespace Nippon
 
 	void EntityScene::AddResources()
 	{
-		AddArchiveByUniqueId(GetUniqueId());
+		U32 uniqueId = GetUniqueId();
+
+		if (LoadFromFilePath())
+		{
+			fs::path filePath = GetFilePath();
+
+			AddArchiveByUniqueIdFromFilePath(uniqueId, filePath);
+		}
+		else
+		{
+			AddArchiveByUniqueId(uniqueId);
+		}
 	}
 
 	void EntityScene::CreateAssets()
-	{		
-		SceneAssets* sceneAssets = GetSceneAssetsByUniqueId(GetUniqueId());
+	{
+		U32 uniqueId = GetUniqueId();
+
+		SceneAssets* sceneAssets = GetSceneAssetsByUniqueId(uniqueId);
 		Archive* entityArchive = sceneAssets->GetArchive();
 		
 		if (!sceneAssets->IsLoaded())

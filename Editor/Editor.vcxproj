@@ -170,6 +170,7 @@
     <ClCompile Include="Ecs\Entity.cpp" />
     <ClCompile Include="Ecs\Registry.cpp" />
     <ClCompile Include="Export\WavefrontExporter.cpp" />
+    <ClCompile Include="ImGui\FileDialog\ImGuiFileDialog.cpp" />
     <ClCompile Include="Interface\ArchiveBrowser.cpp" />
     <ClCompile Include="Interface\Inspector.cpp" />
     <ClCompile Include="Interface\Log.cpp" />
@@ -220,6 +221,8 @@
     <ClInclude Include="Export\WavefrontExporter.h" />
     <ClInclude Include="Font\MaterialDesignIcons.h" />
     <ClInclude Include="Forward.h" />
+    <ClInclude Include="ImGui\FileDialog\ImGuiFileDialog.h" />
+    <ClInclude Include="ImGui\FileDialog\ImGuiFileDialogConfig.h" />
     <ClInclude Include="Interface\ArchiveBrowser.h" />
     <ClInclude Include="Interface\Inspector.h" />
     <ClInclude Include="Interface\Log.h" />

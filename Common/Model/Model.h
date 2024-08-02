@@ -10,8 +10,17 @@
 
 #include <Common/Nlohmann/json_fwd.hpp>
 
+#define MESH_ALIGNMENT 0x100
+#define SUBMESH_ALIGNMENT 0x100
+
 namespace Nippon
 {
+	enum ModelType : U32
+	{
+		eModelTypeEntity,
+		eModelTypeLevel,
+	};
+
 	struct UniqueNonSerializableInfos
 	{
 		std::set<U32> UniqueScrIds;
@@ -45,6 +54,10 @@ namespace Nippon
 	void from_json(nlohmann::json const& Json, SubMeshRule& Rule);
 	void from_json(nlohmann::json const& Json, MeshRule& Rule);
 	void from_json(nlohmann::json const& Json, ConversionRules& Rules);
+
+	void to_json(nlohmann::json& Json, SubMeshRule const& Rule);
+	void to_json(nlohmann::json& Json, MeshRule const& Rule);
+	void to_json(nlohmann::json& Json, ConversionRules const& Rules);
 
 	class Model
 	{

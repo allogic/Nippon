@@ -20,6 +20,8 @@ namespace Nippon
 		};
 	};
 
+	static U32 sFreeUniqueArchiveId = 0xFFFFFFFF;
+
 	static bool sIsDirty = false;
 
 	static Scene* sPrevScene = nullptr;
@@ -136,7 +138,44 @@ namespace Nippon
 		}
 	}
 
-	Scene* SceneManager::CreateScene(ArchiveInfo const& ArchiveInfo, bool SkipSceneEmplacement)
+	Scene* SceneManager::CreateSceneFromFile(fs::path const& FilePath, ArchiveType ArchiveType, bool SkipSceneEmplacement)
+	{
+		Scene* scene = nullptr;
+
+		ArchiveInfo archiveInfo = {};
+		archiveInfo.UniqueId = sFreeUniqueArchiveId;
+		archiveInfo.ArchiveType = ArchiveType;
+		archiveInfo.FolderId = "";
+		archiveInfo.ArchiveId = "";
+		archiveInfo.FolderName = "";
+		archiveInfo.ArchiveName = "";
+		archiveInfo.WindowName = FilePath.string();
+		archiveInfo.FilePath = FilePath.string();
+
+		sFreeUniqueArchiveId--;
+
+		auto const& findIt = std::find_if(sScenes.begin(), sScenes.end(), SceneByUniqueId{ archiveInfo.UniqueId });
+
+		if (findIt == sScenes.end())
+		{
+			switch (archiveInfo.ArchiveType)
+			{
+				case eArchiveTypeLevel: scene = new (Memory::Alloc(sizeof(LevelScene))) LevelScene{ archiveInfo, true }; break;
+				case eArchiveTypeEntity: scene = new (Memory::Alloc(sizeof(EntityScene))) EntityScene{ archiveInfo, true }; break;
+			}
+
+			if (!SkipSceneEmplacement)
+			{
+				sScenes.emplace_back(scene);
+
+				SetCurrentScene(scene);
+			}
+		}
+
+		return scene;
+	}
+
+	Scene* SceneManager::CreateSceneFromDatabase(ArchiveInfo const& ArchiveInfo, bool SkipSceneEmplacement)
 	{
 		Scene* scene = nullptr;
 
@@ -146,8 +185,8 @@ namespace Nippon
 		{
 			switch (ArchiveInfo.ArchiveType)
 			{
-				case eArchiveTypeLevel: scene = new (Memory::Alloc(sizeof(LevelScene))) LevelScene{ ArchiveInfo }; break;
-				case eArchiveTypeEntity: scene = new (Memory::Alloc(sizeof(EntityScene))) EntityScene{ ArchiveInfo }; break;
+				case eArchiveTypeLevel: scene = new (Memory::Alloc(sizeof(LevelScene))) LevelScene{ ArchiveInfo, false }; break;
+				case eArchiveTypeEntity: scene = new (Memory::Alloc(sizeof(EntityScene))) EntityScene{ ArchiveInfo, false }; break;
 			}
 
 			if (!SkipSceneEmplacement)

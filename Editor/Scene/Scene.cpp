@@ -4,6 +4,8 @@
 
 #include <Common/Misc/BlowFish.h>
 
+#include <Common/Utility/FileUtility.h>
+
 #include <Editor/Database/Database.h>
 
 #include <Editor/Ecs/Registry.h>
@@ -24,9 +26,10 @@
 
 namespace Nippon
 {
-	Scene::Scene(ArchiveInfo const& ArchiveInfo)
+	Scene::Scene(ArchiveInfo const& ArchiveInfo, bool LoadFromFilePath)
 	{
 		mArchiveInfo = ArchiveInfo;
+		mLoadFromFilePath = LoadFromFilePath;
 
 		CreateRegistry();
 		CreateRenderer();
@@ -85,6 +88,29 @@ namespace Nippon
 		mRenderer->~Renderer();
 
 		Memory::Free(mRenderer);
+	}
+
+	void Scene::AddArchiveByUniqueIdFromFilePath(U32 UniqueId, fs::path const& FilePath)
+	{
+		auto const& findIt = mSceneAssetsByUniqueId.find(UniqueId);
+
+		if (findIt == mSceneAssetsByUniqueId.end())
+		{
+			Archive* archive = new (Memory::Alloc(sizeof(Archive))) Archive;
+			SceneAssets* sceneAssets = new (Memory::Alloc(sizeof(SceneAssets))) SceneAssets;
+
+			std::vector<U8> archiveData = {};
+			
+			FileUtility::ReadBinary(FilePath, archiveData);
+
+			BlowFish::Decrypt(archiveData);
+
+			archive->Deserialize(archiveData);
+
+			sceneAssets->SetArchive(archive);
+
+			mSceneAssetsByUniqueId[UniqueId] = sceneAssets;
+		}
 	}
 
 	void Scene::AddArchiveByUniqueId(U32 UniqueId)

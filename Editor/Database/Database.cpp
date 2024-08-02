@@ -1391,7 +1391,7 @@ namespace Nippon
 						break;
 					}
 
-					if (Scene* scene = SceneManager::CreateScene(archiveInfo, true))
+					if (Scene* scene = SceneManager::CreateSceneFromDatabase(archiveInfo, true))
 					{
 						if (Registry* registry = scene->GetRegistry())
 						{

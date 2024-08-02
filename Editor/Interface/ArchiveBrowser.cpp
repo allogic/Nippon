@@ -77,7 +77,7 @@ namespace Nippon
 
 				if (ImGui::ImageButton((ImTextureID)(U64)thumbnailTexture, ImVec2{ ARCHIVE_THUMBNAIL_SIZE, ARCHIVE_THUMBNAIL_SIZE }))
 				{
-					if (Scene* scene = SceneManager::CreateScene(archiveInfos[i]))
+					if (Scene* scene = SceneManager::CreateSceneFromDatabase(archiveInfos[i]))
 					{
 						scene->CreateViewport();
 						scene->SetDebugEnabled();

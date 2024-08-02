@@ -10,7 +10,7 @@ namespace Nippon
 	{
 	public:
 
-		EntityScene(ArchiveInfo const& ArchiveInfo);
+		EntityScene(ArchiveInfo const& ArchiveInfo, bool LoadFromFilePath);
 		virtual ~EntityScene();
 
 	public:
