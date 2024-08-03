@@ -47,8 +47,8 @@ Examples:
  PrintOfType "r301.dat" "DDS"
  Extract "r301.dat" "r301"
  Unfold "r301.dat" "r301"
- GetByTypeAndName "r301.dat" "DDS" "hyouzan" "hyouzan.dds"
- SetByTypeAndName "r301.dat" "DDS" "hyouzan" "hyouzan.dds"
+ GetByTypeAndName "r301.dat" "DDS" "hyouzan" "hyouzan.DDS"
+ SetByTypeAndName "r301.dat" "DDS" "hyouzan" "hyouzan.DDS"
 ```
 
 ## How do I modify models?
@@ -59,18 +59,22 @@ Usage:
  ModelUtility [Command] [Arguments]
 
 Commands:
- PrintToC                     [Model(Str)]                          Print the table of content for SCR/MD files
- PrintContent                 [Model(Str)]                          Print the content of SCR/MD files
- ConvertIntoProprietaryFormat [File(Str)] [Rules(Str)] [Model(Str)] Convert a standardized 3D file into the internal proprietary format
- Version                                                            Print the current version
- Help                                                               Print this help message
+ PrintToC                         [Model(Str)]                          Print the table of content for SCR/MD files
+ PrintContent                     [Model(Str)]                          Print the content of SCR/MD files
+ GenerateConversionRules          [Model(Str)] [Rules(Str)]             Generate conversion rules from an existing SCR/MD model
+ ValidateFileAgainstRules         [File(Str)] [Rules(Str)]              Validate a standardized 3D file against conversion rules
+ ConvertFileIntoProprietaryFormat [File(Str)] [Rules(Str)] [Model(Str)] Convert a standardized 3D file into the internal proprietary model format
+ Version                                                                Print the current version
+ Help                                                                   Print this help message
 
 Examples:
  PrintToC "minka.SCR"
  PrintContent "minka.SCR"
- ConvertIntoProprietaryFormat "monkey.FBX" "monkeyRules.JSON" "monkey.SCR"
+ GenerateConversionRules "minka.SCR" "rules.json"
+ ValidateFileAgainstRules "monkey.fbx" "rules.json"
+ ConvertFileIntoProprietaryFormat "monkey.fbx" "rules.json" "monkey.SCR"
 ```
-To change an existing model, you must first examine its properties. To do this, we first print out the ToC of an SCR/MD file. Next, we need to construct a JSON conversion rule that has the same values as we just saw in the ToC.
+To change an existing model, you must first examine its properties. To do this, we first print out the ToC of an SCR/MD file. Next, we need to construct a JSON conversion rule that has the same values as we just saw in the ToC. Optionally we can validate our 3D model against the generated rules.
 
 Make sure that your custom model has the same parent-child relationships. Also make sure that your custom model has the same vertex attributes as the source model.
  - VertexOffset <=> Vertex Position Strip
