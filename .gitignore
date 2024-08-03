@@ -401,6 +401,8 @@ FodyWeavers.xsd
 *.exe
 *.blend1
 
+Patches/**/*.json
+
 # Okami Archive Folders
 *.AKT
 *.BIN

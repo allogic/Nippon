@@ -10,8 +10,10 @@
 
 #include <Common/Nlohmann/json_fwd.hpp>
 
-#define MESH_ALIGNMENT 0x100
-#define SUBMESH_ALIGNMENT 0x100
+#define DEFAULT_ALIGNMENT 0x10
+#define MESH_ALIGNMENT 0x10
+#define SUBMESH_ALIGNMENT 0x10
+#define TRANSFORM_ALIGNMENT 0x10
 
 namespace Nippon
 {
@@ -85,7 +87,7 @@ namespace Nippon
 
 	public:
 
-		std::vector<U8> Serialize();
+		void Serialize(std::vector<U8>& Bytes);
 
 		void Deserialize(U8 const* Bytes, U64 Size);
 		void Deserialize(std::vector<U8> const& Bytes);
@@ -100,6 +102,11 @@ namespace Nippon
 		void PrintTableOfContent(std::function<void(char const*)> Callback);
 		void PrintContent(std::function<void(char const*)> Callback);
 		bool ConvertIntoProprietaryFormat(fs::path const& FilePath, fs::path const& RulesPath);
+		std::string GenerateConversionRules();
+
+	public:
+
+		static bool ValidateFileAgainstRules(fs::path const& FilePath, fs::path const& RulesPath);
 
 	public:
 
@@ -132,19 +139,20 @@ namespace Nippon
 	private:
 
 		void WriteTransformOffsets(BinaryMediator* Mediator);
-		void WriteMdSubMeshOffsets(BinaryMediator* Mediator, MdMesh const* Mesh);
-		void WriteScrSubMeshOffsets(BinaryMediator* Mediator, ScrMesh const* Mesh);
-		void WriteMdSubMesh(BinaryMediator* Mediator, MdSubMesh const* SubMesh);
-		void WriteScrSubMesh(BinaryMediator* Mediator, ScrSubMesh const* SubMesh);
+		void WriteMdSubMeshOffsets(BinaryMediator* Mediator, MdMesh const& Mesh);
+		void WriteScrSubMeshOffsets(BinaryMediator* Mediator, ScrMesh const& Mesh);
+		void WriteMdSubMesh(BinaryMediator* Mediator, MdSubMesh const& SubMesh);
+		void WriteScrSubMesh(BinaryMediator* Mediator, ScrSubMesh const& SubMesh);
 		void WriteMdTransforms(BinaryMediator* Mediator);
 		void WriteScrTransforms(BinaryMediator* Mediator);
 
 	private:
 
 		U64 GetFirstTransformOffset();
-		U64 GetMdSubMeshSize(MdSubMesh const* SubMesh);
-		U64 GetScrSubMeshSize(ScrSubMesh const* SubMesh);
-		U64 GetSubMeshStructDataOffset(bool IncludeHeader, bool HasData, U64 PrevOffset, U64 StructSize, U64 VertexCount);
+		U64 GetMdMeshSize(MdMesh const& Mesh);
+		U64 GetScrMeshSize(ScrMesh const& Mesh);
+		U64 GetMdSubMeshSize(MdSubMesh const& SubMesh);
+		U64 GetScrSubMeshSize(ScrSubMesh const& SubMesh);
 
 	private:
 
@@ -163,8 +171,8 @@ namespace Nippon
 
 		ScrHeader mScrHeader = {};
 
-		std::string mName = ""; // TODO
+		std::string mName = "";
 
-		Object const* mObjectRef = nullptr; // TODO
+		Object const* mObjectRef = nullptr;
 	};
 }

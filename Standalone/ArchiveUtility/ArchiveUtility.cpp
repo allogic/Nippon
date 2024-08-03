@@ -22,7 +22,7 @@ I32 main(I32 Argc, char** Argv)
 		BlowFish::Create(OKAMI_CIPHER_KEY);
 		BlowFish::Decrypt(archiveData);
 
-		Archive archive;
+		Archive archive = {};
 
 		archive.Deserialize(archiveData);
 		archive.PrintTableOfContent([](char const* Message) { std::printf(Message); });
@@ -37,7 +37,7 @@ I32 main(I32 Argc, char** Argv)
 		BlowFish::Create(OKAMI_CIPHER_KEY);
 		BlowFish::Decrypt(archiveData);
 
-		Archive archive;
+		Archive archive = {};
 
 		archive.Deserialize(archiveData);
 		archive.PrintOfType([](char const* Message) { std::printf(Message); }, Argv[3]);
@@ -52,7 +52,7 @@ I32 main(I32 Argc, char** Argv)
 		BlowFish::Create(OKAMI_CIPHER_KEY);
 		BlowFish::Decrypt(archiveData);
 
-		Archive archive;
+		Archive archive = {};
 
 		archive.Deserialize(archiveData);
 		archive.ExtractToDisk(Argv[3]);
@@ -71,7 +71,7 @@ I32 main(I32 Argc, char** Argv)
 		BlowFish::Create(OKAMI_CIPHER_KEY);
 		BlowFish::Decrypt(archiveData);
 
-		Archive archive;
+		Archive archive = {};
 
 		archive.Deserialize(archiveData);
 		archive.UnfoldToDisk(Argv[3]);
@@ -90,7 +90,7 @@ I32 main(I32 Argc, char** Argv)
 		BlowFish::Create(OKAMI_CIPHER_KEY);
 		BlowFish::Decrypt(archiveData);
 
-		Archive archive;
+		Archive archive = {};
 
 		archive.Deserialize(archiveData);
 
@@ -121,7 +121,7 @@ I32 main(I32 Argc, char** Argv)
 		BlowFish::Create(OKAMI_CIPHER_KEY);
 		BlowFish::Decrypt(archiveData);
 
-		Archive archive;
+		Archive archive = {};
 
 		archive.Deserialize(archiveData);
 
@@ -129,7 +129,7 @@ I32 main(I32 Argc, char** Argv)
 		{
 			targetArchive->SetData(targetData.data(), targetData.size());
 
-			archiveData = archive.Serialize();
+			archive.Serialize(archiveData);
 
 			BlowFish::Encrypt(archiveData);
 

@@ -14,7 +14,7 @@
 
 namespace Nippon
 {
-	static char const* sConfigurationPopupName = "Editor Configuration";
+	static char const* sConfigurationPopupName = "Database Configuration";
 	static ImGuiID sConfigurationPopupId = 0;
 
 	void MainMenu::Reset()
@@ -27,10 +27,8 @@ namespace Nippon
 		ImGui::BeginMainMenuBar();
 
 		RenderFileMenu();
-		RenderArchiveMenu();
 		RenderDatabaseMenu();
 		RenderToolMenu();
-		RenderSettingsMenu();
 
 		ImGui::EndMainMenuBar();
 
@@ -51,55 +49,29 @@ namespace Nippon
 
 	void MainMenu::RenderFileMenu()
 	{
-		if (ImGui::BeginMenu(ICON_MDI_FILE " File", Database::IsReady()))
+		if (ImGui::BeginMenu(ICON_MDI_FILE " File"))
 		{
-			if (ImGui::MenuItem("Open Level Archive", "", nullptr))
+			if (ImGui::BeginMenu(ICON_MDI_FOLDER_OPEN " Open"))
 			{
-				IGFD::FileDialogConfig config = {};
+				if (ImGui::MenuItem("Level Archive", "", nullptr))
+				{
+					IGFD::FileDialogConfig config = {};
 
-				config.path = ".";
-				config.flags = 0;
+					config.path = ".";
+					config.flags = 0;
 
-				ImGuiFileDialog::Instance()->OpenDialog("OpenLevelArchiveFileDlg", "Choose Archive", ".dat", config);
-			}
+					ImGuiFileDialog::Instance()->OpenDialog("OpenLevelArchiveFileDlg", "Choose Archive", ".dat", config);
+				}
 
-			if (ImGui::MenuItem("Open Entity Archive", "", nullptr))
-			{
-				IGFD::FileDialogConfig config = {};
+				if (ImGui::MenuItem("Entity Archive", "", nullptr))
+				{
+					IGFD::FileDialogConfig config = {};
 
-				config.path = ".";
-				config.flags = 0;
+					config.path = ".";
+					config.flags = 0;
 
-				ImGuiFileDialog::Instance()->OpenDialog("OpenEntityArchiveFileDlg", "Choose Archive", ".dat", config);
-			}
-
-			ImGui::EndMenu();
-		}
-	}
-
-	void MainMenu::RenderArchiveMenu()
-	{
-		if (ImGui::BeginMenu(ICON_MDI_ARCHIVE " Archive", Database::IsReady()))
-		{
-			if (ImGui::BeginMenu("Open Read Only"))
-			{
-				RenderMenuWithProcedure(OpenSceneProcedure);
-
-				ImGui::EndMenu();
-			}
-
-			ImGui::Separator();
-
-			if (ImGui::BeginMenu("Table Of Content"))
-			{
-				RenderMenuWithProcedure(PrintTableOfContentProcedure);
-
-				ImGui::EndMenu();
-			}
-
-			if (ImGui::BeginMenu("Extract To Disk"))
-			{
-				RenderMenuWithProcedure(ExtractToDiskProcedure);
+					ImGuiFileDialog::Instance()->OpenDialog("OpenEntityArchiveFileDlg", "Choose Archive", ".dat", config);
+				}
 
 				ImGui::EndMenu();
 			}
@@ -112,26 +84,70 @@ namespace Nippon
 	{
 		if (ImGui::BeginMenu(ICON_MDI_DATABASE " Database"))
 		{
-			if (ImGui::MenuItem("Rebuild Full", "", nullptr, !Database::IsBusy()))
+			if (ImGui::BeginMenu(ICON_MDI_ARCHIVE " Archive", Database::IsReady()))
 			{
-				Database::RebuildFull();
+				if (ImGui::BeginMenu(ICON_MDI_FOLDER_OPEN " Open"))
+				{
+					RenderMenuWithProcedure(OpenSceneProcedure);
+
+					ImGui::EndMenu();
+				}
+
+				ImGui::Separator();
+
+				if (ImGui::BeginMenu(ICON_MDI_TABLE_OF_CONTENTS " Print Table Of Content"))
+				{
+					RenderMenuWithProcedure(PrintTableOfContentProcedure);
+
+					ImGui::EndMenu();
+				}
+
+				if (ImGui::BeginMenu(ICON_MDI_FILE_SEND " Extract To Disk"))
+				{
+					RenderMenuWithProcedure(ExtractToDiskProcedure);
+
+					ImGui::EndMenu();
+				}
+
+				if (ImGui::BeginMenu(ICON_MDI_FILE_SEND " Unfold To Disk"))
+				{
+					RenderMenuWithProcedure(UnfoldToDiskProcedure);
+
+					ImGui::EndMenu();
+				}
+
+				ImGui::EndMenu();
 			}
 
 			ImGui::Separator();
 
-			if (ImGui::MenuItem("Rebuild Archives", "", nullptr, !Database::IsBusy()))
+			if (ImGui::MenuItem(ICON_MDI_DATABASE_SYNC " Rebuild Full", "", nullptr, !Database::IsBusy()))
+			{
+				Database::RebuildFull();
+			}
+
+			if (ImGui::MenuItem(ICON_MDI_DATABASE_SYNC " Rebuild Archives", "", nullptr, !Database::IsBusy()))
 			{
 				Database::RebuildArchives();
 			}
 
-			if (ImGui::MenuItem("Rebuild Thumbnails", "", nullptr, !Database::IsBusy() && Database::IsReady()))
+			if (ImGui::MenuItem(ICON_MDI_DATABASE_SYNC " Rebuild Thumbnails", "", nullptr, !Database::IsBusy() && Database::IsReady()))
 			{
 				Database::RebuildThumbnails();
 			}
 
-			if (ImGui::MenuItem("Cancel Rebuild", "", nullptr, Database::IsBusy()))
+			if (ImGui::MenuItem(ICON_MDI_DATABASE_REMOVE " Cancel Rebuild", "", nullptr, Database::IsBusy()))
 			{
 				Database::SetCancelJob();
+			}
+
+			ImGui::Separator();
+
+			if (ImGui::MenuItem(ICON_MDI_DATABASE_SETTINGS " Settings", "", nullptr, Database::IsReady()))
+			{
+				ImGui::PushOverrideID(sConfigurationPopupId);
+				ImGui::OpenPopup(sConfigurationPopupName);
+				ImGui::PopID();
 			}
 
 			ImGui::EndMenu();
@@ -140,31 +156,16 @@ namespace Nippon
 
 	void MainMenu::RenderToolMenu()
 	{
-		if (ImGui::BeginMenu(ICON_MDI_TOOLS " Tool", Database::IsReady()))
+		if (ImGui::BeginMenu(ICON_MDI_TOOLS " Tools", Database::IsReady()))
 		{
-			if (ImGui::MenuItem("Generate imgui.ini", "", nullptr))
+			if (ImGui::MenuItem(ICON_MDI_FILE_SEND " Generate imgui.ini", "", nullptr))
 			{
 				Database::GenerateImGuiIni();
 			}
 
-			if (ImGui::MenuItem("Generate ModelInfo.h", "", nullptr))
+			if (ImGui::MenuItem(ICON_MDI_FILE_SEND " Generate ModelInfo.h", "", nullptr))
 			{
 				Database::GenerateModelInfoHeader();
-			}
-
-			ImGui::EndMenu();
-		}
-	}
-
-	void MainMenu::RenderSettingsMenu()
-	{
-		if (ImGui::BeginMenu(ICON_MDI_COG " Settings"))
-		{
-			if (ImGui::MenuItem("Editor Configuration", "", nullptr))
-			{
-				ImGui::PushOverrideID(sConfigurationPopupId);
-				ImGui::OpenPopup(sConfigurationPopupName);
-				ImGui::PopID();
 			}
 
 			ImGui::EndMenu();
@@ -294,5 +295,19 @@ namespace Nippon
 
 		archive.Deserialize(archiveData);
 		archive.ExtractToDisk(outputFile);
+	}
+
+	void MainMenu::UnfoldToDiskProcedure(ArchiveInfo const& ArchiveInfo)
+	{
+		std::vector<U8> const& archiveData = Database::GetArchiveDataByUniqueId(ArchiveInfo.UniqueId);
+
+		fs::path outputFile = fs::path{ "Unfolded" } / ArchiveInfo.FolderId / ArchiveInfo.ArchiveId;
+
+		FileUtility::CreateDirIfNotExist(outputFile);
+
+		Archive archive = {};
+
+		archive.Deserialize(archiveData);
+		archive.UnfoldToDisk(outputFile);
 	}
 }

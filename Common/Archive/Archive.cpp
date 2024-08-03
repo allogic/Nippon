@@ -81,14 +81,14 @@ namespace Nippon
 		std::memcpy(mBytes, Bytes, Size);
 	}
 
-	std::vector<U8> Archive::Serialize()
+	void Archive::Serialize(std::vector<U8>& Bytes)
 	{
 		UpdateSizesRecursive();
 		UpdateByteArraysRecursive();
 
 		SerializeRecursive();
 
-		return { mBytes, mBytes + mSize };
+		Bytes = { mBytes, mBytes + mSize };
 	}
 
 	void Archive::Deserialize(U8 const* Bytes, U64 Size)

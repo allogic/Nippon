@@ -17,7 +17,7 @@ I32 main(I32 Argc, char** Argv)
 
 		FileUtility::ReadBinary(Argv[2], modelData);
 
-		Model model;
+		Model model = {};
 
 		model.Deserialize(modelData);
 		model.PrintTableOfContent([](char const* Message) { std::printf(Message); });
@@ -29,21 +29,60 @@ I32 main(I32 Argc, char** Argv)
 
 		FileUtility::ReadBinary(Argv[2], modelData);
 
-		Model model;
+		Model model = {};
 
 		model.Deserialize(modelData);
 		model.PrintContent([](char const* Message) { std::printf(Message); });
 	}
 
-	if (std::strcmp("ConvertIntoProprietaryFormat", Argv[1]) == 0)
+	if (std::strcmp("GenerateConversionRules", Argv[1]) == 0)
 	{
-		Model model;
+		std::vector<U8> modelData = {};
+
+		FileUtility::ReadBinary(Argv[2], modelData);
+
+		Model model = {};
+
+		model.Deserialize(modelData);
+
+		std::string rules = model.GenerateConversionRules();
+
+		FileUtility::WriteText(Argv[3], rules);
+
+		std::printf("\n");
+		std::printf("Done\n");
+		std::printf("\n");
+	}
+
+	if (std::strcmp("ValidateFileAgainstRules", Argv[1]) == 0)
+	{
+		bool valid = Model::ValidateFileAgainstRules(Argv[2], Argv[3]);
+
+		if (valid)
+		{
+			std::printf("\n");
+			std::printf("Done\n");
+			std::printf("\n");
+		}
+		else
+		{
+			std::printf("\n");
+			std::printf("Invalid file\n");
+			std::printf("\n");
+		}
+	}
+
+	if (std::strcmp("ConvertFileIntoProprietaryFormat", Argv[1]) == 0)
+	{
+		Model model = {};
 
 		bool converted = model.ConvertIntoProprietaryFormat(Argv[2], Argv[3]);
 
 		if (converted)
 		{
-			std::vector<U8> modelData = model.Serialize();
+			std::vector<U8> modelData = {};
+			
+			model.Serialize(modelData);
 
 			FileUtility::WriteBinary(Argv[4], modelData);
 
@@ -57,22 +96,6 @@ I32 main(I32 Argc, char** Argv)
 			std::printf("Cannot convert model\n");
 			std::printf("\n");
 		}
-	}
-
-	// TODO
-	if (std::strcmp("Test", Argv[1]) == 0)
-	{
-		std::vector<U8> modelData = {};
-
-		FileUtility::ReadBinary(Argv[2], modelData);
-
-		Model model;
-
-		model.Deserialize(modelData);
-		
-		modelData = model.Serialize();
-
-		FileUtility::WriteBinary(Argv[3], modelData);
 	}
 
 	if (std::strcmp("Version", Argv[1]) == 0)
@@ -90,16 +113,20 @@ I32 main(I32 Argc, char** Argv)
 		std::printf(" ModelUtility [Command] [Arguments]\n");
 		std::printf("\n");
 		std::printf("Commands:\n");
-		std::printf(" PrintToC                     [Model(Str)]                          Print the table of content for SCR/MD files\n");
-		std::printf(" PrintContent                 [Model(Str)]                          Print the content of SCR/MD files\n");
-		std::printf(" ConvertIntoProprietaryFormat [File(Str)] [Rules(Str)] [Model(Str)] Convert a standardized 3D file into the internal proprietary format\n");
-		std::printf(" Version                                                            Print the current version\n");
-		std::printf(" Help                                                               Print this help message\n");
+		std::printf(" PrintToC                         [Model(Str)]                          Print the table of content for SCR/MD files\n");
+		std::printf(" PrintContent                     [Model(Str)]                          Print the content of SCR/MD files\n");
+		std::printf(" GenerateConversionRules          [Model(Str)] [Rules(Str)]             Generate conversion rules from an existing SCR/MD model\n");
+		std::printf(" ValidateFileAgainstRules         [File(Str)] [Rules(Str)]              Validate a standardized 3D file against conversion rules\n");
+		std::printf(" ConvertFileIntoProprietaryFormat [File(Str)] [Rules(Str)] [Model(Str)] Convert a standardized 3D file into the internal proprietary model format\n");
+		std::printf(" Version                                                                Print the current version\n");
+		std::printf(" Help                                                                   Print this help message\n");
 		std::printf("\n");
 		std::printf("Examples:\n");
 		std::printf(" PrintToC \"minka.SCR\"\n");
 		std::printf(" PrintContent \"minka.SCR\"\n");
-		std::printf(" ConvertIntoProprietaryFormat \"monkey.FBX\" \"monkeyRules.JSON\" \"monkey.SCR\"\n");
+		std::printf(" GenerateConversionRules \"minka.SCR\" \"rules.json\"\n");
+		std::printf(" ValidateFileAgainstRules \"monkey.fbx\" \"rules.json\"\n");
+		std::printf(" ConvertFileIntoProprietaryFormat \"monkey.fbx\" \"rules.json\" \"monkey.SCR\"\n");
 		std::printf("\n");
 	}
 

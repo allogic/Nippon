@@ -23,10 +23,8 @@ namespace Nippon
 	private:
 
 		static void RenderFileMenu();
-		static void RenderArchiveMenu();
 		static void RenderDatabaseMenu();
 		static void RenderToolMenu();
-		static void RenderSettingsMenu();
 
 	private:
 
@@ -38,6 +36,7 @@ namespace Nippon
 		static void OpenSceneProcedure(ArchiveInfo const& ArchiveInfo);
 		static void PrintTableOfContentProcedure(ArchiveInfo const& ArchiveInfo);
 		static void ExtractToDiskProcedure(ArchiveInfo const& ArchiveInfo);
+		static void UnfoldToDiskProcedure(ArchiveInfo const& ArchiveInfo);
 
 	private:
 

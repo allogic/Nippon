@@ -35,7 +35,7 @@ namespace Nippon
 
 	public:
 
-		std::vector<U8> Serialize();
+		void Serialize(std::vector<U8>& Bytes);
 
 		void Deserialize(U8 const* Bytes, U64 Size);
 		void Deserialize(std::vector<U8> const& Bytes);
