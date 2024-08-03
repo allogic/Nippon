@@ -84,6 +84,19 @@ Make sure that your custom model has the same parent-child relationships. Also m
 
 Finally, we can start the conversion process!
 
+Here is a full example from the `Patches` folder.
+```
+Copy-Item -Path "C:\Program Files (x86)\Steam\steamapps\common\Okami\data_pc\ut\ut00_orig.dat" -Destination ".\ut00.dat"
+
+.\ArchiveUtility.exe GetByTypeAndName ".\ut00.dat" "MD" "ut00" ".\ut00.MD"
+.\ModelUtility.exe GenerateConversionRules ".\ut00.MD" ".\Rules.json"
+.\ModelUtility.exe ValidateFileAgainstRules ".\Tree.fbx" ".\Rules.json"
+.\ModelUtility.exe ConvertFileIntoProprietaryFormat ".\Tree.fbx" ".\Rules.json" "Tree.MD"
+.\ArchiveUtility.exe SetByTypeAndName ".\ut00.dat" "MD" "ut00" ".\Tree.MD"
+
+Copy-Item -Path ".\ut00.dat" -Destination "C:\Program Files (x86)\Steam\steamapps\common\Okami\data_pc\ut\ut00.dat"
+```
+
 ## Exporting Assets
 Right click on a random entity that you wish to export and choose `Export as Wavefront` to generate a wavefront object and material file along with all referenced textures. It should be ready to be imported into blender or any other 3D modeling software. Be sure to enable backface culling in your external rendering software to view the objects properly, otherwise only the black hull will be visible for most objects.
 
