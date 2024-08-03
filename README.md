@@ -74,7 +74,7 @@ Examples:
  ValidateFileAgainstRules "monkey.fbx" "rules.json"
  ConvertFileIntoProprietaryFormat "monkey.fbx" "rules.json" "monkey.SCR"
 ```
-To change an existing model, you must first examine its properties. To do this, we first print out the ToC of an SCR/MD file. Next, we need to construct a JSON conversion rule that has the same values as we just saw in the ToC. Optionally we can validate our 3D model against the generated rules.
+To change an existing model, you must first examine its properties. To do this, we first print out the ToC of an SCR/MD file. Next, we need to construct a JSON conversion rule that has the same values as we just saw in the ToC. Optionally we can validate our 3D file against the generated rules.
 
 Make sure that your custom model has the same parent-child relationships. Also make sure that your custom model has the same vertex attributes as the source model.
  - VertexOffset <=> Vertex Position Strip
