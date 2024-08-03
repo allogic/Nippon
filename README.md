@@ -9,7 +9,7 @@ On first start the editor will ask for the okami data directory.
 It should look something along like `C:\Program Files (x86)\Steam\steamapps\common\Okami\data_pc`.
 
 #### Editor Scene Controls
-- `WASD` to move
+- `WASD/QE` to move
 - `L-SHIFT` for lightspeed
 - `F` reset position
 
