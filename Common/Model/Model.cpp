@@ -21,6 +21,17 @@
 	snprintf(buffer, sizeof(buffer), FMT, __VA_ARGS__); \
 	Callback(buffer)
 
+#define DEFAULT_ALIGNMENT 0x10
+
+#define TRANSFORM_OFFSET_ALIGNMENT 0x10
+#define SUBMESH_OFFSET_ALIGNMENT 0x10
+
+#define MESH_ALIGNMENT 0x10
+#define SUBMESH_ALIGNMENT 0x10
+#define TRANSFORM_ALIGNMENT 0x10
+
+#define EOF_ALIGNMENT 0x100
+
 namespace Nippon
 {
 	void from_json(nlohmann::json const& Json, SubMeshRule& Rule)
@@ -1620,7 +1631,7 @@ namespace Nippon
 			}
 		}
 
-		Mediator->AlignUp(DEFAULT_ALIGNMENT);
+		Mediator->AlignUp(TRANSFORM_OFFSET_ALIGNMENT);
 	}
 
 	void Model::WriteMdSubMeshOffsets(BinaryMediator* Mediator, MdMesh const& Mesh)
@@ -1640,7 +1651,7 @@ namespace Nippon
 			subMeshOffset += GetMdSubMeshSize(subMesh);
 		}
 
-		Mediator->AlignUp(DEFAULT_ALIGNMENT);
+		Mediator->AlignUp(SUBMESH_OFFSET_ALIGNMENT);
 	}
 
 	void Model::WriteScrSubMeshOffsets(BinaryMediator* Mediator, ScrMesh const& Mesh)
@@ -1660,7 +1671,7 @@ namespace Nippon
 			subMeshOffset += GetScrSubMeshSize(subMesh);
 		}
 
-		Mediator->AlignUp(DEFAULT_ALIGNMENT);
+		Mediator->AlignUp(SUBMESH_OFFSET_ALIGNMENT);
 	}
 
 	void Model::WriteMdSubMesh(BinaryMediator* Mediator, MdSubMesh const& SubMesh)
@@ -1798,13 +1809,8 @@ namespace Nippon
 		U64 acc = 0;
 
 		acc += sizeof(MdbHeader);
-
-		for (U32 j = 0; j < Mesh.Header.SubMeshCount; j++)
-		{
-			acc += sizeof(U32);
-		}
-
-		acc = ALIGN_UP_BY(acc, DEFAULT_ALIGNMENT);
+		acc += sizeof(U32) * Mesh.Header.SubMeshCount;
+		acc = ALIGN_UP_BY(acc, SUBMESH_OFFSET_ALIGNMENT);
 
 		for (U16 j = 0; j < Mesh.Header.SubMeshCount; j++)
 		{
@@ -1823,13 +1829,8 @@ namespace Nippon
 		U64 acc = 0;
 
 		acc += sizeof(MdbHeader);
-
-		for (U32 j = 0; j < Mesh.Header.SubMeshCount; j++)
-		{
-			acc += sizeof(U32);
-		}
-
-		acc = ALIGN_UP_BY(acc, DEFAULT_ALIGNMENT);
+		acc += sizeof(U32) * Mesh.Header.SubMeshCount;
+		acc = ALIGN_UP_BY(acc, SUBMESH_OFFSET_ALIGNMENT);
 
 		for (U16 j = 0; j < Mesh.Header.SubMeshCount; j++)
 		{
@@ -1921,7 +1922,7 @@ namespace Nippon
 
 		acc += sizeof(ScrHeader);
 		acc += sizeof(U32) * mScrHeader.MeshCount;
-		acc = ALIGN_UP_BY(acc, DEFAULT_ALIGNMENT);
+		acc = ALIGN_UP_BY(acc, TRANSFORM_OFFSET_ALIGNMENT);
 
 		switch (mScrHeader.FileType)
 		{
@@ -1953,7 +1954,7 @@ namespace Nippon
 			}
 		}
 
-		acc = ALIGN_UP_BY(acc, 256);
+		acc = ALIGN_UP_BY(acc, EOF_ALIGNMENT);
 
 		mSizePrev = mSize;
 		mSize = acc;

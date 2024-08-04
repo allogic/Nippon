@@ -11,6 +11,9 @@
 	snprintf(buffer, sizeof(buffer), FMT, __VA_ARGS__); \
 	Callback(buffer)
 
+#define FILE_ALIGNMENT 0x100
+#define FILE_HEADER_SIZE 0x20
+
 namespace Nippon
 {
 	static std::set<std::string> sKnownDirectoryTypes =

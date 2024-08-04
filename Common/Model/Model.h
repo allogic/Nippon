@@ -10,11 +10,6 @@
 
 #include <Common/Nlohmann/json_fwd.hpp>
 
-#define DEFAULT_ALIGNMENT 0x10
-#define MESH_ALIGNMENT 0x10
-#define SUBMESH_ALIGNMENT 0x10
-#define TRANSFORM_ALIGNMENT 0x10
-
 namespace Nippon
 {
 	enum ModelType : U32

@@ -60,7 +60,7 @@ namespace Nippon
 					config.path = ".";
 					config.flags = 0;
 
-					ImGuiFileDialog::Instance()->OpenDialog("OpenLevelArchiveFileDlg", "Choose Archive", ".dat", config);
+					ImGuiFileDialog::Instance()->OpenDialog("OpenLevelArchiveFileDlg", "Choose Level Archive", ".dat", config);
 				}
 
 				if (ImGui::MenuItem("Entity Archive", "", nullptr))
@@ -70,7 +70,7 @@ namespace Nippon
 					config.path = ".";
 					config.flags = 0;
 
-					ImGuiFileDialog::Instance()->OpenDialog("OpenEntityArchiveFileDlg", "Choose Archive", ".dat", config);
+					ImGuiFileDialog::Instance()->OpenDialog("OpenEntityArchiveFileDlg", "Choose Entity Archive", ".dat", config);
 				}
 
 				ImGui::EndMenu();

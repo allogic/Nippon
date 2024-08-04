@@ -4,9 +4,6 @@
 #include <Common/Standard.h>
 #include <Common/Types.h>
 
-#define FILE_ALIGNMENT 0x100
-#define FILE_HEADER_SIZE 0x20
-
 namespace Nippon
 {
 	class Archive
