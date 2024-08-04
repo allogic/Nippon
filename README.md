@@ -9,7 +9,7 @@ On first start the editor will ask for the okami data directory.
 It should look something along like `C:\Program Files (x86)\Steam\steamapps\common\Okami\data_pc`.
 
 #### Editor Scene Controls
-- `WASD` to move
+- `WASD/QE` to move
 - `L-SHIFT` for lightspeed
 - `F` reset position
 
@@ -47,8 +47,8 @@ Examples:
  PrintOfType "r301.dat" "DDS"
  Extract "r301.dat" "r301"
  Unfold "r301.dat" "r301"
- GetByTypeAndName "r301.dat" "DDS" "hyouzan" "hyouzan.dds"
- SetByTypeAndName "r301.dat" "DDS" "hyouzan" "hyouzan.dds"
+ GetByTypeAndName "r301.dat" "DDS" "hyouzan" "hyouzan.DDS"
+ SetByTypeAndName "r301.dat" "DDS" "hyouzan" "hyouzan.DDS"
 ```
 
 ## How do I modify models?
@@ -59,18 +59,22 @@ Usage:
  ModelUtility [Command] [Arguments]
 
 Commands:
- PrintToC                     [Model(Str)]                          Print the table of content for SCR/MD files
- PrintContent                 [Model(Str)]                          Print the content of SCR/MD files
- ConvertIntoProprietaryFormat [File(Str)] [Rules(Str)] [Model(Str)] Convert a standardized 3D file into the internal proprietary format
- Version                                                            Print the current version
- Help                                                               Print this help message
+ PrintToC                         [Model(Str)]                          Print the table of content for SCR/MD files
+ PrintContent                     [Model(Str)]                          Print the content of SCR/MD files
+ GenerateConversionRules          [Model(Str)] [Rules(Str)]             Generate conversion rules from an existing SCR/MD model
+ ValidateFileAgainstRules         [File(Str)] [Rules(Str)]              Validate a standardized 3D file against conversion rules
+ ConvertFileIntoProprietaryFormat [File(Str)] [Rules(Str)] [Model(Str)] Convert a standardized 3D file into the internal proprietary model format
+ Version                                                                Print the current version
+ Help                                                                   Print this help message
 
 Examples:
  PrintToC "minka.SCR"
  PrintContent "minka.SCR"
- ConvertIntoProprietaryFormat "monkey.FBX" "monkeyRules.JSON" "monkey.SCR"
+ GenerateConversionRules "minka.SCR" "rules.json"
+ ValidateFileAgainstRules "monkey.fbx" "rules.json"
+ ConvertFileIntoProprietaryFormat "monkey.fbx" "rules.json" "monkey.SCR"
 ```
-To change an existing model, you must first examine its properties. To do this, we first print out the ToC of an SCR/MD file. Next, we need to construct a JSON conversion rule that has the same values as we just saw in the ToC.
+To change an existing model, you must first examine its properties. To do this, we first print out the ToC of an SCR/MD file. Next, we need to construct a JSON conversion rule that has the same values as we just saw in the ToC. Optionally we can validate our 3D file against the generated rules.
 
 Make sure that your custom model has the same parent-child relationships. Also make sure that your custom model has the same vertex attributes as the source model.
  - VertexOffset <=> Vertex Position Strip
@@ -79,6 +83,19 @@ Make sure that your custom model has the same parent-child relationships. Also m
  - ColorWeightOffset <=> Vertex Colors
 
 Finally, we can start the conversion process!
+
+Here is a full example from the `Patches` folder.
+```
+Copy-Item -Path "C:\Program Files (x86)\Steam\steamapps\common\Okami\data_pc\ut\ut00_orig.dat" -Destination ".\ut00.dat"
+
+.\ArchiveUtility.exe GetByTypeAndName ".\ut00.dat" "MD" "ut00" ".\ut00.MD"
+.\ModelUtility.exe GenerateConversionRules ".\ut00.MD" ".\Rules.json"
+.\ModelUtility.exe ValidateFileAgainstRules ".\Tree.fbx" ".\Rules.json"
+.\ModelUtility.exe ConvertFileIntoProprietaryFormat ".\Tree.fbx" ".\Rules.json" "Tree.MD"
+.\ArchiveUtility.exe SetByTypeAndName ".\ut00.dat" "MD" "ut00" ".\Tree.MD"
+
+Copy-Item -Path ".\ut00.dat" -Destination "C:\Program Files (x86)\Steam\steamapps\common\Okami\data_pc\ut\ut00.dat"
+```
 
 ## Exporting Assets
 Right click on a random entity that you wish to export and choose `Export as Wavefront` to generate a wavefront object and material file along with all referenced textures. It should be ready to be imported into blender or any other 3D modeling software. Be sure to enable backface culling in your external rendering software to view the objects properly, otherwise only the black hull will be visible for most objects.
