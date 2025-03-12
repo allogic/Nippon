@@ -11,8 +11,9 @@ namespace Nippon
 	{
 	public:
 
-		static U32 Create(U32 Width, U32 Height, U32 Channels, U32 Wrap, U32 Filter, U32 Format, U32 FormatInternal, U32 Type, void const* Data, bool Compressed = false);
-
+		//static U32 Create(U32 Width, U32 Height, U32 Channels, U32 Wrap, U32 Filter, U32 Format, U32 FormatInternal, U32 Type, void const* Data, bool Compressed = false);
+		static U32 Create(U32 Width, U32 Height, U32 Channels, U32 Wrap, U32 Filter, U32 Format,
+			U32 FormatInternal, U32 Type, void const* Data, size_t DataSize, bool Compressed = false);
 		static void Destroy(U32 Texture);
 		static void Destroy(std::vector<U32> const& Textures);
 
