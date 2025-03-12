@@ -27,17 +27,58 @@ namespace Nippon
 	{
 		U32 CreateTextureFromImage(const DirectX::Image* mip, DXGI_FORMAT format)
 		{
+			U32 formatInternal = 0;
+			U32 formatGL = GL_RGBA;
+			bool isCompressed = false;
+
 			switch (format)
 			{
-				case DXGI_FORMAT_BC1_UNORM:
-					return Texture2D::Create((U32)mip->width, (U32)mip->height, 1, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_RGBA, GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM_ARB, GL_UNSIGNED_BYTE, mip->pixels, true);
-				case DXGI_FORMAT_BC7_UNORM:
-					return Texture2D::Create((U32)mip->width, (U32)mip->height, 1, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_RGBA, GL_COMPRESSED_RGBA_BPTC_UNORM_ARB, GL_UNSIGNED_BYTE, mip->pixels, true);
-				default:
-					Log::Add("Unsupported texture format 0x%X found\n", format);
-					return 0;
+			case DXGI_FORMAT_BC1_UNORM:
+				formatInternal = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+				isCompressed = true;
+				break;
+			case DXGI_FORMAT_BC2_UNORM:
+				formatInternal = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+				isCompressed = true;
+				break;
+			case DXGI_FORMAT_BC3_UNORM:
+				formatInternal = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+				isCompressed = true;
+				break;
+			case DXGI_FORMAT_BC7_UNORM:
+				formatInternal = GL_COMPRESSED_RGBA_BPTC_UNORM_ARB;
+				isCompressed = true;
+				break;
+			default:
+				Log::Add("Unsupported texture format 0x%X found\n", format);
+				return 0;
 			}
+
+			auto dataSize = mip->rowPitch * mip->height;
+			if (isCompressed)
+			{
+				auto blockSize = (format == DXGI_FORMAT_BC1_UNORM) ? 8 : 16;
+				auto blockWidth = (mip->width + 3) / 4;
+				auto blockHeight = (mip->height + 3) / 4;
+				dataSize = blockWidth * blockHeight * blockSize;
+				
+			}
+
+			return Texture2D::Create(
+				(U32)mip->width,
+				(U32)mip->height,
+				1,
+				GL_REPEAT,
+				GL_LINEAR_MIPMAP_LINEAR,
+				formatGL,
+				formatInternal,
+				GL_UNSIGNED_BYTE,
+				mip->pixels,
+				dataSize,
+				isCompressed
+			);
 		}
+
 
 		U32 LoadDDS(const DirectX::ScratchImage& image)
 		{
@@ -48,7 +89,25 @@ namespace Nippon
 
 		U32 LoadPNG(U8 const* data, I32 width, I32 height)
 		{
-			return Texture2D::Create(width, height, 4, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, data);
+			U32 texture = Texture2D::Create(
+				width,
+				height,
+				1,
+				GL_REPEAT,
+				GL_LINEAR_MIPMAP_LINEAR,
+				GL_RGBA,
+				GL_RGBA,
+				GL_UNSIGNED_BYTE,
+				data,
+				width * height * 4
+			);
+
+			if (texture == 0)
+			{
+				Log::Add("Failed to create texture from PNG image\n");
+			}
+
+			return texture;
 		}
 	}
 

@@ -1,10 +1,11 @@
-#include <Glad/glad.h>
+﻿#include <Glad/glad.h>
 
 #include <OpenGl/Texture2D.h>
 
 namespace Nippon
 {
-	U32 Texture2D::Create(U32 Width, U32 Height, U32 Channels, U32 Wrap, U32 Filter, U32 Format, U32 FormatInternal, U32 Type, void const* Data, bool Compressed)
+	U32 Texture2D::Create(U32 Width, U32 Height, U32 Channels, U32 Wrap, U32 Filter, U32 Format,
+		U32 FormatInternal, U32 Type, void const* Data, size_t DataSize, bool Compressed)
 	{
 		U32 id = 0;
 
@@ -17,9 +18,11 @@ namespace Nippon
 
 		glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, (I32)Filter);
 
+		auto ourDataSize = DataSize == 0 ? Width * Height * Channels : DataSize;
+
 		if (Compressed)
 		{
-			glCompressedTexImage2D(GL_TEXTURE_2D, 0, FormatInternal, Width, Height, 0, Width * Height * Channels, Data);
+			glCompressedTexImage2D(GL_TEXTURE_2D, 0, FormatInternal, Width, Height, 0, ourDataSize, Data);
 		}
 		else
 		{
