@@ -23,63 +23,60 @@
 
 namespace Nippon
 {
+	namespace
+	{
+		U32 CreateTextureFromImage(const DirectX::Image* mip, DXGI_FORMAT format)
+		{
+			switch (format)
+			{
+				case DXGI_FORMAT_BC1_UNORM:
+					return Texture2D::Create((U32)mip->width, (U32)mip->height, 1, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_RGBA, GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM_ARB, GL_UNSIGNED_BYTE, mip->pixels, true);
+				case DXGI_FORMAT_BC7_UNORM:
+					return Texture2D::Create((U32)mip->width, (U32)mip->height, 1, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_RGBA, GL_COMPRESSED_RGBA_BPTC_UNORM_ARB, GL_UNSIGNED_BYTE, mip->pixels, true);
+				default:
+					Log::Add("Unsupported texture format 0x%X found\n", format);
+					return 0;
+			}
+		}
+
+		U32 LoadDDS(const DirectX::ScratchImage& image)
+		{
+			const DirectX::Image* mip = image.GetImage(0, 0, 0);
+			
+			return CreateTextureFromImage(mip, image.GetMetadata().format);
+		}
+
+		U32 LoadPNG(U8 const* data, I32 width, I32 height)
+		{
+			return Texture2D::Create(width, height, 4, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		}
+	}
+
 	U32 TextureUtility::ReadDDS(fs::path const& File)
 	{
-		U32 texture = 0;
-
 		DirectX::ScratchImage image = {};
 
 		DirectX::LoadFromDDSFile(File.wstring().data(), DirectX::DDS_FLAGS_NONE, nullptr, image);
 
-		DirectX::Image const* mip = image.GetImage(0, 0, 0);
-
-		switch (image.GetMetadata().format)
-		{
-			case DXGI_FORMAT_BC1_UNORM: texture = Texture2D::Create((U32)mip->width, (U32)mip->height, 1, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_RGBA, GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM_ARB, GL_UNSIGNED_BYTE, mip->pixels, true); break;
-			case DXGI_FORMAT_BC7_UNORM: texture = Texture2D::Create((U32)mip->width, (U32)mip->height, 1, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_RGBA, GL_COMPRESSED_RGBA_BPTC_UNORM_ARB, GL_UNSIGNED_BYTE, mip->pixels, true); break;
-			default:
-			{
-				Log::Add("Unsupported texture format 0x%X found\n", image.GetMetadata().format);
-			}
-		}
-
-		return texture;
+		return LoadDDS(image);
 	}
 
 	U32 TextureUtility::ReadDDS(U8 const* Bytes, U64 Size)
 	{
-		U32 texture = 0;
-
 		DirectX::ScratchImage image = {};
 
 		DirectX::LoadFromDDSMemory(Bytes, Size, DirectX::DDS_FLAGS_NONE, nullptr, image);
 
-		DirectX::Image const* mip = image.GetImage(0, 0, 0);
-
-		switch (image.GetMetadata().format)
-		{
-			case DXGI_FORMAT_BC1_UNORM: texture = Texture2D::Create((U32)mip->width, (U32)mip->height, 1, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_RGB, GL_COMPRESSED_RGB_S3TC_DXT1_EXT, GL_UNSIGNED_BYTE, mip->pixels, true); break;
-			case DXGI_FORMAT_BC7_UNORM: texture = Texture2D::Create((U32)mip->width, (U32)mip->height, 1, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_RGBA, GL_COMPRESSED_RGBA_BPTC_UNORM_ARB, GL_UNSIGNED_BYTE, mip->pixels, true); break;
-			default:
-			{
-				Log::Add("Unsupported texture format 0x%X found\n", image.GetMetadata().format);
-			}
-		}
-
-		return texture;
+		return LoadDDS(image);
 	}
 
 	U32 TextureUtility::ReadPNG(fs::path const& File)
 	{
-		U32 texture = 0;
-
-		I32 width = 0;
-		I32 height = 0;
-		I32 channels = 0;
+		I32 width = 0, height = 0, channels = 0;
 
 		U8* data = stbi_load(File.string().data(), &width, &height, &channels, 0);
 
-		texture = Texture2D::Create(width, height, 4, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		U32 texture = LoadPNG(data, width, height);
 
 		stbi_image_free(data);
 
@@ -88,15 +85,11 @@ namespace Nippon
 
 	U32 TextureUtility::ReadPNG(U8 const* Bytes, U64 Size)
 	{
-		U32 texture = 0;
-
-		I32 width = 0;
-		I32 height = 0;
-		I32 channels = 0;
+		I32 width = 0, height = 0, channels = 0;
 
 		U8* data = stbi_load_from_memory(Bytes, (I32)Size, &width, &height, &channels, 0);
 
-		texture = Texture2D::Create(width, height, 4, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		U32 texture = LoadPNG(data, width, height);
 
 		stbi_image_free(data);
 
