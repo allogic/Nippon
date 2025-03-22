@@ -25,7 +25,7 @@ namespace Nippon
 		inline void SeekAbs(U64 Value) { mPosition = Value; }
 
 		inline void AlignUp(U64 Alignment) { mPosition = ALIGN_UP_BY(mPosition, Alignment); }
-		inline void AlignDown(U64 Alignment) { mPosition = ALIGN_UP_BY(mPosition, Alignment); }
+		inline void AlignDown(U64 Alignment) { mPosition = ALIGN_DOWN_BY(mPosition, Alignment); }
 
 		inline void ModUp(U64 Modulus) { mPosition -= mPosition % Modulus; }
 		inline void ModDown(U64 Modulus) { mPosition += mPosition % Modulus; }

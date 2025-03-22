@@ -871,8 +871,8 @@ namespace Nippon
 								break;
 							}
 						}
-
-						mediator.AlignUp(DEFAULT_ALIGNMENT);
+						
+						//mediator.AlignUp(DEFAULT_ALIGNMENT);
 					}
 
 					for (U32 i = 0; i < mScrHeader.MeshCount; i++)
@@ -1549,17 +1549,22 @@ namespace Nippon
 				Mediator->Read<TextureMap>(subMesh.TextureMaps, subMesh.Header.VertexCount);
 			}
 
+			if (subMesh.Header.ColorWeightOffset)
+			{
+				Mediator->SeekAbs(mdStart + subMesh.Header.ColorWeightOffset);
+				Mediator->Read<ColorWeight>(subMesh.ColorWeights, subMesh.Header.VertexCount);
+			}
+
 			if (subMesh.Header.TextureUvOffset)
 			{
 				Mediator->SeekAbs(mdStart + subMesh.Header.TextureUvOffset);
 				Mediator->Read<MdUv>(subMesh.TextureUvs, subMesh.Header.VertexCount);
 			}
 
-			if (subMesh.Header.ColorWeightOffset)
-			{
-				Mediator->SeekAbs(mdStart + subMesh.Header.ColorWeightOffset);
-				Mediator->Read<ColorWeight>(subMesh.ColorWeights, subMesh.Header.VertexCount);
-			}
+			U32 byteCount = (Mediator->GetPosition() - mdStart);
+			U32 paddingByteOffset = (0x80 - (byteCount % 0x80));
+
+			Mediator->SeekRel(paddingByteOffset);
 		}
 	}
 
