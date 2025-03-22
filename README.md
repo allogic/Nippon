@@ -20,6 +20,7 @@ git clone --branch main --depth 1 https://github.com/allogic/Nippon
 Setup.ps1
 ```
 Launch the Visual Studio Solution, set the `Editor` as the startup project and build for `Debug` or `Release` bitness `x64`.
+If you want to launch the editor through Visual Studio change the Debugging Working Directory in the Editor Project to $(TargetPath)
 
 #### Troubleshooting
  - If you got build errors, make sure you have the latest Visual Studio platform toolset v143 installed on your system.
