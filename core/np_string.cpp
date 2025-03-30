@@ -1,51 +1,71 @@
 #include <np_pch.hpp>
 #include <np_string.hpp>
 
-NpString const &NpString::CutFront(uint64_t const Size) const {
-  *this = substr(Size);
-  return *this;
-}
 NpString &NpString::CutFront(uint64_t const Size) {
   *this = substr(Size);
   return *this;
 }
-void NpString::CutFront(uint64_t const Size) { *this = substr(Size); }
-
-NbString const &NpString::CutBack(uint64_t const Size) {
+NpString &NpString::CutBack(uint64_t const Size) {
   *this = substr(0, size() - Size);
   return *this;
 }
-NbString &NpString::CutBack(uint64_t const Size) {
-  *this = substr(0, size() - Size);
+NpString &NpString::RemoveChars(char const Char) {
+  erase(std::remove_if(begin(), end(), [Char](char const C) { return C == Char; }), end());
   return *this;
 }
-void NpString::CutBack(uint64_t const Size) { *this = substr(0, size() - Size); }
-
-NpString const &NpString::RemoveChars(char const Char) {
-  std::string Result = String;
-  Result.erase(std::remove_if(Result.begin(), Result.end(), [=](char const C) { return C == Char; }), Result.end());
-  return Result;
+NpString &NpString::ToLower() {
+  std::transform(begin(), end(), begin(), [](char const C) { return std::tolower(C); });
+  return *this;
 }
-
-std::string NpString::ToLower(std::string const &String) {
-  std::string Result = String;
-  std::transform(Result.begin(), Result.end(), Result.begin(), [](char const C) { return std::tolower(C); });
-  return Result;
+NpString &NpString::ToUpper() {
+  std::transform(begin(), end(), begin(), [](char const C) { return std::toupper(C); });
+  return *this;
 }
-std::string NpString::ToUpper(std::string const &String) {
-  std::string Result = String;
-  std::transform(Result.begin(), Result.end(), Result.begin(), [](char const C) { return std::toupper(C); });
-  return Result;
-}
-
-std::string NpString::SelectExpr(std::string const &String, std::string const &Expression) {
+NpString &NpString::SelectExpr(std::string const &Expression) {
   std::stringstream Stream;
 
-  for (uint64_t StringIndex = 0; StringIndex < String.size(); StringIndex++) {
-    if (StringIndex + Expression.size() <= String.size()) {
+  for (uint64_t StringIndex = 0; StringIndex < size(); StringIndex++) {
+    if (StringIndex + Expression.size() <= size()) {
       for (uint64_t ExpressionIndex = 0; ExpressionIndex < Expression.size(); ExpressionIndex++) {
         if (Expression[ExpressionIndex] == 'X') {
-          Stream << String[StringIndex + ExpressionIndex];
+          Stream << this[StringIndex + ExpressionIndex];
+        }
+      }
+
+      break;
+    }
+  }
+
+  *this = Stream.str();
+
+  return *this;
+}
+
+NpString NpString::CutFront(uint64_t const Size) const { return substr(Size); }
+NpString NpString::CutBack(uint64_t const Size) const { return substr(0, size() - Size); }
+NpString NpString::RemoveChars(char const Char) const {
+  NpString String = *this;
+  String.erase(std::remove_if(String.begin(), String.end(), [Char](char const C) { return C == Char; }), String.end());
+  return String;
+}
+NpString NpString::ToLower() const {
+  NpString String = *this;
+  std::transform(String.begin(), String.end(), String.begin(), [](char const C) { return std::tolower(C); });
+  return String;
+}
+NpString NpString::ToUpper() const {
+  NpString String = *this;
+  std::transform(String.begin(), String.end(), String.begin(), [](char const C) { return std::toupper(C); });
+  return String;
+}
+NpString NpString::SelectExpr(std::string const &Expression) const {
+  std::stringstream Stream;
+
+  for (uint64_t StringIndex = 0; StringIndex < size(); StringIndex++) {
+    if (StringIndex + Expression.size() <= size()) {
+      for (uint64_t ExpressionIndex = 0; ExpressionIndex < Expression.size(); ExpressionIndex++) {
+        if (Expression[ExpressionIndex] == 'X') {
+          Stream << this[StringIndex + ExpressionIndex];
         }
       }
 
