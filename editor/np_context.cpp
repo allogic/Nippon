@@ -101,14 +101,14 @@ void NpContext::CreateInstance() {
   uint32_t GlfwExtensionCount = 0;
   const char **GlfwExtensions = glfwGetRequiredInstanceExtensions(&GlfwExtensionCount);
 
-  std::vector<char const *> LayerExtensions(GlfwExtensionCount + s_LayerExtensions.size());
+  std::vector<char const *> LayerExtensions(GlfwExtensionCount + m_LayerExtensions.size());
 
   for (uint32_t ExtensionIndex = 0; ExtensionIndex < GlfwExtensionCount; ExtensionIndex++) {
     LayerExtensions[ExtensionIndex] = GlfwExtensions[ExtensionIndex];
   }
 
-  for (uint32_t ExtensionIndex = 0; ExtensionIndex < s_LayerExtensions.size(); ExtensionIndex++) {
-    LayerExtensions[ExtensionIndex + GlfwExtensionCount] = s_LayerExtensions[ExtensionIndex];
+  for (uint32_t ExtensionIndex = 0; ExtensionIndex < m_LayerExtensions.size(); ExtensionIndex++) {
+    LayerExtensions[ExtensionIndex + GlfwExtensionCount] = m_LayerExtensions[ExtensionIndex];
   }
 
   InstanceCreateInfo.enabledExtensionCount = LayerExtensions.size();
@@ -126,13 +126,13 @@ void NpContext::CreateInstance() {
   InstanceCreateInfo.ppEnabledLayerNames = s_ValidationLayers.data();
 #endif
 
-  VK_CHECK(vkCreateInstance(&InstanceCreateInfo, 0, &m_Instance));
+  VK_CHECK(vkCreateInstance(&InstanceCreateInfo, nullptr, &m_Instance));
 
 #if defined(BUILD_DEBUG)
   m_CreateDebugUtilsMessengerExt = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(m_Instance, "vkCreateDebugUtilsMessengerEXT");
   m_DestroyDebugUtilsMessengerExt = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(m_Instance, "vkDestroyDebugUtilsMessengerEXT");
 
-  VK_CHECK(m_CreateDebugUtilsMessengerExt(m_Instance, &DebugUtilsMessengerCreateInfo, 0, &m_DebugMessenger));
+  VK_CHECK(m_CreateDebugUtilsMessengerExt(m_Instance, &DebugUtilsMessengerCreateInfo, nullptr, &m_DebugMessenger));
 #endif
 }
 void NpContext::CreateSurface() { VK_CHECK(glfwCreateWindowSurface(m_Instance, m_Window, nullptr, &m_Surface)); }
@@ -153,7 +153,7 @@ void NpContext::CreateDevice() {
 
   VkPhysicalDeviceDescriptorIndexingFeatures PhysicalDeviceDescriptorIndexingFeatures = {};
   PhysicalDeviceDescriptorIndexingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
-  PhysicalDeviceDescriptorIndexingFeatures.pNext = 0;
+  PhysicalDeviceDescriptorIndexingFeatures.pNext = nullptr;
 
   VkPhysicalDeviceFeatures2 PhysicalDeviceFeatures2 = {};
   PhysicalDeviceFeatures2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
@@ -167,17 +167,17 @@ void NpContext::CreateDevice() {
   DeviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
   DeviceCreateInfo.pQueueCreateInfos = DeviceQueueCreateInfos.data();
   DeviceCreateInfo.queueCreateInfoCount = DeviceQueueCreateInfos.size();
-  DeviceCreateInfo.pEnabledFeatures = 0;
+  DeviceCreateInfo.pEnabledFeatures = nullptr;
   DeviceCreateInfo.pNext = &PhysicalDeviceFeatures2;
-  DeviceCreateInfo.ppEnabledExtensionNames = s_DeviceExtensions.data();
-  DeviceCreateInfo.enabledExtensionCount = s_DeviceExtensions.size();
+  DeviceCreateInfo.ppEnabledExtensionNames = m_DeviceExtensions.data();
+  DeviceCreateInfo.enabledExtensionCount = m_DeviceExtensions.size();
 
 #if defined(BUILD_DEBUG)
   DeviceCreateInfo.ppEnabledLayerNames = s_ValidationLayers.data();
   DeviceCreateInfo.enabledLayerCount = s_ValidationLayers.size();
 #endif
 
-  VK_CHECK(vkCreateDevice(m_PhysicalDevice, &DeviceCreateInfo, 0, &m_Device));
+  VK_CHECK(vkCreateDevice(m_PhysicalDevice, &DeviceCreateInfo, nullptr, &m_Device));
 
   vkGetDeviceQueue(m_Device, m_GraphicsQueueIndex, 0, &m_GraphicsQueue);
   vkGetDeviceQueue(m_Device, m_PresentQueueIndex, 0, &m_PresentQueue);
@@ -188,34 +188,34 @@ void NpContext::CreateCommandPool() {
   CommandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
   CommandPoolCreateInfo.queueFamilyIndex = m_GraphicsQueueIndex;
 
-  VK_CHECK(vkCreateCommandPool(m_Device, &CommandPoolCreateInfo, 0, &m_CommandPool));
+  VK_CHECK(vkCreateCommandPool(m_Device, &CommandPoolCreateInfo, nullptr, &m_CommandPool));
 }
 
 void NpContext::DestroyInstance() {
 #if defined(BUILD_DEBUG)
-  m_DestroyDebugUtilsMessengerExt(m_Instance, m_DebugMessenger, 0);
+  m_DestroyDebugUtilsMessengerExt(m_Instance, m_DebugMessenger, nullptr);
 #endif
 
-  vkDestroyInstance(m_Instance, 0);
+  vkDestroyInstance(m_Instance, nullptr);
 }
-void NpContext::DestroySurface() { vkDestroySurfaceKHR(m_Instance, m_Surface, 0); }
-void NpContext::DestroyDevice() { vkDestroyDevice(m_Device, 0); }
-void NpContext::DestroyCommandPool() { vkDestroyCommandPool(m_Device, m_CommandPool, 0); }
+void NpContext::DestroySurface() { vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr); }
+void NpContext::DestroyDevice() { vkDestroyDevice(m_Device, nullptr); }
+void NpContext::DestroyCommandPool() { vkDestroyCommandPool(m_Device, m_CommandPool, nullptr); }
 
 void NpContext::CheckSurfaceCapabilities() {
-  int32_t SurfaceFormatCount = 0;
-  VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(m_PhysicalDevice, m_Surface, &SurfaceFormatCount, 0));
+  uint32_t SurfaceFormatCount = 0;
+  VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(m_PhysicalDevice, m_Surface, &SurfaceFormatCount, nullptr));
 
-  VkSurfaceFormatKHR *SurfaceFormats = (VkSurfaceFormatKHR *)Memory::Alloc(sizeof(VkSurfaceFormatKHR) * SurfaceFormatCount);
-  VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(m_PhysicalDevice, m_Surface, &SurfaceFormatCount, SurfaceFormats));
+  std::unique_ptr<VkSurfaceFormatKHR[]> SurfaceFormats = std::make_unique<VkSurfaceFormatKHR[]>(SurfaceFormatCount);
+  VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(m_PhysicalDevice, m_Surface, &SurfaceFormatCount, SurfaceFormats.get()));
 
-  int32_t PresentModeCount = 0;
-  VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(m_PhysicalDevice, m_Surface, &PresentModeCount, 0));
+  uint32_t PresentModeCount = 0;
+  VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(m_PhysicalDevice, m_Surface, &PresentModeCount, nullptr));
 
-  VkPresentModeKHR *PresentModes = (VkPresentModeKHR *)Memory::Alloc(sizeof(VkPresentModeKHR) * PresentModeCount);
-  VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(m_PhysicalDevice, m_Surface, &PresentModeCount, PresentModes));
+  std::unique_ptr<VkPresentModeKHR[]> PresentModes = std::make_unique<VkPresentModeKHR[]>(PresentModeCount);
+  VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(m_PhysicalDevice, m_Surface, &PresentModeCount, PresentModes.get()));
 
-  for (kuint64_t SurfaceFormatIndex = 0; SurfaceFormatIndex < SurfaceFormatCount; SurfaceFormatIndex++) {
+  for (uint64_t SurfaceFormatIndex = 0; SurfaceFormatIndex < SurfaceFormatCount; SurfaceFormatIndex++) {
     VkSurfaceFormatKHR SurfaceFormat = SurfaceFormats[SurfaceFormatIndex];
 
     if ((SurfaceFormat.format == VK_FORMAT_B8G8R8A8_UNORM) && (SurfaceFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)) {
@@ -238,27 +238,24 @@ void NpContext::CheckSurfaceCapabilities() {
 
     PresentModeIndex++;
   }
-
-  Memory::Free(SurfaceFormats);
-  Memory::Free(PresentModes);
 }
 void NpContext::CheckPhysicalDeviceExtensions() {
-  int32_t AvailableDeviceExtensionCount = 0;
-  VK_CHECK(vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, 0, &AvailableDeviceExtensionCount, 0));
+  uint32_t AvailableDeviceExtensionCount = 0;
+  VK_CHECK(vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &AvailableDeviceExtensionCount, nullptr));
 
-  VkExtensionProperties *AvailableDeviceExtensions = (VkExtensionProperties *)Memory::Alloc(sizeof(VkExtensionProperties) * AvailableDeviceExtensionCount);
-  VK_CHECK(vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, 0, &AvailableDeviceExtensionCount, AvailableDeviceExtensions));
+  std::unique_ptr<VkExtensionProperties[]> AvailableDeviceExtensions = std::make_unique<VkExtensionProperties[]>(AvailableDeviceExtensionCount);
+  VK_CHECK(vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &AvailableDeviceExtensionCount, AvailableDeviceExtensions.get()));
 
   printf("Device Extensions\n");
 
-  for (uint64_t DeviceExtensionIndex = 0; DeviceExtensionIndex < s_DeviceExtensions.size(); DeviceExtensionIndex++) {
+  for (uint64_t DeviceExtensionIndex = 0; DeviceExtensionIndex < m_DeviceExtensions.size(); DeviceExtensionIndex++) {
     bool DeviceExtensionAvailable = false;
 
     for (uint64_t AvailableDeviceExtensionIndex = 0; AvailableDeviceExtensionIndex < AvailableDeviceExtensionCount; AvailableDeviceExtensionIndex++) {
       VkExtensionProperties ExtensionProperties = AvailableDeviceExtensions[AvailableDeviceExtensionIndex];
 
-      if (strcmp(s_DeviceExtensions[DeviceExtensionIndex], ExtensionProperties.extensionName) == 0) {
-        std::printf("\tFound %s\n", s_DeviceExtensions[DeviceExtensionIndex]);
+      if (strcmp(m_DeviceExtensions[DeviceExtensionIndex], ExtensionProperties.extensionName) == 0) {
+        std::printf("\tFound %s\n", m_DeviceExtensions[DeviceExtensionIndex]);
 
         DeviceExtensionAvailable = true;
 
@@ -267,15 +264,13 @@ void NpContext::CheckPhysicalDeviceExtensions() {
     }
 
     if (!DeviceExtensionAvailable) {
-      std::printf("\tMissing %s\n", s_DeviceExtensions[DeviceExtensionIndex]);
+      std::printf("\tMissing %s\n", m_DeviceExtensions[DeviceExtensionIndex]);
 
       break;
     }
   }
 
   std::printf("\n");
-
-  Memory::Free(AvailableDeviceExtensions);
 }
 
 void NpContext::ResizeSurface() {
@@ -286,11 +281,11 @@ void NpContext::ResizeSurface() {
 }
 
 void NpContext::FindPhysicalDevice() {
-  int32_t PhysicalDeviceCount = 0;
-  VK_CHECK(vkEnumeratePhysicalDevices(m_Instance, &PhysicalDeviceCount, 0));
+  uint32_t PhysicalDeviceCount = 0;
+  VK_CHECK(vkEnumeratePhysicalDevices(m_Instance, &PhysicalDeviceCount, nullptr));
 
-  VkPhysicalDevice *PhysicalDevices = (VkPhysicalDevice *)Memory::Alloc(sizeof(VkPhysicalDevice) * PhysicalDeviceCount);
-  VK_CHECK(vkEnumeratePhysicalDevices(m_Instance, &PhysicalDeviceCount, PhysicalDevices));
+  std::unique_ptr<VkPhysicalDevice[]> PhysicalDevices = std::make_unique<VkPhysicalDevice[]>(PhysicalDeviceCount);
+  VK_CHECK(vkEnumeratePhysicalDevices(m_Instance, &PhysicalDeviceCount, PhysicalDevices.get()));
 
   for (uint64_t PhysicalDeviceIndex = 0; PhysicalDeviceIndex < PhysicalDeviceCount; PhysicalDeviceIndex++) {
     VkPhysicalDevice PhysicalDevice = PhysicalDevices[PhysicalDeviceIndex];
@@ -307,15 +302,13 @@ void NpContext::FindPhysicalDevice() {
       }
     }
   }
-
-  Memory::Free(PhysicalDevices);
 }
 void NpContext::FindPhysicalDeviceQueueFamilies() {
-  int32_t QueueFamilyPropertyCount = 0;
-  vkGetPhysicalDeviceQueueFamilyProperties(m_PhysicalDevice, &QueueFamilyPropertyCount, 0);
+  uint32_t QueueFamilyPropertyCount = 0;
+  vkGetPhysicalDeviceQueueFamilyProperties(m_PhysicalDevice, &QueueFamilyPropertyCount, nullptr);
 
-  VkQueueFamilyProperties *QueueFamilyProperties = (VkQueueFamilyProperties *)Memory::Alloc(sizeof(VkQueueFamilyProperties) * QueueFamilyPropertyCount);
-  vkGetPhysicalDeviceQueueFamilyProperties(m_PhysicalDevice, &QueueFamilyPropertyCount, QueueFamilyProperties);
+  std::unique_ptr<VkQueueFamilyProperties[]> QueueFamilyProperties = std::make_unique<VkQueueFamilyProperties[]>(QueueFamilyPropertyCount);
+  vkGetPhysicalDeviceQueueFamilyProperties(m_PhysicalDevice, &QueueFamilyPropertyCount, QueueFamilyProperties.get());
 
   for (uint64_t PhysicalDeviceQueueFamilyPropertyIndex = 0; PhysicalDeviceQueueFamilyPropertyIndex < QueueFamilyPropertyCount; PhysicalDeviceQueueFamilyPropertyIndex++) {
     VkQueueFamilyProperties QueueProperties = QueueFamilyProperties[PhysicalDeviceQueueFamilyPropertyIndex];
@@ -339,8 +332,6 @@ void NpContext::FindPhysicalDeviceQueueFamilies() {
       break;
     }
   }
-
-  Memory::Free(QueueFamilyProperties);
 
   printf("Queue Indices\n");
   printf("\tGraphics Queue Index %d\n", m_GraphicsQueueIndex);

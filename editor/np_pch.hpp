@@ -2,9 +2,25 @@
 #  define NP_EDITOR_PCH_HPP
 
 #  include <array>
-#  include <cstdint>
+#  include <cassert>
+#  include <chrono>
 #  include <cstdio>
 #  include <cstdlib>
+#  include <cstring>
+#  include <filesystem>
+#  include <fstream>
+#  include <functional>
+#  include <limits>
+#  include <map>
+#  include <memory>
+#  include <mutex>
+#  include <random>
+#  include <set>
+#  include <sstream>
+#  include <string>
+#  include <thread>
+#  include <utility>
+#  include <vector>
 
 #  if defined(OS_WINDOWS)
 #    define WIN32_LEAN_AND_MEAN

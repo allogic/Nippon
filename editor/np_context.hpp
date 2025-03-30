@@ -57,7 +57,7 @@ private:
 
   VkInstance m_Instance = nullptr;
 
-  VkSurfaceKHR m_Surface = nullptr;
+  VkSurfaceKHR m_Surface = 0;
   VkSurfaceCapabilitiesKHR m_SurfaceCapabilities = {};
   VkSurfaceFormatKHR m_PreferedSurfaceFormat = {};
 
@@ -79,7 +79,7 @@ private:
   VkQueue m_GraphicsQueue = nullptr;
   VkQueue m_PresentQueue = nullptr;
 
-  VkCommandPool m_CommandPool = nullptr;
+  VkCommandPool m_CommandPool = 0;
 
 #  if defined(BUILD_DEBUG)
   PFN_vkCreateDebugUtilsMessengerEXT m_CreateDebugUtilsMessengerExt = nullptr;
