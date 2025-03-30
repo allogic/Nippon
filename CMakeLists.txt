@@ -12,8 +12,6 @@ set (CMAKE_CXX_STANDARD 23)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 set (CMAKE_CXX_EXTENSIONS OFF)
 
-# set (VULKAN_SDK_DIR "/opt/vulkansdk/1.4.309.0/x86_64")
-
 include (FetchContent)
 
 include ("${CMAKE_SOURCE_DIR}/cmake/build_targets.cmake")

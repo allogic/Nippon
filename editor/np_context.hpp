@@ -1,9 +1,10 @@
-#pragma once
+#if !defined(NP_EDITOR_CONTEXT_HPP)
+#  define NP_EDITOR_CONTEXT_HPP
 
-class NpEditor {
+class NpContext {
 public:
-  NpEditor();
-  virtual ~NpEditor();
+  NpContext();
+  virtual ~NpContext();
 
 public:
   bool Create(int32_t Width, int32_t Height);
@@ -32,6 +33,23 @@ private:
   void FindPhysicalDeviceQueueFamilies();
 
 private:
+#  if defined(BUILD_DEBUG)
+  std::vector<char const *> const m_ValidationLayers = {
+      "VK_LAYER_KHRONOS_validation",
+  };
+#  endif
+
+  std::vector<char const *> const m_LayerExtensions = {
+#  if defined(BUILD_DEBUG)
+      "VK_EXT_debug_utils",
+#  endif
+  };
+
+  std::vector<char const *> const m_DeviceExtensions = {
+      "VK_KHR_swapchain",
+      "VK_EXT_descriptor_indexing",
+  };
+
   GLFWwindow *m_Window = nullptr;
 
   float m_Time = 0.0F;
@@ -63,12 +81,12 @@ private:
 
   VkCommandPool m_CommandPool = nullptr;
 
-#if defined(BUILD_DEBUG)
+#  if defined(BUILD_DEBUG)
   PFN_vkCreateDebugUtilsMessengerEXT m_CreateDebugUtilsMessengerExt = nullptr;
   PFN_vkDestroyDebugUtilsMessengerEXT m_DestroyDebugUtilsMessengerExt = nullptr;
 
   VkDebugUtilsMessengerEXT m_DebugMessenger = nullptr;
-#endif
+#  endif
 
   bool m_SwapchainIsDirty = false;
   bool m_RendererIsDirty = false;
@@ -78,3 +96,5 @@ private:
 // static int32_t context_find_memory_type(uint32_t type_filter, VkMemoryPropertyFlags memory_property_flags);
 // static VkCommandBuffer context_begin_command_buffer(void);
 // static void context_end_command_buffer(VkCommandBuffer command_buffer);
+
+#endif
