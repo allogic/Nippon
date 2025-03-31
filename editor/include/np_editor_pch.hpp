@@ -12,7 +12,6 @@
 #  include <functional>
 #  include <limits>
 #  include <map>
-#  include <memory>
 #  include <mutex>
 #  include <random>
 #  include <set>
@@ -24,16 +23,17 @@
 
 #  if defined(OS_WINDOWS)
 #    define WIN32_LEAN_AND_MEAN
+#    define NOMINMAX
 #    include <windows.h>
 #  endif
 
 #  if defined(OS_WINDOWS)
 #    define VK_USE_PLATFORM_WIN32_KHR
+#    include <vulkan/vulkan.h>
 #  elif defined(OS_LINUX)
 #    define VK_USE_PLATFORM_WAYLAND_KHR
+#    include <vulkan/vulkan.h>
 #  endif
-
-#  include <vulkan/vulkan.h>
 
 #  include <GLFW/glfw3.h>
 

@@ -7,11 +7,29 @@ public:
   virtual ~NpContext();
 
 public:
+  inline auto const &GetInstance() const { return m_Instance; }
+  inline auto const &GetSurface() const { return m_Surface; }
+  inline auto const &GetSurfaceCapabilities() const { return m_SurfaceCapabilities; }
+  inline auto const &GetPreferedSurfaceFormat() const { return m_PreferedSurfaceFormat; }
+  inline auto const &GetPreferedPresentMode() const { return m_PreferedPresentMode; }
+  inline auto const &GetSurfaceWidth() const { return m_SurfaceWidth; }
+  inline auto const &GetSurfaceHeight() const { return m_SurfaceHeight; }
+  inline auto const &GetDevice() const { return m_Device; }
+  inline auto const &GetGraphicsQueueIndex() const { return m_GraphicsQueueIndex; }
+  inline auto const &GetPresentQueueIndex() const { return m_PresentQueueIndex; }
+  inline auto const &GetGraphicsQueue() const { return m_GraphicsQueue; }
+  inline auto const &GetPresentQueue() const { return m_PresentQueue; }
+
+public:
   bool Create(int32_t Width, int32_t Height);
-  bool IsRunning();
-  void BeginFrame();
-  void EndFrame();
+  void Run();
   void Destroy();
+
+public:
+  int32_t FindMemoryType(uint32_t TypeFilter, VkMemoryPropertyFlags MemoryPropertyFlags);
+
+  VkCommandBuffer BeginCommandBuffer();
+  void EndCommandBuffer(VkCommandBuffer CommandBuffer);
 
 private:
   void CreateInstance();
@@ -92,9 +110,6 @@ private:
   bool m_RendererIsDirty = false;
 };
 
-// TODO
-// static int32_t context_find_memory_type(uint32_t type_filter, VkMemoryPropertyFlags memory_property_flags);
-// static VkCommandBuffer context_begin_command_buffer(void);
-// static void context_end_command_buffer(VkCommandBuffer command_buffer);
+extern NpContext g_Context;
 
 #endif

@@ -1,13 +1,35 @@
-#include <np_pch.hpp>
-#include <np_context.hpp>
-#include <np_macros.hpp>
+#include <np_editor_pch.hpp>
+#include <np_editor_context.hpp>
+#include <np_editor_macros.hpp>
+#include <np_editor_swapchain.hpp>
 
-// #include <engine/imgui.h>
-// #include <engine/macros.h>
-// #include <engine/swapchain.h>
+NpContext g_Context = {};
+
+static void GlfwWindowPosition(GLFWwindow *Window, int X, int Y);
+static void GlfwWindowSize(GLFWwindow *Window, int Width, int Height);
+static void GlfwWindowClose(GLFWwindow *Window);
+static void GlfwWindowRefresh(GLFWwindow *Window);
+static void GlfwWindowFocus(GLFWwindow *Window, int Focused);
+static void GlfwWindowIconify(GLFWwindow *Window, int Iconified);
+static void GlfwWindowMaximize(GLFWwindow *Window, int Maximized);
+static void GlfwWindowContentScale(GLFWwindow *Window, float X, float Y);
+static void GlfwFrameBufferSize(GLFWwindow *Window, int Width, int Height);
+
+static void GlfwKey(GLFWwindow *window, int Key, int ScanCode, int Action, int Mods);
+static void GlfwChar(GLFWwindow *Window, unsigned int CodePoint);
+static void GlfwCharMods(GLFWwindow *window, unsigned int codepoint, int mods);
+static void GlfwMouseButton(GLFWwindow *Window, int Button, int Action, int Mods);
+static void GlfwCursorPosition(GLFWwindow *Window, double X, double Y);
+static void GlfwCursorEnter(GLFWwindow *Window, int Entered);
+static void GlfwScroll(GLFWwindow *Window, double X, double Y);
+
+static void GlfwJoystick(int Jid, int Event);
+
+static void GlfwMonitor(GLFWmonitor *Monitor, int Event);
 
 #if defined(BUILD_DEBUG)
-static VkBool32 VulkanDebugMessageProc(VkDebugUtilsMessageSeverityFlagBitsEXT MessageSeverity, VkDebugUtilsMessageTypeFlagsEXT MessageType, VkDebugUtilsMessengerCallbackDataEXT const *CallbackData, void *UserData);
+static VkBool32
+VulkanDebugMessageProc(VkDebugUtilsMessageSeverityFlagBitsEXT MessageSeverity, VkDebugUtilsMessageTypeFlagsEXT MessageType, VkDebugUtilsMessengerCallbackDataEXT const *CallbackData, void *UserData);
 #endif
 
 NpContext::NpContext() {}
@@ -17,29 +39,27 @@ bool NpContext::Create(int32_t Width, int32_t Height) {
   if (glfwInit()) {
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-    m_Window = glfwCreateWindow(Width, Height, "Editor", nullptr, nullptr);
+    m_Window = glfwCreateWindow(Width, Height, "Editor " NIPPON_VERSION_MAJOR "." NIPPON_VERSION_MINOR "." NIPPON_VERSION_PATCH " (" GIT_VERSION_HASH ")", nullptr, nullptr);
 
     if (m_Window) {
       CreateInstance();
       CreateSurface();
 
-      /*
-      context_find_physical_device();
-      context_find_physical_device_queue_families();
+      FindPhysicalDevice();
+      FindPhysicalDeviceQueueFamilies();
 
-      context_check_physical_device_extensions();
+      CheckPhysicalDeviceExtensions();
 
-      context_create_device();
+      CreateDevice();
 
-      context_check_surface_capabilities();
+      CheckSurfaceCapabilities();
 
-      context_resize_surface();
+      ResizeSurface();
 
-      context_create_command_pool();
+      CreateCommandPool();
 
-      swapchain_create();
-      renderer_create();
-      */
+      g_Swapchain.Create(0);
+      // renderer_create();
 
       return true;
     } else {
@@ -51,38 +71,82 @@ bool NpContext::Create(int32_t Width, int32_t Height) {
 
   return false;
 }
-bool NpContext::IsRunning() { return !glfwWindowShouldClose(m_Window); }
-void NpContext::BeginFrame() {
-  if (m_SwapchainIsDirty) {
-    m_SwapchainIsDirty = false;
+void NpContext::Run() {
+  while (!glfwWindowShouldClose(m_Window)) {
+    glfwPollEvents();
 
-    // renderer_destroy();
-    // swapchain_destroy();
+    if (m_SwapchainIsDirty) {
+      m_SwapchainIsDirty = false;
 
-    ResizeSurface();
+      // renderer_destroy();
+      g_Swapchain.Destroy();
 
-    // swapchain_create();
-    // renderer_create();
-  }
+      ResizeSurface();
 
-  if (m_RendererIsDirty) {
-    m_RendererIsDirty = false;
+      g_Swapchain.Create(0);
+      // renderer_create();
+    }
 
-    // renderer_destroy();
+    if (m_RendererIsDirty) {
+      m_RendererIsDirty = false;
 
-    // renderer_create();
+      // renderer_destroy();
+
+      // renderer_create();
+    }
   }
 }
-void NpContext::EndFrame() {}
 void NpContext::Destroy() {
   // renderer_destroy();
-
-  // swapchain_destroy();
+  g_Swapchain.Destroy();
 
   DestroyCommandPool();
   DestroyDevice();
   DestroySurface();
   DestroyInstance();
+}
+
+int32_t NpContext::FindMemoryType(uint32_t TypeFilter, VkMemoryPropertyFlags MemoryPropertyFlags) {
+  for (uint32_t MemoryTypeIndex = 0; MemoryTypeIndex < m_PhysicalDeviceMemoryProperties.memoryTypeCount; MemoryTypeIndex++) {
+    if ((TypeFilter & (1 << MemoryTypeIndex)) && ((m_PhysicalDeviceMemoryProperties.memoryTypes[MemoryTypeIndex].propertyFlags & MemoryPropertyFlags) == MemoryPropertyFlags)) {
+      return (int32_t)MemoryTypeIndex;
+    }
+  }
+
+  return -1;
+}
+
+VkCommandBuffer NpContext::BeginCommandBuffer() {
+  VkCommandBuffer CommandBuffer = nullptr;
+
+  VkCommandBufferAllocateInfo CommandBufferAllocateInfo = {};
+  CommandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+  CommandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+  CommandBufferAllocateInfo.commandPool = m_CommandPool;
+  CommandBufferAllocateInfo.commandBufferCount = 1;
+
+  VK_CHECK(vkAllocateCommandBuffers(m_Device, &CommandBufferAllocateInfo, &CommandBuffer));
+
+  VkCommandBufferBeginInfo CommandBufferBeginInfo = {};
+  CommandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+  CommandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+  VK_CHECK(vkBeginCommandBuffer(CommandBuffer, &CommandBufferBeginInfo));
+
+  return CommandBuffer;
+}
+void NpContext::EndCommandBuffer(VkCommandBuffer CommandBuffer) {
+  VK_CHECK(vkEndCommandBuffer(CommandBuffer));
+
+  VkSubmitInfo SubmitInfo = {};
+  SubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  SubmitInfo.commandBufferCount = 1;
+  SubmitInfo.pCommandBuffers = &CommandBuffer;
+
+  VK_CHECK(vkQueueSubmit(m_GraphicsQueue, 1, &SubmitInfo, nullptr));
+  VK_CHECK(vkQueueWaitIdle(m_GraphicsQueue));
+
+  vkFreeCommandBuffers(m_Device, m_CommandPool, 1, &CommandBuffer);
 }
 
 void NpContext::CreateInstance() {
@@ -122,8 +186,8 @@ void NpContext::CreateInstance() {
   DebugUtilsMessengerCreateInfo.pfnUserCallback = VulkanDebugMessageProc;
 
   InstanceCreateInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *)&DebugUtilsMessengerCreateInfo;
-  InstanceCreateInfo.enabledLayerCount = s_ValidationLayers.size();
-  InstanceCreateInfo.ppEnabledLayerNames = s_ValidationLayers.data();
+  InstanceCreateInfo.enabledLayerCount = m_ValidationLayers.size();
+  InstanceCreateInfo.ppEnabledLayerNames = m_ValidationLayers.data();
 #endif
 
   VK_CHECK(vkCreateInstance(&InstanceCreateInfo, nullptr, &m_Instance));
@@ -137,9 +201,9 @@ void NpContext::CreateInstance() {
 }
 void NpContext::CreateSurface() { VK_CHECK(glfwCreateWindowSurface(m_Instance, m_Window, nullptr, &m_Surface)); }
 void NpContext::CreateDevice() {
-  std::array<VkDeviceQueueCreateInfo, 2> DeviceQueueCreateInfos = {};
-
   float QueuePriority = 1.0F;
+
+  std::array<VkDeviceQueueCreateInfo, 2> DeviceQueueCreateInfos = {};
 
   DeviceQueueCreateInfos[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
   DeviceQueueCreateInfos[0].queueFamilyIndex = m_GraphicsQueueIndex;
@@ -173,8 +237,8 @@ void NpContext::CreateDevice() {
   DeviceCreateInfo.enabledExtensionCount = m_DeviceExtensions.size();
 
 #if defined(BUILD_DEBUG)
-  DeviceCreateInfo.ppEnabledLayerNames = s_ValidationLayers.data();
-  DeviceCreateInfo.enabledLayerCount = s_ValidationLayers.size();
+  DeviceCreateInfo.ppEnabledLayerNames = m_ValidationLayers.data();
+  DeviceCreateInfo.enabledLayerCount = m_ValidationLayers.size();
 #endif
 
   VK_CHECK(vkCreateDevice(m_PhysicalDevice, &DeviceCreateInfo, nullptr, &m_Device));
@@ -206,14 +270,14 @@ void NpContext::CheckSurfaceCapabilities() {
   uint32_t SurfaceFormatCount = 0;
   VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(m_PhysicalDevice, m_Surface, &SurfaceFormatCount, nullptr));
 
-  std::unique_ptr<VkSurfaceFormatKHR[]> SurfaceFormats = std::make_unique<VkSurfaceFormatKHR[]>(SurfaceFormatCount);
-  VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(m_PhysicalDevice, m_Surface, &SurfaceFormatCount, SurfaceFormats.get()));
+  VkSurfaceFormatKHR *SurfaceFormats = new VkSurfaceFormatKHR[SurfaceFormatCount];
+  VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(m_PhysicalDevice, m_Surface, &SurfaceFormatCount, SurfaceFormats));
 
   uint32_t PresentModeCount = 0;
   VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(m_PhysicalDevice, m_Surface, &PresentModeCount, nullptr));
 
-  std::unique_ptr<VkPresentModeKHR[]> PresentModes = std::make_unique<VkPresentModeKHR[]>(PresentModeCount);
-  VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(m_PhysicalDevice, m_Surface, &PresentModeCount, PresentModes.get()));
+  VkPresentModeKHR *PresentModes = new VkPresentModeKHR[PresentModeCount];
+  VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(m_PhysicalDevice, m_Surface, &PresentModeCount, PresentModes));
 
   for (uint64_t SurfaceFormatIndex = 0; SurfaceFormatIndex < SurfaceFormatCount; SurfaceFormatIndex++) {
     VkSurfaceFormatKHR SurfaceFormat = SurfaceFormats[SurfaceFormatIndex];
@@ -238,13 +302,16 @@ void NpContext::CheckSurfaceCapabilities() {
 
     PresentModeIndex++;
   }
+
+  delete[] SurfaceFormats;
+  delete[] PresentModes;
 }
 void NpContext::CheckPhysicalDeviceExtensions() {
   uint32_t AvailableDeviceExtensionCount = 0;
   VK_CHECK(vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &AvailableDeviceExtensionCount, nullptr));
 
-  std::unique_ptr<VkExtensionProperties[]> AvailableDeviceExtensions = std::make_unique<VkExtensionProperties[]>(AvailableDeviceExtensionCount);
-  VK_CHECK(vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &AvailableDeviceExtensionCount, AvailableDeviceExtensions.get()));
+  VkExtensionProperties *AvailableDeviceExtensions = new VkExtensionProperties[AvailableDeviceExtensionCount];
+  VK_CHECK(vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &AvailableDeviceExtensionCount, AvailableDeviceExtensions));
 
   printf("Device Extensions\n");
 
@@ -271,6 +338,8 @@ void NpContext::CheckPhysicalDeviceExtensions() {
   }
 
   std::printf("\n");
+
+  delete[] AvailableDeviceExtensions;
 }
 
 void NpContext::ResizeSurface() {
@@ -284,8 +353,8 @@ void NpContext::FindPhysicalDevice() {
   uint32_t PhysicalDeviceCount = 0;
   VK_CHECK(vkEnumeratePhysicalDevices(m_Instance, &PhysicalDeviceCount, nullptr));
 
-  std::unique_ptr<VkPhysicalDevice[]> PhysicalDevices = std::make_unique<VkPhysicalDevice[]>(PhysicalDeviceCount);
-  VK_CHECK(vkEnumeratePhysicalDevices(m_Instance, &PhysicalDeviceCount, PhysicalDevices.get()));
+  VkPhysicalDevice *PhysicalDevices = new VkPhysicalDevice[PhysicalDeviceCount];
+  VK_CHECK(vkEnumeratePhysicalDevices(m_Instance, &PhysicalDeviceCount, PhysicalDevices));
 
   for (uint64_t PhysicalDeviceIndex = 0; PhysicalDeviceIndex < PhysicalDeviceCount; PhysicalDeviceIndex++) {
     VkPhysicalDevice PhysicalDevice = PhysicalDevices[PhysicalDeviceIndex];
@@ -302,13 +371,15 @@ void NpContext::FindPhysicalDevice() {
       }
     }
   }
+
+  delete[] PhysicalDevices;
 }
 void NpContext::FindPhysicalDeviceQueueFamilies() {
   uint32_t QueueFamilyPropertyCount = 0;
   vkGetPhysicalDeviceQueueFamilyProperties(m_PhysicalDevice, &QueueFamilyPropertyCount, nullptr);
 
-  std::unique_ptr<VkQueueFamilyProperties[]> QueueFamilyProperties = std::make_unique<VkQueueFamilyProperties[]>(QueueFamilyPropertyCount);
-  vkGetPhysicalDeviceQueueFamilyProperties(m_PhysicalDevice, &QueueFamilyPropertyCount, QueueFamilyProperties.get());
+  VkQueueFamilyProperties *QueueFamilyProperties = new VkQueueFamilyProperties[QueueFamilyPropertyCount];
+  vkGetPhysicalDeviceQueueFamilyProperties(m_PhysicalDevice, &QueueFamilyPropertyCount, QueueFamilyProperties);
 
   for (uint64_t PhysicalDeviceQueueFamilyPropertyIndex = 0; PhysicalDeviceQueueFamilyPropertyIndex < QueueFamilyPropertyCount; PhysicalDeviceQueueFamilyPropertyIndex++) {
     VkQueueFamilyProperties QueueProperties = QueueFamilyProperties[PhysicalDeviceQueueFamilyPropertyIndex];
@@ -337,7 +408,31 @@ void NpContext::FindPhysicalDeviceQueueFamilies() {
   printf("\tGraphics Queue Index %d\n", m_GraphicsQueueIndex);
   printf("\tPresent Queue Index %d\n", m_PresentQueueIndex);
   printf("\n");
+
+  delete[] QueueFamilyProperties;
 }
+
+static void GlfwWindowPosition(GLFWwindow *Window, int X, int Y) {}
+static void GlfwWindowSize(GLFWwindow *Window, int Width, int Height) {}
+static void GlfwWindowClose(GLFWwindow *Window) {}
+static void GlfwWindowRefresh(GLFWwindow *Window) {}
+static void GlfwWindowFocus(GLFWwindow *Window, int Focused) {}
+static void GlfwWindowIconify(GLFWwindow *Window, int Iconified) {}
+static void GlfwWindowMaximize(GLFWwindow *Window, int Maximized) {}
+static void GlfwWindowContentScale(GLFWwindow *Window, float X, float Y) {}
+static void GlfwFrameBufferSize(GLFWwindow *Window, int Width, int Height) {}
+
+static void GlfwKey(GLFWwindow *Window, int Key, int ScanCode, int Action, int Mods) {}
+static void GlfwChar(GLFWwindow *Window, unsigned int CodePoint) {}
+static void GlfwCharMods(GLFWwindow *window, unsigned int codepoint, int mods) {}
+static void GlfwMouseButton(GLFWwindow *Window, int Button, int Action, int Mods) {}
+static void GlfwCursorPosition(GLFWwindow *Window, double X, double Y) {}
+static void GlfwCursorEnter(GLFWwindow *Window, int Entered) {}
+static void GlfwScroll(GLFWwindow *Window, double X, double Y) {}
+
+static void GlfwJoystick(int Jid, int Event) {}
+
+static void GlfwMonitor(GLFWmonitor *Monitor, int Event) {}
 
 #if defined(BUILD_DEBUG)
 static VkBool32 VulkanDebugMessageProc(VkDebugUtilsMessageSeverityFlagBitsEXT MessageSeverity, VkDebugUtilsMessageTypeFlagsEXT MessageType, VkDebugUtilsMessengerCallbackDataEXT const *CallbackData, void *UserData) {
@@ -346,55 +441,3 @@ static VkBool32 VulkanDebugMessageProc(VkDebugUtilsMessageSeverityFlagBitsEXT Me
   return 0;
 }
 #endif
-
-/*
-int32_t context_find_memory_type(uint32_t type_filter, VkMemoryPropertyFlags memory_property_flags) {
-  int32_t memory_type = -1;
-
-  uint32_t memory_type_index = 0;
-  while (memory_type_index < g_context_physical_device_memory_properties.memoryTypeCount) {
-    if ((type_filter & (1 << memory_type_index)) && ((g_context_physical_device_memory_properties.memoryTypes[memory_type_index].propertyFlags & memory_property_flags) == memory_property_flags)) {
-      memory_type = (int32_t)memory_type_index;
-
-      break;
-    }
-
-    memory_type_index++;
-  }
-
-  return memory_type;
-}
-
-VkCommandBuffer context_begin_command_buffer(void) {
-  VkCommandBuffer command_buffer = 0;
-
-  VkCommandBufferAllocateInfo command_buffer_allocate_info = {0};
-  command_buffer_allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-  command_buffer_allocate_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-  command_buffer_allocate_info.commandPool = g_context_command_pool;
-  command_buffer_allocate_info.commandBufferCount = 1;
-
-  VK_CHECK(vkAllocateCommandBuffers(g_context_device, &command_buffer_allocate_info, &command_buffer));
-
-  VkCommandBufferBeginInfo command_buffer_begin_info = {0};
-  command_buffer_begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-  command_buffer_begin_info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-  VK_CHECK(vkBeginCommandBuffer(command_buffer, &command_buffer_begin_info));
-
-  return command_buffer;
-}
-void context_end_command_buffer(VkCommandBuffer command_buffer) {
-  VK_CHECK(vkEndCommandBuffer(command_buffer));
-
-  VkSubmitInfo submit_info = {0};
-  submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-  submit_info.commandBufferCount = 1;
-  submit_info.pCommandBuffers = &command_buffer;
-
-  VK_CHECK(vkQueueSubmit(g_context_graphics_queue, 1, &submit_info, 0));
-  VK_CHECK(vkQueueWaitIdle(g_context_graphics_queue));
-
-  vkFreeCommandBuffers(g_context_device, g_context_command_pool, 1, &command_buffer);
-}
-*/

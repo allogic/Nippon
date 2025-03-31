@@ -14,12 +14,14 @@ set (CMAKE_CXX_EXTENSIONS OFF)
 
 include (FetchContent)
 
-include ("${CMAKE_SOURCE_DIR}/cmake/build_targets.cmake")
+include ("${CMAKE_SOURCE_DIR}/cmake/project_version.cmake")
+include ("${CMAKE_SOURCE_DIR}/cmake/build_types.cmake")
 include ("${CMAKE_SOURCE_DIR}/cmake/compiler_config.cmake")
 include ("${CMAKE_SOURCE_DIR}/cmake/platform_selection.cmake")
 
 include ("${CMAKE_SOURCE_DIR}/cmake/fetch_glfw.cmake")
 include ("${CMAKE_SOURCE_DIR}/cmake/fetch_imgui.cmake")
+include ("${CMAKE_SOURCE_DIR}/cmake/fetch_entt.cmake")
 
 add_subdirectory (core)
 add_subdirectory (editor)
