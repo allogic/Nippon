@@ -1,5 +1,5 @@
-#if !defined(NP_EDITOR_MACROS_HPP)
-#  define NP_EDITOR_MACROS_HPP
+#if !defined(NP_EDITOR_MACRO_HPP)
+#  define NP_EDITOR_MACRO_HPP
 
 #  if defined(BUILD_DEBUG)
 #    if defined(OS_WINDOWS)

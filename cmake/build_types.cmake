@@ -1,15 +1,17 @@
-if (CMAKE_CONFIGURATION_TYPES)
+message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+message(STATUS "CMAKE_CONFIGURATION_TYPES: ${CMAKE_CONFIGURATION_TYPES}")
+message(STATUS "CONFIG: $<CONFIG>")
 
-    if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_CONFIGURATION_TYPES MATCHES "Debug")
+if ("$<CONFIG:Debug>" STREQUAL "Debug")
 
-        add_compile_definitions (BUILD_DEBUG)
+  add_compile_definitions (BUILD_DEBUG)
 
-    elseif (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_CONFIGURATION_TYPES MATCHES "Release")
+elseif ("$<CONFIG:Release>" STREQUAL "Release")
 
-    else ()
 
-      message (FATAL_ERROR "Unknown build type")
 
-    endif ()
+else ()
+
+  message (FATAL_ERROR "Unknown build type")
 
 endif ()

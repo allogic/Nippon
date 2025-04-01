@@ -5,13 +5,13 @@
 # sudo apt install libvulkan-dev
 # sudo apt install glslang-tools
 
-set (GLFW_BUILD_EXAMPLES OFF)
-set (GLFW_BUILD_TESTS OFF)
-set (GLFW_BUILD_DOCS OFF)
-set (GLFW_BUILD_WAYLAND ON)
-set (GLFW_BUILD_X11 OFF)
-set (GLFW_BUILD_SHARED OFF)
-set (GLFW_INSTALL OFF)
+option (GLFW_BUILD_EXAMPLES OFF)
+option (GLFW_BUILD_TESTS OFF)
+option (GLFW_BUILD_DOCS OFF)
+option (GLFW_BUILD_WAYLAND ON)
+option (GLFW_BUILD_X11 OFF)
+option (GLFW_BUILD_SHARED OFF)
+option (GLFW_INSTALL OFF)
 
 FetchContent_Declare (
   glfw

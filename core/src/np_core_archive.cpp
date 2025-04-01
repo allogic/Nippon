@@ -1,8 +1,8 @@
 #include <np_core_pch.hpp>
 #include <np_core_archive.hpp>
-#include <np_core_file_utils.hpp>
-#include <np_core_path_utils.hpp>
-#include <np_core_string_utils.hpp>
+#include <np_core_file_util.hpp>
+#include <np_core_path_util.hpp>
+#include <np_core_string_util.hpp>
 
 #define NP_ARCHIVE_FILE_HEADER_SIZE 0x20
 #define NP_ARCHIVE_FILE_ALIGNMENT 0x100
@@ -69,12 +69,12 @@ void NpArchive::Deserialize(std::vector<uint8_t> const &Bytes) {
 }
 
 void NpArchive::ExtractToDisk(std::filesystem::path const &File) {
-  NpPathUtils::CreateDir(File);
+  NpPathUtil::CreateDir(File);
 
   ExtractToDiskRecursive(File);
 }
 void NpArchive::UnfoldToDisk(std::filesystem::path const &File) {
-  NpPathUtils::CreateDir(File);
+  NpPathUtil::CreateDir(File);
 
   UnfoldToDiskRecursive(File);
 }
@@ -167,7 +167,7 @@ void NpArchive::ExtractToDiskRecursive(std::filesystem::path File) {
     if (m_Parent) {
       File /= CreateUniqueFileName();
 
-      NpPathUtils::CreateDir(File, true);
+      NpPathUtil::CreateDir(File, true);
     }
 
     for (auto const &Child : m_Children) {
@@ -177,7 +177,7 @@ void NpArchive::ExtractToDiskRecursive(std::filesystem::path File) {
     if (m_Size) {
       File /= CreateUniqueFileName();
 
-      NpFileUtils::WriteBinary(File, m_Bytes, m_Size);
+      NpFileUtil::WriteBinary(File, m_Bytes, m_Size);
     }
   }
 }
@@ -191,7 +191,7 @@ void NpArchive::UnfoldToDiskRecursive(std::filesystem::path File) {
       if (m_Size) {
         File /= CreateUniqueFileName();
 
-        NpFileUtils::WriteBinary(File, m_Bytes, m_Size);
+        NpFileUtil::WriteBinary(File, m_Bytes, m_Size);
       }
     }
   }
@@ -324,7 +324,7 @@ bool NpArchive::CheckIfDirectory(NpBinaryProcessor *Processor) {
           return false;
         }
 
-        std::string type = NpStringUtils::RemoveChars(Processor->ReadStringRange(4), '\0');
+        std::string type = NpStringUtil::RemoveChars(Processor->ReadStringRange(4), '\0');
 
         if (!m_KnownDirectoryTypes.contains(type) && !m_KnownFileTypes.contains(type)) {
           return false;

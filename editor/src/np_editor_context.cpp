@@ -1,6 +1,7 @@
 #include <np_editor_pch.hpp>
 #include <np_editor_context.hpp>
-#include <np_editor_macros.hpp>
+#include <np_editor_macro.hpp>
+#include <np_editor_renderer.hpp>
 #include <np_editor_swapchain.hpp>
 
 NpContext g_Context = {};
@@ -13,6 +14,7 @@ static void GlfwWindowFocus(GLFWwindow *Window, int Focused);
 static void GlfwWindowIconify(GLFWwindow *Window, int Iconified);
 static void GlfwWindowMaximize(GLFWwindow *Window, int Maximized);
 static void GlfwWindowContentScale(GLFWwindow *Window, float X, float Y);
+
 static void GlfwFrameBufferSize(GLFWwindow *Window, int Width, int Height);
 
 static void GlfwKey(GLFWwindow *window, int Key, int ScanCode, int Action, int Mods);
@@ -39,9 +41,32 @@ bool NpContext::Create(int32_t Width, int32_t Height) {
   if (glfwInit()) {
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-    m_Window = glfwCreateWindow(Width, Height, "Editor " NIPPON_VERSION_MAJOR "." NIPPON_VERSION_MINOR "." NIPPON_VERSION_PATCH " (" GIT_VERSION_HASH ")", nullptr, nullptr);
+    m_Window = glfwCreateWindow(Width, Height, "Editor " NP_VERSION_MAJOR "." NP_VERSION_MINOR "." NP_VERSION_PATCH " (" GIT_VERSION_HASH ")", nullptr, nullptr);
 
     if (m_Window) {
+      glfwSetWindowPosCallback(m_Window, GlfwWindowPosition);
+      glfwSetWindowSizeCallback(m_Window, GlfwWindowSize);
+      glfwSetWindowCloseCallback(m_Window, GlfwWindowClose);
+      glfwSetWindowRefreshCallback(m_Window, GlfwWindowRefresh);
+      glfwSetWindowFocusCallback(m_Window, GlfwWindowFocus);
+      glfwSetWindowIconifyCallback(m_Window, GlfwWindowIconify);
+      glfwSetWindowMaximizeCallback(m_Window, GlfwWindowMaximize);
+      glfwSetWindowContentScaleCallback(m_Window, GlfwWindowContentScale);
+
+      glfwSetFramebufferSizeCallback(m_Window, GlfwFrameBufferSize);
+
+      glfwSetKeyCallback(m_Window, GlfwKey);
+      glfwSetCharCallback(m_Window, GlfwChar);
+      glfwSetCharModsCallback(m_Window, GlfwCharMods);
+      glfwSetMouseButtonCallback(m_Window, GlfwMouseButton);
+      glfwSetCursorPosCallback(m_Window, GlfwCursorPosition);
+      glfwSetCursorEnterCallback(m_Window, GlfwCursorEnter);
+      glfwSetScrollCallback(m_Window, GlfwScroll);
+
+      glfwSetJoystickCallback(GlfwJoystick);
+
+      glfwSetMonitorCallback(GlfwMonitor);
+
       CreateInstance();
       CreateSurface();
 
@@ -59,7 +84,7 @@ bool NpContext::Create(int32_t Width, int32_t Height) {
       CreateCommandPool();
 
       g_Swapchain.Create(0);
-      // renderer_create();
+      g_Renderer.Create(1);
 
       return true;
     } else {
@@ -78,26 +103,28 @@ void NpContext::Run() {
     if (m_SwapchainIsDirty) {
       m_SwapchainIsDirty = false;
 
-      // renderer_destroy();
+      g_Renderer.Destroy();
       g_Swapchain.Destroy();
 
       ResizeSurface();
 
       g_Swapchain.Create(0);
-      // renderer_create();
+      g_Renderer.Create(1);
     }
 
     if (m_RendererIsDirty) {
       m_RendererIsDirty = false;
 
-      // renderer_destroy();
+      g_Renderer.Destroy();
 
-      // renderer_create();
+      g_Renderer.Create(1);
     }
+
+    g_Renderer.Update();
   }
 }
 void NpContext::Destroy() {
-  // renderer_destroy();
+  g_Renderer.Destroy();
   g_Swapchain.Destroy();
 
   DestroyCommandPool();
@@ -420,6 +447,7 @@ static void GlfwWindowFocus(GLFWwindow *Window, int Focused) {}
 static void GlfwWindowIconify(GLFWwindow *Window, int Iconified) {}
 static void GlfwWindowMaximize(GLFWwindow *Window, int Maximized) {}
 static void GlfwWindowContentScale(GLFWwindow *Window, float X, float Y) {}
+
 static void GlfwFrameBufferSize(GLFWwindow *Window, int Width, int Height) {}
 
 static void GlfwKey(GLFWwindow *Window, int Key, int ScanCode, int Action, int Mods) {}

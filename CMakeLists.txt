@@ -20,6 +20,7 @@ include ("${CMAKE_SOURCE_DIR}/cmake/compiler_config.cmake")
 include ("${CMAKE_SOURCE_DIR}/cmake/platform_selection.cmake")
 
 include ("${CMAKE_SOURCE_DIR}/cmake/fetch_glfw.cmake")
+include ("${CMAKE_SOURCE_DIR}/cmake/fetch_glm.cmake")
 include ("${CMAKE_SOURCE_DIR}/cmake/fetch_imgui.cmake")
 include ("${CMAKE_SOURCE_DIR}/cmake/fetch_entt.cmake")
 

@@ -1,7 +1,7 @@
-#if !defined(NP_CORE_PATH_UTILS_HPP)
-#  define NP_CORE_PATH_UTILS_HPP
+#if !defined(NP_CORE_PATH_UTIL_HPP)
+#  define NP_CORE_PATH_UTIL_HPP
 
-class NpPathUtils {
+class NpPathUtil {
 public:
   static void CreateDir(std::filesystem::path const &File, bool DotIsDirectory = false);
 };

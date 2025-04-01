@@ -9,7 +9,6 @@ public:
   NpArchive(NpArchive *Parent);
   virtual ~NpArchive();
 
-public:
   inline auto const &IsDirectory() const { return m_IsDirectory; }
   inline auto const &GetBytes() const { return m_Bytes; }
   inline auto const &GetSize() const { return m_Size; }
@@ -19,15 +18,12 @@ public:
   inline auto const &GetParentOffset() const { return m_ParentOffset; }
   inline auto const &GetParentIndex() const { return m_ParentIndex; }
 
-public:
   void SetData(uint8_t const *Bytes, uint64_t Size);
 
-public:
   void Serialize(std::vector<uint8_t> &Bytes);
   void Deserialize(uint8_t const *Bytes, uint64_t Size);
   void Deserialize(std::vector<uint8_t> const &Bytes);
 
-public:
   void ExtractToDisk(std::filesystem::path const &File);
   void UnfoldToDisk(std::filesystem::path const &File);
   void PrintTableOfContent(std::function<void(char const *)> Callback, uint32_t Offset = 0, uint32_t Indent = 0, uint32_t Increment = 2);
@@ -42,7 +38,6 @@ private:
   void SerializeRecursive();
   void DeserializeRecursive();
 
-private:
   void ExtractToDiskRecursive(std::filesystem::path File);
   void UnfoldToDiskRecursive(std::filesystem::path File);
   void PrintTableOfContentRecursive(std::function<void(char const *)> Callback, uint32_t Offset, uint32_t Indent, uint32_t Increment);
@@ -53,17 +48,14 @@ private:
   void FindArchivesByTypeRecursive(std::string const &Type, std::vector<NpArchive *> &Archives);
   void FindArchivesByNameRecursive(std::string const &Name, std::vector<NpArchive *> &Archives);
 
-private:
   bool CheckIfDirectory(NpBinaryProcessor *Processor);
   void CreateDirectory(NpBinaryProcessor *Processor);
   void WriteDirectoryHeader(NpBinaryProcessor *Processor);
   void WriteFileContent(NpBinaryProcessor *Processor, NpArchive *Archive);
 
-private:
   uint64_t UpdateSizesRecursive();
   void UpdateByteArraysRecursive();
 
-private:
   std::string CreateUniqueFileName();
 
 private:

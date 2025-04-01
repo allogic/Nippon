@@ -1,4 +1,4 @@
-set (ENTT_INCLUDE_NATVIS ON)
+option (ENTT_INCLUDE_NATVIS ON)
 
 FetchContent_Declare (
   entt
@@ -6,6 +6,6 @@ FetchContent_Declare (
   GIT_TAG        "v3.15.0"
 )
 
-set (ENTT_INCLUDE_DIR "${CMAKE_BINARY_DIR}/_deps/entt-src/signle_include")
+set (ENTT_INCLUDE_DIR "${CMAKE_BINARY_DIR}/_deps/entt-src/single_include")
 
 FetchContent_MakeAvailable (entt)

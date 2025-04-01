@@ -1,7 +1,7 @@
-#if !defined(NP_CORE_STRING_UTILS_HPP)
-#  define NP_CORE_STRING_UTILS_HPP
+#if !defined(NP_CORE_STRING_UTIL_HPP)
+#  define NP_CORE_STRING_UTIL_HPP
 
-class NpStringUtils {
+class NpStringUtil {
 public:
   static std::string CutFront(std::string const &String, uint64_t Size);
   static std::string CutBack(std::string const &String, uint64_t Size);

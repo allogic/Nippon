@@ -6,7 +6,6 @@ public:
   NpContext();
   virtual ~NpContext();
 
-public:
   inline auto const &GetInstance() const { return m_Instance; }
   inline auto const &GetSurface() const { return m_Surface; }
   inline auto const &GetSurfaceCapabilities() const { return m_SurfaceCapabilities; }
@@ -19,13 +18,16 @@ public:
   inline auto const &GetPresentQueueIndex() const { return m_PresentQueueIndex; }
   inline auto const &GetGraphicsQueue() const { return m_GraphicsQueue; }
   inline auto const &GetPresentQueue() const { return m_PresentQueue; }
+  inline auto const &GetCommandPool() const { return m_CommandPool; }
 
-public:
-  bool Create(int32_t Width, int32_t Height);
+  inline void SetSwapchainDirty() { m_SwapchainIsDirty = true; }
+  inline void SetRendererDirty() { m_RendererIsDirty = true; }
+
+  bool
+  Create(int32_t Width, int32_t Height);
   void Run();
   void Destroy();
 
-public:
   int32_t FindMemoryType(uint32_t TypeFilter, VkMemoryPropertyFlags MemoryPropertyFlags);
 
   VkCommandBuffer BeginCommandBuffer();

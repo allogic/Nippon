@@ -1,7 +1,7 @@
 #if !defined(NP_CORE_BINARY_PROCESSOR_HPP)
 #  define NP_CORE_BINARY_PROCESSOR_HPP
 
-#  include <np_core_macros.hpp>
+#  include <np_core_macro.hpp>
 
 class NpBinaryProcessor {
 public:
@@ -9,10 +9,8 @@ public:
   NpBinaryProcessor(uint8_t const *Bytes, uint64_t Size);
   virtual ~NpBinaryProcessor();
 
-public:
   inline auto const &GetPosition() const { return m_Position; }
 
-public:
   inline void SeekRel(int64_t Value) { m_Position += Value; }
   inline void SeekAbs(uint64_t Value) { m_Position = Value; }
   inline void AlignUp(uint64_t Alignment) { m_Position = ALIGN_UP_BY(m_Position, Alignment); }
@@ -20,7 +18,6 @@ public:
   inline void ModUp(uint64_t Modulus) { m_Position -= m_Position % Modulus; }
   inline void ModDown(uint64_t Modulus) { m_Position += m_Position % Modulus; }
 
-public:
   template <typename T>
   T Read();
 
@@ -33,7 +30,6 @@ public:
   std::vector<uint8_t> ReadByteRange(uint64_t Size);
   std::string ReadStringRange(uint64_t Size);
 
-public:
   template <typename T>
   void Write(T Value);
 

@@ -1,7 +1,7 @@
 #include <np_core_pch.hpp>
-#include <np_core_path_utils.hpp>
+#include <np_core_path_util.hpp>
 
-void CreateDir(std::filesystem::path const &File, bool DotIsDirectory) {
+void NpPathUtil::CreateDir(std::filesystem::path const &File, bool DotIsDirectory) {
   std::filesystem::path PartialPath = "";
   for (auto const &PathSection : File) {
     PartialPath /= PathSection;

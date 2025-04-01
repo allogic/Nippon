@@ -1,5 +1,5 @@
-#if !defined(NP_CORE_MACROS_HPP)
-#  define NP_CORE_MACROS_HPP
+#if !defined(NP_CORE_MACRO_HPP)
+#  define NP_CORE_MACRO_HPP
 
 #  define ALIGN_DOWN_BY(VALUE, ALIGNMENT) (((uint64_t)VALUE) & ~(((uint64_t)ALIGNMENT) - 1))
 #  define ALIGN_UP_BY(VALUE, ALIGNMENT) ((((uint64_t)VALUE) + (((uint64_t)ALIGNMENT) - 1)) & ~(((uint64_t)ALIGNMENT) - 1))
