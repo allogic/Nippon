@@ -1,5 +1,6 @@
 #include <np_editor_pch.hpp>
 #include <np_core_file_util.hpp>
+#include <np_editor_constants.hpp>
 #include <np_editor_context.hpp>
 #include <np_editor_macro.hpp>
 #include <np_editor_renderer.hpp>
@@ -205,6 +206,53 @@ void NpRenderer::DrawDebugLine(glm::fvec3 const &From, glm::fvec3 const &To, glm
   }
 }
 void NpRenderer::DrawDebugBox(glm::fvec3 const &Position, glm::fvec3 const &Size, glm::fvec4 const &Color) {
+  if (m_EnableDebug) {
+    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 0].Position = {Position.x, Position.y, Position.z};
+    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 1].Position = {Position.x, Position.y + Size.y, Position.z};
+    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 2].Position = {Position.x + Size.x, Position.y, Position.z};
+    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 3].Position = {Position.x + Size.x, Position.y + Size.y, Position.z};
+    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 4].Position = {Position.x, Position.y, Position.z + Size.z};
+    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 5].Position = {Position.x, Position.y + Size.y, Position.z + Size.z};
+    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 6].Position = {Position.x + Size.x, Position.y, Position.z + Size.z};
+    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 7].Position = {Position.x + Size.x, Position.y + Size.y, Position.z + Size.z};
+
+    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 0].Color = Color;
+    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 1].Color = Color;
+    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 2].Color = Color;
+    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 3].Color = Color;
+    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 4].Color = Color;
+    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 5].Color = Color;
+    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 6].Color = Color;
+    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 7].Color = Color;
+
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 0] = m_DebugLineVertexOffset[m_FrameIndex] + 0;
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 1] = m_DebugLineVertexOffset[m_FrameIndex] + 1;
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 2] = m_DebugLineVertexOffset[m_FrameIndex] + 1;
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 3] = m_DebugLineVertexOffset[m_FrameIndex] + 3;
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 4] = m_DebugLineVertexOffset[m_FrameIndex] + 3;
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 5] = m_DebugLineVertexOffset[m_FrameIndex] + 2;
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 6] = m_DebugLineVertexOffset[m_FrameIndex] + 2;
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 7] = m_DebugLineVertexOffset[m_FrameIndex] + 0;
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 8] = m_DebugLineVertexOffset[m_FrameIndex] + 4;
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 9] = m_DebugLineVertexOffset[m_FrameIndex] + 5;
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 10] = m_DebugLineVertexOffset[m_FrameIndex] + 5;
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 11] = m_DebugLineVertexOffset[m_FrameIndex] + 7;
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 12] = m_DebugLineVertexOffset[m_FrameIndex] + 7;
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 13] = m_DebugLineVertexOffset[m_FrameIndex] + 6;
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 14] = m_DebugLineVertexOffset[m_FrameIndex] + 6;
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 15] = m_DebugLineVertexOffset[m_FrameIndex] + 4;
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 16] = m_DebugLineVertexOffset[m_FrameIndex] + 0;
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 17] = m_DebugLineVertexOffset[m_FrameIndex] + 4;
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 18] = m_DebugLineVertexOffset[m_FrameIndex] + 1;
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 19] = m_DebugLineVertexOffset[m_FrameIndex] + 5;
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 20] = m_DebugLineVertexOffset[m_FrameIndex] + 2;
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 21] = m_DebugLineVertexOffset[m_FrameIndex] + 6;
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 22] = m_DebugLineVertexOffset[m_FrameIndex] + 3;
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 23] = m_DebugLineVertexOffset[m_FrameIndex] + 7;
+
+    m_DebugLineVertexOffset[m_FrameIndex] += 8;
+    m_DebugLineIndexOffset[m_FrameIndex] += 24;
+  }
 }
 
 void NpRenderer::CreateCommandBuffer() {
@@ -909,8 +957,8 @@ void NpRenderer::UpdateUniformBuffer(NpTransform *Transform, NpCamera *Camera) {
   m_Screen[m_FrameIndex]->Height = (float)g_Context.GetSurfaceHeight();
 
   glm::fvec3 Eye = Transform->GetWorldPosition();
-  glm::fvec3 Center = Transform->GetWorldPosition() + Transform->LocalFront;
-  glm::fvec3 Up = math_vector3_down();
+  glm::fvec3 Center = Transform->GetWorldPosition() + Transform->GetLocalFront();
+  glm::fvec3 Up = g_WorldDown;
 
   float Fov = glm::radians(Camera->GetFov());
   float AspectRatio = (float)g_Context.GetSurfaceWidth() / (float)g_Context.GetSurfaceHeight();
@@ -929,20 +977,176 @@ void NpRenderer::UpdateUniformBuffer(NpTransform *Transform, NpCamera *Camera) {
   m_Camera[m_FrameIndex]->ViewProjectionInv = ViewProjectionInv;
 }
 
-void NpRenderer::RecordGraphicsCommand() {}
+void NpRenderer::RecordGraphicsCommand() {
+  VkClearValue ColorClearValue = {};
+  ColorClearValue.color.float32[0] = 0.0F;
+  ColorClearValue.color.float32[1] = 0.0F;
+  ColorClearValue.color.float32[2] = 0.0F;
+  ColorClearValue.color.float32[3] = 1.0F;
 
-void NpRenderer::DestroyCommandBuffer() {}
-void NpRenderer::DestroySyncObject() {}
-void NpRenderer::DestroyDescriptorPool() {}
-void NpRenderer::DestroyDescriptorSetLayout() {}
-void NpRenderer::DestroyDescriptorSet() {}
-void NpRenderer::DestroyPipelineLayout() {}
-void NpRenderer::DestroyPipeline() {}
+  VkClearValue DepthClearValue = {};
+  DepthClearValue.depthStencil.depth = 1.0F;
+  DepthClearValue.depthStencil.stencil = 0;
 
-void NpRenderer::DestroyTimeBuffer() {}
-void NpRenderer::DestroyScreenBuffer() {}
-void NpRenderer::DestroyCameraBuffer() {}
-void NpRenderer::DestroyDefaultObjectVertexBuffer() {}
-void NpRenderer::DestroyDefaultObjectIndexBuffer() {}
-void NpRenderer::DestroyDebugLineVertexBuffer() {}
-void NpRenderer::DestroyDebugLineIndexBuffer() {}
+  std::array<VkClearValue, 2> ClearValue = {ColorClearValue, DepthClearValue};
+
+  VkRenderPassBeginInfo RenderPassCreateInfo = {};
+  RenderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+  RenderPassCreateInfo.renderPass = g_Swapchain.GetRenderPass();
+  RenderPassCreateInfo.framebuffer = g_Swapchain.GetFrameBuffer()[m_ImageIndex];
+  RenderPassCreateInfo.renderArea.offset.x = 0;
+  RenderPassCreateInfo.renderArea.offset.y = 0;
+  RenderPassCreateInfo.renderArea.extent.width = g_Context.GetSurfaceWidth();
+  RenderPassCreateInfo.renderArea.extent.height = g_Context.GetSurfaceHeight();
+  RenderPassCreateInfo.pClearValues = ClearValue.data();
+  RenderPassCreateInfo.clearValueCount = ClearValue.size();
+
+  vkCmdBeginRenderPass(m_GraphicsCommandBuffer[m_FrameIndex], &RenderPassCreateInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+  VkViewport Viewport = {};
+  Viewport.x = 0.0F;
+  Viewport.y = 0.0F;
+  Viewport.width = (float)g_Context.GetSurfaceWidth();
+  Viewport.height = (float)g_Context.GetSurfaceHeight();
+  Viewport.minDepth = 0.0F;
+  Viewport.maxDepth = 1.0F;
+
+  vkCmdSetViewport(m_GraphicsCommandBuffer[m_FrameIndex], 0, 1, &Viewport);
+
+  VkRect2D Scissor = {0};
+  Scissor.offset.x = 0;
+  Scissor.offset.y = 0;
+  Scissor.extent.width = g_Context.GetSurfaceWidth();
+  Scissor.extent.height = g_Context.GetSurfaceHeight();
+
+  vkCmdSetScissor(m_GraphicsCommandBuffer[m_FrameIndex], 0, 1, &Scissor);
+
+  /*
+  {
+    std::array<VkBuffer, 1> VertexBuffer = {m_DefaultObjectVertexBuffer[m_FrameIndex]};
+    std::array<uint64_t, 1> VertexOffset = {0};
+
+    vkCmdBindPipeline(m_GraphicsCommandBuffer[m_FrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_DefaultObjectPipeline);
+    vkCmdBindVertexBuffers(m_GraphicsCommandBuffer[m_FrameIndex], 0, VertexBuffer.size(), VertexBuffer.data(), VertexOffset.data());
+    vkCmdBindIndexBuffer(m_GraphicsCommandBuffer[m_FrameIndex], m_DefaultObjectIndexBuffer[m_FrameIndex], 0, VK_INDEX_TYPE_UINT32);
+    vkCmdBindDescriptorSets(m_GraphicsCommandBuffer[m_FrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_DefaultObjectPipelineLayout, 0, 1, &m_DefaultObjectDescriptorSet[m_FrameIndex], 0, nullptr);
+    vkCmdDrawIndexed(m_GraphicsCommandBuffer[m_FrameIndex], 666, 1, 0, 0, 0); // TODO
+  }
+  */
+
+  {
+    if (m_EnableDebug) {
+      std::array<VkBuffer, 1> VertexBuffer = {m_DebugLineVertexBuffer[m_FrameIndex]};
+      std::array<uint64_t, 1> VertexOffset = {0};
+
+      vkCmdBindPipeline(m_GraphicsCommandBuffer[m_FrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_DebugLinePipeline);
+      vkCmdBindVertexBuffers(m_GraphicsCommandBuffer[m_FrameIndex], 0, VertexBuffer.size(), VertexBuffer.data(), VertexOffset.data());
+      vkCmdBindIndexBuffer(m_GraphicsCommandBuffer[m_FrameIndex], m_DebugLineIndexBuffer[m_FrameIndex], 0, VK_INDEX_TYPE_UINT32);
+      vkCmdBindDescriptorSets(m_GraphicsCommandBuffer[m_FrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_DebugLinePipelineLayout, 0, 1, &m_DebugLineDescriptorSet[m_FrameIndex], 0, nullptr);
+      vkCmdDrawIndexed(m_GraphicsCommandBuffer[m_FrameIndex], m_DebugLineIndexOffset[m_FrameIndex], 1, 0, 0, 0);
+
+      m_DebugLineVertexOffset[m_FrameIndex] = 0;
+      m_DebugLineIndexOffset[m_FrameIndex] = 0;
+    }
+  }
+
+  // IMGUI_DRAW(m_GraphicsCommandBuffer[m_FrameIndex]); // TODO
+
+  vkCmdEndRenderPass(m_GraphicsCommandBuffer[m_FrameIndex]);
+}
+
+void NpRenderer::DestroyCommandBuffer() {
+  vkFreeCommandBuffers(g_Context.GetDevice(), g_Context.GetCommandPool(), m_FramesInFlight, m_GraphicsCommandBuffer);
+
+  delete[] m_GraphicsCommandBuffer;
+}
+void NpRenderer::DestroySyncObject() {
+  for (uint32_t FrameIndex = 0; FrameIndex < m_FramesInFlight; FrameIndex++) {
+    vkDestroySemaphore(g_Context.GetDevice(), m_GraphicsCompleteSemaphore[FrameIndex], nullptr);
+    vkDestroySemaphore(g_Context.GetDevice(), m_PresentCompleteSemaphore[FrameIndex], nullptr);
+
+    vkDestroyFence(g_Context.GetDevice(), m_FrameFence[FrameIndex], nullptr);
+  }
+
+  delete[] m_GraphicsCompleteSemaphore;
+  delete[] m_PresentCompleteSemaphore;
+  delete[] m_FrameFence;
+}
+void NpRenderer::DestroyDescriptorPool() {
+  vkDestroyDescriptorPool(g_Context.GetDevice(), m_DefaultObjectDescriptorPool, nullptr);
+  vkDestroyDescriptorPool(g_Context.GetDevice(), m_DebugLineDescriptorPool, nullptr);
+}
+void NpRenderer::DestroyDescriptorSetLayout() {
+  vkDestroyDescriptorSetLayout(g_Context.GetDevice(), m_DefaultObjectDescriptorSetLayout, nullptr);
+  vkDestroyDescriptorSetLayout(g_Context.GetDevice(), m_DebugLineDescriptorSetLayout, nullptr);
+}
+void NpRenderer::DestroyDescriptorSet() {
+  delete[] m_DefaultObjectDescriptorSet;
+  delete[] m_DebugLineDescriptorSet;
+}
+void NpRenderer::DestroyPipelineLayout() {
+  vkDestroyPipelineLayout(g_Context.GetDevice(), m_DefaultObjectPipelineLayout, nullptr);
+  vkDestroyPipelineLayout(g_Context.GetDevice(), m_DebugLinePipelineLayout, nullptr);
+}
+void NpRenderer::DestroyPipeline() {
+  vkDestroyPipeline(g_Context.GetDevice(), m_DefaultObjectPipeline, nullptr);
+  vkDestroyPipeline(g_Context.GetDevice(), m_DebugLinePipeline, nullptr);
+}
+
+void NpRenderer::DestroyTimeBuffer() {
+  for (uint32_t FrameIndex = 0; FrameIndex < m_FramesInFlight; FrameIndex++) {
+    vkUnmapMemory(g_Context.GetDevice(), m_TimeBufferDeviceMemory[FrameIndex]);
+    vkFreeMemory(g_Context.GetDevice(), m_TimeBufferDeviceMemory[FrameIndex], nullptr);
+    vkDestroyBuffer(g_Context.GetDevice(), m_TimeBuffer[FrameIndex], nullptr);
+  }
+
+  delete[] m_TimeBuffer;
+  delete[] m_TimeBufferDeviceMemory;
+  delete[] m_Time;
+}
+void NpRenderer::DestroyScreenBuffer() {
+  for (uint32_t FrameIndex = 0; FrameIndex < m_FramesInFlight; FrameIndex++) {
+    vkUnmapMemory(g_Context.GetDevice(), m_ScreenBufferDeviceMemory[FrameIndex]);
+    vkFreeMemory(g_Context.GetDevice(), m_ScreenBufferDeviceMemory[FrameIndex], nullptr);
+    vkDestroyBuffer(g_Context.GetDevice(), m_ScreenBuffer[FrameIndex], nullptr);
+  }
+
+  delete[] m_ScreenBuffer;
+  delete[] m_ScreenBufferDeviceMemory;
+  delete[] m_Screen;
+}
+void NpRenderer::DestroyCameraBuffer() {
+  for (uint32_t FrameIndex = 0; FrameIndex < m_FramesInFlight; FrameIndex++) {
+    vkUnmapMemory(g_Context.GetDevice(), m_CameraBufferDeviceMemory[FrameIndex]);
+    vkFreeMemory(g_Context.GetDevice(), m_CameraBufferDeviceMemory[FrameIndex], nullptr);
+    vkDestroyBuffer(g_Context.GetDevice(), m_CameraBuffer[FrameIndex], nullptr);
+  }
+
+  delete[] m_CameraBuffer;
+  delete[] m_CameraBufferDeviceMemory;
+  delete[] m_Camera;
+}
+void NpRenderer::DestroyDefaultObjectVertexBuffer() { /* TODO */ }
+void NpRenderer::DestroyDefaultObjectIndexBuffer() { /* TODO */ }
+void NpRenderer::DestroyDebugLineVertexBuffer() {
+  for (uint32_t FrameIndex = 0; FrameIndex < m_FramesInFlight; FrameIndex++) {
+    vkUnmapMemory(g_Context.GetDevice(), m_DebugLineVertexBufferDeviceMemory[FrameIndex]);
+    vkFreeMemory(g_Context.GetDevice(), m_DebugLineVertexBufferDeviceMemory[FrameIndex], nullptr);
+    vkDestroyBuffer(g_Context.GetDevice(), m_DebugLineVertexBuffer[FrameIndex], nullptr);
+  }
+
+  delete[] m_DebugLineVertexBuffer;
+  delete[] m_DebugLineVertexBufferDeviceMemory;
+  delete[] m_DebugLineVertex;
+}
+void NpRenderer::DestroyDebugLineIndexBuffer() {
+  for (uint32_t FrameIndex = 0; FrameIndex < m_FramesInFlight; FrameIndex++) {
+    vkUnmapMemory(g_Context.GetDevice(), m_DebugLineIndexBufferDeviceMemory[FrameIndex]);
+    vkFreeMemory(g_Context.GetDevice(), m_DebugLineIndexBufferDeviceMemory[FrameIndex], nullptr);
+    vkDestroyBuffer(g_Context.GetDevice(), m_DebugLineIndexBuffer[FrameIndex], nullptr);
+  }
+
+  delete[] m_DebugLineIndexBuffer;
+  delete[] m_DebugLineIndexBufferDeviceMemory;
+  delete[] m_DebugLineIndex;
+}
