@@ -11,12 +11,19 @@ public:
   virtual ~NpRenderer();
 
 public:
+  inline void EnableDebug() { m_EnableDebug = true; }
+  inline void DisableDebug() { m_EnableDebug = false; }
+
+public:
   void Create(uint32_t FramesInFlight);
   void Update();
   void Draw(NpTransform *Transform, NpCamera *Camera);
   void Destroy();
 
 private:
+  void DrawDebugLine(glm::fvec3 const &From, glm::fvec3 const &To, glm::fvec4 const &Color);
+  void DrawDebugBox(glm::fvec3 const &Position, glm::fvec3 const &Size, glm::fvec4 const &Color);
+
   void CreateCommandBuffer();
   void CreateSyncObject();
   void CreateDescriptorPool();
@@ -75,18 +82,6 @@ private:
       {0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0},
       {1, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(NpDebugLineVertex, Color)},
   };
-
-#  if defined(BUILD_DEBUG)
-  std::filesystem::path const m_DefaultObjectVertexShaderFile = NP_ROOT_DIR "/shader/np_shader_default_object.vert.spv";
-  std::filesystem::path const m_DefaultObjectFragmentShaderFile = NP_ROOT_DIR "/shader/np_shader_default_object.frag.spv";
-  std::filesystem::path const m_DebugLineVertexShaderFile = NP_ROOT_DIR "/shader/np_shader_debug_line.vert.spv";
-  std::filesystem::path const m_DebugLineFragmentShaderFile = NP_ROOT_DIR "/shader/np_shader_debug_line.frag.spv";
-#  else
-  std::filesystem::path const m_DefaultObjectVertexShaderFile = g_DefaultObjectVertexShader;
-  std::filesystem::path const m_DefaultObjectFragmentShaderFile = g_DefaultObjectFragmentShader;
-  std::filesystem::path const m_DebugLineVertexShaderFile = g_DebugLineVertexShader;
-  std::filesystem::path const m_DebugLineFragmentShaderFile = g_DebugLineFragmentShader;
-#  endif
 
   VkCommandBuffer *m_GraphicsCommandBuffer = nullptr;
 

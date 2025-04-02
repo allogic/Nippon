@@ -29,7 +29,7 @@ static void GlfwJoystick(int Jid, int Event);
 
 static void GlfwMonitor(GLFWmonitor *Monitor, int Event);
 
-#if defined(BUILD_DEBUG)
+#if BUILD_DEBUG
 static VkBool32
 VulkanDebugMessageProc(VkDebugUtilsMessageSeverityFlagBitsEXT MessageSeverity, VkDebugUtilsMessageTypeFlagsEXT MessageType, VkDebugUtilsMessengerCallbackDataEXT const *CallbackData, void *UserData);
 #endif
@@ -205,7 +205,7 @@ void NpContext::CreateInstance() {
   InstanceCreateInfo.enabledExtensionCount = LayerExtensions.size();
   InstanceCreateInfo.ppEnabledExtensionNames = LayerExtensions.data();
 
-#if defined(BUILD_DEBUG)
+#if BUILD_DEBUG
   VkDebugUtilsMessengerCreateInfoEXT DebugUtilsMessengerCreateInfo = {};
   DebugUtilsMessengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
   DebugUtilsMessengerCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
@@ -219,7 +219,7 @@ void NpContext::CreateInstance() {
 
   VK_CHECK(vkCreateInstance(&InstanceCreateInfo, nullptr, &m_Instance));
 
-#if defined(BUILD_DEBUG)
+#if BUILD_DEBUG
   m_CreateDebugUtilsMessengerExt = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(m_Instance, "vkCreateDebugUtilsMessengerEXT");
   m_DestroyDebugUtilsMessengerExt = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(m_Instance, "vkDestroyDebugUtilsMessengerEXT");
 
@@ -263,7 +263,7 @@ void NpContext::CreateDevice() {
   DeviceCreateInfo.ppEnabledExtensionNames = m_DeviceExtensions.data();
   DeviceCreateInfo.enabledExtensionCount = m_DeviceExtensions.size();
 
-#if defined(BUILD_DEBUG)
+#if BUILD_DEBUG
   DeviceCreateInfo.ppEnabledLayerNames = m_ValidationLayers.data();
   DeviceCreateInfo.enabledLayerCount = m_ValidationLayers.size();
 #endif
@@ -283,7 +283,7 @@ void NpContext::CreateCommandPool() {
 }
 
 void NpContext::DestroyInstance() {
-#if defined(BUILD_DEBUG)
+#if BUILD_DEBUG
   m_DestroyDebugUtilsMessengerExt(m_Instance, m_DebugMessenger, nullptr);
 #endif
 
@@ -448,7 +448,9 @@ static void GlfwWindowIconify(GLFWwindow *Window, int Iconified) {}
 static void GlfwWindowMaximize(GLFWwindow *Window, int Maximized) {}
 static void GlfwWindowContentScale(GLFWwindow *Window, float X, float Y) {}
 
-static void GlfwFrameBufferSize(GLFWwindow *Window, int Width, int Height) {}
+static void GlfwFrameBufferSize(GLFWwindow *Window, int Width, int Height) {
+  g_Context.SetSwapchainDirty();
+}
 
 static void GlfwKey(GLFWwindow *Window, int Key, int ScanCode, int Action, int Mods) {}
 static void GlfwChar(GLFWwindow *Window, unsigned int CodePoint) {}
@@ -462,7 +464,7 @@ static void GlfwJoystick(int Jid, int Event) {}
 
 static void GlfwMonitor(GLFWmonitor *Monitor, int Event) {}
 
-#if defined(BUILD_DEBUG)
+#if BUILD_DEBUG
 static VkBool32 VulkanDebugMessageProc(VkDebugUtilsMessageSeverityFlagBitsEXT MessageSeverity, VkDebugUtilsMessageTypeFlagsEXT MessageType, VkDebugUtilsMessengerCallbackDataEXT const *CallbackData, void *UserData) {
   std::printf("%s\n", CallbackData->pMessage);
 

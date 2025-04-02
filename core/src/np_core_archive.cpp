@@ -4,8 +4,8 @@
 #include <np_core_path_util.hpp>
 #include <np_core_string_util.hpp>
 
-#define NP_ARCHIVE_FILE_HEADER_SIZE 0x20
-#define NP_ARCHIVE_FILE_ALIGNMENT 0x100
+#define NP_ARCHIVE_FILE_HEADER_SIZE (0x20)
+#define NP_ARCHIVE_FILE_ALIGNMENT (0x100)
 
 #define NP_ARCHIVE_PRINT(FMT, ...)                    \
   snprintf(Buffer, sizeof(Buffer), FMT, __VA_ARGS__); \

@@ -1,7 +1,7 @@
 #if !defined(NP_EDITOR_MACRO_HPP)
 #  define NP_EDITOR_MACRO_HPP
 
-#  if defined(BUILD_DEBUG)
+#  if BUILD_DEBUG
 #    if defined(OS_WINDOWS)
 #      include <intrin.h>
 #      define DEBUG_BREAK() __debugbreak()
@@ -13,7 +13,7 @@
 #    define DEBUG_BREAK()
 #  endif
 
-#  if defined(BUILD_DEBUG)
+#  if BUILD_DEBUG
 #    define VK_CHECK(EXPRESSION)                              \
       {                                                       \
         VkResult result = (EXPRESSION);                       \

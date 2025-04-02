@@ -18,3 +18,19 @@ target_link_libraries (editor PRIVATE EnTT::EnTT)
 target_link_libraries (editor PRIVATE Vulkan::Vulkan)
 
 target_precompile_headers (editor PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include/np_editor_pch.hpp")
+
+add_custom_command (TARGET editor
+  POST_BUILD
+
+  COMMAND ${CUSTOM_OUTPUT_DIR}/bin/patch.exe ${CUSTOM_OUTPUT_DIR}/bin/editor.exe .dovs ${CMAKE_SOURCE_DIR}/shader/np_shader_default_object.vert.spv ${CUSTOM_OUTPUT_DIR}/bin/editor_patched.exe
+  COMMAND ${CMAKE_COMMAND} -E rename ${CUSTOM_OUTPUT_DIR}/bin/editor_patched.exe ${CUSTOM_OUTPUT_DIR}/bin/editor.exe
+
+  COMMAND ${CUSTOM_OUTPUT_DIR}/bin/patch.exe ${CUSTOM_OUTPUT_DIR}/bin/editor.exe .dofs ${CMAKE_SOURCE_DIR}/shader/np_shader_default_object.frag.spv ${CUSTOM_OUTPUT_DIR}/bin/editor_patched.exe
+  COMMAND ${CMAKE_COMMAND} -E rename ${CUSTOM_OUTPUT_DIR}/bin/editor_patched.exe ${CUSTOM_OUTPUT_DIR}/bin/editor.exe
+
+  COMMAND ${CUSTOM_OUTPUT_DIR}/bin/patch.exe ${CUSTOM_OUTPUT_DIR}/bin/editor.exe .dlvs ${CMAKE_SOURCE_DIR}/shader/np_shader_debug_line.vert.spv ${CUSTOM_OUTPUT_DIR}/bin/editor_patched.exe
+  COMMAND ${CMAKE_COMMAND} -E rename ${CUSTOM_OUTPUT_DIR}/bin/editor_patched.exe ${CUSTOM_OUTPUT_DIR}/bin/editor.exe
+
+  COMMAND ${CUSTOM_OUTPUT_DIR}/bin/patch.exe ${CUSTOM_OUTPUT_DIR}/bin/editor.exe .dofs ${CMAKE_SOURCE_DIR}/shader/np_shader_default_object.frag.spv ${CUSTOM_OUTPUT_DIR}/bin/editor_patched.exe
+  COMMAND ${CMAKE_COMMAND} -E rename ${CUSTOM_OUTPUT_DIR}/bin/editor_patched.exe ${CUSTOM_OUTPUT_DIR}/bin/editor.exe
+)

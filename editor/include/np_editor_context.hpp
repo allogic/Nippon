@@ -6,6 +6,8 @@ public:
   NpContext();
   virtual ~NpContext();
 
+  inline auto const &GetTime() const { return m_Time; }
+  inline auto const &GetDeltaTime() const { return m_DeltaTime; }
   inline auto const &GetInstance() const { return m_Instance; }
   inline auto const &GetSurface() const { return m_Surface; }
   inline auto const &GetSurfaceCapabilities() const { return m_SurfaceCapabilities; }
@@ -53,14 +55,14 @@ private:
   void FindPhysicalDeviceQueueFamilies();
 
 private:
-#  if defined(BUILD_DEBUG)
+#  if BUILD_DEBUG
   std::vector<char const *> const m_ValidationLayers = {
       "VK_LAYER_KHRONOS_validation",
   };
 #  endif
 
   std::vector<char const *> const m_LayerExtensions = {
-#  if defined(BUILD_DEBUG)
+#  if BUILD_DEBUG
       "VK_EXT_debug_utils",
 #  endif
   };
@@ -101,7 +103,7 @@ private:
 
   VkCommandPool m_CommandPool = 0;
 
-#  if defined(BUILD_DEBUG)
+#  if BUILD_DEBUG
   PFN_vkCreateDebugUtilsMessengerEXT m_CreateDebugUtilsMessengerExt = nullptr;
   PFN_vkDestroyDebugUtilsMessengerEXT m_DestroyDebugUtilsMessengerExt = nullptr;
 

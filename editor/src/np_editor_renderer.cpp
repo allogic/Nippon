@@ -5,6 +5,40 @@
 #include <np_editor_renderer.hpp>
 #include <np_editor_swapchain.hpp>
 
+// #define NP_FORCE_INLINE_CONTENT
+
+#define NP_RENDERER_DEFAULT_OBJECT_VERTEX_SHADER_SECTION_NAME ".dovs"
+#define NP_RENDERER_DEFAULT_OBJECT_VERTEX_SHADER_SECTION_SIZE (8192ULL)
+
+#define NP_RENDERER_DEFAULT_OBJECT_FRAGMENT_SHADER_SECTION_NAME ".dofs"
+#define NP_RENDERER_DEFAULT_OBJECT_FRAGMENT_SHADER_SECTION_SIZE (8192ULL)
+
+#define NP_RENDERER_DEBUG_LINE_VERTEX_SHADER_SECTION_NAME ".dlvs"
+#define NP_RENDERER_DEBUG_LINE_VERTEX_SHADER_SECTION_SIZE (8192ULL)
+
+#define NP_RENDERER_DEBUG_LINE_FRAGMENT_SHADER_SECTION_NAME ".dlfs"
+#define NP_RENDERER_DEBUG_LINE_FRAGMENT_SHADER_SECTION_SIZE (8192ULL)
+
+#if defined(OS_WINDOWS)
+#  pragma section(NP_RENDERER_DEFAULT_OBJECT_VERTEX_SHADER_SECTION_NAME, read)
+#  pragma section(NP_RENDERER_DEFAULT_OBJECT_FRAGMENT_SHADER_SECTION_NAME, read)
+#  pragma section(NP_RENDERER_DEBUG_LINE_VERTEX_SHADER_SECTION_NAME, read)
+#  pragma section(NP_RENDERER_DEBUG_LINE_FRAGMENT_SHADER_SECTION_NAME, read)
+
+__declspec(allocate(NP_RENDERER_DEFAULT_OBJECT_VERTEX_SHADER_SECTION_NAME)) static char const g_RendererDefaultObjectVertexShader[NP_RENDERER_DEFAULT_OBJECT_VERTEX_SHADER_SECTION_SIZE];
+__declspec(allocate(NP_RENDERER_DEFAULT_OBJECT_FRAGMENT_SHADER_SECTION_NAME)) static char const g_RendererDefaultObjectFragmentShader[NP_RENDERER_DEFAULT_OBJECT_FRAGMENT_SHADER_SECTION_SIZE];
+__declspec(allocate(NP_RENDERER_DEBUG_LINE_VERTEX_SHADER_SECTION_NAME)) static char const g_RendererDebugLineVertexShader[NP_RENDERER_DEBUG_LINE_VERTEX_SHADER_SECTION_SIZE];
+__declspec(allocate(NP_RENDERER_DEBUG_LINE_FRAGMENT_SHADER_SECTION_NAME)) static char const g_RendererDebugLineFragmentShader[NP_RENDERER_DEBUG_LINE_FRAGMENT_SHADER_SECTION_SIZE];
+#else defined(OS_LINUX)
+__attribute__((section(NP_RENDERER_DEFAULT_OBJECT_VERTEX_SHADER_SECTION_NAME))) static char const g_RendererDefaultObjectVertexShader[NP_RENDERER_DEFAULT_OBJECT_VERTEX_SHADER_SECTION_SIZE];
+__attribute__((section(NP_RENDERER_DEFAULT_OBJECT_FRAGMENT_SHADER_SECTION_NAME))) static char const g_RendererDefaultObjectFragmentShader[NP_RENDERER_DEFAULT_OBJECT_FRAGMENT_SHADER_SECTION_SIZE];
+__attribute__((section(NP_RENDERER_DEBUG_LINE_VERTEX_SHADER_SECTION_NAME))) static char const g_RendererDebugLineVertexShader[NP_RENDERER_DEBUG_LINE_VERTEX_SHADER_SECTION_SIZE];
+__attribute__((section(NP_RENDERER_DEBUG_LINE_FRAGMENT_SHADER_SECTION_NAME))) static char const g_RendererDebugLineFragmentShader[NP_RENDERER_DEBUG_LINE_FRAGMENT_SHADER_SECTION_SIZE];
+#endif
+
+#define NP_RENDERER_DEBUG_LINE_VERTEX_COUNT (1048576ULL)
+#define NP_RENDERER_DEBUG_LINE_INDEX_COUNT (1048576ULL)
+
 NpRenderer g_Renderer = {};
 
 NpRenderer::NpRenderer() {}
@@ -66,7 +100,7 @@ void NpRenderer::Draw(NpTransform *Transform, NpCamera *Camera) {
 
       return;
     }
-#if defined(BUILD_DEBUG)
+#if BUILD_DEBUG
     default: {
       DEBUG_BREAK();
     }
@@ -120,7 +154,7 @@ void NpRenderer::Draw(NpTransform *Transform, NpCamera *Camera) {
 
       return;
     }
-#if defined(BUILD_DEBUG)
+#if BUILD_DEBUG
     default: {
       DEBUG_BREAK();
     }
@@ -153,6 +187,24 @@ void NpRenderer::Destroy() {
   DestroyDescriptorPool();
   DestroySyncObject();
   DestroyCommandBuffer();
+}
+
+void NpRenderer::DrawDebugLine(glm::fvec3 const &From, glm::fvec3 const &To, glm::fvec4 const &Color) {
+  if (m_EnableDebug) {
+    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 0].Position = From;
+    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 1].Position = To;
+
+    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 0].Color = Color;
+    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 1].Color = Color;
+
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 0] = m_DebugLineVertexOffset[m_FrameIndex] + 0;
+    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 1] = m_DebugLineVertexOffset[m_FrameIndex] + 1;
+
+    m_DebugLineVertexOffset[m_FrameIndex] += 2;
+    m_DebugLineIndexOffset[m_FrameIndex] += 2;
+  }
+}
+void NpRenderer::DrawDebugBox(glm::fvec3 const &Position, glm::fvec3 const &Size, glm::fvec4 const &Color) {
 }
 
 void NpRenderer::CreateCommandBuffer() {
@@ -286,11 +338,31 @@ void NpRenderer::CreatePipelineLayout() {
 }
 
 void NpRenderer::CreateDefaultObjectPipeline() {
+  uint32_t const *VertexShader = nullptr;
+  uint32_t const *FragmentShader = nullptr;
+
+  uint64_t VertexShaderSize = 0;
+  uint64_t FragmentShaderSize = 0;
+
+#if BUILD_DEBUG && !defined(NP_FORCE_INLINE_CONTENT)
   std::vector<uint8_t> VertexShaderBytes = {};
   std::vector<uint8_t> FragmentShaderBytes = {};
 
-  NpFileUtil::ReadBinary(m_DefaultObjectVertexShaderFile, VertexShaderBytes);
-  NpFileUtil::ReadBinary(m_DefaultObjectFragmentShaderFile, FragmentShaderBytes);
+  NpFileUtil::ReadBinary(std::filesystem::path(NP_ROOT_DIR) / "np_shader_default_object.vert.spv", VertexShaderBytes);
+  NpFileUtil::ReadBinary(std::filesystem::path(NP_ROOT_DIR) / "np_shader_default_object.frag.spv", FragmentShaderBytes);
+
+  VertexShader = (uint32_t const *)VertexShaderBytes.data();
+  FragmentShader = (uint32_t const *)FragmentShaderBytes.data();
+
+  VertexShaderSize = VertexShaderBytes.size();
+  FragmentShaderSize = FragmentShaderBytes.size();
+#else
+  VertexShader = (uint32_t const *)g_RendererDefaultObjectVertexShader;
+  FragmentShader = (uint32_t const *)g_RendererDefaultObjectFragmentShader;
+
+  VertexShaderSize = sizeof(g_RendererDefaultObjectVertexShader);
+  FragmentShaderSize = sizeof(g_RendererDefaultObjectFragmentShader);
+#endif
 
   VkShaderModule VertexModule = nullptr;
   VkShaderModule FragmentModule = nullptr;
@@ -298,8 +370,8 @@ void NpRenderer::CreateDefaultObjectPipeline() {
   {
     VkShaderModuleCreateInfo ShaderModuleCreateInfo = {};
     ShaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    ShaderModuleCreateInfo.pCode = (uint32_t const *)VertexShaderBytes.data();
-    ShaderModuleCreateInfo.codeSize = VertexShaderBytes.size();
+    ShaderModuleCreateInfo.pCode = VertexShader;
+    ShaderModuleCreateInfo.codeSize = VertexShaderSize;
 
     VK_CHECK(vkCreateShaderModule(g_Context.GetDevice(), &ShaderModuleCreateInfo, nullptr, &VertexModule));
   }
@@ -307,8 +379,8 @@ void NpRenderer::CreateDefaultObjectPipeline() {
   {
     VkShaderModuleCreateInfo ShaderModuleCreateInfo = {};
     ShaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    ShaderModuleCreateInfo.pCode = (uint32_t const *)FragmentShaderBytes.data();
-    ShaderModuleCreateInfo.codeSize = FragmentShaderBytes.size();
+    ShaderModuleCreateInfo.pCode = FragmentShader;
+    ShaderModuleCreateInfo.codeSize = FragmentShaderSize;
 
     VK_CHECK(vkCreateShaderModule(g_Context.GetDevice(), &ShaderModuleCreateInfo, nullptr, &FragmentModule));
   }
@@ -441,11 +513,31 @@ void NpRenderer::CreateDefaultObjectPipeline() {
   vkDestroyShaderModule(g_Context.GetDevice(), FragmentModule, nullptr);
 }
 void NpRenderer::CreateDebugLinePipeline() {
+  uint32_t const *VertexShader = nullptr;
+  uint32_t const *FragmentShader = nullptr;
+
+  uint64_t VertexShaderSize = 0;
+  uint64_t FragmentShaderSize = 0;
+
+#if BUILD_DEBUG && !defined(NP_FORCE_INLINE_CONTENT)
   std::vector<uint8_t> VertexShaderBytes = {};
   std::vector<uint8_t> FragmentShaderBytes = {};
 
-  NpFileUtil::ReadBinary(m_DebugLineVertexShaderFile, VertexShaderBytes);
-  NpFileUtil::ReadBinary(m_DebugLineFragmentShaderFile, FragmentShaderBytes);
+  NpFileUtil::ReadBinary(std::filesystem::path(NP_ROOT_DIR) / "np_shader_debug_line.vert.spv", VertexShaderBytes);
+  NpFileUtil::ReadBinary(std::filesystem::path(NP_ROOT_DIR) / "np_shader_debug_line.frag.spv", FragmentShaderBytes);
+
+  VertexShader = (uint32_t const *)VertexShaderBytes.data();
+  FragmentShader = (uint32_t const *)FragmentShaderBytes.data();
+
+  VertexShaderSize = VertexShaderBytes.size();
+  FragmentShaderSize = FragmentShaderBytes.size();
+#else
+  VertexShader = (uint32_t const *)g_RendererDebugLineVertexShader;
+  FragmentShader = (uint32_t const *)g_RendererDebugLineFragmentShader;
+
+  VertexShaderSize = sizeof(g_RendererDebugLineVertexShader);
+  FragmentShaderSize = sizeof(g_RendererDebugLineFragmentShader);
+#endif
 
   VkShaderModule VertexModule = nullptr;
   VkShaderModule FragmentModule = nullptr;
@@ -453,8 +545,8 @@ void NpRenderer::CreateDebugLinePipeline() {
   {
     VkShaderModuleCreateInfo ShaderModuleCreateInfo = {};
     ShaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    ShaderModuleCreateInfo.pCode = (uint32_t const *)VertexShaderBytes.data();
-    ShaderModuleCreateInfo.codeSize = VertexShaderBytes.size();
+    ShaderModuleCreateInfo.pCode = VertexShader;
+    ShaderModuleCreateInfo.codeSize = VertexShaderSize;
 
     VK_CHECK(vkCreateShaderModule(g_Context.GetDevice(), &ShaderModuleCreateInfo, nullptr, &VertexModule));
   }
@@ -462,8 +554,8 @@ void NpRenderer::CreateDebugLinePipeline() {
   {
     VkShaderModuleCreateInfo ShaderModuleCreateInfo = {};
     ShaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    ShaderModuleCreateInfo.pCode = (uint32_t const *)FragmentShaderBytes.data();
-    ShaderModuleCreateInfo.codeSize = FragmentShaderBytes.size();
+    ShaderModuleCreateInfo.pCode = FragmentShader;
+    ShaderModuleCreateInfo.codeSize = FragmentShaderSize;
 
     VK_CHECK(vkCreateShaderModule(g_Context.GetDevice(), &ShaderModuleCreateInfo, nullptr, &FragmentModule));
   }
@@ -596,18 +688,246 @@ void NpRenderer::CreateDebugLinePipeline() {
   vkDestroyShaderModule(g_Context.GetDevice(), FragmentModule, nullptr);
 }
 
-void NpRenderer::CreateTimeBuffer() {}
-void NpRenderer::CreateScreenBuffer() {}
-void NpRenderer::CreateCameraBuffer() {}
-void NpRenderer::CreateDefaultObjectVertexBuffer() {}
-void NpRenderer::CreateDefaultObjectIndexBuffer() {}
-void NpRenderer::CreateDebugLineVertexBuffer() {}
-void NpRenderer::CreateDebugLineIndexBuffer() {}
+void NpRenderer::CreateTimeBuffer() {
+  m_TimeBuffer = new VkBuffer[m_FramesInFlight];
+  m_TimeBufferDeviceMemory = new VkDeviceMemory[m_FramesInFlight];
+  m_Time = new NpTimeInfo *[m_FramesInFlight];
 
-void NpRenderer::UpdateDefaultObjectDescriptorSet() {}
-void NpRenderer::UpdateDebugLineDescriptorSet() {}
+  for (uint32_t FrameIndex = 0; FrameIndex < m_FramesInFlight; FrameIndex++) {
+    VkDeviceSize Size = sizeof(NpTimeInfo);
 
-void NpRenderer::UpdateUniformBuffer(NpTransform *Transform, NpCamera *Camera) {}
+    VkBufferCreateInfo BufferCreateInfo = {};
+    BufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    BufferCreateInfo.size = Size;
+    BufferCreateInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+    BufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    VK_CHECK(vkCreateBuffer(g_Context.GetDevice(), &BufferCreateInfo, nullptr, &m_TimeBuffer[FrameIndex]));
+
+    VkMemoryRequirements MemoryRequirements = {};
+
+    vkGetBufferMemoryRequirements(g_Context.GetDevice(), m_TimeBuffer[FrameIndex], &MemoryRequirements);
+
+    VkMemoryAllocateInfo MemoryAllocateInfo = {};
+    MemoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    MemoryAllocateInfo.allocationSize = MemoryRequirements.size;
+    MemoryAllocateInfo.memoryTypeIndex = g_Context.FindMemoryType(MemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT);
+
+    VK_CHECK(vkAllocateMemory(g_Context.GetDevice(), &MemoryAllocateInfo, nullptr, &m_TimeBufferDeviceMemory[FrameIndex]));
+    VK_CHECK(vkBindBufferMemory(g_Context.GetDevice(), m_TimeBuffer[FrameIndex], m_TimeBufferDeviceMemory[FrameIndex], 0));
+    VK_CHECK(vkMapMemory(g_Context.GetDevice(), m_TimeBufferDeviceMemory[FrameIndex], 0, Size, 0, (void **)&m_Time[FrameIndex]));
+  }
+}
+void NpRenderer::CreateScreenBuffer() {
+  m_ScreenBuffer = new VkBuffer[m_FramesInFlight];
+  m_ScreenBufferDeviceMemory = new VkDeviceMemory[m_FramesInFlight];
+  m_Screen = new NpScreenInfo *[m_FramesInFlight];
+
+  for (uint32_t FrameIndex = 0; FrameIndex < m_FramesInFlight; FrameIndex++) {
+    VkDeviceSize Size = sizeof(NpScreenInfo);
+
+    VkBufferCreateInfo BufferCreateInfo = {};
+    BufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    BufferCreateInfo.size = Size;
+    BufferCreateInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+    BufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    VK_CHECK(vkCreateBuffer(g_Context.GetDevice(), &BufferCreateInfo, nullptr, &m_ScreenBuffer[FrameIndex]));
+
+    VkMemoryRequirements MemoryRequirements = {};
+
+    vkGetBufferMemoryRequirements(g_Context.GetDevice(), m_ScreenBuffer[FrameIndex], &MemoryRequirements);
+
+    VkMemoryAllocateInfo MemoryAllocateInfo = {};
+    MemoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    MemoryAllocateInfo.allocationSize = MemoryRequirements.size;
+    MemoryAllocateInfo.memoryTypeIndex = g_Context.FindMemoryType(MemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT);
+
+    VK_CHECK(vkAllocateMemory(g_Context.GetDevice(), &MemoryAllocateInfo, nullptr, &m_ScreenBufferDeviceMemory[FrameIndex]));
+    VK_CHECK(vkBindBufferMemory(g_Context.GetDevice(), m_ScreenBuffer[FrameIndex], m_ScreenBufferDeviceMemory[FrameIndex], 0));
+    VK_CHECK(vkMapMemory(g_Context.GetDevice(), m_ScreenBufferDeviceMemory[FrameIndex], 0, Size, 0, (void **)&m_Screen[FrameIndex]));
+  }
+}
+void NpRenderer::CreateCameraBuffer() {
+  m_CameraBuffer = new VkBuffer[m_FramesInFlight];
+  m_CameraBufferDeviceMemory = new VkDeviceMemory[m_FramesInFlight];
+  m_Camera = new NpCameraInfo *[m_FramesInFlight];
+
+  for (uint32_t FrameIndex = 0; FrameIndex < m_FramesInFlight; FrameIndex++) {
+    VkDeviceSize Size = sizeof(NpCameraInfo);
+
+    VkBufferCreateInfo BufferCreateInfo = {};
+    BufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    BufferCreateInfo.size = Size;
+    BufferCreateInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+    BufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    VK_CHECK(vkCreateBuffer(g_Context.GetDevice(), &BufferCreateInfo, nullptr, &m_CameraBuffer[FrameIndex]));
+
+    VkMemoryRequirements MemoryRequirements = {};
+
+    vkGetBufferMemoryRequirements(g_Context.GetDevice(), m_CameraBuffer[FrameIndex], &MemoryRequirements);
+
+    VkMemoryAllocateInfo MemoryAllocateInfo = {};
+    MemoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    MemoryAllocateInfo.allocationSize = MemoryRequirements.size;
+    MemoryAllocateInfo.memoryTypeIndex = g_Context.FindMemoryType(MemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT);
+
+    VK_CHECK(vkAllocateMemory(g_Context.GetDevice(), &MemoryAllocateInfo, nullptr, &m_CameraBufferDeviceMemory[FrameIndex]));
+    VK_CHECK(vkBindBufferMemory(g_Context.GetDevice(), m_CameraBuffer[FrameIndex], m_CameraBufferDeviceMemory[FrameIndex], 0));
+    VK_CHECK(vkMapMemory(g_Context.GetDevice(), m_CameraBufferDeviceMemory[FrameIndex], 0, Size, 0, (void **)&m_Camera[FrameIndex]));
+  }
+}
+void NpRenderer::CreateDefaultObjectVertexBuffer() { /* TODO */ }
+void NpRenderer::CreateDefaultObjectIndexBuffer() { /* TODO */ }
+void NpRenderer::CreateDebugLineVertexBuffer() {
+  m_DebugLineVertexBuffer = new VkBuffer[m_FramesInFlight];
+  m_DebugLineVertexBufferDeviceMemory = new VkDeviceMemory[m_FramesInFlight];
+  m_DebugLineVertex = new NpDebugLineVertex *[m_FramesInFlight];
+
+  for (uint32_t FrameIndex = 0; FrameIndex < m_FramesInFlight; FrameIndex++) {
+    VkDeviceSize Size = sizeof(NpDebugLineVertex) * NP_RENDERER_DEBUG_LINE_VERTEX_COUNT;
+
+    VkBufferCreateInfo BufferCreateInfo = {};
+    BufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    BufferCreateInfo.size = Size;
+    BufferCreateInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+    BufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    VK_CHECK(vkCreateBuffer(g_Context.GetDevice(), &BufferCreateInfo, nullptr, &m_DebugLineVertexBuffer[FrameIndex]));
+
+    VkMemoryRequirements MemoryRequirements = {};
+
+    vkGetBufferMemoryRequirements(g_Context.GetDevice(), m_DebugLineVertexBuffer[FrameIndex], &MemoryRequirements);
+
+    VkMemoryAllocateInfo MemoryAllocateInfo = {};
+    MemoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    MemoryAllocateInfo.allocationSize = MemoryRequirements.size;
+    MemoryAllocateInfo.memoryTypeIndex = g_Context.FindMemoryType(MemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT);
+
+    VK_CHECK(vkAllocateMemory(g_Context.GetDevice(), &MemoryAllocateInfo, nullptr, &m_DebugLineVertexBufferDeviceMemory[FrameIndex]));
+    VK_CHECK(vkBindBufferMemory(g_Context.GetDevice(), m_DebugLineVertexBuffer[FrameIndex], m_DebugLineVertexBufferDeviceMemory[FrameIndex], 0));
+    VK_CHECK(vkMapMemory(g_Context.GetDevice(), m_DebugLineVertexBufferDeviceMemory[FrameIndex], 0, Size, 0, (void **)&m_DebugLineVertex[FrameIndex]));
+  }
+}
+void NpRenderer::CreateDebugLineIndexBuffer() {
+  m_DebugLineIndexBuffer = new VkBuffer[m_FramesInFlight];
+  m_DebugLineIndexBufferDeviceMemory = new VkDeviceMemory[m_FramesInFlight];
+  m_DebugLineIndex = new NpDebugLineIndex *[m_FramesInFlight];
+
+  for (uint32_t FrameIndex = 0; FrameIndex < m_FramesInFlight; FrameIndex++) {
+    VkDeviceSize Size = sizeof(NpDebugLineIndex) * NP_RENDERER_DEBUG_LINE_INDEX_COUNT;
+
+    VkBufferCreateInfo BufferCreateInfo = {};
+    BufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    BufferCreateInfo.size = Size;
+    BufferCreateInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+    BufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    VK_CHECK(vkCreateBuffer(g_Context.GetDevice(), &BufferCreateInfo, nullptr, &m_DebugLineIndexBuffer[FrameIndex]));
+
+    VkMemoryRequirements MemoryRequirements = {};
+
+    vkGetBufferMemoryRequirements(g_Context.GetDevice(), m_DebugLineIndexBuffer[FrameIndex], &MemoryRequirements);
+
+    VkMemoryAllocateInfo MemoryAllocateInfo = {};
+    MemoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    MemoryAllocateInfo.allocationSize = MemoryRequirements.size;
+    MemoryAllocateInfo.memoryTypeIndex = g_Context.FindMemoryType(MemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT);
+
+    VK_CHECK(vkAllocateMemory(g_Context.GetDevice(), &MemoryAllocateInfo, nullptr, &m_DebugLineIndexBufferDeviceMemory[FrameIndex]));
+    VK_CHECK(vkBindBufferMemory(g_Context.GetDevice(), m_DebugLineIndexBuffer[FrameIndex], m_DebugLineIndexBufferDeviceMemory[FrameIndex], 0));
+    VK_CHECK(vkMapMemory(g_Context.GetDevice(), m_DebugLineIndexBufferDeviceMemory[FrameIndex], 0, Size, 0, (void **)&m_DebugLineIndex[FrameIndex]));
+  }
+}
+
+void NpRenderer::UpdateDefaultObjectDescriptorSet() { /* TODO */ }
+void NpRenderer::UpdateDebugLineDescriptorSet() {
+  for (uint32_t FrameIndex = 0; FrameIndex < m_FramesInFlight; FrameIndex++) {
+    std::array<VkDescriptorBufferInfo, 1> TimeDescriptorBufferInfos = {};
+
+    TimeDescriptorBufferInfos[0].offset = 0;
+    TimeDescriptorBufferInfos[0].buffer = m_TimeBuffer[FrameIndex];
+    TimeDescriptorBufferInfos[0].range = VK_WHOLE_SIZE;
+
+    std::array<VkDescriptorBufferInfo, 1> ScreenDescriptorBufferInfos = {};
+
+    ScreenDescriptorBufferInfos[0].offset = 0;
+    ScreenDescriptorBufferInfos[0].buffer = m_ScreenBuffer[FrameIndex];
+    ScreenDescriptorBufferInfos[0].range = VK_WHOLE_SIZE;
+
+    std::array<VkDescriptorBufferInfo, 1> CameraDescriptorBufferInfos = {};
+
+    CameraDescriptorBufferInfos[0].offset = 0;
+    CameraDescriptorBufferInfos[0].buffer = m_CameraBuffer[FrameIndex];
+    CameraDescriptorBufferInfos[0].range = VK_WHOLE_SIZE;
+
+    std::array<VkWriteDescriptorSet, 3> WriteDescriptorSets = {};
+
+    WriteDescriptorSets[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    WriteDescriptorSets[0].pNext = 0;
+    WriteDescriptorSets[0].dstSet = m_DebugLineDescriptorSet[FrameIndex];
+    WriteDescriptorSets[0].dstBinding = 0;
+    WriteDescriptorSets[0].dstArrayElement = 0;
+    WriteDescriptorSets[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    WriteDescriptorSets[0].descriptorCount = TimeDescriptorBufferInfos.size();
+    WriteDescriptorSets[0].pImageInfo = 0;
+    WriteDescriptorSets[0].pBufferInfo = TimeDescriptorBufferInfos.data();
+    WriteDescriptorSets[0].pTexelBufferView = 0;
+
+    WriteDescriptorSets[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    WriteDescriptorSets[1].pNext = 0;
+    WriteDescriptorSets[1].dstSet = m_DebugLineDescriptorSet[FrameIndex];
+    WriteDescriptorSets[1].dstBinding = 1;
+    WriteDescriptorSets[1].dstArrayElement = 0;
+    WriteDescriptorSets[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    WriteDescriptorSets[1].descriptorCount = ScreenDescriptorBufferInfos.size();
+    WriteDescriptorSets[1].pImageInfo = 0;
+    WriteDescriptorSets[1].pBufferInfo = ScreenDescriptorBufferInfos.data();
+    WriteDescriptorSets[1].pTexelBufferView = 0;
+
+    WriteDescriptorSets[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    WriteDescriptorSets[2].pNext = 0;
+    WriteDescriptorSets[2].dstSet = m_DebugLineDescriptorSet[FrameIndex];
+    WriteDescriptorSets[2].dstBinding = 2;
+    WriteDescriptorSets[2].dstArrayElement = 0;
+    WriteDescriptorSets[2].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    WriteDescriptorSets[2].descriptorCount = CameraDescriptorBufferInfos.size();
+    WriteDescriptorSets[2].pImageInfo = 0;
+    WriteDescriptorSets[2].pBufferInfo = CameraDescriptorBufferInfos.data();
+    WriteDescriptorSets[2].pTexelBufferView = 0;
+
+    vkUpdateDescriptorSets(g_Context.GetDevice(), WriteDescriptorSets.size(), WriteDescriptorSets.data(), 0, nullptr);
+  }
+}
+
+void NpRenderer::UpdateUniformBuffer(NpTransform *Transform, NpCamera *Camera) {
+  m_Time[m_FrameIndex]->Time = g_Context.GetTime();
+  m_Time[m_FrameIndex]->DeltaTime = g_Context.GetDeltaTime();
+
+  m_Screen[m_FrameIndex]->Width = (float)g_Context.GetSurfaceWidth();
+  m_Screen[m_FrameIndex]->Height = (float)g_Context.GetSurfaceHeight();
+
+  glm::fvec3 Eye = Transform->GetWorldPosition();
+  glm::fvec3 Center = Transform->GetWorldPosition() + Transform->LocalFront;
+  glm::fvec3 Up = math_vector3_down();
+
+  float Fov = glm::radians(Camera->GetFov());
+  float AspectRatio = (float)g_Context.GetSurfaceWidth() / (float)g_Context.GetSurfaceHeight();
+  float NearZ = Camera->GetNearZ();
+  float FarZ = Camera->GetFarZ();
+
+  glm::fmat4 View = glm::lookAt(Eye, Center, Up);
+  glm::fmat4 Projection = glm::perspective(Fov, AspectRatio, NearZ, FarZ);
+  glm::fmat4 ViewProjection = View * Projection;
+  glm::fmat4 ViewProjectionInv = glm::inverse(ViewProjection);
+
+  m_Camera[m_FrameIndex]->WorldPosition = Transform->GetWorldPosition();
+  m_Camera[m_FrameIndex]->View = View;
+  m_Camera[m_FrameIndex]->Projection = Projection;
+  m_Camera[m_FrameIndex]->ViewProjection = ViewProjection;
+  m_Camera[m_FrameIndex]->ViewProjectionInv = ViewProjectionInv;
+}
 
 void NpRenderer::RecordGraphicsCommand() {}
 
