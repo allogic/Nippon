@@ -4,6 +4,7 @@
 
 int main(int Argc, char **Argv, char **Envp) {
   if (g_Context.Create(1920, 1080)) {
+    g_Context.AddScene();
     g_Context.Run();
     g_Context.Destroy();
   }

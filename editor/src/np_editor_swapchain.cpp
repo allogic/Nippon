@@ -29,7 +29,7 @@ void NpSwapchain::Create(uint32_t ImageCount) {
   SwapchainCreateInfo.clipped = 1;
   SwapchainCreateInfo.oldSwapchain = nullptr;
 
-  std::array<uint32_t, 2> QueueFamilies = {(uint32_t)g_Context.GetGraphicsQueueIndex(), (uint32_t)g_Context.GetPresentQueueIndex()};
+  std::vector<uint32_t> QueueFamilies = {(uint32_t)g_Context.GetGraphicsQueueIndex(), (uint32_t)g_Context.GetPresentQueueIndex()};
 
   if (g_Context.GetGraphicsQueueIndex() == g_Context.GetPresentQueueIndex()) {
     SwapchainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -100,7 +100,7 @@ void NpSwapchain::CreateRenderPass() {
   SubpassDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
   SubpassDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-  std::array<VkAttachmentDescription, 2> AttachmentDescriptions = {ColorAttachmentDescription, DepthAttachmentDescription};
+  std::vector<VkAttachmentDescription> AttachmentDescriptions = {ColorAttachmentDescription, DepthAttachmentDescription};
 
   VkRenderPassCreateInfo RenderPassCreateInfo = {};
   RenderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -189,7 +189,7 @@ void NpSwapchain::CreateFrameBuffer() {
   m_FrameBuffer = new VkFramebuffer[m_ImageCount];
 
   for (uint32_t ImageIndex = 0; ImageIndex < m_ImageCount; ImageIndex++) {
-    std::array<VkImageView, 2> ImageAttachments = {m_ColorImageView[ImageIndex], m_DepthImageView[ImageIndex]};
+    std::vector<VkImageView> ImageAttachments = {m_ColorImageView[ImageIndex], m_DepthImageView[ImageIndex]};
 
     VkFramebufferCreateInfo FrameBufferCreateInfo = {};
     FrameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;

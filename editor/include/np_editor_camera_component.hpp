@@ -1,10 +1,11 @@
-#if !defined(NP_EDITOR_CAMERA_HPP)
-#  define NP_EDITOR_CAMERA_HPP
+#if !defined(NP_EDITOR_CAMERA_COMPONENT_HPP)
+#  define NP_EDITOR_CAMERA_COMPONENT_HPP
 
-class NpCamera {
+class NpCameraComponent {
 public:
-  NpCamera(float Fov, float NearZ, float FarZ);
-  virtual ~NpCamera();
+  NpCameraComponent();
+  NpCameraComponent(float Fov, float NearZ, float FarZ);
+  virtual ~NpCameraComponent();
 
 public:
   inline auto const &GetFov() const { return m_Fov; }
@@ -16,9 +17,9 @@ public:
   inline void SetFarZ(float FarZ) { m_FarZ = FarZ; }
 
 private:
-  float m_Fov = 0.0F;
-  float m_NearZ = 0.0F;
-  float m_FarZ = 0.0F;
+  float m_Fov = glm::radians(45.0F);
+  float m_NearZ = 0.1F;
+  float m_FarZ = 100000.0F;
 };
 
 #endif

@@ -3,25 +3,38 @@
 #extension GL_ARB_shading_language_include : require
 #extension GL_EXT_nonuniform_qualifier : require
 
-// TODO: make input/output structs..
+layout(location = 0) in vec3 VertexPosition;
+layout(location = 1) in vec4 VertexColor;
 
-layout (location = 0) in ivec3 vertex_position;
+layout(location = 0) out vec4 OutputColor;
 
-layout (binding = 2) uniform camera_info_t
-{
-	vec3 world_position;
-	int reserved;
-	mat4 view;
-	mat4 projection;
-	mat4 view_projection;
-	mat4 view_projection_inv;
-	int max_ray_steps;
-} camera_info;
+layout(binding = 0) uniform TimeInfoUniform {
+  float Time;
+  float DeltaTime;
+}
+TimeInfo;
 
-void main()
-{
-	vec4 world_position = vec4(vertex_position, 1.0);
-	vec4 clip_position = camera_info.view_projection * world_position;
+layout(binding = 1) uniform ScreenInfoUniform {
+  float Width;
+  float Height;
+}
+ScreenInfo;
 
-	gl_Position = clip_position;
+layout(binding = 2) uniform CameraInfoUniform {
+  vec3 Position;
+  float Reserved;
+  mat4 View;
+  mat4 Projection;
+  mat4 ViewProjection;
+  mat4 ViewProjectionInv;
+}
+CameraInfo;
+
+void main() {
+  vec4 WorldPosition = vec4(VertexPosition, 1.0);
+  vec4 ClipPosition = CameraInfo.ViewProjection * WorldPosition;
+
+  OutputColor = VertexColor;
+
+  gl_Position = ClipPosition;
 }

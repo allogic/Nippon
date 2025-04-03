@@ -40,8 +40,6 @@ __attribute__((section(NP_RENDERER_DEBUG_LINE_FRAGMENT_SHADER_SECTION_NAME))) st
 #define NP_RENDERER_DEBUG_LINE_VERTEX_COUNT (1048576ULL)
 #define NP_RENDERER_DEBUG_LINE_INDEX_COUNT (1048576ULL)
 
-NpRenderer g_Renderer = {};
-
 NpRenderer::NpRenderer() {}
 NpRenderer::~NpRenderer() {}
 
@@ -74,9 +72,11 @@ void NpRenderer::Create(uint32_t FramesInFlight) {
 
   m_DebugLineVertexOffset = new uint32_t[m_FramesInFlight];
   m_DebugLineIndexOffset = new uint32_t[m_FramesInFlight];
+
+  std::memset(m_DebugLineVertexOffset, 0, sizeof(uint32_t) * m_FramesInFlight);
+  std::memset(m_DebugLineIndexOffset, 0, sizeof(uint32_t) * m_FramesInFlight);
 }
-void NpRenderer::Update() {}
-void NpRenderer::Draw(NpTransform *Transform, NpCamera *Camera) {
+void NpRenderer::Draw(NpTransformComponent const &Transform, NpCameraComponent const &Camera) {
   vkWaitForFences(g_Context.GetDevice(), 1, &m_FrameFence[m_FrameIndex], 1, UINT64_MAX);
 
   vkResetFences(g_Context.GetDevice(), 1, &m_FrameFence[m_FrameIndex]);
@@ -121,7 +121,7 @@ void NpRenderer::Draw(NpTransform *Transform, NpCamera *Camera) {
 
   vkEndCommandBuffer(m_GraphicsCommandBuffer[m_FrameIndex]);
 
-  std::array<VkPipelineStageFlags, 2> GraphicsWaitStage = {VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+  std::vector<VkPipelineStageFlags> GraphicsWaitStage = {VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
   VkSubmitInfo GraphicsSubmitInfo = {};
   GraphicsSubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -287,8 +287,8 @@ void NpRenderer::CreateSyncObject() {
   }
 }
 void NpRenderer::CreateDescriptorPool() {
-  std::array<VkDescriptorPoolSize, 1> DefaultObjectDescriptorPoolSizes = {
-      {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1},
+  std::vector<VkDescriptorPoolSize> DefaultObjectDescriptorPoolSizes = {
+      {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3},
   };
 
   VkDescriptorPoolCreateInfo DefaultObjectDescriptorPoolCreateInfo = {};
@@ -299,8 +299,8 @@ void NpRenderer::CreateDescriptorPool() {
 
   VK_CHECK(vkCreateDescriptorPool(g_Context.GetDevice(), &DefaultObjectDescriptorPoolCreateInfo, 0, &m_DefaultObjectDescriptorPool));
 
-  std::array<VkDescriptorPoolSize, 1> DebugLineDescriptorPoolSizes = {
-      {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1},
+  std::vector<VkDescriptorPoolSize> DebugLineDescriptorPoolSizes = {
+      {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3},
   };
 
   VkDescriptorPoolCreateInfo DebugLineDescriptorPoolCreateInfo = {};
@@ -312,8 +312,10 @@ void NpRenderer::CreateDescriptorPool() {
   VK_CHECK(vkCreateDescriptorPool(g_Context.GetDevice(), &DebugLineDescriptorPoolCreateInfo, 0, &m_DebugLineDescriptorPool));
 }
 void NpRenderer::CreateDescriptorSetLayout() {
-  std::array<VkDescriptorSetLayoutBinding, 1> DefaultObjectDescriptorSetLayoutBindings = {
-      {0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_COMPUTE_BIT, 0},
+  std::vector<VkDescriptorSetLayoutBinding> DefaultObjectDescriptorSetLayoutBindings = {
+      {0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, nullptr},
+      {1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, nullptr},
+      {2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, nullptr},
   };
 
   VkDescriptorSetLayoutCreateInfo DefaultObjectDescriptorSetLayoutCreateInfo = {};
@@ -324,8 +326,10 @@ void NpRenderer::CreateDescriptorSetLayout() {
 
   VK_CHECK(vkCreateDescriptorSetLayout(g_Context.GetDevice(), &DefaultObjectDescriptorSetLayoutCreateInfo, nullptr, &m_DefaultObjectDescriptorSetLayout));
 
-  std::array<VkDescriptorSetLayoutBinding, 1> DebugLineDescriptorSetLayoutBindings = {
-      {0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0},
+  std::vector<VkDescriptorSetLayoutBinding> DebugLineDescriptorSetLayoutBindings = {
+      {0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, nullptr},
+      {1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, nullptr},
+      {2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, nullptr},
   };
 
   VkDescriptorSetLayoutCreateInfo DebugLineDescriptorSetLayoutCreateInfo = {};
@@ -445,7 +449,7 @@ void NpRenderer::CreateDefaultObjectPipeline() {
   FragmentShaderStageCreateInfo.module = FragmentModule;
   FragmentShaderStageCreateInfo.pName = "main";
 
-  std::array<VkPipelineShaderStageCreateInfo, 2> ShaderStage = {VertexShaderStageCreateInfo, FragmentShaderStageCreateInfo};
+  std::vector<VkPipelineShaderStageCreateInfo> ShaderStage = {VertexShaderStageCreateInfo, FragmentShaderStageCreateInfo};
 
   VkPipelineVertexInputStateCreateInfo VertexInputCreateInfo = {};
   VertexInputCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -531,7 +535,7 @@ void NpRenderer::CreateDefaultObjectPipeline() {
   ColorBlendCreateInfo.blendConstants[2] = 0.0F;
   ColorBlendCreateInfo.blendConstants[3] = 0.0F;
 
-  std::array<VkDynamicState, 2> DynamicState = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
+  std::vector<VkDynamicState> DynamicState = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
   VkPipelineDynamicStateCreateInfo DynamicStateCreateInfo = {};
   DynamicStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
@@ -620,7 +624,7 @@ void NpRenderer::CreateDebugLinePipeline() {
   FragmentShaderStageCreateInfo.module = FragmentModule;
   FragmentShaderStageCreateInfo.pName = "main";
 
-  std::array<VkPipelineShaderStageCreateInfo, 2> ShaderStage = {VertexShaderStageCreateInfo, FragmentShaderStageCreateInfo};
+  std::vector<VkPipelineShaderStageCreateInfo> ShaderStage = {VertexShaderStageCreateInfo, FragmentShaderStageCreateInfo};
 
   VkPipelineVertexInputStateCreateInfo VertexInputCreateInfo = {};
   VertexInputCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -706,7 +710,7 @@ void NpRenderer::CreateDebugLinePipeline() {
   ColorBlendCreateInfo.blendConstants[2] = 0.0F;
   ColorBlendCreateInfo.blendConstants[3] = 0.0F;
 
-  std::array<VkDynamicState, 2> DynamicState = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
+  std::vector<VkDynamicState> DynamicState = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
   VkPipelineDynamicStateCreateInfo DynamicStateCreateInfo = {};
   DynamicStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
@@ -892,85 +896,50 @@ void NpRenderer::CreateDebugLineIndexBuffer() {
 void NpRenderer::UpdateDefaultObjectDescriptorSet() { /* TODO */ }
 void NpRenderer::UpdateDebugLineDescriptorSet() {
   for (uint32_t FrameIndex = 0; FrameIndex < m_FramesInFlight; FrameIndex++) {
-    std::array<VkDescriptorBufferInfo, 1> TimeDescriptorBufferInfos = {};
+    std::vector<VkDescriptorBufferInfo> TimeDescriptorBufferInfos = {
+        {m_TimeBuffer[FrameIndex], 0, VK_WHOLE_SIZE},
+    };
 
-    TimeDescriptorBufferInfos[0].offset = 0;
-    TimeDescriptorBufferInfos[0].buffer = m_TimeBuffer[FrameIndex];
-    TimeDescriptorBufferInfos[0].range = VK_WHOLE_SIZE;
+    std::vector<VkDescriptorBufferInfo> ScreenDescriptorBufferInfos = {
+        {m_ScreenBuffer[FrameIndex], 0, VK_WHOLE_SIZE},
+    };
 
-    std::array<VkDescriptorBufferInfo, 1> ScreenDescriptorBufferInfos = {};
+    std::vector<VkDescriptorBufferInfo> CameraDescriptorBufferInfos = {
+        {m_CameraBuffer[FrameIndex], 0, VK_WHOLE_SIZE},
+    };
 
-    ScreenDescriptorBufferInfos[0].offset = 0;
-    ScreenDescriptorBufferInfos[0].buffer = m_ScreenBuffer[FrameIndex];
-    ScreenDescriptorBufferInfos[0].range = VK_WHOLE_SIZE;
-
-    std::array<VkDescriptorBufferInfo, 1> CameraDescriptorBufferInfos = {};
-
-    CameraDescriptorBufferInfos[0].offset = 0;
-    CameraDescriptorBufferInfos[0].buffer = m_CameraBuffer[FrameIndex];
-    CameraDescriptorBufferInfos[0].range = VK_WHOLE_SIZE;
-
-    std::array<VkWriteDescriptorSet, 3> WriteDescriptorSets = {};
-
-    WriteDescriptorSets[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    WriteDescriptorSets[0].pNext = 0;
-    WriteDescriptorSets[0].dstSet = m_DebugLineDescriptorSet[FrameIndex];
-    WriteDescriptorSets[0].dstBinding = 0;
-    WriteDescriptorSets[0].dstArrayElement = 0;
-    WriteDescriptorSets[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    WriteDescriptorSets[0].descriptorCount = TimeDescriptorBufferInfos.size();
-    WriteDescriptorSets[0].pImageInfo = 0;
-    WriteDescriptorSets[0].pBufferInfo = TimeDescriptorBufferInfos.data();
-    WriteDescriptorSets[0].pTexelBufferView = 0;
-
-    WriteDescriptorSets[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    WriteDescriptorSets[1].pNext = 0;
-    WriteDescriptorSets[1].dstSet = m_DebugLineDescriptorSet[FrameIndex];
-    WriteDescriptorSets[1].dstBinding = 1;
-    WriteDescriptorSets[1].dstArrayElement = 0;
-    WriteDescriptorSets[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    WriteDescriptorSets[1].descriptorCount = ScreenDescriptorBufferInfos.size();
-    WriteDescriptorSets[1].pImageInfo = 0;
-    WriteDescriptorSets[1].pBufferInfo = ScreenDescriptorBufferInfos.data();
-    WriteDescriptorSets[1].pTexelBufferView = 0;
-
-    WriteDescriptorSets[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    WriteDescriptorSets[2].pNext = 0;
-    WriteDescriptorSets[2].dstSet = m_DebugLineDescriptorSet[FrameIndex];
-    WriteDescriptorSets[2].dstBinding = 2;
-    WriteDescriptorSets[2].dstArrayElement = 0;
-    WriteDescriptorSets[2].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    WriteDescriptorSets[2].descriptorCount = CameraDescriptorBufferInfos.size();
-    WriteDescriptorSets[2].pImageInfo = 0;
-    WriteDescriptorSets[2].pBufferInfo = CameraDescriptorBufferInfos.data();
-    WriteDescriptorSets[2].pTexelBufferView = 0;
+    std::vector<VkWriteDescriptorSet> WriteDescriptorSets = {
+        {VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET, nullptr, m_DebugLineDescriptorSet[FrameIndex], 0, 0, (uint32_t)TimeDescriptorBufferInfos.size(), VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, nullptr, TimeDescriptorBufferInfos.data(), nullptr},
+        {VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET, nullptr, m_DebugLineDescriptorSet[FrameIndex], 1, 0, (uint32_t)ScreenDescriptorBufferInfos.size(), VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, nullptr, ScreenDescriptorBufferInfos.data(), nullptr},
+        {VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET, nullptr, m_DebugLineDescriptorSet[FrameIndex], 2, 0, (uint32_t)CameraDescriptorBufferInfos.size(), VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, nullptr, CameraDescriptorBufferInfos.data(), nullptr},
+    };
 
     vkUpdateDescriptorSets(g_Context.GetDevice(), WriteDescriptorSets.size(), WriteDescriptorSets.data(), 0, nullptr);
   }
 }
 
-void NpRenderer::UpdateUniformBuffer(NpTransform *Transform, NpCamera *Camera) {
+void NpRenderer::UpdateUniformBuffer(NpTransformComponent const &Transform, NpCameraComponent const &Camera) {
   m_Time[m_FrameIndex]->Time = g_Context.GetTime();
   m_Time[m_FrameIndex]->DeltaTime = g_Context.GetDeltaTime();
 
   m_Screen[m_FrameIndex]->Width = (float)g_Context.GetSurfaceWidth();
   m_Screen[m_FrameIndex]->Height = (float)g_Context.GetSurfaceHeight();
 
-  glm::fvec3 Eye = Transform->GetWorldPosition();
-  glm::fvec3 Center = Transform->GetWorldPosition() + Transform->GetLocalFront();
+  glm::fvec3 Eye = Transform.GetWorldPosition();
+  glm::fvec3 Center = Transform.GetWorldPosition() + Transform.GetLocalFront();
   glm::fvec3 Up = g_WorldDown;
 
-  float Fov = glm::radians(Camera->GetFov());
-  float AspectRatio = (float)g_Context.GetSurfaceWidth() / (float)g_Context.GetSurfaceHeight();
-  float NearZ = Camera->GetNearZ();
-  float FarZ = Camera->GetFarZ();
+  float Fov = Camera.GetFov();
+  float AspectRatio = g_Context.GetAspectRatio();
+  float NearZ = Camera.GetNearZ();
+  float FarZ = Camera.GetFarZ();
 
   glm::fmat4 View = glm::lookAt(Eye, Center, Up);
   glm::fmat4 Projection = glm::perspective(Fov, AspectRatio, NearZ, FarZ);
   glm::fmat4 ViewProjection = View * Projection;
   glm::fmat4 ViewProjectionInv = glm::inverse(ViewProjection);
 
-  m_Camera[m_FrameIndex]->WorldPosition = Transform->GetWorldPosition();
+  m_Camera[m_FrameIndex]->WorldPosition = Transform.GetWorldPosition();
   m_Camera[m_FrameIndex]->View = View;
   m_Camera[m_FrameIndex]->Projection = Projection;
   m_Camera[m_FrameIndex]->ViewProjection = ViewProjection;
@@ -979,23 +948,18 @@ void NpRenderer::UpdateUniformBuffer(NpTransform *Transform, NpCamera *Camera) {
 
 void NpRenderer::RecordGraphicsCommand() {
   VkClearValue ColorClearValue = {};
-  ColorClearValue.color.float32[0] = 0.0F;
-  ColorClearValue.color.float32[1] = 0.0F;
-  ColorClearValue.color.float32[2] = 0.0F;
-  ColorClearValue.color.float32[3] = 1.0F;
+  ColorClearValue.color = {0.0F, 0.0F, 0.0F, 0.0F};
 
   VkClearValue DepthClearValue = {};
-  DepthClearValue.depthStencil.depth = 1.0F;
-  DepthClearValue.depthStencil.stencil = 0;
+  DepthClearValue.depthStencil = {1.0F, 0};
 
-  std::array<VkClearValue, 2> ClearValue = {ColorClearValue, DepthClearValue};
+  std::vector<VkClearValue> ClearValue = {ColorClearValue, DepthClearValue};
 
   VkRenderPassBeginInfo RenderPassCreateInfo = {};
   RenderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
   RenderPassCreateInfo.renderPass = g_Swapchain.GetRenderPass();
   RenderPassCreateInfo.framebuffer = g_Swapchain.GetFrameBuffer()[m_ImageIndex];
-  RenderPassCreateInfo.renderArea.offset.x = 0;
-  RenderPassCreateInfo.renderArea.offset.y = 0;
+  RenderPassCreateInfo.renderArea.offset = {0, 0};
   RenderPassCreateInfo.renderArea.extent.width = g_Context.GetSurfaceWidth();
   RenderPassCreateInfo.renderArea.extent.height = g_Context.GetSurfaceHeight();
   RenderPassCreateInfo.pClearValues = ClearValue.data();
@@ -1014,8 +978,7 @@ void NpRenderer::RecordGraphicsCommand() {
   vkCmdSetViewport(m_GraphicsCommandBuffer[m_FrameIndex], 0, 1, &Viewport);
 
   VkRect2D Scissor = {0};
-  Scissor.offset.x = 0;
-  Scissor.offset.y = 0;
+  Scissor.offset = {0, 0};
   Scissor.extent.width = g_Context.GetSurfaceWidth();
   Scissor.extent.height = g_Context.GetSurfaceHeight();
 
@@ -1023,8 +986,8 @@ void NpRenderer::RecordGraphicsCommand() {
 
   /*
   {
-    std::array<VkBuffer, 1> VertexBuffer = {m_DefaultObjectVertexBuffer[m_FrameIndex]};
-    std::array<uint64_t, 1> VertexOffset = {0};
+    std::vector<VkBuffer> VertexBuffer = {m_DefaultObjectVertexBuffer[m_FrameIndex]};
+    std::vector<uint64_t> VertexOffset = {0};
 
     vkCmdBindPipeline(m_GraphicsCommandBuffer[m_FrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_DefaultObjectPipeline);
     vkCmdBindVertexBuffers(m_GraphicsCommandBuffer[m_FrameIndex], 0, VertexBuffer.size(), VertexBuffer.data(), VertexOffset.data());
@@ -1036,8 +999,8 @@ void NpRenderer::RecordGraphicsCommand() {
 
   {
     if (m_EnableDebug) {
-      std::array<VkBuffer, 1> VertexBuffer = {m_DebugLineVertexBuffer[m_FrameIndex]};
-      std::array<uint64_t, 1> VertexOffset = {0};
+      std::vector<VkBuffer> VertexBuffer = {m_DebugLineVertexBuffer[m_FrameIndex]};
+      std::vector<uint64_t> VertexOffset = {0};
 
       vkCmdBindPipeline(m_GraphicsCommandBuffer[m_FrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_DebugLinePipeline);
       vkCmdBindVertexBuffers(m_GraphicsCommandBuffer[m_FrameIndex], 0, VertexBuffer.size(), VertexBuffer.data(), VertexOffset.data());

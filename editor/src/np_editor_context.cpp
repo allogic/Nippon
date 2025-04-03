@@ -84,7 +84,6 @@ bool NpContext::Create(int32_t Width, int32_t Height) {
       CreateCommandPool();
 
       g_Swapchain.Create(0);
-      g_Renderer.Create(1);
 
       return true;
     } else {
@@ -103,34 +102,50 @@ void NpContext::Run() {
     if (m_SwapchainIsDirty) {
       m_SwapchainIsDirty = false;
 
-      g_Renderer.Destroy();
+      for (auto &Scene : m_Scenes) {
+        Scene->DestroyRenderer();
+      }
+
       g_Swapchain.Destroy();
 
       ResizeSurface();
 
       g_Swapchain.Create(0);
-      g_Renderer.Create(1);
+
+      for (auto &Scene : m_Scenes) {
+        Scene->CreateRenderer();
+      }
     }
 
     if (m_RendererIsDirty) {
       m_RendererIsDirty = false;
 
-      g_Renderer.Destroy();
-
-      g_Renderer.Create(1);
+      for (auto &Scene : m_Scenes) {
+        Scene->DestroyRenderer();
+        Scene->CreateRenderer();
+      }
     }
 
-    g_Renderer.Update();
+    for (auto &Scene : m_Scenes) {
+      Scene->Update();
+    }
   }
 }
 void NpContext::Destroy() {
-  g_Renderer.Destroy();
+  for (auto &Scene : m_Scenes) {
+    delete Scene;
+  }
+
   g_Swapchain.Destroy();
 
   DestroyCommandPool();
   DestroyDevice();
   DestroySurface();
   DestroyInstance();
+}
+
+void NpContext::AddScene() {
+  m_Scenes.emplace_back(new NpScene);
 }
 
 int32_t NpContext::FindMemoryType(uint32_t TypeFilter, VkMemoryPropertyFlags MemoryPropertyFlags) {
@@ -230,17 +245,10 @@ void NpContext::CreateSurface() { VK_CHECK(glfwCreateWindowSurface(m_Instance, m
 void NpContext::CreateDevice() {
   float QueuePriority = 1.0F;
 
-  std::array<VkDeviceQueueCreateInfo, 2> DeviceQueueCreateInfos = {};
-
-  DeviceQueueCreateInfos[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-  DeviceQueueCreateInfos[0].queueFamilyIndex = m_GraphicsQueueIndex;
-  DeviceQueueCreateInfos[0].queueCount = 1;
-  DeviceQueueCreateInfos[0].pQueuePriorities = &QueuePriority;
-
-  DeviceQueueCreateInfos[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-  DeviceQueueCreateInfos[1].queueFamilyIndex = m_PresentQueueIndex;
-  DeviceQueueCreateInfos[1].queueCount = 1;
-  DeviceQueueCreateInfos[1].pQueuePriorities = &QueuePriority;
+  std::vector<VkDeviceQueueCreateInfo> DeviceQueueCreateInfos = {
+      {VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, 0, 0, (uint32_t)m_GraphicsQueueIndex, 1, &QueuePriority},
+      {VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, 0, 0, (uint32_t)m_PresentQueueIndex, 1, &QueuePriority},
+  };
 
   VkPhysicalDeviceDescriptorIndexingFeatures PhysicalDeviceDescriptorIndexingFeatures = {};
   PhysicalDeviceDescriptorIndexingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;

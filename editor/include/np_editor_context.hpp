@@ -1,6 +1,8 @@
 #if !defined(NP_EDITOR_CONTEXT_HPP)
 #  define NP_EDITOR_CONTEXT_HPP
 
+#  include <np_editor_scene.hpp>
+
 class NpContext {
 public:
   NpContext();
@@ -21,14 +23,16 @@ public:
   inline auto const &GetGraphicsQueue() const { return m_GraphicsQueue; }
   inline auto const &GetPresentQueue() const { return m_PresentQueue; }
   inline auto const &GetCommandPool() const { return m_CommandPool; }
+  inline auto GetAspectRatio() const { return (float)m_SurfaceWidth / (float)m_SurfaceHeight; }
 
   inline void SetSwapchainDirty() { m_SwapchainIsDirty = true; }
   inline void SetRendererDirty() { m_RendererIsDirty = true; }
 
-  bool
-  Create(int32_t Width, int32_t Height);
+  bool Create(int32_t Width, int32_t Height);
   void Run();
   void Destroy();
+
+  void AddScene();
 
   int32_t FindMemoryType(uint32_t TypeFilter, VkMemoryPropertyFlags MemoryPropertyFlags);
 
@@ -112,6 +116,8 @@ private:
 
   bool m_SwapchainIsDirty = false;
   bool m_RendererIsDirty = false;
+
+  std::vector<NpScene *> m_Scenes = {};
 };
 
 extern NpContext g_Context;

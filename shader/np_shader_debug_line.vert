@@ -3,40 +3,38 @@
 #extension GL_ARB_shading_language_include : require
 #extension GL_EXT_nonuniform_qualifier : require
 
-layout (location = 0) in vec3 vertex_position;
-layout (location = 1) in vec4 vertex_color;
+layout(location = 0) in vec3 VertexPosition;
+layout(location = 1) in vec4 VertexColor;
 
-layout (location = 0) out vec4 output_color;
+layout(location = 0) out vec4 OutputColor;
 
-layout (binding = 0) uniform time_info_t
-{
-	float time;
-	float delta_time;
-} time_info;
+layout(binding = 0) uniform TimeInfoUniform {
+  float Time;
+  float DeltaTime;
+}
+TimeInfo;
 
-layout (binding = 1) uniform screen_info_t
-{
-	vec2 resolution;
-} screen_info;
+layout(binding = 1) uniform ScreenInfoUniform {
+  float Width;
+  float Height;
+}
+ScreenInfo;
 
-layout (binding = 2) uniform camera_info_t
-{
-	vec3 position;
-	uint reserved;
-	mat4 view;
-	mat4 projection;
-	mat4 view_projection;
-	mat4 view_projection_inv;
-	uint max_chunk_ray_steps;
-	uint max_voxel_ray_steps;
-} camera_info;
+layout(binding = 2) uniform CameraInfoUniform {
+  vec3 Position;
+  float Reserved;
+  mat4 View;
+  mat4 Projection;
+  mat4 ViewProjection;
+  mat4 ViewProjectionInv;
+}
+CameraInfo;
 
-void main()
-{
-	vec4 world_position = vec4(vertex_position, 1.0);
-	vec4 clip_position = camera_info.view_projection * world_position;
+void main() {
+  vec4 WorldPosition = vec4(VertexPosition, 1.0);
+  vec4 ClipPosition = CameraInfo.ViewProjection * WorldPosition;
 
-	output_color = vertex_color;
+  OutputColor = VertexColor;
 
-	gl_Position = clip_position;
+  gl_Position = ClipPosition;
 }

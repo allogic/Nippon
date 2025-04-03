@@ -1,14 +1,17 @@
-#if !defined(NP_EDITOR_TRANSFORM_HPP)
-#  define NP_EDITOR_TRANSFORM_HPP
+#if !defined(NP_EDITOR_TRANSFORM_COMPONENT_HPP)
+#  define NP_EDITOR_TRANSFORM_COMPONENT_HPP
 
 #  include <np_editor_constants.hpp>
 
-class NpTransform {
+class NpTransformComponent {
 public:
-  NpTransform(NpTransform *Parent = nullptr);
-  virtual ~NpTransform();
+  NpTransformComponent();
+  NpTransformComponent(NpTransformComponent *Parent);
+  virtual ~NpTransformComponent();
 
 public:
+  inline auto const &GetParent() const { return m_Parent; }
+  inline auto const &GetChildren() const { return m_Children; }
   inline auto const &GetWorldPosition() const { return m_WorldPosition; }
   inline auto const &GetLocalRight() const { return m_LocalRight; }
   inline auto const &GetLocalUp() const { return m_LocalUp; }
@@ -17,9 +20,20 @@ public:
   inline auto const &GetLocalDown() const { return m_LocalDown; }
   inline auto const &GetLocalBack() const { return m_LocalBack; }
 
+  void SetPosition(glm::fvec3 const &Position);
+  void SetRelativePosition(glm::fvec3 const &Position);
+  void SetRotation(glm::fquat const &Rotation);
+  void SetRelativeRotation(glm::fquat const &Rotation);
+  void SetScale(glm::fvec3 const &Scale);
+  void SetRelativeScale(glm::fvec3 const &Scale);
+
+  void ComputeWorldPosition();
+  void ComputeWorldRotation();
+  void ComputeWorldScale();
+
 private:
-  NpTransform *m_Parent = nullptr;
-  std::vector<NpTransform *> m_Children = {};
+  NpTransformComponent *m_Parent = nullptr;
+  std::vector<NpTransformComponent *> m_Children = {};
 
   glm::fvec3 m_LocalPosition = {0.0F, 0.0F, 0.0F};
   glm::fquat m_LocalRotation = {1.0F, 0.0F, 0.0F, 0.0F};

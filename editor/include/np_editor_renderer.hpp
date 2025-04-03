@@ -2,8 +2,8 @@
 #  define NP_EDITOR_RENDERER_HPP
 
 #  include <np_editor_buffer.hpp>
-#  include <np_editor_camera.hpp>
-#  include <np_editor_transform.hpp>
+#  include <np_editor_camera_component.hpp>
+#  include <np_editor_transform_component.hpp>
 
 class NpRenderer {
 public:
@@ -16,14 +16,13 @@ public:
 
 public:
   void Create(uint32_t FramesInFlight);
-  void Update();
-  void Draw(NpTransform *Transform, NpCamera *Camera);
+  void Draw(NpTransformComponent const &Transform, NpCameraComponent const &Camera);
   void Destroy();
 
-private:
   void DrawDebugLine(glm::fvec3 const &From, glm::fvec3 const &To, glm::fvec4 const &Color);
   void DrawDebugBox(glm::fvec3 const &Position, glm::fvec3 const &Size, glm::fvec4 const &Color);
 
+private:
   void CreateCommandBuffer();
   void CreateSyncObject();
   void CreateDescriptorPool();
@@ -45,7 +44,7 @@ private:
   void UpdateDefaultObjectDescriptorSet();
   void UpdateDebugLineDescriptorSet();
 
-  void UpdateUniformBuffer(NpTransform *Transform, NpCamera *Camera);
+  void UpdateUniformBuffer(NpTransformComponent const &Transform, NpCameraComponent const &Camera);
 
   void RecordGraphicsCommand();
 
@@ -76,7 +75,8 @@ private:
   };
 
   std::vector<VkVertexInputAttributeDescription> const m_DefaultObjectVertexInputAttributeDescription = {
-      {0, 0, VK_FORMAT_R32G32B32_SINT, 0},
+      {0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0},
+      {1, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(NpDefaultObjectVertex, Color)},
   };
   std::vector<VkVertexInputAttributeDescription> const m_DebugLineVertexInputAttributeDescription = {
       {0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0},
@@ -136,7 +136,5 @@ private:
   uint32_t *m_DebugLineVertexOffset = nullptr;
   uint32_t *m_DebugLineIndexOffset = nullptr;
 };
-
-extern NpRenderer g_Renderer;
 
 #endif
