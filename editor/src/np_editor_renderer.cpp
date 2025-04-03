@@ -66,8 +66,7 @@ void NpRenderer::Create(uint32_t FramesInFlight) {
   CreateDefaultObjectIndexBuffer();
   CreateDebugLineVertexBuffer();
   CreateDebugLineIndexBuffer();
-
-  m_ImGui.Create();
+  CreateImGui();
 
   UpdateDefaultObjectDescriptorSet();
   UpdateDebugLineDescriptorSet();
@@ -173,8 +172,6 @@ void NpRenderer::Destroy() {
   delete[] m_DebugLineVertexOffset;
   delete[] m_DebugLineIndexOffset;
 
-  m_ImGui.Destroy();
-
   DestroyDebugLineIndexBuffer();
   DestroyDebugLineVertexBuffer();
   DestroyDefaultObjectIndexBuffer();
@@ -183,6 +180,7 @@ void NpRenderer::Destroy() {
   DestroyScreenBuffer();
   DestroyTimeBuffer();
 
+  DestroyImGui();
   DestroyPipeline();
   DestroyPipelineLayout();
   DestroyDescriptorSet();
@@ -291,11 +289,17 @@ void NpRenderer::CreateDescriptorPool() {
 
   VkDescriptorPoolCreateInfo DefaultObjectDescriptorPoolCreateInfo = {};
   DefaultObjectDescriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+  DefaultObjectDescriptorPoolCreateInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+  DefaultObjectDescriptorPoolCreateInfo.maxSets = 0;
+
+  for (auto const &DescriptorPoolSize : DefaultObjectDescriptorPoolSizes) {
+    DefaultObjectDescriptorPoolCreateInfo.maxSets += DescriptorPoolSize.descriptorCount;
+  }
+
   DefaultObjectDescriptorPoolCreateInfo.pPoolSizes = DefaultObjectDescriptorPoolSizes.data();
   DefaultObjectDescriptorPoolCreateInfo.poolSizeCount = DefaultObjectDescriptorPoolSizes.size();
-  DefaultObjectDescriptorPoolCreateInfo.maxSets = m_FramesInFlight;
 
-  VK_CHECK(vkCreateDescriptorPool(g_Context.GetDevice(), &DefaultObjectDescriptorPoolCreateInfo, 0, &m_DefaultObjectDescriptorPool));
+  VK_CHECK(vkCreateDescriptorPool(g_Context.GetDevice(), &DefaultObjectDescriptorPoolCreateInfo, nullptr, &m_DefaultObjectDescriptorPool));
 
   std::vector<VkDescriptorPoolSize> DebugLineDescriptorPoolSizes = {
       {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3},
@@ -303,11 +307,35 @@ void NpRenderer::CreateDescriptorPool() {
 
   VkDescriptorPoolCreateInfo DebugLineDescriptorPoolCreateInfo = {};
   DebugLineDescriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+  DebugLineDescriptorPoolCreateInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+  DebugLineDescriptorPoolCreateInfo.maxSets = 0;
+
+  for (auto const &DescriptorPoolSize : DebugLineDescriptorPoolSizes) {
+    DebugLineDescriptorPoolCreateInfo.maxSets += DescriptorPoolSize.descriptorCount;
+  }
+
   DebugLineDescriptorPoolCreateInfo.pPoolSizes = DebugLineDescriptorPoolSizes.data();
   DebugLineDescriptorPoolCreateInfo.poolSizeCount = DebugLineDescriptorPoolSizes.size();
-  DebugLineDescriptorPoolCreateInfo.maxSets = m_FramesInFlight;
 
-  VK_CHECK(vkCreateDescriptorPool(g_Context.GetDevice(), &DebugLineDescriptorPoolCreateInfo, 0, &m_DebugLineDescriptorPool));
+  VK_CHECK(vkCreateDescriptorPool(g_Context.GetDevice(), &DebugLineDescriptorPoolCreateInfo, nullptr, &m_DebugLineDescriptorPool));
+
+  VkDescriptorPoolCreateInfo ImGuiDescriptorPoolCreateInfo = {};
+  ImGuiDescriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+  ImGuiDescriptorPoolCreateInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+  ImGuiDescriptorPoolCreateInfo.maxSets = 0;
+
+  std::vector<VkDescriptorPoolSize> const ImGuiDescriptorPoolSizes = {
+      {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, IMGUI_IMPL_VULKAN_MINIMUM_IMAGE_SAMPLER_POOL_SIZE},
+  };
+
+  for (auto const &DescriptorPoolSize : ImGuiDescriptorPoolSizes) {
+    ImGuiDescriptorPoolCreateInfo.maxSets += DescriptorPoolSize.descriptorCount;
+  }
+
+  ImGuiDescriptorPoolCreateInfo.pPoolSizes = ImGuiDescriptorPoolSizes.data();
+  ImGuiDescriptorPoolCreateInfo.poolSizeCount = ImGuiDescriptorPoolSizes.size();
+
+  vkCreateDescriptorPool(g_Context.GetDevice(), &ImGuiDescriptorPoolCreateInfo, nullptr, &m_ImGuiDescriptorPool);
 }
 void NpRenderer::CreateDescriptorSetLayout() {
   std::vector<VkDescriptorSetLayoutBinding> DefaultObjectDescriptorSetLayoutBindings = {
@@ -385,6 +413,39 @@ void NpRenderer::CreatePipelineLayout() {
   DebugLinePipelineLayoutCreateInfo.pushConstantRangeCount = 0;
 
   VK_CHECK(vkCreatePipelineLayout(g_Context.GetDevice(), &DebugLinePipelineLayoutCreateInfo, nullptr, &m_DebugLinePipelineLayout));
+}
+void NpRenderer::CreateImGui() {
+  IMGUI_CHECKVERSION();
+
+  ImGui::CreateContext();
+
+  ImGuiIO &io = ImGui::GetIO();
+  io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+  io.ConfigWindowsMoveFromTitleBarOnly = 1;
+
+  ImGui::StyleColorsDark();
+
+  ImGui_ImplGlfw_InitForVulkan(g_Context.GetWindow(), true);
+
+  ImGui_ImplVulkan_InitInfo ImguiVulkanInitInfo = {};
+  ImguiVulkanInitInfo.Instance = g_Context.GetInstance();
+  ImguiVulkanInitInfo.PhysicalDevice = g_Context.GetPhysicalDevice();
+  ImguiVulkanInitInfo.Device = g_Context.GetDevice();
+  ImguiVulkanInitInfo.QueueFamily = g_Context.GetGraphicsQueueIndex();
+  ImguiVulkanInitInfo.Queue = g_Context.GetGraphicsQueue();
+  ImguiVulkanInitInfo.PipelineCache = nullptr;
+  ImguiVulkanInitInfo.DescriptorPool = m_ImGuiDescriptorPool;
+  ImguiVulkanInitInfo.RenderPass = g_Swapchain.GetRenderPass();
+  ImguiVulkanInitInfo.Subpass = 0;
+  ImguiVulkanInitInfo.MinImageCount = g_Swapchain.GetImageCount();
+  ImguiVulkanInitInfo.ImageCount = g_Swapchain.GetImageCount();
+  ImguiVulkanInitInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+  ImguiVulkanInitInfo.Allocator = nullptr;
+  ImguiVulkanInitInfo.CheckVkResultFn = nullptr;
+
+  ImGui_ImplVulkan_Init(&ImguiVulkanInitInfo);
 }
 
 void NpRenderer::CreateDefaultObjectPipeline() {
@@ -1009,7 +1070,22 @@ void NpRenderer::RecordGraphicsCommand() {
     m_DebugLineIndexOffset[m_FrameIndex] = 0;
   }
 
-  m_ImGui.Draw(m_GraphicsCommandBuffer[m_FrameIndex]);
+  {
+    ImGui_ImplVulkan_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+
+    ImGui::NewFrame();
+    ImGui::DockSpaceOverViewport(0, nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
+
+    ImGui::Begin("Hello World");
+    ImGui::End();
+
+    ImGui::Render();
+
+    ImDrawData *DrawData = ImGui::GetDrawData();
+
+    ImGui_ImplVulkan_RenderDrawData(DrawData, m_GraphicsCommandBuffer[m_FrameIndex]);
+  }
 
   vkCmdEndRenderPass(m_GraphicsCommandBuffer[m_FrameIndex]);
 }
@@ -1034,6 +1110,7 @@ void NpRenderer::DestroySyncObject() {
 void NpRenderer::DestroyDescriptorPool() {
   vkDestroyDescriptorPool(g_Context.GetDevice(), m_DefaultObjectDescriptorPool, nullptr);
   vkDestroyDescriptorPool(g_Context.GetDevice(), m_DebugLineDescriptorPool, nullptr);
+  vkDestroyDescriptorPool(g_Context.GetDevice(), m_ImGuiDescriptorPool, nullptr);
 }
 void NpRenderer::DestroyDescriptorSetLayout() {
   vkDestroyDescriptorSetLayout(g_Context.GetDevice(), m_DefaultObjectDescriptorSetLayout, nullptr);
@@ -1050,6 +1127,13 @@ void NpRenderer::DestroyPipelineLayout() {
 void NpRenderer::DestroyPipeline() {
   vkDestroyPipeline(g_Context.GetDevice(), m_DefaultObjectPipeline, nullptr);
   vkDestroyPipeline(g_Context.GetDevice(), m_DebugLinePipeline, nullptr);
+}
+void NpRenderer::DestroyImGui() {
+  ImGui_ImplVulkan_DestroyFontsTexture();
+  ImGui_ImplVulkan_Shutdown();
+  ImGui_ImplGlfw_Shutdown();
+
+  ImGui::DestroyContext();
 }
 
 void NpRenderer::DestroyTimeBuffer() {

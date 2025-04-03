@@ -2,7 +2,6 @@
 #  define NP_EDITOR_RENDERER_HPP
 
 #  include <np_editor_camera_component.hpp>
-#  include <np_editor_imgui.hpp>
 #  include <np_editor_transform_component.hpp>
 
 struct NpTimeInfo {
@@ -58,6 +57,7 @@ private:
   void CreateDescriptorSetLayout();
   void CreateDescriptorSet();
   void CreatePipelineLayout();
+  void CreateImGui();
 
   void CreateDefaultObjectPipeline();
   void CreateDebugLinePipeline();
@@ -84,6 +84,7 @@ private:
   void DestroyDescriptorSet();
   void DestroyPipelineLayout();
   void DestroyPipeline();
+  void DestroyImGui();
 
   void DestroyTimeBuffer();
   void DestroyScreenBuffer();
@@ -123,6 +124,7 @@ private:
 
   VkDescriptorPool m_DefaultObjectDescriptorPool = nullptr;
   VkDescriptorPool m_DebugLineDescriptorPool = nullptr;
+  VkDescriptorPool m_ImGuiDescriptorPool = nullptr;
 
   VkDescriptorSetLayout m_DefaultObjectDescriptorSetLayout = nullptr;
   VkDescriptorSetLayout m_DebugLineDescriptorSetLayout = nullptr;
@@ -162,8 +164,6 @@ private:
 
   uint32_t *m_DebugLineVertexOffset = nullptr;
   uint32_t *m_DebugLineIndexOffset = nullptr;
-
-  NpImGui m_ImGui = {};
 };
 
 extern NpRenderer g_Renderer;
