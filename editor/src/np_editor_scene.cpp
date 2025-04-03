@@ -5,12 +5,8 @@
 
 NpScene::NpScene() {
   CreatePlayer();
-
-  m_Renderer.Create(0);
-  m_Renderer.EnableDebug();
 }
 NpScene::~NpScene() {
-  m_Renderer.Destroy();
 }
 
 void NpScene::CreatePlayer() {
@@ -28,10 +24,8 @@ void NpScene::Update() {
   NpTransformComponent const &PlayerTransform = GetPlayerTransform();
   NpCameraComponent const &PlayerCamera = GetPlayerCamera();
 
-  m_Renderer.DrawDebugLine({0.0F, 0.0F, 0.0F}, {100.0F, 0.0F, 0.0F}, {1.0F, 0.0F, 0.0F, 1.0F});
-  m_Renderer.DrawDebugLine({0.0F, 0.0F, 0.0F}, {0.0F, 100.0F, 0.0F}, {0.0F, 1.0F, 0.0F, 1.0F});
-  m_Renderer.DrawDebugLine({0.0F, 0.0F, 0.0F}, {0.0F, 0.0F, 100.0F}, {0.0F, 0.0F, 1.0F, 1.0F});
-  m_Renderer.Draw(PlayerTransform, PlayerCamera);
+  g_Renderer.DrawDebugLine({0.0F, 0.0F, 0.0F}, {100.0F, 0.0F, 0.0F}, {1.0F, 0.0F, 0.0F, 1.0F});
+  g_Renderer.DrawDebugLine({0.0F, 0.0F, 0.0F}, {0.0F, 100.0F, 0.0F}, {0.0F, 1.0F, 0.0F, 1.0F});
+  g_Renderer.DrawDebugLine({0.0F, 0.0F, 0.0F}, {0.0F, 0.0F, 100.0F}, {0.0F, 0.0F, 1.0F, 1.0F});
+  g_Renderer.Draw(PlayerTransform, PlayerCamera);
 }
-void NpScene::CreateRenderer() { m_Renderer.Create(1); }
-void NpScene::DestroyRenderer() { m_Renderer.Destroy(); }

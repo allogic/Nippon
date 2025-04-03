@@ -1,5 +1,3 @@
-#cmake_policy (SET CMP0077 NEW)
-
 option (GLM_TEST_ENABLE OFF)
 option (GLM_TEST_ENABLE_CXX_20 OFF)
 option (GLM_TEST_ENABLE_SIMD OFF)
@@ -15,5 +13,3 @@ FetchContent_Declare (
 )
 
 set (GLM_INCLUDE_DIR "${CMAKE_BINARY_DIR}/_deps/glm-src")
-
-FetchContent_MakeAvailable (glm)

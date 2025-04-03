@@ -14,9 +14,7 @@ static void GlfwWindowFocus(GLFWwindow *Window, int Focused);
 static void GlfwWindowIconify(GLFWwindow *Window, int Iconified);
 static void GlfwWindowMaximize(GLFWwindow *Window, int Maximized);
 static void GlfwWindowContentScale(GLFWwindow *Window, float X, float Y);
-
 static void GlfwFrameBufferSize(GLFWwindow *Window, int Width, int Height);
-
 static void GlfwKey(GLFWwindow *window, int Key, int ScanCode, int Action, int Mods);
 static void GlfwChar(GLFWwindow *Window, unsigned int CodePoint);
 static void GlfwCharMods(GLFWwindow *window, unsigned int codepoint, int mods);
@@ -24,9 +22,7 @@ static void GlfwMouseButton(GLFWwindow *Window, int Button, int Action, int Mods
 static void GlfwCursorPosition(GLFWwindow *Window, double X, double Y);
 static void GlfwCursorEnter(GLFWwindow *Window, int Entered);
 static void GlfwScroll(GLFWwindow *Window, double X, double Y);
-
 static void GlfwJoystick(int Jid, int Event);
-
 static void GlfwMonitor(GLFWmonitor *Monitor, int Event);
 
 #if BUILD_DEBUG
@@ -52,9 +48,7 @@ bool NpContext::Create(int32_t Width, int32_t Height) {
       glfwSetWindowIconifyCallback(m_Window, GlfwWindowIconify);
       glfwSetWindowMaximizeCallback(m_Window, GlfwWindowMaximize);
       glfwSetWindowContentScaleCallback(m_Window, GlfwWindowContentScale);
-
       glfwSetFramebufferSizeCallback(m_Window, GlfwFrameBufferSize);
-
       glfwSetKeyCallback(m_Window, GlfwKey);
       glfwSetCharCallback(m_Window, GlfwChar);
       glfwSetCharModsCallback(m_Window, GlfwCharMods);
@@ -62,9 +56,7 @@ bool NpContext::Create(int32_t Width, int32_t Height) {
       glfwSetCursorPosCallback(m_Window, GlfwCursorPosition);
       glfwSetCursorEnterCallback(m_Window, GlfwCursorEnter);
       glfwSetScrollCallback(m_Window, GlfwScroll);
-
       glfwSetJoystickCallback(GlfwJoystick);
-
       glfwSetMonitorCallback(GlfwMonitor);
 
       CreateInstance();
@@ -84,6 +76,7 @@ bool NpContext::Create(int32_t Width, int32_t Height) {
       CreateCommandPool();
 
       g_Swapchain.Create(0);
+      g_Renderer.Create(0);
 
       return true;
     } else {
@@ -102,28 +95,20 @@ void NpContext::Run() {
     if (m_SwapchainIsDirty) {
       m_SwapchainIsDirty = false;
 
-      for (auto &Scene : m_Scenes) {
-        Scene->DestroyRenderer();
-      }
-
+      g_Renderer.Destroy();
       g_Swapchain.Destroy();
 
       ResizeSurface();
 
       g_Swapchain.Create(0);
-
-      for (auto &Scene : m_Scenes) {
-        Scene->CreateRenderer();
-      }
+      g_Renderer.Create(0);
     }
 
     if (m_RendererIsDirty) {
       m_RendererIsDirty = false;
 
-      for (auto &Scene : m_Scenes) {
-        Scene->DestroyRenderer();
-        Scene->CreateRenderer();
-      }
+      g_Renderer.Destroy();
+      g_Renderer.Create(0);
     }
 
     for (auto &Scene : m_Scenes) {
@@ -136,6 +121,7 @@ void NpContext::Destroy() {
     delete Scene;
   }
 
+  g_Renderer.Destroy();
   g_Swapchain.Destroy();
 
   DestroyCommandPool();
@@ -455,11 +441,9 @@ static void GlfwWindowFocus(GLFWwindow *Window, int Focused) {}
 static void GlfwWindowIconify(GLFWwindow *Window, int Iconified) {}
 static void GlfwWindowMaximize(GLFWwindow *Window, int Maximized) {}
 static void GlfwWindowContentScale(GLFWwindow *Window, float X, float Y) {}
-
 static void GlfwFrameBufferSize(GLFWwindow *Window, int Width, int Height) {
   g_Context.SetSwapchainDirty();
 }
-
 static void GlfwKey(GLFWwindow *Window, int Key, int ScanCode, int Action, int Mods) {}
 static void GlfwChar(GLFWwindow *Window, unsigned int CodePoint) {}
 static void GlfwCharMods(GLFWwindow *window, unsigned int codepoint, int mods) {}
@@ -467,9 +451,7 @@ static void GlfwMouseButton(GLFWwindow *Window, int Button, int Action, int Mods
 static void GlfwCursorPosition(GLFWwindow *Window, double X, double Y) {}
 static void GlfwCursorEnter(GLFWwindow *Window, int Entered) {}
 static void GlfwScroll(GLFWwindow *Window, double X, double Y) {}
-
 static void GlfwJoystick(int Jid, int Event) {}
-
 static void GlfwMonitor(GLFWmonitor *Monitor, int Event) {}
 
 #if BUILD_DEBUG

@@ -40,6 +40,8 @@ __attribute__((section(NP_RENDERER_DEBUG_LINE_FRAGMENT_SHADER_SECTION_NAME))) st
 #define NP_RENDERER_DEBUG_LINE_VERTEX_COUNT (1048576ULL)
 #define NP_RENDERER_DEBUG_LINE_INDEX_COUNT (1048576ULL)
 
+NpRenderer g_Renderer = {};
+
 NpRenderer::NpRenderer() {}
 NpRenderer::~NpRenderer() {}
 
@@ -65,7 +67,7 @@ void NpRenderer::Create(uint32_t FramesInFlight) {
   CreateDebugLineVertexBuffer();
   CreateDebugLineIndexBuffer();
 
-  // IMGUI_CREATE();
+  m_ImGui.Create();
 
   UpdateDefaultObjectDescriptorSet();
   UpdateDebugLineDescriptorSet();
@@ -171,7 +173,7 @@ void NpRenderer::Destroy() {
   delete[] m_DebugLineVertexOffset;
   delete[] m_DebugLineIndexOffset;
 
-  // IMGUI_DESTROY();
+  m_ImGui.Destroy();
 
   DestroyDebugLineIndexBuffer();
   DestroyDebugLineVertexBuffer();
@@ -191,68 +193,64 @@ void NpRenderer::Destroy() {
 }
 
 void NpRenderer::DrawDebugLine(glm::fvec3 const &From, glm::fvec3 const &To, glm::fvec4 const &Color) {
-  if (m_EnableDebug) {
-    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 0].Position = From;
-    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 1].Position = To;
+  m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 0].Position = From;
+  m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 1].Position = To;
 
-    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 0].Color = Color;
-    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 1].Color = Color;
+  m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 0].Color = Color;
+  m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 1].Color = Color;
 
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 0] = m_DebugLineVertexOffset[m_FrameIndex] + 0;
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 1] = m_DebugLineVertexOffset[m_FrameIndex] + 1;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 0] = m_DebugLineVertexOffset[m_FrameIndex] + 0;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 1] = m_DebugLineVertexOffset[m_FrameIndex] + 1;
 
-    m_DebugLineVertexOffset[m_FrameIndex] += 2;
-    m_DebugLineIndexOffset[m_FrameIndex] += 2;
-  }
+  m_DebugLineVertexOffset[m_FrameIndex] += 2;
+  m_DebugLineIndexOffset[m_FrameIndex] += 2;
 }
 void NpRenderer::DrawDebugBox(glm::fvec3 const &Position, glm::fvec3 const &Size, glm::fvec4 const &Color) {
-  if (m_EnableDebug) {
-    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 0].Position = {Position.x, Position.y, Position.z};
-    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 1].Position = {Position.x, Position.y + Size.y, Position.z};
-    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 2].Position = {Position.x + Size.x, Position.y, Position.z};
-    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 3].Position = {Position.x + Size.x, Position.y + Size.y, Position.z};
-    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 4].Position = {Position.x, Position.y, Position.z + Size.z};
-    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 5].Position = {Position.x, Position.y + Size.y, Position.z + Size.z};
-    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 6].Position = {Position.x + Size.x, Position.y, Position.z + Size.z};
-    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 7].Position = {Position.x + Size.x, Position.y + Size.y, Position.z + Size.z};
+  m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 0].Position = {Position.x, Position.y, Position.z};
+  m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 1].Position = {Position.x, Position.y + Size.y, Position.z};
+  m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 2].Position = {Position.x + Size.x, Position.y, Position.z};
+  m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 3].Position = {Position.x + Size.x, Position.y + Size.y, Position.z};
+  m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 4].Position = {Position.x, Position.y, Position.z + Size.z};
+  m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 5].Position = {Position.x, Position.y + Size.y, Position.z + Size.z};
+  m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 6].Position = {Position.x + Size.x, Position.y, Position.z + Size.z};
+  m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 7].Position = {Position.x + Size.x, Position.y + Size.y, Position.z + Size.z};
 
-    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 0].Color = Color;
-    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 1].Color = Color;
-    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 2].Color = Color;
-    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 3].Color = Color;
-    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 4].Color = Color;
-    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 5].Color = Color;
-    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 6].Color = Color;
-    m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 7].Color = Color;
+  m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 0].Color = Color;
+  m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 1].Color = Color;
+  m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 2].Color = Color;
+  m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 3].Color = Color;
+  m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 4].Color = Color;
+  m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 5].Color = Color;
+  m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 6].Color = Color;
+  m_DebugLineVertex[m_FrameIndex][m_DebugLineVertexOffset[m_FrameIndex] + 7].Color = Color;
 
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 0] = m_DebugLineVertexOffset[m_FrameIndex] + 0;
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 1] = m_DebugLineVertexOffset[m_FrameIndex] + 1;
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 2] = m_DebugLineVertexOffset[m_FrameIndex] + 1;
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 3] = m_DebugLineVertexOffset[m_FrameIndex] + 3;
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 4] = m_DebugLineVertexOffset[m_FrameIndex] + 3;
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 5] = m_DebugLineVertexOffset[m_FrameIndex] + 2;
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 6] = m_DebugLineVertexOffset[m_FrameIndex] + 2;
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 7] = m_DebugLineVertexOffset[m_FrameIndex] + 0;
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 8] = m_DebugLineVertexOffset[m_FrameIndex] + 4;
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 9] = m_DebugLineVertexOffset[m_FrameIndex] + 5;
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 10] = m_DebugLineVertexOffset[m_FrameIndex] + 5;
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 11] = m_DebugLineVertexOffset[m_FrameIndex] + 7;
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 12] = m_DebugLineVertexOffset[m_FrameIndex] + 7;
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 13] = m_DebugLineVertexOffset[m_FrameIndex] + 6;
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 14] = m_DebugLineVertexOffset[m_FrameIndex] + 6;
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 15] = m_DebugLineVertexOffset[m_FrameIndex] + 4;
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 16] = m_DebugLineVertexOffset[m_FrameIndex] + 0;
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 17] = m_DebugLineVertexOffset[m_FrameIndex] + 4;
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 18] = m_DebugLineVertexOffset[m_FrameIndex] + 1;
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 19] = m_DebugLineVertexOffset[m_FrameIndex] + 5;
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 20] = m_DebugLineVertexOffset[m_FrameIndex] + 2;
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 21] = m_DebugLineVertexOffset[m_FrameIndex] + 6;
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 22] = m_DebugLineVertexOffset[m_FrameIndex] + 3;
-    m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 23] = m_DebugLineVertexOffset[m_FrameIndex] + 7;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 0] = m_DebugLineVertexOffset[m_FrameIndex] + 0;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 1] = m_DebugLineVertexOffset[m_FrameIndex] + 1;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 2] = m_DebugLineVertexOffset[m_FrameIndex] + 1;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 3] = m_DebugLineVertexOffset[m_FrameIndex] + 3;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 4] = m_DebugLineVertexOffset[m_FrameIndex] + 3;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 5] = m_DebugLineVertexOffset[m_FrameIndex] + 2;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 6] = m_DebugLineVertexOffset[m_FrameIndex] + 2;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 7] = m_DebugLineVertexOffset[m_FrameIndex] + 0;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 8] = m_DebugLineVertexOffset[m_FrameIndex] + 4;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 9] = m_DebugLineVertexOffset[m_FrameIndex] + 5;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 10] = m_DebugLineVertexOffset[m_FrameIndex] + 5;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 11] = m_DebugLineVertexOffset[m_FrameIndex] + 7;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 12] = m_DebugLineVertexOffset[m_FrameIndex] + 7;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 13] = m_DebugLineVertexOffset[m_FrameIndex] + 6;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 14] = m_DebugLineVertexOffset[m_FrameIndex] + 6;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 15] = m_DebugLineVertexOffset[m_FrameIndex] + 4;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 16] = m_DebugLineVertexOffset[m_FrameIndex] + 0;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 17] = m_DebugLineVertexOffset[m_FrameIndex] + 4;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 18] = m_DebugLineVertexOffset[m_FrameIndex] + 1;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 19] = m_DebugLineVertexOffset[m_FrameIndex] + 5;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 20] = m_DebugLineVertexOffset[m_FrameIndex] + 2;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 21] = m_DebugLineVertexOffset[m_FrameIndex] + 6;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 22] = m_DebugLineVertexOffset[m_FrameIndex] + 3;
+  m_DebugLineIndex[m_FrameIndex][m_DebugLineIndexOffset[m_FrameIndex] + 23] = m_DebugLineVertexOffset[m_FrameIndex] + 7;
 
-    m_DebugLineVertexOffset[m_FrameIndex] += 8;
-    m_DebugLineIndexOffset[m_FrameIndex] += 24;
-  }
+  m_DebugLineVertexOffset[m_FrameIndex] += 8;
+  m_DebugLineIndexOffset[m_FrameIndex] += 24;
 }
 
 void NpRenderer::CreateCommandBuffer() {
@@ -998,22 +996,20 @@ void NpRenderer::RecordGraphicsCommand() {
   */
 
   {
-    if (m_EnableDebug) {
-      std::vector<VkBuffer> VertexBuffer = {m_DebugLineVertexBuffer[m_FrameIndex]};
-      std::vector<uint64_t> VertexOffset = {0};
+    std::vector<VkBuffer> VertexBuffer = {m_DebugLineVertexBuffer[m_FrameIndex]};
+    std::vector<uint64_t> VertexOffset = {0};
 
-      vkCmdBindPipeline(m_GraphicsCommandBuffer[m_FrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_DebugLinePipeline);
-      vkCmdBindVertexBuffers(m_GraphicsCommandBuffer[m_FrameIndex], 0, VertexBuffer.size(), VertexBuffer.data(), VertexOffset.data());
-      vkCmdBindIndexBuffer(m_GraphicsCommandBuffer[m_FrameIndex], m_DebugLineIndexBuffer[m_FrameIndex], 0, VK_INDEX_TYPE_UINT32);
-      vkCmdBindDescriptorSets(m_GraphicsCommandBuffer[m_FrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_DebugLinePipelineLayout, 0, 1, &m_DebugLineDescriptorSet[m_FrameIndex], 0, nullptr);
-      vkCmdDrawIndexed(m_GraphicsCommandBuffer[m_FrameIndex], m_DebugLineIndexOffset[m_FrameIndex], 1, 0, 0, 0);
+    vkCmdBindPipeline(m_GraphicsCommandBuffer[m_FrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_DebugLinePipeline);
+    vkCmdBindVertexBuffers(m_GraphicsCommandBuffer[m_FrameIndex], 0, VertexBuffer.size(), VertexBuffer.data(), VertexOffset.data());
+    vkCmdBindIndexBuffer(m_GraphicsCommandBuffer[m_FrameIndex], m_DebugLineIndexBuffer[m_FrameIndex], 0, VK_INDEX_TYPE_UINT32);
+    vkCmdBindDescriptorSets(m_GraphicsCommandBuffer[m_FrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_DebugLinePipelineLayout, 0, 1, &m_DebugLineDescriptorSet[m_FrameIndex], 0, nullptr);
+    vkCmdDrawIndexed(m_GraphicsCommandBuffer[m_FrameIndex], m_DebugLineIndexOffset[m_FrameIndex], 1, 0, 0, 0);
 
-      m_DebugLineVertexOffset[m_FrameIndex] = 0;
-      m_DebugLineIndexOffset[m_FrameIndex] = 0;
-    }
+    m_DebugLineVertexOffset[m_FrameIndex] = 0;
+    m_DebugLineIndexOffset[m_FrameIndex] = 0;
   }
 
-  // IMGUI_DRAW(m_GraphicsCommandBuffer[m_FrameIndex]); // TODO
+  m_ImGui.Draw(m_GraphicsCommandBuffer[m_FrameIndex]);
 
   vkCmdEndRenderPass(m_GraphicsCommandBuffer[m_FrameIndex]);
 }

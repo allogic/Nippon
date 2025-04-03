@@ -1,18 +1,47 @@
 #if !defined(NP_EDITOR_RENDERER_HPP)
 #  define NP_EDITOR_RENDERER_HPP
 
-#  include <np_editor_buffer.hpp>
 #  include <np_editor_camera_component.hpp>
+#  include <np_editor_imgui.hpp>
 #  include <np_editor_transform_component.hpp>
+
+struct NpTimeInfo {
+  float Time;
+  float DeltaTime;
+};
+
+struct NpScreenInfo {
+  float Width;
+  float Height;
+};
+
+struct NpCameraInfo {
+  glm::fvec3 WorldPosition;
+  float Reserved;
+  glm::fmat4 View;
+  glm::fmat4 Projection;
+  glm::fmat4 ViewProjection;
+  glm::fmat4 ViewProjectionInv;
+};
+
+struct NpDefaultObjectVertex {
+  glm::fvec3 Position;
+  glm::fvec4 Color;
+};
+
+typedef uint32_t NpDefaultObjectIndex;
+
+struct NpDebugLineVertex {
+  glm::fvec3 Position;
+  glm::fvec4 Color;
+};
+
+typedef uint32_t NpDebugLineIndex;
 
 class NpRenderer {
 public:
   NpRenderer();
   virtual ~NpRenderer();
-
-public:
-  inline void EnableDebug() { m_EnableDebug = true; }
-  inline void DisableDebug() { m_EnableDebug = false; }
 
 public:
   void Create(uint32_t FramesInFlight);
@@ -65,8 +94,6 @@ private:
   void DestroyDebugLineIndexBuffer();
 
 private:
-  bool m_EnableDebug = false;
-
   std::vector<VkVertexInputBindingDescription> const m_DefaultObjectVertexInputBindingDescription = {
       {0, sizeof(NpDefaultObjectVertex), VK_VERTEX_INPUT_RATE_VERTEX},
   };
@@ -135,6 +162,10 @@ private:
 
   uint32_t *m_DebugLineVertexOffset = nullptr;
   uint32_t *m_DebugLineIndexOffset = nullptr;
+
+  NpImGui m_ImGui = {};
 };
+
+extern NpRenderer g_Renderer;
 
 #endif

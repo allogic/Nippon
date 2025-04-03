@@ -8,6 +8,7 @@ public:
   NpContext();
   virtual ~NpContext();
 
+  inline auto const &GetWindow() const { return m_Window; }
   inline auto const &GetTime() const { return m_Time; }
   inline auto const &GetDeltaTime() const { return m_DeltaTime; }
   inline auto const &GetInstance() const { return m_Instance; }
@@ -17,6 +18,10 @@ public:
   inline auto const &GetPreferedPresentMode() const { return m_PreferedPresentMode; }
   inline auto const &GetSurfaceWidth() const { return m_SurfaceWidth; }
   inline auto const &GetSurfaceHeight() const { return m_SurfaceHeight; }
+  inline auto const &GetPhysicalDevice() const { return m_PhysicalDevice; }
+  inline auto const &GetPhysicalDeviceProperties() const { return m_PhysicalDeviceProperties; }
+  inline auto const &GetPhysicalDeviceFeatures() const { return m_PhysicalDeviceFeatures; }
+  inline auto const &GetPhysicalDeviceMemoryProperties() const { return m_PhysicalDeviceMemoryProperties; }
   inline auto const &GetDevice() const { return m_Device; }
   inline auto const &GetGraphicsQueueIndex() const { return m_GraphicsQueueIndex; }
   inline auto const &GetPresentQueueIndex() const { return m_PresentQueueIndex; }
