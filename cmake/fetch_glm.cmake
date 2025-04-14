@@ -13,3 +13,5 @@ FetchContent_Declare (
 )
 
 set (GLM_INCLUDE_DIR "${CMAKE_BINARY_DIR}/_deps/glm-src")
+
+FetchContent_MakeAvailable (glm)

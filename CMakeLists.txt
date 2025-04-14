@@ -4,7 +4,10 @@ include (FetchContent)
 
 project (Nippon LANGUAGES C CXX)
 
+include ("C:/Users/mialb/Downloads/vcpkg/scripts/buildsystems/vcpkg.cmake")
+
 find_package (Vulkan REQUIRED)
+find_package (SQLite3 REQUIRED)
 
 set (CMAKE_C_STANDARD 11)
 set (CMAKE_C_STANDARD_REQUIRED ON)
@@ -36,6 +39,8 @@ include ("${CMAKE_SOURCE_DIR}/cmake/fetch_glfw.cmake")
 include ("${CMAKE_SOURCE_DIR}/cmake/fetch_glm.cmake")
 include ("${CMAKE_SOURCE_DIR}/cmake/fetch_imgui.cmake")
 include ("${CMAKE_SOURCE_DIR}/cmake/fetch_entt.cmake")
+include ("${CMAKE_SOURCE_DIR}/cmake/fetch_sqlitecpp.cmake")
+include ("${CMAKE_SOURCE_DIR}/cmake/fetch_directxtex.cmake")
 
 add_subdirectory (core)
 add_subdirectory (patch)

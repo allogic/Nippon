@@ -1,0 +1,28 @@
+option (BUILD_TOOLS OFF)
+option (BUILD_SHARED_LIBS OFF)
+option (BUILD_SAMPLE OFF)
+option (BUILD_DX11 OFF)
+option (BUILD_DX12 OFF)
+option (BC_USE_OPENMP OFF)
+option (BUILD_XBOX_EXTS_XBOXONE OFF)
+option (BUILD_XBOX_EXTS_SCARLETT OFF)
+option (ENABLE_SPECTRE_MITIGATION OFF)
+option (DISABLE_MSVC_ITERATOR_DEBUGGING OFF)
+option (ENABLE_CODE_ANALYSIS OFF)
+option (ENABLE_CODE_COVERAGE OFF)
+option (USE_PREBUILT_SHADERS OFF)
+option (NO_WCHAR_T OFF)
+option (BUILD_FUZZING OFF)
+option (ENABLE_OPENEXR_SUPPORT OFF)
+option (ENABLE_LIBJPEG_SUPPORT OFF)
+option (ENABLE_LIBPNG_SUPPORT OFF)
+
+FetchContent_Declare (
+  DirectXTex
+  GIT_REPOSITORY "https://github.com/microsoft/DirectXTex.git"
+  GIT_TAG        "mar2025"
+)
+
+set (DIRECTXTEX_INCLUDE_DIR "${CMAKE_BINARY_DIR}/_deps/directxtex-src/include")
+
+FetchContent_MakeAvailable (DirectXTex)
